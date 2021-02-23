@@ -22,7 +22,13 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     freq_dev_offset (float): Frequency deviation threshold at 0Hz.
       Defaults to 20
     freq_dev_slope (float): Slope of frequency deviation threshold.
-      Defaults to 0.01"""
+      Defaults to 0.01
+    save_intermediate (bool): If True, save intermediate data structures in
+      the attribute :py:data:`intermediate_`. Defaults to False
+
+  Attributes:
+    w_ (array): Effective analysis window
+    intermediate_ (dict): Dictionary of intermediate data structures"""
   def __init__(
     self,
     fs: int = 44100,
@@ -34,6 +40,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     min_sine_dur: float = 0.01,
     freq_dev_offset: float = 20,
     freq_dev_slope: float = 0.01,
+    save_intermediate: bool = False,
   ):
     self.fs = fs
     self.w = w
@@ -44,6 +51,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.min_sine_dur = min_sine_dur
     self.freq_dev_offset = freq_dev_offset
     self.freq_dev_slope = freq_dev_slope
+    self.save_intermediate = save_intermediate
 
   def fit(
     self,
@@ -60,8 +68,11 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     """
     self.set_params(**kwargs)
     self.w_ = self.normalized_window
-    for frame in self.dft_frames(x):
-      pass
+    if self.save_intermediate:
+      self.intermediate_ = {"stft": []}
+    for mx, px in self.dft_frames(x):
+      if self.save_intermediate:
+        self.intermediate_["stft"].append((mx, px))
 
   @property
   def default_window(self) -> np.ndarray:
