@@ -1,0 +1,15 @@
+# Python
+venv
+__pycache__
+
+# Sphinx
+docs
+
+# IDE
+.idea
+
+# Configuration files
+*.conf
+
+# Outputs
+*.csv
