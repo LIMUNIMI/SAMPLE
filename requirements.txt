@@ -4,6 +4,9 @@ numpy
 scipy
 scikit-learn
 
+# For tests
+cython
+
 # Lint
 pylint
 

@@ -16,3 +16,6 @@ docs
 
 # Outputs
 *.csv
+
+# Test files
+sms
