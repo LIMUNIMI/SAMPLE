@@ -5,6 +5,11 @@ scipy
 scikit-learn
 more-itertools
 
+# For notebooks
+jupyter
+matplotlib
+librosa
+
 # For tests
 cython
 

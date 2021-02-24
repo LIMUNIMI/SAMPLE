@@ -34,21 +34,9 @@ class TestSMS(utils.RMSEAssertMixin, unittest.TestCase):
       os.system("rm -rf sms")
 
   def setUp(self) -> None:
-    """Create a modal-ish sound with three partials for 2 seconds at 44100 Hz.
-    Also, initialize sinusoidal model"""
+    """Initialize test audio and sinusoidal model"""
     self.fs = 44100
-    t_tot = 2
-    t = np.linspace(0, t_tot, int(t_tot * self.fs), endpoint=False)
-    f = np.array([440, 650, 690])
-    a = np.array([1, .5, .45])
-    d = np.array([3, 7, 5])
-
-    x = np.squeeze(np.reshape(a, (1, -1)) @ (
-      np.exp(-np.reshape(d, (-1, 1)) * np.reshape(t, (1, -1))) *
-      np.sin(np.reshape(f, (-1, 1)) * 2 * np.pi * np.reshape(t, (1, -1)))
-    ))
-    self.x = x / np.max(np.abs(x))
-
+    self.x = utils.test_audio(fs=self.fs)
     self.sm = sample_sm.SinusoidalModel()
     self.sm.w_ = self.sm.normalized_window
 

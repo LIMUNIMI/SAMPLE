@@ -65,6 +65,9 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       x (array): audio input
       y (ignored): exists for compatibility
       kwargs: Any parameter, overrides initialization
+
+    Returns:
+      SinusoidalModel: self
     """
     self.set_params(**kwargs)
     self.w_ = self.normalized_window
@@ -77,6 +80,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
         "peaks",
         dsp.peak_detect_interp(mx, px, self.t)
       )
+    return self
 
   def intermediate(self, key: str, value):
     """Save intermediate results if :py:data:`save_intermediate` is True
