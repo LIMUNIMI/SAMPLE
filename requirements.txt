@@ -1,17 +1,19 @@
-# Essentials
+# Install
 wheel
+
+# Run
 numpy
 scipy
 scikit-learn
+
+# Test
+cython
 more-itertools
 
-# For notebooks
+# Notebooks
 jupyter
 matplotlib
 librosa
-
-# For tests
-cython
 
 # Lint
 pylint
