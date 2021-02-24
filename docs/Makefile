@@ -8,36 +8,25 @@ SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
 PROJECTDIR    = ..
-INDICES       = index.rst pylint.rst doctest.rst
+APIDOCEXCLUDE = "$(PROJECTDIR)/*.py"
+INDICES       = index.rst
 LINTTARGET    = "$(PROJECTDIR)/sample"
 PYLINTRC      = https://google.github.io/styleguide/pylintrc
-PYLINTREPORT  = "$(SOURCEDIR)/pylint_report.rst"
-DOCTESTREPORT = "$(SOURCEDIR)/doctest_report.rst"
 
-# Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile clean_all pylint all_rst
+.PHONY: help clean pylint rst Makefile
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile all_rst
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-doctest: Makefile rst
+%: Makefile rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean: clean_rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-all_rst: rst $(PYLINTREPORT) $(DOCTESTREPORT)
+	rm -f pylintrc
 
 rst:
-	sphinx-apidoc -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)"
-
-$(DOCTESTREPORT): doctest
-	mv build/doctest/output.txt $@
+	sphinx-apidoc -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)" "$(APIDOCEXCLUDE)"
 
 clean_rst:
 	mkdir -p .tmp
@@ -48,13 +37,13 @@ clean_rst:
 	mv .tmp/* $(SOURCEDIR);
 	rm -rf .tmp
 
-pylint: $(PYLINTREPORT)
-
-$(PYLINTREPORT): pylintrc build
-	pylint $(LINTTARGET) -r y --exit-zero --jobs 1 --persistent=n > $@
+pylint: pylintrc
+	pylint $(LINTTARGET) -r y --exit-zero --jobs 1 --persistent=n
 
 build:
 	mkdir $@
 
 pylintrc:
+ifeq (,$(wildcard $(PYLINTRC)))
 	wget $(PYLINTRC) -O $@
+endif
