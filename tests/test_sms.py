@@ -131,6 +131,19 @@ class TestSMS(utils.RMSEAssertMixin, unittest.TestCase):
     self.assertLessEqual(t, t_sms)
     print("\n  {} <= {}".format(t, t_sms))
 
+  def test_intermediate(self):
+    """Check that intermediate results are saved"""
+    self.sm.fit(self.x, save_intermediate=True)
+    self.assertTrue(hasattr(self.sm, "intermediate_"))
+
+    for k in (
+      "stft",
+      "peaks",
+    ):
+      with self.subTest(key=k):
+        self.assertTrue(k in self.sm.intermediate_, "Key not found")
+        self.assertGreater(len(self.sm.intermediate_[k]), 0, "List is empty")
+
 
 if __name__ == "__main__":
   unittest.main()
