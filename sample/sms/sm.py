@@ -68,11 +68,32 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     """
     self.set_params(**kwargs)
     self.w_ = self.normalized_window
+
+    for mx, px in map(
+      functools.partial(self.intermediate, "stft"),
+      self.dft_frames(x)
+    ):
+      _, _, _ = self.intermediate(
+        "peaks",
+        dsp.peak_detect_interp(mx, px, self.t)
+      )
+
+  def intermediate(self, key: str, value):
+    """Save intermediate results if :py:data:`save_intermediate` is True
+
+    Arguments:
+      key (str): Data name
+      value: Data
+
+    Returns:
+      object: The input value"""
     if self.save_intermediate:
-      self.intermediate_ = {"stft": []}
-    for mx, px in self.dft_frames(x):
-      if self.save_intermediate:
-        self.intermediate_["stft"].append((mx, px))
+      if not hasattr(self, "intermediate_"):
+        self.intermediate_ = {}
+      if key not in self.intermediate_:
+        self.intermediate_[key] = []
+      self.intermediate_[key].append(value)
+    return value
 
   @property
   def default_window(self) -> np.ndarray:

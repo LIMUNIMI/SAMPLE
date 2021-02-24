@@ -1,6 +1,8 @@
 """Utilities for test cases"""
 import numpy as np
 import functools
+import unittest
+import os
 
 
 def rmse(x: np.ndarray, y: np.ndarray) -> float:
@@ -41,3 +43,9 @@ class RMSEAssertMixin:
 
   assert_equal_rmse = functools.partialmethod(_assert_rmse, almost=False)
   assert_almost_equal_rmse = functools.partialmethod(_assert_rmse, almost=True)
+
+
+more_tests = unittest.skipUnless(
+  os.environ.get("SAMPLE_MORE_TESTS", False),
+  "enabled only if SAMPLE_MORE_TESTS is set"
+)
