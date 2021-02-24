@@ -3,6 +3,7 @@ import unittest
 from tests import utils
 from sample.sms import sm as sample_sm
 from sample.sms import dsp as sample_dsp
+import itertools
 import numpy as np
 import sys
 import os
@@ -70,6 +71,19 @@ class TestSMS(utils.RMSEAssertMixin, unittest.TestCase):
         self.assert_almost_equal_rmse(mx, mx_sms)
       with self.subTest(frame=i, spectrum="phase"):
         self.assert_almost_equal_rmse(px, px_sms)
+
+  def test_peak_detection(self):
+    """Check that peak detection is consistent"""
+    from sms.models import utilFunctions  # pylint: disable=C0415
+
+    sm = sample_sm.SinusoidalModel()
+    sm.w_ = sm.normalized_window
+    for i, (mx, _) in enumerate(sm.dft_frames(self.x)):
+      ploc = sample_dsp.peak_detect(mx, sm.t)
+      ploc_sms = utilFunctions.peakDetection(mx, sm.t)
+      for j, (p, p_s) in enumerate(itertools.zip_longest(ploc, ploc_sms)):
+        with self.subTest(frame=i, peak_n=j):
+          self.assertEqual(p, p_s)
 
 
 if __name__ == "__main__":

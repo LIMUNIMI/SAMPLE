@@ -1,6 +1,8 @@
 """Signal processing functions for SMS"""
 import numpy as np
 from scipy import fft
+import functools
+from typing import Optional
 
 
 def dft(
@@ -34,3 +36,23 @@ def dft(
   x_fft[ax < tol] = complex(0)
   px = np.unwrap(np.angle(x_fft))
   return mx, px
+
+
+def peak_detect(x: np.ndarray, t: Optional[float] = None):
+  """Detect peaks (local maxima) in a signal
+
+  Arguments:
+    x (array): Input signal
+    t (float): Threshold (optional)
+
+  Returns:
+    array: The indices of the peaks in x"""
+  conditions = [
+    np.greater(x[1:-1], x[2:]),   # greater than next sample
+    np.greater(x[1:-1], x[:-2]),  # greater than previous sample
+  ]
+  if t is not None:
+    conditions.append(np.greater(x[1:-1], t))  # above threshold
+  return np.flatnonzero(
+    functools.reduce(np.logical_and, conditions)
+  ) + 1  # compensate for skipping first sample
