@@ -3,6 +3,7 @@ wheel
 numpy
 scipy
 scikit-learn
+more-itertools
 
 # For tests
 cython
