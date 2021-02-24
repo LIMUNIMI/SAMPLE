@@ -17,7 +17,7 @@ setuptools.setup(
   long_description=readme,
   long_description_content_type="text/markdown",
   url="https://github.com/ChromaticIsobar/SAMPLE",
-  packages=setuptools.find_packages(),
+  packages=setuptools.find_packages(include=["sample", "sample.*"]),
   include_package_data=True,
   setup_requires=[
     "wheel",

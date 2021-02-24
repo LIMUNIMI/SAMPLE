@@ -7,10 +7,8 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
-PROJECTDIR    = ..
-APIDOCEXCLUDE = "$(PROJECTDIR)/*.py $(PROJECTDIR)/test  $(PROJECTDIR)/sms"
+PROJECTDIR    = ../sample
 INDICES       = index.rst
-LINTTARGET    = "$(PROJECTDIR)/sample"
 PYLINTRC      = https://google.github.io/styleguide/pylintrc
 
 help:
@@ -26,7 +24,7 @@ clean: clean_rst
 	rm -f pylintrc
 
 rst:
-	sphinx-apidoc -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)" "$(APIDOCEXCLUDE)"
+	sphinx-apidoc -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)"
 
 clean_rst:
 	mkdir -p .tmp
@@ -38,7 +36,7 @@ clean_rst:
 	rm -rf .tmp
 
 pylint: pylintrc
-	pylint $(LINTTARGET) -r y --exit-zero --jobs 1 --persistent=n
+	pylint $(PROJECTDIR) -r y --exit-zero --jobs 1 --persistent=n
 
 build:
 	mkdir $@
