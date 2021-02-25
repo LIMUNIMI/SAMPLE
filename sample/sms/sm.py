@@ -3,7 +3,7 @@ from sample.sms import dsp
 import numpy as np
 from sklearn import base
 import functools
-from typing import Optional, Tuple, Generator, Iterable
+from typing import Optional, Tuple, Generator, Iterable, Callable, Any
 
 
 class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
@@ -71,15 +71,23 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     """
     self.set_params(**kwargs)
     self.w_ = self.normalized_window
+    self.sine_tracker_ = SineTracker(
+      max_n_sines=self.max_n_sines,
+      min_sine_dur=self.min_sine_dur,
+      freq_dev_offset=self.freq_dev_offset,
+      freq_dev_slope=self.freq_dev_slope,
+    )
 
     for mx, px in map(
       functools.partial(self.intermediate, "stft"),
       self.dft_frames(x)
     ):
-      _, _, _ = self.intermediate(
+      ploc, pmag, pph = self.intermediate(
         "peaks",
         dsp.peak_detect_interp(mx, px, self.t)
       )
+      pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
+      self.sine_tracker_(pfreq, pmag, pph)
     return self
 
   def intermediate(self, key: str, value):
@@ -153,3 +161,146 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       functools.partial(dsp.dft, w=self.w_, n=self.n),
       self.time_frames(x)
     )
+
+
+def _min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
+  """Minimum value and corresponding argument
+
+  Args:
+    it (iterable): Iterable of function arguments
+    key (callable): Function
+
+  Returns:
+    Argmin and min of :py:data:`key(i) for i in it`"""
+  i_ = None
+  x_ = None
+  for i in it:
+    x = key(i)
+    if x_ is None or x < x_:
+      i_ = i
+      x_ = x
+  return i_, x_
+
+
+class SineTracker:
+  """Model for keeping track of sinusiods across frames
+
+  Args:
+    max_n_sines (int): Maximum number of tracks per frame
+    min_sine_dur (float): Minimum duration of a track in seconds
+    freq_dev_offset (float): Frequency deviation threshold at 0Hz
+    freq_dev_slope (float): Slope of frequency deviation threshold"""
+  def __init__(
+    self,
+    max_n_sines: int,
+    min_sine_dur: float,
+    freq_dev_offset: float,
+    freq_dev_slope: float,
+  ):
+    self.max_n_sines = max_n_sines
+    self.min_sine_dur = min_sine_dur
+    self.freq_dev_offset = freq_dev_offset
+    self.freq_dev_slope = freq_dev_slope
+    self.tracks_ = []
+    self._active_tracks = []
+    self._frame = 0
+
+  def reset(self):
+    """Reset tracker state
+
+    Returns:
+      SineTracker: self"""
+    self.tracks_ = []
+    self._active_tracks = []
+    self._frame = 0
+    return self
+
+  @property
+  def n_active_tracks(self) -> int:
+    return len(self._active_tracks)
+
+  def df(self, f: float) -> float:
+    """Frequency deviation threshold at given frequency
+
+    Args:
+      f (float): Frequency in Hz
+
+    Returns:
+      float: Frequency deviation threshold in Hz"""
+    return self.freq_dev_offset + self.freq_dev_slope * f
+
+  @staticmethod
+  def numpy_track(track: dict) -> dict:
+    """Convert to numpy arrays all values in track
+
+    Args:
+      track (dict): Track to convert
+
+    Returns:
+      dict: Converted track"""
+    return {
+      k: np.array(v)
+      for k, v in track.items()
+    }
+
+  def deactivate(self, track_index: int) -> dict:
+    """Remove track from list of active tracks and save it in :py:data:`tracks_`
+
+    Args:
+      track_index (int): Index of track to deactivate
+
+    Returns:
+      dict: Deactivated track"""
+    t = self.numpy_track(self._active_tracks.pop(track_index))
+    self.tracks_.append(t)
+    return t
+
+  def __call__(self, pfreq: np.ndarray, pmag: np.ndarray, pph: np.ndarray):
+    """Update tracking with another frame
+
+    Args:
+      pfreq (array): Peak frequencies in Hz
+      pmag (array): Peak magnitudes in dB
+      pph (array): Peak phases
+
+    Returns:
+      SineTracker: self"""
+    peak_order = np.argsort(-pmag)  # decreasing order of magnitude
+    free_track = np.ones(self.n_active_tracks, dtype=bool)
+    free_peak = np.ones(pmag.size, dtype=bool)
+
+    # Try to continue active tracks
+    for p_i in peak_order:
+      if not any(free_track):
+        break
+      t_i, df = _min_key(
+        filter(free_track.__getitem__, range(self.n_active_tracks)),       # choose amongst free tracks only
+        lambda i: np.abs(self._active_tracks[i]["freq"][-1] - pfreq[p_i])  # absolute difference from last peak's frequency
+      )
+      if df < self.df(pfreq[p_i]):  # if below threshold, add peak to active track
+        self._active_tracks[t_i]["freq"].append(pfreq[p_i])
+        self._active_tracks[t_i]["mag"].append(pmag[p_i])
+        self._active_tracks[t_i]["phase"].append(pph[p_i])
+        free_track[t_i] = False
+        free_peak[p_i] = False
+
+    # Deactivate non-continued tracks
+    for t_i in filter(
+      free_track.__getitem__,
+      reversed(range(self.n_active_tracks))
+    ):
+      self.deactivate(t_i)
+
+    # Activate new tracks for free peaks
+    for p_i in filter(free_peak.__getitem__, range(pmag.size)):
+      if self.n_active_tracks >= self.max_n_sines:
+        break
+      self._active_tracks.append({
+        "start_frame": self._frame,
+        "freq": [pfreq[p_i]],
+        "mag": [pmag[p_i]],
+        "phase": [pph[p_i]],
+      })
+
+    self._frame += 1
+    return self
