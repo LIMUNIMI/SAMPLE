@@ -111,8 +111,8 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       return self._default_coeffs_init
     return self.coeffs_init
 
-  @staticmethod
   def _default_bounds(
+    self,
     x: np.ndarray,
     y: np.ndarray,
     k: float,
@@ -129,9 +129,10 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     Returns:
       ((float, float, float), (float, float, float)): Minimum and maximum bounds
         for a, k and q"""
+    dq = np.max(np.abs(y - q))
     return (
-      (np.min(x), 4 * k if k < 0 else k, np.min(y)),
-      (np.max(x), k if k < 0 else 4 * k, np.max(y))
+      (np.min(x), 4 * k if k < 0 else k, q - dq),
+      (np.max(x), k if k < 0 else 4 * k, q + dq)
     )
 
   @property

@@ -3,6 +3,7 @@ from sample.sms import dsp
 import numpy as np
 from sklearn import base
 import functools
+import itertools
 from typing import Optional, Tuple, Generator, Iterable, Callable, Any
 
 
@@ -18,7 +19,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     t (float): threshold in dB. Defaults to -90
     max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
     min_sine_dur (float): Minimum duration of a track in seconds.
-      Defaults to 0.01
+      Defaults to 0.04
     freq_dev_offset (float): Frequency deviation threshold at 0Hz.
       Defaults to 20
     freq_dev_slope (float): Slope of frequency deviation threshold.
@@ -37,7 +38,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     h: int = 500,
     t: float = -90,
     max_n_sines: int = 100,
-    min_sine_dur: float = 0.01,
+    min_sine_dur: float = 0.04,
     freq_dev_offset: float = 20,
     freq_dev_slope: float = 0.01,
     save_intermediate: bool = False,
@@ -73,7 +74,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.w_ = self.normalized_window
     self.sine_tracker_ = SineTracker(
       max_n_sines=self.max_n_sines,
-      min_sine_dur=self.min_sine_dur,
+      min_sine_dur=self.min_sine_dur * self.fs / self.h,
       freq_dev_offset=self.freq_dev_offset,
       freq_dev_slope=self.freq_dev_slope,
     )
@@ -187,7 +188,7 @@ class SineTracker:
 
   Args:
     max_n_sines (int): Maximum number of tracks per frame
-    min_sine_dur (float): Minimum duration of a track in seconds
+    min_sine_dur (float): Minimum duration of a track in number of frames
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
     freq_dev_slope (float): Slope of frequency deviation threshold"""
   def __init__(
@@ -219,6 +220,15 @@ class SineTracker:
   def n_active_tracks(self) -> int:
     return len(self._active_tracks)
 
+  @property
+  def all_tracks_(self) -> Iterable[dict]:
+    """All deactivated tracks and active tracks that could pass
+    the cleanness check"""
+    return itertools.chain(
+      self.tracks_,
+      filter(self.track_ok, map(self.numpy_track, self._active_tracks))
+    )
+
   def df(self, f: float) -> float:
     """Frequency deviation threshold at given frequency
 
@@ -243,8 +253,19 @@ class SineTracker:
       for k, v in track.items()
     }
 
+  def track_ok(self, track: dict) -> bool:
+    """Check if deactivated track is ok to be saved
+
+    Args:
+      track (dict): Track to check
+
+    Returns:
+      bool: Whether the track is ok or not"""
+    return len(track["freq"]) > self.min_sine_dur
+
   def deactivate(self, track_index: int) -> dict:
-    """Remove track from list of active tracks and save it in :py:data:`tracks_`
+    """Remove track from list of active tracks and save it in
+    :py:data:`tracks_` if it meets cleanness criteria
 
     Args:
       track_index (int): Index of track to deactivate
@@ -252,7 +273,8 @@ class SineTracker:
     Returns:
       dict: Deactivated track"""
     t = self.numpy_track(self._active_tracks.pop(track_index))
-    self.tracks_.append(t)
+    if self.track_ok(t):
+      self.tracks_.append(t)
     return t
 
   def __call__(self, pfreq: np.ndarray, pmag: np.ndarray, pph: np.ndarray):
@@ -274,10 +296,13 @@ class SineTracker:
       if not any(free_track):
         break
       t_i, df = _min_key(
-        filter(free_track.__getitem__, range(self.n_active_tracks)),       # choose amongst free tracks only
-        lambda i: np.abs(self._active_tracks[i]["freq"][-1] - pfreq[p_i])  # absolute difference from last peak's frequency
+        # choose amongst free tracks only
+        filter(free_track.__getitem__, range(self.n_active_tracks)),
+        # absolute difference from last peak's frequency
+        lambda i, p=p_i: np.abs(self._active_tracks[i]["freq"][-1] - pfreq[p])
       )
-      if df < self.df(pfreq[p_i]):  # if below threshold, add peak to active track
+      # If deviation is below threshold, add peak to active track
+      if df < self.df(pfreq[p_i]):
         self._active_tracks[t_i]["freq"].append(pfreq[p_i])
         self._active_tracks[t_i]["mag"].append(pmag[p_i])
         self._active_tracks[t_i]["phase"].append(pph[p_i])
