@@ -5,7 +5,7 @@ import numpy as np
 from typing import Tuple, Optional, Callable
 
 
-def hinge_function(x: np.ndarray, a: float, k: float, q: float):
+def hinge_function(x: np.ndarray, a: float, k: float, q: float) -> np.ndarray:
   """Hinge function
 
   Args:
