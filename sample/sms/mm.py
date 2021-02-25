@@ -14,16 +14,27 @@ class ModalTracker(sm.SineTracker):
   - group non-contiguous tracks
 
   Args:
+    max_n_sines (int): Maximum number of tracks per frame
+    min_sine_dur (float): Minimum duration of a track in number of frames
+    freq_dev_offset (float): Frequency deviation threshold at 0Hz
+    freq_dev_slope (float): Slope of frequency deviation threshold
     frequency_bounds (float, float): Minimum and maximum accepted mean frequency
-    peak_threshold (float): Minimum peak magnitude in dB for modal tracks
-    kwargs: Keyword arguments, see :class:`sample.sms.sm.SineTracker`"""
+    peak_threshold (float): Minimum peak magnitude in dB for modal tracks"""
   def __init__(
     self,
+    max_n_sines: int,
+    min_sine_dur: float,
+    freq_dev_offset: float,
+    freq_dev_slope: float,
     frequency_bounds: Tuple[Optional[float], Optional[float]],
     peak_threshold: float,
-    **kwargs,
   ):
-    super().__init__(**kwargs)
+    super().__init__(
+      max_n_sines=max_n_sines,
+      min_sine_dur=min_sine_dur,
+      freq_dev_offset=freq_dev_offset,
+      freq_dev_slope=freq_dev_slope,
+    )
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
 
@@ -93,20 +104,53 @@ class ModalModel(sm.SinusoidalModel):
   """Sinusoidal model with a :class:`ModalTracker` as sine tracker
 
   Args:
+    fs (int): sampling frequency in Hz. Defaults to 44100
+    w: Analysis window. Defaults to None (if None,
+      the :attr:`default_window` is used)
+    n (int): FFT size. Defaults to 2048
+    h (int): Window hop size. Defaults to 500
+    t (float): threshold in dB. Defaults to -90
+    max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
+    min_sine_dur (float): Minimum duration of a track in seconds.
+      Defaults to 0.04
+    freq_dev_offset (float): Frequency deviation threshold at 0Hz.
+      Defaults to 20
+    freq_dev_slope (float): Slope of frequency deviation threshold.
+      Defaults to 0.01
+    sine_tracker_cls (type): Sine tracker class
+    save_intermediate (bool): If True, save intermediate data structures in
+      the attribute :attr:`intermediate_`. Defaults to False
     frequency_bounds (float, float): Minimum and maximum accepted mean frequency
-    peak_threshold (float): Minimum peak magnitude in dB for modal tracks
-    (magnitude at time=0)
-    kwargs: Keyword arguments, see :class:`sample.sms.sm.SinusoidalModel`"""
+    peak_threshold (float): Minimum peak magnitude (magnitude at time=0) in dB
+      for modal tracks"""
   def __init__(
     self,
+    fs: int = 44100,
+    w: Optional[np.ndarray] = None,
+    n: int = 2048,
+    h: int = 500,
+    t: float = -90,
+    max_n_sines: int = 100,
+    min_sine_dur: float = 0.04,
+    freq_dev_offset: float = 20,
+    freq_dev_slope: float = 0.01,
     sine_tracker_cls: type = ModalTracker,
+    save_intermediate: bool = False,
     frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
     peak_threshold: float = -90,
-    **kwargs
   ):
     super().__init__(
+      fs=fs,
+      w=w,
+      n=n,
+      h=h,
+      t=t,
+      max_n_sines=max_n_sines,
+      min_sine_dur=min_sine_dur,
+      freq_dev_offset=freq_dev_offset,
+      freq_dev_slope=freq_dev_slope,
       sine_tracker_cls=sine_tracker_cls,
-      **kwargs,
+      save_intermediate=save_intermediate,
     )
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
