@@ -15,7 +15,7 @@ jupyter
 matplotlib
 librosa
 
-# Lint
+# Code check
 pylint
 
 # Docs

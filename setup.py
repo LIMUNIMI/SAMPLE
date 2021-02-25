@@ -27,6 +27,29 @@ setuptools.setup(
     "scipy",
     "scikit-learn",
   ],
+  extras_require={
+    "plots": [
+      "matplotlib",
+    ],
+    "notebooks": [
+      "jupyter",
+      "matplotlib",
+      "librosa",
+    ],
+    "test": [
+      "cython",
+      "more-itertools",
+    ],
+    "docs": [
+      "sphinx",
+      "sphinx_rtd_theme",
+      "m2r2",
+      "recommonmark",
+    ],
+    "codecheck": [
+      "pylint",
+    ]
+  },
   classifiers=[
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
