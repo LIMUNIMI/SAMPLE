@@ -77,7 +77,7 @@ class ModalTracker(sm.SineTracker):
       dict: Deactivated track"""
     t = self.numpy_track(self._active_tracks.pop(track_index))
     if self.track_ok(t):
-      u, df = sm._min_key(
+      u, df = sm.min_key(
         # choose amongst previous tracks only
         filter(
           lambda u: (u["start_frame"] + u["mag"].size) < t["start_frame"],
