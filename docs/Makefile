@@ -24,7 +24,7 @@ clean: clean_rst
 	rm -f pylintrc
 
 rst:
-	sphinx-apidoc -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)"
+	sphinx-apidoc -e -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)"
 
 clean_rst:
 	mkdir -p .tmp

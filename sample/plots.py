@@ -1,7 +1,8 @@
 """Plot functions for helping visualization
 
-This module requires :py:data:`matplotlib`, which is not installed by default
-with the :py:data:`sample` package"""
+This module requires extra dependencies, which you can install with
+
+:data:`pip install sample[plots]`"""
 from sample.sms import sm
 import numpy as np
 from matplotlib import pyplot as plt

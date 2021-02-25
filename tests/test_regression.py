@@ -1,4 +1,4 @@
-"""Tests related to SMS"""
+"""Tests related to regression"""
 import unittest
 import numpy as np
 from scipy import special

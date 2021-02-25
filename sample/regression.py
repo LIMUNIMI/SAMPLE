@@ -15,7 +15,7 @@ def hinge_function(x: np.ndarray, a: float, k: float, q: float) -> np.ndarray:
     q (float): Intercept
 
   Returns:
-    array: :py:data:`h(x) = k * min(x, a) + q`"""
+    array: :data:`h(x) = k * min(x, a) + q`"""
   return k * np.minimum(x, a) + q
 
 
@@ -34,7 +34,7 @@ bounds_fun_type: type = Callable[
 class HingeRegression(base.RegressorMixin, base.BaseEstimator):
   """Regressor for fitting to a hinge function
 
-  :py:data:`h(x) = k * min(x, a) + q`
+  :data:`h(x) = k * min(x, a) + q`
 
   Args:
     linear_regressor (sklearn.base.BaseEstimator): Linear regression model
@@ -47,16 +47,16 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       See :func:`scipy.optimize.least_squares` for options and detailed
       explanation. Defaults to "dogbox"
     coeffs_init (callable): Initializer for hinge function coefficients.
-      Signature should be :py:data:`coeffs_init(x, y, k, q) -> a, k, q`. It
+      Signature should be :data:`coeffs_init(x, y, k, q) -> a, k, q`. It
       should return initial parameters for the nonlinear least squares using
-      input data :py:data:`x` and :py:data:`y`, and linearly estimated
-      coefficients :py:data:`k` and :py:data:`q`. If None, use default
+      input data :data:`x` and :data:`y`, and linearly estimated
+      coefficients :data:`k` and :data:`q`. If None, use default
     bounds (callable): Callable for computing hinge function coefficient
-      boundaries. Signature should be :py:data:`bounds(x, y, k, q) ->
+      boundaries. Signature should be :data:`bounds(x, y, k, q) ->
       ((a_min, k_min, q_min), (a_max, k_max, q_max))`.
       It should return lower and upper boundaries for all three parameters
-      using input data :py:data:`x` and :py:data:`y`, and linearly estimated
-      coefficients :py:data:`k` and :py:data:`q`. If None, use default
+      using input data :data:`x` and :data:`y`, and linearly estimated
+      coefficients :data:`k` and :data:`q`. If None, use default
 
   Attributes:
     coeffs_ (array): Learned parameters (a, k, q). They are also accessible
@@ -106,7 +106,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
 
     Returns:
       User-provided function if given, otherwise
-        :func:`HingeRegression._default_coeffs_init`"""
+        :meth:`_default_coeffs_init`"""
     if self.coeffs_init is None:
       return self._default_coeffs_init
     return self.coeffs_init
@@ -141,7 +141,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
 
     Returns:
       User-provided function if given, otherwise
-        :func:`HingeRegression._default_bounds`"""
+        :meth:`_default_bounds`"""
     if self.bounds is None:
       return self._default_bounds
     return self.bounds
@@ -153,7 +153,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       x (array): Input independent variable array
 
     Returns:
-      array: :py:data:`h(x)`"""
+      array: :data:`h(x)`"""
     return hinge_function(x, *self.coeffs_)
 
   @staticmethod

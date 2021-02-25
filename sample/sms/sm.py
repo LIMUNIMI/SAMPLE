@@ -13,7 +13,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   Args:
     fs (int): sampling frequency in Hz. Defaults to 44100
     w: Analysis window. Defaults to None (if None,
-      the :func:`default_window` is used)
+      the :attr:`default_window` is used)
     n (int): FFT size. Defaults to 2048
     h (int): Window hop size. Defaults to 500
     t (float): threshold in dB. Defaults to -90
@@ -25,7 +25,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     freq_dev_slope (float): Slope of frequency deviation threshold.
       Defaults to 0.01
     save_intermediate (bool): If True, save intermediate data structures in
-      the attribute :py:data:`intermediate_`. Defaults to False
+      the attribute :attr:`intermediate_`. Defaults to False
 
   Attributes:
     w_ (array): Effective analysis window
@@ -92,7 +92,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     return self
 
   def intermediate(self, key: str, value):
-    """Save intermediate results if :py:data:`save_intermediate` is True
+    """Save intermediate results if :data:`save_intermediate` is True
 
     Arguments:
       key (str): Data name
@@ -172,7 +172,7 @@ def _min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
     key (callable): Function
 
   Returns:
-    Argmin and min of :py:data:`key(i) for i in it`"""
+    Argmin and min of :data:`key(i) for i in it`"""
   i_ = None
   x_ = None
   for i in it:
@@ -190,7 +190,10 @@ class SineTracker:
     max_n_sines (int): Maximum number of tracks per frame
     min_sine_dur (float): Minimum duration of a track in number of frames
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
-    freq_dev_slope (float): Slope of frequency deviation threshold"""
+    freq_dev_slope (float): Slope of frequency deviation threshold
+
+  Attributes:
+    tracks_ (list of dict): Deactivated tracks"""
   def __init__(
     self,
     max_n_sines: int,
@@ -222,8 +225,8 @@ class SineTracker:
 
   @property
   def all_tracks_(self) -> Iterable[dict]:
-    """All deactivated tracks and active tracks that could pass
-    the cleanness check"""
+    """All deactivated tracks in :attr:`tracks_` and those active tracks
+    that would pass the cleanness check at the current state of the tracker"""
     return itertools.chain(
       self.tracks_,
       filter(self.track_ok, map(self.numpy_track, self._active_tracks))
@@ -265,7 +268,7 @@ class SineTracker:
 
   def deactivate(self, track_index: int) -> dict:
     """Remove track from list of active tracks and save it in
-    :py:data:`tracks_` if it meets cleanness criteria
+    :attr:`tracks_` if it meets cleanness criteria
 
     Args:
       track_index (int): Index of track to deactivate
