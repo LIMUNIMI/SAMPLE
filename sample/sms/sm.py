@@ -4,10 +4,10 @@ import numpy as np
 from sklearn import base
 import functools
 import itertools
-from typing import Optional, Tuple, Generator, Iterable, Callable, Any
+from typing import Optional, Tuple, Generator, Iterable, Callable, Any, List, Dict
 
 
-def _min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
+def min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
   """Minimum value and corresponding argument
 
   Args:
@@ -141,7 +141,7 @@ class SineTracker:
     for p_i in peak_order:
       if not any(free_track):
         break
-      t_i, df = _min_key(
+      t_i, df = min_key(
         # choose amongst free tracks only
         filter(free_track.__getitem__, range(self.n_active_tracks)),
         # absolute difference from last peak's frequency
@@ -243,6 +243,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     Returns:
       SinusoidalModel: self
     """
+    if hasattr(self, "intermediate_"):
+      del self.intermediate_
     self.set_params(**kwargs)
     self.w_ = self.normalized_window
     self.sine_tracker_ = self.sine_tracker_cls(
@@ -260,6 +262,11 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
       self.sine_tracker_(pfreq, pmag, pph)
     return self
+
+  @property
+  def tracks_(self) -> List[Dict[str, np.ndarray]]:
+    """Tracked sinusoids"""
+    return list(self.sine_tracker_.all_tracks_)
 
   @property
   def sine_tracker_kwargs(self) -> dict:
