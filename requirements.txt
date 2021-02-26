@@ -1,11 +1,28 @@
-# Essentials
+# Install
 wheel
+
+# Run
 numpy
 scipy
+scikit-learn
 
-# Lint
+# Test
+cython
+more-itertools
+
+# Notebooks
+jupyter
+matplotlib
+librosa
+
+# Code check
 pylint
 
 # Docs
 sphinx
 sphinx_rtd_theme
+m2r2
+recommonmark
+
+# Packaging
+twine

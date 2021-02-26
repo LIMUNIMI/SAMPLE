@@ -1,20 +1,9 @@
 .. SAMPLE master file
 
-Spectral Analysis for Modal Parameter Linear Estimate
-=======================================================
-
-:ref:`modindex`
+.. mdinclude:: ../../README.md
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents
 
    sample
-
-
-.. toctree::
-	:maxdepth: 1
-	:caption: Reports
-
-	pylint
-	doctest

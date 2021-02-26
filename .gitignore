@@ -1,6 +1,10 @@
 # Python
 venv
 __pycache__
+*.egg-info
+build
+dist
+.ipynb_checkpoints
 
 # Sphinx
 docs
@@ -13,3 +17,7 @@ docs
 
 # Outputs
 *.csv
+
+# Test files
+sms
+!sample/sms
