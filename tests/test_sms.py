@@ -3,6 +3,7 @@ import unittest
 from tests import utils
 from sample.sms import sm as sample_sm
 from sample.sms import dsp as sample_dsp
+from sample import utils as sample_utils
 import itertools
 import more_itertools
 import timeit
@@ -36,7 +37,7 @@ class TestSMS(utils.RMSEAssertMixin, unittest.TestCase):
   def setUp(self) -> None:
     """Initialize test audio and sinusoidal model"""
     self.fs = 44100
-    self.x = utils.test_audio(fs=self.fs)
+    self.x = sample_utils.test_audio(fs=self.fs)
     self.sm = sample_sm.SinusoidalModel()
     self.sm.w_ = self.sm.normalized_window
 
