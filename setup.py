@@ -49,6 +49,9 @@ setuptools.setup(
     ],
     "codecheck": [
       "pylint",
+    ],
+    "packaging": [
+      "twine",
     ]
   },
   classifiers=[
