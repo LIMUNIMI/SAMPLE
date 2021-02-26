@@ -95,6 +95,22 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     """Learned modal amplitudes"""
     return self.param_matrix_[2, :]
 
+  @property
+  def sdt_params_(self) -> dict:
+    """SDT parameters as a JSON serializable dictionary"""
+    n_modes = self.freqs_.size
+    m_ord = np.argsort(self.freqs_).tolist()
+    return {
+      "nModes": n_modes,
+      "nPickups": 1,
+      "activeModes": n_modes,
+      "fragmentSize": 1.0,
+      "freqs": self.freqs_[m_ord].tolist(),
+      "decays": self.decays_[m_ord].tolist(),
+      "weights": np.full(n_modes, 1 / n_modes).tolist(),
+      "gains": [self.amps_[m_ord].tolist()],
+    }
+
   def predict(self, x: np.ndarray) -> np.ndarray:
     """Resynthesize audio
 
