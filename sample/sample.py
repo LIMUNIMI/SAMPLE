@@ -5,6 +5,7 @@ from sample.sms import mm
 from sample.regression import HingeRegression
 import numpy as np
 import functools
+import copy
 
 
 class SAMPLE(base.RegressorMixin, base.BaseEstimator):
@@ -36,6 +37,22 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     self.regressor_k = regressor_k
     self.regressor_q = regressor_q
     self.set_params(**kwargs)
+
+  @property
+  def sinusoidal_model(self):
+    return self._sinusoidal_model
+
+  @sinusoidal_model.setter
+  def sinusoidal_model(self, model):
+    self._sinusoidal_model = copy.deepcopy(model)
+
+  @property
+  def regressor(self):
+    return self._regressor
+
+  @regressor.setter
+  def regressor(self, model):
+    self._regressor = copy.deepcopy(model)
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
