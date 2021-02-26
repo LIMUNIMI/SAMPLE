@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 
 
 setuptools.setup(
-  name="sample",
+  name="lim-sample",
   version=version,
   author="Marco Tiraboschi",
   author_email="marco.tiraboschi@unimi.it",
@@ -35,6 +35,7 @@ setuptools.setup(
       "jupyter",
       "matplotlib",
       "librosa",
+      "more-itertools",
     ],
     "test": [
       "cython",
@@ -48,6 +49,9 @@ setuptools.setup(
     ],
     "codecheck": [
       "pylint",
+    ],
+    "packaging": [
+      "twine",
     ]
   },
   classifiers=[
