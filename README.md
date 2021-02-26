@@ -13,7 +13,9 @@ This extras are also available, but intended for internal use
  - `codecheck`: for checking code style
 
 ## Documentation
-Coming soon
+API documentation can be found online here:
+
+https://LIMUNIMI.github.io/SAMPLE/
 
 ## Notebooks
 For learning to use the package, you can refer to the interactive

@@ -5,6 +5,7 @@ from sample.sms import mm
 from sample.regression import HingeRegression
 import numpy as np
 import functools
+import copy
 
 
 class SAMPLE(base.RegressorMixin, base.BaseEstimator):
@@ -36,6 +37,22 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     self.regressor_k = regressor_k
     self.regressor_q = regressor_q
     self.set_params(**kwargs)
+
+  @property
+  def sinusoidal_model(self):
+    return self._sinusoidal_model
+
+  @sinusoidal_model.setter
+  def sinusoidal_model(self, model):
+    self._sinusoidal_model = copy.deepcopy(model)
+
+  @property
+  def regressor(self):
+    return self._regressor
+
+  @regressor.setter
+  def regressor(self, model):
+    self._regressor = copy.deepcopy(model)
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
@@ -77,6 +94,22 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   def amps_(self) -> np.ndarray:
     """Learned modal amplitudes"""
     return self.param_matrix_[2, :]
+
+  @property
+  def sdt_params_(self) -> dict:
+    """SDT parameters as a JSON serializable dictionary"""
+    n_modes = self.freqs_.size
+    m_ord = np.argsort(self.freqs_).tolist()
+    return {
+      "nModes": n_modes,
+      "nPickups": 1,
+      "activeModes": n_modes,
+      "fragmentSize": 1.0,
+      "freqs": self.freqs_[m_ord].tolist(),
+      "decays": self.decays_[m_ord].tolist(),
+      "weights": np.full(n_modes, 1 / n_modes).tolist(),
+      "gains": [self.amps_[m_ord].tolist()],
+    }
 
   def predict(self, x: np.ndarray) -> np.ndarray:
     """Resynthesize audio
