@@ -2,7 +2,7 @@
 
 This module requires extra dependencies, which you can install with
 
-:data:`pip install sample[plots]`"""
+:data:`pip install lim-sample[plots]`"""
 from sample.sms import sm
 import numpy as np
 from matplotlib import pyplot as plt
