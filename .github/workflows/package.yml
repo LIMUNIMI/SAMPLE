@@ -71,10 +71,51 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-  upload:
+  manual-upload:
+    runs-on: ubuntu-latest
+    needs: [sphinx, release-create]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: manual
+          path: manual
+      - name: Upload artifact
+        id: upload-manual
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release-create.outputs.upload_url }}
+          asset_path: ./manual/spectralanalysisformodalparameterlinearestimate.pdf
+          asset_name: SAMPLE_${{ needs.release-create.outputs.version }}.pdf
+          asset_content_type: application/pdf
+
+  pages-deploy:
+    runs-on: ubuntu-latest
+    needs: [sphinx, release-create]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pages
+          path: pages
+      - name: No Jekyll in pages
+        run: touch pages/.nojekyll
+      - name: Deploy pages
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: pages
+
+  pypi-upload:
     runs-on: ubuntu-latest
     container: python:3.7
-    needs: [release-create]
+    needs: release-create
     steps:
     - uses: actions/checkout@v2
     - name: Build
