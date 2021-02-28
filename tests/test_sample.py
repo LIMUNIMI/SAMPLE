@@ -34,7 +34,7 @@ class TestSAMPLE(unittest.TestCase):
     msg = ""
     try:
       self.sample.fit(self.x)
-      json.dumps(self.sample.sdt_params_, indent=2)
+      json.dumps(self.sample.sdt_params_(), indent=2)
     except Exception as e:  # pylint: disable=W0703
       exceptions = True
       msg = str(e)
