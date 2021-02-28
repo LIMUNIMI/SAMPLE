@@ -96,10 +96,27 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     return self.param_matrix_[2, :]
 
   @property
-  def sdt_params_(self) -> dict:
-    """SDT parameters as a JSON serializable dictionary"""
+  def energies_(self) -> np.ndarray:
+    """Learned modal energies"""
+    return 4 * self.amps_**2 / self.decays_
+
+  def sdt_params_(self, order: str = "energies", reverse: bool = True) -> dict:
+    """SDT parameters as a JSON serializable dictionary
+
+    Args:
+      order (str): Feature to use for ordering modes. Default is
+        :data:`"energies"`, so that reducing active modes in SDT keeps the
+        modes with most energy. Other options are :data:`"freqs"`,
+        :data:`"amps"` and :data:`"decays"`
+      reverse (bool): Whether the order should be reversed (decreasing).
+        Defaults to :data:`True`
+
+    Returns:
+      dict: SDT parameters"""
     n_modes = self.freqs_.size
-    m_ord = np.argsort(self.freqs_).tolist()
+    m_ord = np.argsort(getattr(self, "{}_".format(order))).tolist()
+    if reverse:
+      m_ord = list(reversed(m_ord))
     return {
       "nModes": n_modes,
       "nPickups": 1,
