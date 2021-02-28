@@ -15,7 +15,7 @@ def hinge_function(x: np.ndarray, a: float, k: float, q: float) -> np.ndarray:
     q (float): Intercept
 
   Returns:
-    array: :data:`h(x) = k * min(x, a) + q`"""
+    array: :math:`h(x) = k * min(x, a) + q`"""
   return k * np.minimum(x, a) + q
 
 
@@ -34,7 +34,7 @@ bounds_fun_type: type = Callable[
 class HingeRegression(base.RegressorMixin, base.BaseEstimator):
   """Regressor for fitting to a hinge function
 
-  :data:`h(x) = k * min(x, a) + q`
+  :math:`h(x) = k * min(x, a) + q`
 
   Args:
     linear_regressor (sklearn.base.BaseEstimator): Linear regression model
