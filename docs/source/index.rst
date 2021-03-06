@@ -6,16 +6,8 @@ SAMPLE Package
 ==============
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 1
    :caption: Contents
 
    sample
-
-Changelog
-=========
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Versions
-
    changelog
