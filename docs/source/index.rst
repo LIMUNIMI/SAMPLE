@@ -10,3 +10,12 @@ SAMPLE Package
    :caption: Contents
 
    sample
+
+Changelog
+=========
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Versions
+
+   changelog

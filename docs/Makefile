@@ -8,7 +8,7 @@ SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
 PROJECTDIR    = ../sample
-INDICES       = index.rst
+INDICES       = index.rst changelog.rst
 PYLINTRC      = https://google.github.io/styleguide/pylintrc
 
 help:
