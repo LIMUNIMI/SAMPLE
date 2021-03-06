@@ -194,6 +194,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       Defaults to 20
     freq_dev_slope (float): Slope of frequency deviation threshold.
       Defaults to 0.01
+    reverse (bool): Whether to process audio in reverse.
+      Defaults to False
     sine_tracker_cls (type): Sine tracker class
     save_intermediate (bool): If True, save intermediate data structures in
       the attribute :attr:`intermediate_`. Defaults to False
@@ -212,6 +214,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     min_sine_dur: float = 0.04,
     freq_dev_offset: float = 20,
     freq_dev_slope: float = 0.01,
+    reverse: bool = False,
     sine_tracker_cls: type = SineTracker,
     save_intermediate: bool = False,
   ):
@@ -224,6 +227,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.min_sine_dur = min_sine_dur
     self.freq_dev_offset = freq_dev_offset
     self.freq_dev_slope = freq_dev_slope
+    self.reverse = reverse
     self.sine_tracker_cls = sine_tracker_cls
     self.save_intermediate = save_intermediate
 
@@ -250,6 +254,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.sine_tracker_ = self.sine_tracker_cls(
       **self.sine_tracker_kwargs
     )
+    if self.reverse:
+      x = np.flip(x)
 
     for mx, px in map(
       functools.partial(self.intermediate, "stft"),
