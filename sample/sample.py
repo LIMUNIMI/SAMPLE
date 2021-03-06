@@ -73,6 +73,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       x_ = (t["start_frame"] + np.arange(t["mag"].size)[notnans]) * \
            self.sinusoidal_model.h / self.sinusoidal_model.fs
       y_ = t["mag"][notnans]
+      if getattr(self.sinusoidal_model, "reverse", False):
+        x_ = np.size(x) / self.sinusoidal_model.fs - x_
       self.regressor.fit(np.reshape(x_, (-1, 1)), y_)
       self.param_matrix_[1, i] = \
         -40 * np.log10(np.e) / getattr(self.regressor, self.regressor_k)
