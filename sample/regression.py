@@ -2,6 +2,7 @@
 from sklearn import linear_model, base
 from scipy import optimize
 import numpy as np
+import copy
 from typing import Tuple, Optional, Callable
 
 
@@ -78,6 +79,14 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     self.method = method
     self.coeffs_init = coeffs_init
     self.bounds = bounds
+
+  @property
+  def linear_regressor(self):
+    return self._linear_regressor
+
+  @linear_regressor.setter
+  def linear_regressor(self, model):
+    self._linear_regressor = copy.deepcopy(model)
 
   @staticmethod
   def _default_coeffs_init(
