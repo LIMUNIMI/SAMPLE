@@ -28,6 +28,19 @@ class TestSAMPLE(unittest.TestCase):
       msg = str(e)
     self.assertFalse(exceptions, msg=msg)
 
+  def test_no_exceptions_reverse(self):
+    """Test that no exceptions arise from method using reverse mode"""
+    exceptions = False
+    msg = ""
+    self.sample.set_params(sinusoidal_model__reverse=True)
+    try:
+      self.sample.fit(self.x)
+    except Exception as e:  # pylint: disable=W0703
+      exceptions = True
+      msg = str(e)
+    self.sample.set_params(sinusoidal_model__reverse=False)
+    self.assertFalse(exceptions, msg=msg)
+
   def test_sdt_json_serializable(self):
     """Test that SDT parameters are JSON-serializable"""
     exceptions = False

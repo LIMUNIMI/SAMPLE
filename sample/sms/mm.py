@@ -19,7 +19,8 @@ class ModalTracker(sm.SineTracker):
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
     freq_dev_slope (float): Slope of frequency deviation threshold
     frequency_bounds (float, float): Minimum and maximum accepted mean frequency
-    peak_threshold (float): Minimum peak magnitude in dB for modal tracks"""
+    peak_threshold (float): Minimum peak magnitude in dB for modal tracks
+    reverse (bool): Whether the input audio will be reversed"""
   def __init__(
     self,
     max_n_sines: int,
@@ -28,6 +29,7 @@ class ModalTracker(sm.SineTracker):
     freq_dev_slope: float,
     frequency_bounds: Tuple[Optional[float], Optional[float]],
     peak_threshold: float,
+    reverse: bool,
   ):
     super().__init__(
       max_n_sines=max_n_sines,
@@ -37,6 +39,7 @@ class ModalTracker(sm.SineTracker):
     )
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
+    self.reverse = reverse
 
   def track_ok(self, track: dict) -> bool:
     """Check if deactivated track is ok to be saved
@@ -55,10 +58,11 @@ class ModalTracker(sm.SineTracker):
     if self.frequency_bounds[1] is not None and mf > self.frequency_bounds[1]:
       return False
 
-    lm = linear_model.LinearRegression().fit(
-      np.arange(track["mag"].size).reshape((-1, 1)),
-      track["mag"]
-    )
+    lm_x = np.arange(track["mag"].size).reshape((-1, 1))
+    if self.reverse:
+      lm_x = np.flip(lm_x)
+    lm_y = track["mag"]
+    lm = linear_model.LinearRegression().fit(lm_x, lm_y)
     if np.squeeze(lm.coef_) > 0:
       return False
     if np.squeeze(lm.intercept_) < self.peak_threshold:
@@ -117,6 +121,8 @@ class ModalModel(sm.SinusoidalModel):
       Defaults to 20
     freq_dev_slope (float): Slope of frequency deviation threshold.
       Defaults to 0.01
+    reverse (bool): Whether to process audio in reverse.
+      Defaults to False
     sine_tracker_cls (type): Sine tracker class
     save_intermediate (bool): If True, save intermediate data structures in
       the attribute :attr:`intermediate_`. Defaults to False
@@ -134,6 +140,7 @@ class ModalModel(sm.SinusoidalModel):
     min_sine_dur: float = 0.04,
     freq_dev_offset: float = 20,
     freq_dev_slope: float = 0.01,
+    reverse: bool = False,
     sine_tracker_cls: type = ModalTracker,
     save_intermediate: bool = False,
     frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
@@ -149,6 +156,7 @@ class ModalModel(sm.SinusoidalModel):
       min_sine_dur=min_sine_dur,
       freq_dev_offset=freq_dev_offset,
       freq_dev_slope=freq_dev_slope,
+      reverse=reverse,
       sine_tracker_cls=sine_tracker_cls,
       save_intermediate=save_intermediate,
     )
@@ -162,5 +170,6 @@ class ModalModel(sm.SinusoidalModel):
     kwargs.update(dict(
       frequency_bounds=self.frequency_bounds,
       peak_threshold=self.peak_threshold,
+      reverse=self.reverse,
     ))
     return kwargs
