@@ -28,3 +28,6 @@ except ModuleNotFoundError:
 
 
 __version__ = "1.2.1"
+
+if __name__ == "__main__":
+  print("{}\n\nVersion: {}".format(__doc__, __version__))
