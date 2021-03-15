@@ -19,14 +19,14 @@ API documentation can be found online here:
 
 https://limunimi.github.io/SAMPLE/
 
-## Notebooks
-For learning to use the package, you can refer to the interactive
-notebooks in the [notebooks](notebooks) folder
-
 ## Source code
 Source code is available on GitHub
 
 https://github.com/limunimi/sample
+
+### Notebooks
+For learning to use the package, you can refer to the interactive
+notebooks in the [notebooks](https://github.com/limunimi/sample/tree/master/notebooks) folder
 
 ## Paper
 Your can find the paper in the SMC 2020 proceedings [here](https://smc2020torino.it/adminupload/file/SMCCIM_2020_paper_167.pdf).
