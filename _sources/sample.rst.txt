@@ -1,0 +1,27 @@
+sample package
+==============
+
+.. automodule:: sample
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   sample.sms
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   sample.abc
+   sample.plots
+   sample.regression
+   sample.sample
+   sample.utils

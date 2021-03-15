@@ -1,0 +1,7 @@
+sample.abc module
+=================
+
+.. automodule:: sample.abc
+   :members:
+   :undoc-members:
+   :show-inheritance:

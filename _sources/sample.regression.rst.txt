@@ -1,0 +1,7 @@
+sample.regression module
+========================
+
+.. automodule:: sample.regression
+   :members:
+   :undoc-members:
+   :show-inheritance:
