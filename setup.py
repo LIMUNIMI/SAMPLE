@@ -46,7 +46,6 @@ setuptools.setup(
       "sphinx_rtd_theme",
       "m2r2",
       "recommonmark",
-      "matplotlib",
     ],
     "lint": [
       "pylint",
