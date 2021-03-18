@@ -36,12 +36,22 @@ class TestClass(unittest.TestCase):
   def test_coeffs_init(self):
     """Check that non-defult coeffs_init is used"""
     x = object()
-    self.assertIs(regression.HingeRegression(coeffs_init=x)._coeffs_init, x)
+    self.assertIs(
+      regression.HingeRegression(  # pylint: disable=W0212
+        coeffs_init=x
+      )._coeffs_init,
+      x
+    )
 
   def test_bounds(self):
     """Check that non-defult bounds is used"""
     x = object()
-    self.assertIs(regression.HingeRegression(bounds=x)._bounds, x)
+    self.assertIs(
+      regression.HingeRegression(  # pylint: disable=W0212
+        bounds=x
+      )._bounds,
+      x
+    )
 
 
 class TestRegression(
@@ -79,7 +89,8 @@ class TestRegression(
       )
 
   def test_linear_model_incorrect(self):
-    """Test that linearly fitted parameters are not almost equal to ground truth"""
+    """Test that linearly fitted parameters are
+    not almost equal to ground truth"""
     self.hr.linear_regressor.fit(self.x, self.y)
     with self.subTest(variable="k"):
       with self.assertRaises(AssertionError):
