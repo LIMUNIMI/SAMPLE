@@ -1,6 +1,7 @@
 """Tests related to SMS"""
 import unittest
 from tests import utils
+from chromatictools import unittestmixins
 from sample.sms import sm as sample_sm
 from sample.sms import dsp as sample_dsp
 from sample import utils as sample_utils
@@ -13,7 +14,10 @@ import os
 import warnings
 
 
-class TestSMS(utils.RMSEAssertMixin, unittest.TestCase):
+class TestSMS(
+  unittestmixins.RMSEAssertMixin,
+  unittest.TestCase
+):
   """Tests related to SMS"""
   sms_pack_repo = "https://gitlab.com/ChromaticIsobar/sms.git"
 

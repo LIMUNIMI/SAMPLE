@@ -1,9 +1,9 @@
 """Tests related to regression"""
 import unittest
-import numpy as np
-from scipy import special
+from chromatictools import unittestmixins
 from sample import regression
-from tests import utils
+from scipy import special
+import numpy as np
 
 
 def noisy_hinge(
@@ -36,15 +36,19 @@ class TestClass(unittest.TestCase):
   def test_coeffs_init(self):
     """Check that non-defult coeffs_init is used"""
     x = object()
-    self.assertEqual(regression.HingeRegression(coeffs_init=x)._coeffs_init, x)
+    self.assertIs(regression.HingeRegression(coeffs_init=x)._coeffs_init, x)
 
   def test_bounds(self):
     """Check that non-defult bounds is used"""
     x = object()
-    self.assertEqual(regression.HingeRegression(bounds=x)._bounds, x)
+    self.assertIs(regression.HingeRegression(bounds=x)._bounds, x)
 
 
-class TestRegression(utils.SignificantPlacesAssertMixin, unittest.TestCase):
+class TestRegression(
+  unittestmixins.SignificantPlacesAssertMixin,
+  unittestmixins.RMSEAssertMixin,
+  unittest.TestCase
+):
   """Tests related to regression"""
   def setUp(self) -> None:
     """Initialize test sample and model"""
@@ -66,30 +70,31 @@ class TestRegression(utils.SignificantPlacesAssertMixin, unittest.TestCase):
       self.assert_almost_equal_significant(self.hr.k_, self.k, places=1)
     with self.subTest(variable="q"):
       self.assert_almost_equal_significant(self.hr.q_, self.q, places=1)
-    rmse = np.sqrt(np.mean(np.square(
-      self.hr.predict(self.x) - regression.hinge_function(
-        self.x, self.a, self.k, self.q
-      )
-    )))
     with self.subTest(step="rmse"):
-      self.assertAlmostEqual(rmse, 0.274, places=3)
+      self.assert_almost_equal_rmse(
+        self.hr.predict(self.x),
+        regression.hinge_function(self.x, self.a, self.k, self.q),
+        rmse=0.274,
+        places=3,
+      )
 
-  @unittest.expectedFailure
-  def test_linear_model_correct(self):
-    """Test that linearly fitted parameters are almost equal to ground truth"""
+  def test_linear_model_incorrect(self):
+    """Test that linearly fitted parameters are not almost equal to ground truth"""
     self.hr.linear_regressor.fit(self.x, self.y)
     with self.subTest(variable="k"):
-      self.assert_almost_equal_significant(
-        np.squeeze(self.hr.linear_regressor.coef_),
-        self.k,
-        places=1
-      )
+      with self.assertRaises(AssertionError):
+        self.assert_almost_equal_significant(
+          np.squeeze(self.hr.linear_regressor.coef_),
+          self.k,
+          places=1
+        )
     with self.subTest(variable="q"):
-      self.assert_almost_equal_significant(
-        np.squeeze(self.hr.linear_regressor.intercept_),
-        self.q,
-        places=1
-      )
+      with self.assertRaises(AssertionError):
+        self.assert_almost_equal_significant(
+          np.squeeze(self.hr.linear_regressor.intercept_),
+          self.q,
+          places=1
+        )
 
 
 if __name__ == "__main__":
