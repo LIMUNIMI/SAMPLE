@@ -15,6 +15,7 @@ more-itertools
 jupyter
 matplotlib
 librosa
+requests
 
 # Pylint
 pylint
