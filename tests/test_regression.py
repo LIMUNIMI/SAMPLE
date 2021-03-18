@@ -31,6 +31,19 @@ def noisy_hinge(
   return 20 * np.log10(y + np.random.randn(*y.shape) * y * n)
 
 
+class TestClass(unittest.TestCase):
+  """"Test some regressor class techincal functions"""
+  def test_coeffs_init(self):
+    """Check that non-defult coeffs_init is used"""
+    x = object()
+    self.assertEqual(regression.HingeRegression(coeffs_init=x)._coeffs_init, x)
+
+  def test_bounds(self):
+    """Check that non-defult bounds is used"""
+    x = object()
+    self.assertEqual(regression.HingeRegression(bounds=x)._bounds, x)
+
+
 class TestRegression(utils.SignificantPlacesAssertMixin, unittest.TestCase):
   """Tests related to regression"""
   def setUp(self) -> None:
@@ -45,6 +58,7 @@ class TestRegression(utils.SignificantPlacesAssertMixin, unittest.TestCase):
 
   def test_approximately_correct(self):
     """Test that fitted parameters are almost equal to ground truth"""
+    np.random.seed(42)
     self.hr.fit(self.x, self.y)
     with self.subTest(variable="a"):
       self.assert_almost_equal_significant(self.hr.a_, self.a, places=1)
@@ -52,6 +66,13 @@ class TestRegression(utils.SignificantPlacesAssertMixin, unittest.TestCase):
       self.assert_almost_equal_significant(self.hr.k_, self.k, places=1)
     with self.subTest(variable="q"):
       self.assert_almost_equal_significant(self.hr.q_, self.q, places=1)
+    rmse = np.sqrt(np.mean(np.square(
+      self.hr.predict(self.x) - regression.hinge_function(
+        self.x, self.a, self.k, self.q
+      )
+    )))
+    with self.subTest(step="rmse"):
+      self.assertAlmostEqual(rmse, 0.274, places=3)
 
   @unittest.expectedFailure
   def test_linear_model_correct(self):
