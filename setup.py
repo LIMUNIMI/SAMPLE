@@ -1,9 +1,10 @@
 import setuptools
-from sample import __version__ as version
 
 
 with open("README.md", "r") as f:
   readme = f.read()
+with open("sample/__init__.py", "r") as f:
+  version = f.read().split("__version__ = \"", 1)[-1].split("\"", 1)[0]
 
 
 setuptools.setup(
@@ -16,13 +17,14 @@ setuptools.setup(
   description="Package for the SAMPLE method",
   long_description=readme,
   long_description_content_type="text/markdown",
-  url="https://github.com/LIMUNIMI/SAMPLE",
+  url="https://github.com/limunimi/sample",
   packages=setuptools.find_packages(include=["sample", "sample.*"]),
   include_package_data=True,
   setup_requires=[
     "wheel",
   ],
   install_requires=[
+    "chromatictools",
     "numpy",
     "scipy",
     "scikit-learn",
@@ -36,6 +38,7 @@ setuptools.setup(
       "matplotlib",
       "librosa",
       "more-itertools",
+      "requests",
     ],
     "test": [
       "cython",
@@ -46,10 +49,12 @@ setuptools.setup(
       "sphinx_rtd_theme",
       "m2r2",
       "recommonmark",
-      "matplotlib",
     ],
-    "codecheck": [
+    "lint": [
       "pylint",
+    ],
+    "cov": [
+      "coverage",
     ],
     "packaging": [
       "twine",
@@ -60,4 +65,5 @@ setuptools.setup(
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
   ],
+  python_requires=">=3.6",
 )

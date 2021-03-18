@@ -21,13 +21,13 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
-try:
-  from sample.sample import SAMPLE
-except ModuleNotFoundError:
-  pass
+from chromatictools import cli
+from sample.sample import SAMPLE
 
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 
-if __name__ == "__main__":
+
+@cli.main(__name__)
+def main():
   print("{}\n\nVersion: {}".format(__doc__, __version__))
