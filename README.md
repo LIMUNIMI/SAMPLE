@@ -12,12 +12,6 @@ You can install the `sample` package from [PyPI](https://pypi.org/project/lim-sa
 Available extras are
  - `plots`: for plotting utilities
  - `notebooks`: for running notebooks
-   
-This extras are also available, but intended for internal use
- - `docs`: for generating documentation
- - `codecheck`: for checking code style
- - `test`: for running unit tests
- - `packaging`: for uploading packages
 
 ## Documentation
 API documentation can be found online here:
