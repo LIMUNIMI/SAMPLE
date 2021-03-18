@@ -2,7 +2,7 @@
 import unittest
 from chromatictools import unittestmixins
 import sample
-from sample import utils
+from sample import utils, plots
 import numpy as np
 import copy
 import json
@@ -88,3 +88,15 @@ class TestSAMPLE(
       self.assertFalse(hasattr(
         s.sinusoidal_model, "intermediate_"
       ))
+
+  def test_plot_2d(self):
+    """Test 2D plot"""
+    s = copy.deepcopy(self.sample).fit(self.x)
+    with self.assert_doesnt_raise():
+      plots.sine_tracking_2d(s.sinusoidal_model)
+
+  def test_plot_3d(self):
+    """Test 3D plot"""
+    s = copy.deepcopy(self.sample).fit(self.x)
+    with self.assert_doesnt_raise():
+      plots.sine_tracking_3d(s.sinusoidal_model)
