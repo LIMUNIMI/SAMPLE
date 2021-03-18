@@ -38,6 +38,7 @@ setuptools.setup(
       "matplotlib",
       "librosa",
       "more-itertools",
+      "requests",
     ],
     "test": [
       "cython",
