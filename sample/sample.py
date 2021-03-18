@@ -1,6 +1,5 @@
 """Module for using the entire SAMPLE method pipeline"""
 from sklearn import base
-from sample import abc
 from sample.sms import mm
 from sample.regression import HingeRegression
 import numpy as np
@@ -26,8 +25,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       please, refer to the documentation of the submodels"""
   def __init__(
     self,
-    sinusoidal_model: abc.AbstractSinusoidalModel = mm.ModalModel(),
-    regressor: abc.AbstractLinearRegressor = HingeRegression(),
+    sinusoidal_model=mm.ModalModel(),
+    regressor=HingeRegression(),
     regressor_k: str = "k_",
     regressor_q: str = "q_",
     **kwargs,
