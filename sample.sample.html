@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.2.2 documentation</title>
+  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.2.3 documentation</title>
   
 
   
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                1.2.2
+                1.2.3
               </div>
             
           
@@ -93,7 +93,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="sample.abc.html">sample.abc module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.regression.html">sample.regression module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">sample.sample module</a></li>
@@ -175,7 +174,7 @@
 <p>Module for using the entire SAMPLE method pipeline</p>
 <dl class="py class">
 <dt id="sample.sample.SAMPLE">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sample.</span></code><code class="sig-name descname"><span class="pre">SAMPLE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sinusoidal_model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="sample.abc.html#sample.abc.AbstractSinusoidalModel" title="sample.abc.AbstractSinusoidalModel"><span class="pre">sample.abc.AbstractSinusoidalModel</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">ModalModel()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="sample.abc.html#sample.abc.AbstractLinearRegressor" title="sample.abc.AbstractLinearRegressor"><span class="pre">sample.abc.AbstractLinearRegressor</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">HingeRegression()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor_k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'k_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor_q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'q_'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sample.</span></code><code class="sig-name descname"><span class="pre">SAMPLE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sinusoidal_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ModalModel()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">HingeRegression()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor_k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'k_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor_q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'q_'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>SAMPLE (Spectral Analysis for Modal Parameter Linear Estimate) model</p>
 <dl class="field-list simple">
