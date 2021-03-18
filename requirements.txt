@@ -15,8 +15,11 @@ jupyter
 matplotlib
 librosa
 
-# Code check
+# Pylint
 pylint
+
+# Coverage
+coverage
 
 # Docs
 sphinx

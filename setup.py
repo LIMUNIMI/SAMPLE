@@ -16,7 +16,7 @@ setuptools.setup(
   description="Package for the SAMPLE method",
   long_description=readme,
   long_description_content_type="text/markdown",
-  url="https://github.com/LIMUNIMI/SAMPLE",
+  url="https://github.com/limunimi/sample",
   packages=setuptools.find_packages(include=["sample", "sample.*"]),
   include_package_data=True,
   setup_requires=[
@@ -46,10 +46,12 @@ setuptools.setup(
       "sphinx_rtd_theme",
       "m2r2",
       "recommonmark",
-      "matplotlib",
     ],
-    "codecheck": [
+    "lint": [
       "pylint",
+    ],
+    "cov": [
+      "coverage",
     ],
     "packaging": [
       "twine",

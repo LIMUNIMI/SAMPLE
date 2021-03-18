@@ -25,3 +25,7 @@ docs/source/*.rst
 # Test files
 sms
 !sample/sms
+
+# Coverage
+.coverage
+htmlcov
