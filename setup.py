@@ -1,9 +1,10 @@
 import setuptools
-from sample import __version__ as version
 
 
 with open("README.md", "r") as f:
   readme = f.read()
+with open("sample/__init__.py", "r") as f:
+  version = f.read().split("__version__ = \"", 1)[-1].split("\"", 1)[0]
 
 
 setuptools.setup(
@@ -23,6 +24,7 @@ setuptools.setup(
     "wheel",
   ],
   install_requires=[
+    "chromatictools",
     "numpy",
     "scipy",
     "scikit-learn",
