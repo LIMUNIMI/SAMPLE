@@ -39,9 +39,9 @@ jobs:
     - name: Install
       run: python -m pip install .[test,cov]
     - name: Run coverage
-      run: python -m coverage run -m unittest
+      run: python -m coverage run --source sample -m unittest
     - name: Make coverage JSON
-      run: python -m coverage json --omit="*/tests/*,*/venv/*,./sms/*"
+      run: python -m coverage json
     - name: Install chromatictools
       run: python -m pip install chromatictools
     - name: Download badge
