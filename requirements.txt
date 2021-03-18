@@ -2,6 +2,7 @@
 wheel
 
 # Run
+chromatictools
 numpy
 scipy
 scikit-learn
