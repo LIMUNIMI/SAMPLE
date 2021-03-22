@@ -101,6 +101,24 @@ class TestSAMPLE(
         s.sinusoidal_model, "intermediate_"
       ))
 
+  def test_merge_strategy_raises(self):
+    """Test that an unsupported merging strategy causes an Exception"""
+    s = copy.deepcopy(self.sample)
+    s.set_params(
+      sinusoidal_model__merge_strategy="unsupported merging strategy"
+    )
+    with self.assertRaises(KeyError):
+      s.fit(self.x)
+
+  def test_single_merge_strategy(self):
+    """Test :data:`"single"` merging strategy"""
+    s = copy.deepcopy(self.sample)
+    s.set_params(
+      sinusoidal_model__merge_strategy="single"
+    )
+    with self.assert_doesnt_raise():
+      s.fit(self.x)
+
   def test_plot_2d(self):
     """Test 2D plot"""
     s = copy.deepcopy(self.sample).fit(self.x)
