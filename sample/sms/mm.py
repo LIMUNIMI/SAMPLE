@@ -3,7 +3,7 @@ from sample.sms import sm
 from sklearn import linear_model
 import numpy as np
 import functools
-from typing import Tuple, Optional, Dict, Callable
+from typing import Tuple, Optional, Dict, Callable, Iterable
 
 
 TractT = Dict[str, np.ndarray]
@@ -53,7 +53,9 @@ class ModalTracker(sm.SineTracker):
     merge_strategy (str): Track merging strategy. Supported strategies are:
       :data:`"single"` (based on the frequency difference of the tail of older
       track and head of new track), :data:`"average"` (based on frequency
-      difference of average frequencies)"""
+      difference of average frequencies)
+    strip_t (float): Strip time (in frames). Tracks starting later than this
+      time will be omitted from the track list. If :data:`None`, don't strip"""
   def __init__(
     self,
     max_n_sines: int,
@@ -64,6 +66,7 @@ class ModalTracker(sm.SineTracker):
     peak_threshold: float,
     reverse: bool,
     merge_strategy: str,
+    strip_t: Optional[float],
   ):
     super().__init__(
       max_n_sines=max_n_sines,
@@ -75,6 +78,7 @@ class ModalTracker(sm.SineTracker):
     self.peak_threshold = peak_threshold
     self.reverse = reverse
     self.merge_strategy = merge_strategy
+    self.strip_t = strip_t
 
   def track_ok(self, track: dict) -> bool:
     """Check if deactivated track is ok to be saved
@@ -156,6 +160,23 @@ class ModalTracker(sm.SineTracker):
         self.tracks_.append(t)
     return t
 
+  @property
+  def all_tracks_(self) -> Iterable[TractT]:
+    """All deactivated tracks in :attr:`tracks_` and those active tracks
+    that would pass the cleanness check at the current state of the tracker"""
+    tracks = super().all_tracks_
+    if self.strip_t is None:
+      return tracks
+
+    def onset_ok(t):
+      if self.reverse:
+        o = self._frame - (t["start_frame"] + t["mag"].size)
+      else:
+        o = t["start_frame"]
+      return o <= self.strip_t
+
+    return filter(onset_ok, tracks)
+
 
 class ModalModel(sm.SinusoidalModel):
   """Sinusoidal model with a :class:`ModalTracker` as sine tracker
@@ -185,7 +206,10 @@ class ModalModel(sm.SinusoidalModel):
     merge_strategy (str): Track merging strategy. Supported strategies are:
       :data:`"single"` (based on the frequency difference of the tail of older
       track and head of new track), :data:`"average"` (based on frequency
-      difference of average frequencies)"""
+      difference of average frequencies)
+    strip_t (float): Strip time (in seconds). Tracks starting later than this
+      time will be omitted from the track list.
+      Default is :data:`None` (don't strip)"""
   def __init__(
     self,
     fs: int = 44100,
@@ -203,6 +227,7 @@ class ModalModel(sm.SinusoidalModel):
     frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
     peak_threshold: float = -90,
     merge_strategy: str = "average",
+    strip_t: Optional[float] = None,
   ):
     super().__init__(
       fs=fs,
@@ -221,15 +246,21 @@ class ModalModel(sm.SinusoidalModel):
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
     self.merge_strategy = merge_strategy
+    self.strip_t = strip_t
 
   @property
   def sine_tracker_kwargs(self) -> dict:
     """Arguments for sine tracker initialization"""
     kwargs = super().sine_tracker_kwargs
+    if self.strip_t is None:
+      strip_t = self.strip_t
+    else:
+      strip_t = int(self.strip_t * self.fs / self.h)
     kwargs.update(dict(
       frequency_bounds=self.frequency_bounds,
       peak_threshold=self.peak_threshold,
       reverse=self.reverse,
       merge_strategy=self.merge_strategy,
+      strip_t=strip_t,
     ))
     return kwargs
