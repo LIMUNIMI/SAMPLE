@@ -119,6 +119,25 @@ class TestSAMPLE(
     with self.assert_doesnt_raise():
       s.fit(self.x)
 
+  def test_strip(self):
+    """Test stripping tracks"""
+    s = copy.deepcopy(self.sample)
+    s.set_params(
+      sinusoidal_model__strip_t=0.01
+    )
+    with self.assert_doesnt_raise():
+      s.fit(self.x)
+
+  def test_strip_reverse(self):
+    """Test stripping tracks in reverse mode"""
+    s = copy.deepcopy(self.sample)
+    s.set_params(
+      sinusoidal_model__strip_t=0.01,
+      sinusoidal_model__reverse=True
+    )
+    with self.assert_doesnt_raise():
+      s.fit(self.x)
+
   def test_plot_2d(self):
     """Test 2D plot"""
     s = copy.deepcopy(self.sample).fit(self.x)
