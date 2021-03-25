@@ -138,6 +138,39 @@ class TestSAMPLE(
     with self.assert_doesnt_raise():
       s.fit(self.x)
 
+  def test_freqs_modification(self):
+    """Test that frequencies can be effectively manipulated post-fit"""
+    s = copy.deepcopy(self.sample)
+    s.fit(self.x)
+    t = copy.deepcopy(s)
+    k = 1.2
+    t.freqs_ *= k
+    for i, (f_s, f_t) in enumerate(zip(s.freqs_, t.freqs_)):
+      with self.subTest(partial=i):
+        self.assertEqual(f_s * k, f_t)
+
+  def test_decays_modification(self):
+    """Test that decays can be effectively manipulated post-fit"""
+    s = copy.deepcopy(self.sample)
+    s.fit(self.x)
+    t = copy.deepcopy(s)
+    k = 1.2
+    t.decays_ *= k
+    for i, (d_s, d_t) in enumerate(zip(s.decays_, t.decays_)):
+      with self.subTest(partial=i):
+        self.assertEqual(d_s * k, d_t)
+
+  def test_amps_modification(self):
+    """Test that amplitudes can be effectively manipulated post-fit"""
+    s = copy.deepcopy(self.sample)
+    s.fit(self.x)
+    t = copy.deepcopy(s)
+    k = 1.2
+    t.amps_ *= k
+    for i, (a_s, a_t) in enumerate(zip(s.amps_, t.amps_)):
+      with self.subTest(partial=i):
+        self.assertEqual(a_s * k, a_t)
+
   def test_plot_2d(self):
     """Test 2D plot"""
     s = copy.deepcopy(self.sample).fit(self.x)
