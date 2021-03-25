@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.3.0 documentation</title>
+  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
   
 
   
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                1.3.0
+                1.4.0
               </div>
             
           
@@ -174,7 +174,7 @@
 <p>Module for using the entire SAMPLE method pipeline</p>
 <dl class="py class">
 <dt id="sample.sample.SAMPLE">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sample.</span></code><code class="sig-name descname"><span class="pre">SAMPLE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sinusoidal_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ModalModel()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">HingeRegression()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor_k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'k_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regressor_q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'q_'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sample.</span></code><code class="sig-name descname"><span class="pre">SAMPLE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sinusoidal_model=ModalModel(),</span> <span class="pre">regressor=HingeRegression(),</span> <span class="pre">regressor_k:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'k_',</span> <span class="pre">regressor_q:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'q_',</span> <span class="pre">freq_reduce:</span> <span class="pre">Callable[[numpy.ndarray],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">mean&gt;,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>SAMPLE (Spectral Analysis for Modal Parameter Linear Estimate) model</p>
 <dl class="field-list simple">
@@ -188,6 +188,8 @@
 coefficient of <a class="reference internal" href="#sample.sample.SAMPLE.regressor" title="sample.sample.SAMPLE.regressor"><code class="xref py py-data docutils literal notranslate"><span class="pre">regressor</span></code></a></p></li>
 <li><p><strong>regressor_q</strong> (<em>str</em>) – Attribute name for the estimated intercept
 coefficient of <a class="reference internal" href="#sample.sample.SAMPLE.regressor" title="sample.sample.SAMPLE.regressor"><code class="xref py py-data docutils literal notranslate"><span class="pre">regressor</span></code></a></p></li>
+<li><p><strong>freq_reduce</strong> (<em>callable</em>) – Callable function for reducing the frequency track
+into a single frequency. Defaults to <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.mean()</span></code></p></li>
 <li><p><strong>**kwargs</strong> – Keyword arguments, will be set as parameters of submodels. For a
 complete list of all parameter names and default values, please, run
 <code class="xref py py-data docutils literal notranslate"><span class="pre">SAMPLE().get_params()</span></code>. For an explanation of the parameters,

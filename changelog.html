@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Changelog &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.3.0 documentation</title>
+  <title>Changelog &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.3.0
+                1.4.0
               </div>
             
           
@@ -91,8 +91,17 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="sample.html">sample package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#v1-3-0">v1.3.0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v1-4-0">v1.4.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#features">Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#frequency-reduction">Frequency reduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#settable-properties">Settable properties</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-3-0">v1.3.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Features</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#merging-strategy">Merging strategy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#track-strip">Track strip</a></li>
 </ul>
@@ -103,7 +112,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#v1-2-2">v1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v1-2-1">v1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v1-2-0">v1.2.0</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Features</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#reverse-mode">Reverse mode</a></li>
 </ul>
 </li>
@@ -183,10 +192,32 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v1-3-0">
-<h2>v1.3.0<a class="headerlink" href="#v1-3-0" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v1-4-0">
+<h2>v1.4.0<a class="headerlink" href="#v1-4-0" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="features">
 <h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="frequency-reduction">
+<h4>Frequency reduction<a class="headerlink" href="#frequency-reduction" title="Permalink to this headline">¶</a></h4>
+<p>A custom function can now be provided to reduce the array of frequency of each
+track into a single frequency. This is mainly intended to provide a way to
+switch between mean and median</p>
+</div>
+<div class="section" id="settable-properties">
+<h4>Settable properties<a class="headerlink" href="#settable-properties" title="Permalink to this headline">¶</a></h4>
+<p>Learned properties (frequencies, decays, amplitudes) can now be setted. This
+allows post-fit manipulations, e.g. pitch-shift</p>
+</div>
+</div>
+<div class="section" id="improvements">
+<h3>Improvements<a class="headerlink" href="#improvements" title="Permalink to this headline">¶</a></h3>
+<p>Now forcing correct package version in notebooks. Also using quiet mode instead
+of clearing output</p>
+</div>
+</div>
+<div class="section" id="v1-3-0">
+<h2>v1.3.0<a class="headerlink" href="#v1-3-0" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Features<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="merging-strategy">
 <h4>Merging strategy<a class="headerlink" href="#merging-strategy" title="Permalink to this headline">¶</a></h4>
 <p>Introduced an option to decide when to merge two different tracks. The “average”
@@ -221,8 +252,8 @@ The <code class="docutils literal notranslate"><span class="pre">wav</span></cod
 </div>
 <div class="section" id="v1-2-0">
 <h2>v1.2.0<a class="headerlink" href="#v1-2-0" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>Features<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Features<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="reverse-mode">
 <h4>Reverse mode<a class="headerlink" href="#reverse-mode" title="Permalink to this headline">¶</a></h4>
 <p>Added reverse mode: sinusoidal model will (optionally) process audio in reverse.
