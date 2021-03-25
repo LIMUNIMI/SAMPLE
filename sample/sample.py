@@ -5,6 +5,7 @@ from sample.regression import HingeRegression
 import numpy as np
 import functools
 import copy
+from typing import Callable
 
 
 class SAMPLE(base.RegressorMixin, base.BaseEstimator):
@@ -19,6 +20,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       coefficient of :data:`regressor`
     regressor_q (str): Attribute name for the estimated intercept
       coefficient of :data:`regressor`
+    freq_reduce (callable): Callable function for reducing the frequency track
+      into a single frequency. Defaults to :func:`numpy.mean`
     **kwargs: Keyword arguments, will be set as parameters of submodels. For a
       complete list of all parameter names and default values, please, run
       :data:`SAMPLE().get_params()`. For an explanation of the parameters,
@@ -29,12 +32,14 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     regressor=HingeRegression(),
     regressor_k: str = "k_",
     regressor_q: str = "q_",
+    freq_reduce: Callable[[np.ndarray], float] = np.mean,
     **kwargs,
   ):
     self.sinusoidal_model = sinusoidal_model
     self.regressor = regressor
     self.regressor_k = regressor_k
     self.regressor_q = regressor_q
+    self.freq_reduce = freq_reduce
     self.set_params(**kwargs)
 
   @property
@@ -68,7 +73,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     self.param_matrix_ = np.zeros((3, len(tracks)))
     for i, t in enumerate(tracks):
       notnans = np.logical_not(np.isnan(t["mag"]))
-      self.param_matrix_[0, i] = np.mean(t["freq"][notnans])
+      self.param_matrix_[0, i] = self.freq_reduce(t["freq"][notnans])
       x_ = (t["start_frame"] + np.arange(t["mag"].size)[notnans]) * \
            self.sinusoidal_model.h / self.sinusoidal_model.fs
       y_ = t["mag"][notnans]
