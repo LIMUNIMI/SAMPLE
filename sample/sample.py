@@ -91,15 +91,27 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     """Learned modal frequencies"""
     return self.param_matrix_[0, :]
 
+  @freqs_.setter
+  def freqs_(self, f: np.ndarray):
+    self.param_matrix_[0, :] = f
+
   @property
   def decays_(self) -> np.ndarray:
     """Learned modal decays"""
     return self.param_matrix_[1, :]
 
+  @decays_.setter
+  def decays_(self, d: np.ndarray):
+    self.param_matrix_[1, :] = d
+
   @property
   def amps_(self) -> np.ndarray:
     """Learned modal amplitudes"""
     return self.param_matrix_[2, :]
+
+  @amps_.setter
+  def amps_(self, a: np.ndarray):
+    self.param_matrix_[2, :] = a
 
   @property
   def energies_(self) -> np.ndarray:
