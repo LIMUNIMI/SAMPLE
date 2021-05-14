@@ -11,9 +11,11 @@ def logo(
   phase: float = - .75 * np.pi,
   points: int = 44100,
   size_inches: float = 1.,
+  tk: float = 1,
   s_0: int = 0,
   s_1: int = 13300,
   clear: bool = True,
+  icon: bool = False,
   **kwargs
 ):
   """Plot the SAMPLE logo
@@ -25,12 +27,16 @@ def logo(
     phase (float): Initial phase of dampened cosine
     points (int): Number of samples of dampened cosine
     size_inches (float): Size of the figure in inches
+    tk (float): Thickness multiplier
     s_0 (int): Starting sample for the :data:`'S'` letter
     s_1 (int): Final sample for the :data:`'S'` letter
     clear (bool): If :data:`True` (default), then clear figure before plotting
+    icon (bool): If :data:`True`, then plot the icon
     kwargs: Keyword arguments for :func:`plt.savefig`"""
   if clear:
     plt.clf()
+  if icon:
+    points //= 2
   time = np.arange(points)
   x = -np.exp(time/(-decay)) * np.cos(
     2 * np.pi * frequency * time + phase
@@ -39,29 +45,30 @@ def logo(
 
   # Make letter 'S'
   thicknesses = (
-    int(size_inches),
-    *tuple(range(int(size_inches + 2), int(3 * size_inches), 2))
+    int(size_inches * tk),
+    *tuple(range(int(size_inches * tk + 2), int(3 * size_inches * tk), 2))
   )
-  for thick in thicknesses:
+  for i, thick in enumerate(thicknesses):
     plt.plot(
       x[s_0:s_1] - .1, time[s_0:s_1] + 0.1,
       c="C0", zorder=10, linewidth=thick,
-      alpha=1 if thick == int(size_inches) else .66/(len(thicknesses) - 1)
+      alpha=1 if i == 0 else .66/(len(thicknesses) - 1)
     )
 
   # Write 'ample'
-  plt.text(0, time[s_1], "ample",
-    horizontalalignment="left",
-    verticalalignment="baseline",
-    zorder=11,
-    fontdict=dict(
-      family="sans-serif",
-      color="w",
-      size=7 * size_inches,
+  if not icon:
+    plt.text(0, time[s_1], "ample",
+      horizontalalignment="left",
+      verticalalignment="baseline",
+      zorder=11,
+      fontdict=dict(
+        family="sans-serif",
+        color="w",
+        size=7 * size_inches,
+      )
     )
-  )
 
-  plt.plot(x, time, c="#252525", zorder=5, linewidth=int(size_inches))
+  plt.plot(x, time, c="#252525", zorder=5, linewidth=int(size_inches * tk))
 
   # Black background
   plt.axis("off")

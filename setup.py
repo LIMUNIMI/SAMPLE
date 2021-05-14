@@ -35,6 +35,7 @@ setuptools.setup(
     ],
     "plots": [
       "matplotlib",
+      "Pillow",
     ],
     "notebooks": [
       "jupyter",

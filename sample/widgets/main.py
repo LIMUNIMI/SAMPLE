@@ -1,5 +1,5 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk
+from sample.widgets import responsive as tk, images
 
 
 class SAMPLEGUI(tk.Frame):
@@ -27,6 +27,7 @@ class SAMPLERoot(tk.ThemedTk):
   def __init__(self, theme: str = "equilux", **kwargs):
     super().__init__(**kwargs, theme=theme)
     self.title("SAMPLE")
+    self.tk.call('wm', 'iconphoto', self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.sample_frame = SAMPLEGUI(self)
     self.sample_frame.grid()
