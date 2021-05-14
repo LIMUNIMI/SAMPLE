@@ -30,6 +30,9 @@ setuptools.setup(
     "scikit-learn",
   ],
   extras_require={
+    "gui": [
+      "ttkthemes",
+    ],
     "plots": [
       "matplotlib",
     ],
