@@ -1,5 +1,6 @@
 """Main widgets for the SAMPLE GUI"""
 from sample.widgets import responsive as tk, images
+from typing import Iterable, Tuple, Dict, Any
 
 
 class SAMPLERoot(tk.ThemedTk):
@@ -15,15 +16,46 @@ class SAMPLERoot(tk.ThemedTk):
     self.responsive(1, 1)
 
 
+class DummyTab(tk.Frame):
+  """Dummy tab"""
+  def __init__(self, *args, text: str, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.responsive(1, 1)
+    self.label = tk.Label(self, text=text)
+    self.label.grid()
+
+
+_default_tabs = (
+  ("Tab 1", DummyTab, dict(text="Alice")),
+  ("Tab 2", DummyTab, dict(text="Bob")),
+  ("Tab 3", DummyTab, dict(text="Charlie")),
+  ("Tab 4", DummyTab, dict(text="Delia")),
+  ("Tab 5", DummyTab, dict(text="Eric")),
+)
+
+
 class SAMPLEGUI(SAMPLERoot):
   """Root widget for the SAMPLE GUI
 
   Args:
+    tabs: Tab initialization specifications as an iterable of tuples.
+      Every tuple should have three elements: tab title (:class:`str`),
+      tab init function (:class:`callable`), tab init function keyword
+      arguments (:class:`dict`)
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
-  def __init__(self, **kwargs):
+  def __init__(
+    self,
+    tabs: Iterable[Tuple[str, callable, Dict[str, Any]]] = _default_tabs,
+    **kwargs
+  ):
     super().__init__(**kwargs)
-    self.label = tk.Label(self, text="Actual GUI")
-    self.label.grid()
+    self.notebook = tk.Notebook(self)
+    self.notebook.grid()
+    self.tabs = []
+    for k, func, kw in tabs:
+      v = func(self.notebook, **kw)
+      self.tabs.append(v)
+      self.notebook.add(v, text=k)
 
 
 class SAMPLESplashScreen(SAMPLERoot):
