@@ -6,5 +6,5 @@ from sample.widgets import main
 @cli.main(__name__)
 def run():
   """Launch the SAMPLE GUI"""
-  main.SAMPLERoot().mainloop()
+  main.main().mainloop()
   return 0

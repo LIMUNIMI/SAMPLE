@@ -31,6 +31,12 @@ icon_plt_fn = functools.partial(
 )
 
 
+logo_plt_fn = functools.partial(
+  vid.logo, format="png", size_inches=8,
+  bbox_inches="tight", pad_inches=0,
+)
+
+
 class LogoIcon(TempImage):
   """Temporary image for the GUI logo icon
 
@@ -42,6 +48,22 @@ class LogoIcon(TempImage):
   def __init__(
     self, *args,
     plt_fn: callable = icon_plt_fn,
+    **kwargs
+  ):
+    super().__init__(*args, plt_fn=plt_fn, **kwargs)
+
+
+class LogoImage(TempImage):
+  """Temporary image for the GUI logo image
+
+  Args:
+    plt_fn (callable): Function to print to file. It will be called
+      with a file as the only argument
+    args: Positional arguments for :class:`TempImage`
+    kwargs: Keyword arguments for :class:`TempImage`"""
+  def __init__(
+    self, *args,
+    plt_fn: callable = logo_plt_fn,
     **kwargs
   ):
     super().__init__(*args, plt_fn=plt_fn, **kwargs)
