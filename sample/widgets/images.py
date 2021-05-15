@@ -1,3 +1,4 @@
+"""Utilities for images"""
 from PIL import Image, ImageTk
 from sample import vid
 import functools
