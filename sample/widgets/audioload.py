@@ -42,7 +42,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
     self.bottom_row = tk.Frame(self)
     self.bottom_row.grid(row=1)
-    self.bottom_row.responsive(1, 5)
+    self.bottom_row.responsive(1, 4)
 
     # Audio load button
     self._plt_lims_valid = False
@@ -79,13 +79,13 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       textvariable=self.trim_stop_input_var
     )
     trim_entry_cbk(self.trim_stop_input_var, False)
-    self.trim_stop_input.grid(column=3, row=0)
+    self.trim_stop_input.grid(column=2, row=0)
     # ------------------------------------------------------------------------
 
     # Audio play button
     self._tmp_audio = None
     self.play_button = tk.Button(self.bottom_row, text="Play")
-    self.play_button.grid(column=4, row=0)
+    self.play_button.grid(column=3, row=0)
     self.play_button.bind("<Button-1>", self.play_cbk)
 
   @property
