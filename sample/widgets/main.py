@@ -1,5 +1,5 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images
+from sample.widgets import responsive as tk, images, audioload
 from typing import Iterable, Tuple, Dict, Any
 
 
@@ -12,25 +12,12 @@ class SAMPLERoot(tk.ThemedTk):
   def __init__(self, theme: str = "equilux", **kwargs):
     super().__init__(**kwargs, theme=theme)
     self.title("SAMPLE")
-    self.tk.call('wm', 'iconphoto', self._w, images.LogoIcon())
+    self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
-
-
-class DummyTab(tk.Frame):
-  """Dummy tab"""
-  def __init__(self, *args, text: str, **kwargs):
-    super().__init__(*args, **kwargs)
-    self.responsive(1, 1)
-    self.label = tk.Label(self, text=text)
-    self.label.grid()
 
 
 _default_tabs = (
-  ("Tab 1", DummyTab, dict(text="Alice")),
-  ("Tab 2", DummyTab, dict(text="Bob")),
-  ("Tab 3", DummyTab, dict(text="Charlie")),
-  ("Tab 4", DummyTab, dict(text="Delia")),
-  ("Tab 5", DummyTab, dict(text="Eric")),
+  ("Load Audio", audioload.AudioLoadTab, None),
 )
 
 
@@ -53,6 +40,8 @@ class SAMPLEGUI(SAMPLERoot):
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:
+      if kw is None:
+        kw = dict()
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
