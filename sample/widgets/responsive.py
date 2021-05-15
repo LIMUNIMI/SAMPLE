@@ -84,11 +84,7 @@ def __getattr__(name):  # pylint: disable=C0103
       )
     )
   if not isinstance(cls, type):
-    raise ValueError(
-      "attribute '{}' of module '{}' is not a class".format(
-        name, m.__name__
-      )
-    )
+    return cls
   if cls not in __responsive_classes:
     __responsive_classes[cls] = responsive(cls)
   return __responsive_classes[cls]
