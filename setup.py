@@ -32,6 +32,7 @@ setuptools.setup(
   extras_require={
     "gui": [
       "ttkthemes",
+      "pygame",
     ],
     "plots": [
       "matplotlib",
