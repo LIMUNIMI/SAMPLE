@@ -1,6 +1,5 @@
 """Pyplot widgets"""
 from sample.widgets import responsive as tk, logging, utils
-from tkinter import ttk
 from matplotlib.backends import backend_tkagg
 from matplotlib import figure
 from unittest import mock
@@ -10,7 +9,7 @@ import contextlib
 @contextlib.contextmanager
 def mock_tk2ttk(*args):
   """Context manager to mock :mod:`tkinter` classes
-  with classes from :mod:`tkinter.tk`
+  with classes from :mod:`tkinter.ttk`
 
   Args:
     args: Class names"""
@@ -75,13 +74,12 @@ class PyplotFrame(tk.Frame):
         self.canvas, self, pack_toolbar=False
       )
 
-    root_style = ttk.Style(utils.get_root(self))
     for c in utils.widget_children(self.toolbar, True):
       logging.debug("Toolbar Children: %s (%s)", c, type(c))
       for cls, mappings in self._remap_style:
         if isinstance(c, cls):
           for k_from, k_to in mappings:
-            v = root_style.lookup("T{}".format(cls.__name__), k_from)
+            v = utils.root_style(self, "T{}".format(cls.__name__), k_from)
             logging.debug(
               "%s of %s from %s of %s: %s",
               k_to, type(c).__name__, k_from, cls.__name__, v

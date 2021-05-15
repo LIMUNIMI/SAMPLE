@@ -1,6 +1,7 @@
 """Utilities for SAMPLE GUI widgets"""
 from sample.widgets import logging
 import tkinter as tk
+from tkinter import ttk
 from typing import Generator
 
 
@@ -13,6 +14,16 @@ def get_root(w: tk.Widget):
   Returns:
     The root widget"""
   return w._nametowidget(w.winfo_parent())  # pylint: disable=W0212
+
+
+def root_style(w: tk.Widget, wname: str, wattr: str):
+  """Get the style of a widget from the root
+
+  Args:
+    w (Widget): Get the root of this widget as a style source
+    wname (str): Get the style for this type of widgets
+    wattr (str): Get the style for this attribute of a widget"""
+  return ttk.Style(get_root(w)).lookup(wname, wattr)
 
 
 class RootProperty(property):

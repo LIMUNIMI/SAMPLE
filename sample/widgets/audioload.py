@@ -1,6 +1,6 @@
 """Audio loading tab"""
 from sample.widgets import responsive as tk, logging, utils, pyplot, audio
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox
 from matplotlib import backend_bases
 import numpy as np
 import librosa
@@ -228,8 +228,8 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.ax.clear()
     if self.audio_x is not None:
       # Plot audio
-      bg = ttk.Style(utils.get_root(self)).lookup("TLabel", "background")
-      fg = ttk.Style(utils.get_root(self)).lookup("TLabel", "foreground")
+      bg = utils.root_style(self, "TLabel", "background")
+      fg = utils.root_style(self, "TLabel", "foreground")
       t = np.arange(self.audio_x.size) / (self.audio_sr or 1)
       self.ax.plot(t, self.audio_x, c=bg)
       self.ax.grid(True, c="k")
