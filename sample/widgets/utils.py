@@ -59,6 +59,8 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
   attributes via the root widget"""
   sample_gui_root_properties = (
     "filedialog_dir",
+    "filedialog_file",
+    "filedialog_dir_save",
     "audio_x",
     "audio_sr",
     "audio_trim_start",

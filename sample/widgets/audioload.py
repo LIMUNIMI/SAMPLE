@@ -17,6 +17,8 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.filedialog_dir = os.path.expanduser("~")
+    self.filedialog_dir_save = None
+    self.filedialog_file = None
     self.responsive(1, 1)
 
     # --- Pyplot widgets -----------------------------------------------------
@@ -117,7 +119,10 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     )
     if filename:
       logging.info("Loading audio: %s", filename)
+      self.filedialog_file = filename
       self.filedialog_dir = os.path.dirname(filename)
+      if self.filedialog_dir_save is None:
+        self.filedialog_dir_save = self.filedialog_dir
       try:
         x, sr = librosa.load(filename, sr=None, mono=True)
       except Exception as e:  # pylint: disable=W0703

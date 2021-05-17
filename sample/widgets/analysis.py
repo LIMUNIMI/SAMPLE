@@ -1,8 +1,10 @@
 """Analysis tab"""
-from sample.widgets import responsive as tk, pyplot, utils, audio
+from sample.widgets import responsive as tk, pyplot, utils, audio, logging
 from sample import plots
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 import numpy as np
+import json
+import os
 
 
 class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
@@ -22,20 +24,22 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
   def __init__(
     self,
     *args,
-    pad_top_w: float = 0.075,
+    pad_top_w: float = 0.09,
+    pad_top_wm: float = 0.02,
     pad_top_h: float = 0.05,
     pad_bottom_w: float = 0.05,
     pad_bottom_h: float = 0.05,
     **kwargs
   ):
     super().__init__(*args, **kwargs)
+    self.filedialog_dir_save = None
     self.responsive(1, 1)
 
     # --- Pyplot widgets -----------------------------------------------------
     self.plt = pyplot.PyplotFrame(self)
     self.plt.grid(row=0)
 
-    top_width = 0.5 - 1.5 * pad_top_w
+    top_width = 0.5 - pad_top_w - 0.5 * pad_top_wm
     top_height = 0.5 - 2 * pad_top_h
     self.ax = (
       self.plt.fig.add_axes((
@@ -45,7 +49,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
         top_height,
       )),
       self.plt.fig.add_axes((
-        0.50 + pad_top_w / 2,
+        0.50 + pad_top_wm / 2,
         0.50 + pad_top_h,
         top_width,
         top_height,
@@ -66,7 +70,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
 
     self.bottom_row = tk.Frame(self)
     self.bottom_row.grid(row=1)
-    self.bottom_row.responsive(1, 3)
+    self.bottom_row.responsive(1, 4)
 
     # Analysis button
     self.analysis_button = tk.Button(self.bottom_row, text="Analyze")
@@ -81,6 +85,11 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     self.play_button_r = tk.Button(self.bottom_row, text="Play Resynthesis")
     self.play_button_r.grid(column=2, row=0)
     self.play_button_r.bind("<Button-1>", self.play_cbk(False))
+
+    # Export button
+    self.export_button = tk.Button(self.bottom_row, text="Export")
+    self.export_button.bind("<Button-1>", self.export_cbk)
+    self.export_button.grid(column=3, row=0)
 
   def update_plot(self):
     """Update analysis and resynthesis figure"""
@@ -115,6 +124,8 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
 
     self.ax[1].set_title("")
     self.ax[1].set_ylabel("magnitude (dB)")
+    self.ax[1].yaxis.tick_right()
+    self.ax[1].yaxis.set_label_position("right")
 
     x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
     t = np.arange(x.size) / self.audio_sr
@@ -204,3 +215,40 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       self._tmp_audio = audio.TempAudio(x, self.audio_sr)
       self._tmp_audio.play()
     return play_cbk_
+
+  def export_cbk(self, *args, **kwargs):  # pylint: disable=W0613
+    """Export callback"""
+    try:
+      j = self.sample_object.sdt_params_()
+    except AttributeError:
+      messagebox.showerror(
+        "Not analyzed",
+        "You have to analyse an audio file before "
+        "exporting the parameters"
+      )
+      return
+    logging.debug("SDT JSON: %s", j)
+    filename = filedialog.asksaveasfilename(
+      title="Save JSON file",
+      initialdir=self.filedialog_dir_save,
+      initialfile=os.path.basename(
+        os.path.splitext(self.filedialog_file)[0]
+      ),
+      defaultextension=".json",
+      filetypes=[
+        ("JSON", ".json"),
+        ("Text", ".txt"),
+      ],
+    )
+    if filename:
+      logging.info("Saving JSON: %s", filename)
+      self.filedialog_dir_save = os.path.dirname(filename)
+      try:
+        with open(filename, "w") as f:
+          json.dump(j, f, indent=2)
+      except Exception as e:  # pylint: disable=W0703
+        messagebox.showerror(type(e).__name__, str(e))
+      else:
+        messagebox.showinfo(
+          "Saved", "Saved JSON to file:\n{}".format(filename)
+        )
