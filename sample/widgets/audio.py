@@ -28,22 +28,28 @@ class TempAudio:
     sf.write(self.buf, x, sr, format=format_)
     self.buf.seek(0)
 
+  @staticmethod
+  def close_pygame():
+    try:
+      mixer.music.unload()
+    except pygame.error:
+      pass
+    mixer.quit()
+    pygame.quit()
+
+  def open_pygame(self):
+    pygame.init()
+    mixer.init(
+      frequency=self.sr,
+      channels=1,
+    )
+
   def play(self):
     """Play the temporary audio with :mod:`pygame`"""
     with self.lock:
       if not self.buf.closed:
-        try:
-          mixer.music.unload()
-        except pygame.error:
-          pass
-        mixer.quit()
-        pygame.quit()
-
-        pygame.init()
-        mixer.init(
-          frequency=self.sr,
-          channels=1,
-        )
+        self.close_pygame()
+        self.open_pygame()
         mixer.music.load(self.buf)
         mixer.music.play()
 

@@ -1,6 +1,7 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images, audioload, settings, analysis
+from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils
 from typing import Iterable, Tuple, Dict, Any
+import os
 
 
 class SAMPLERoot(tk.ThemedTk):
@@ -14,6 +15,16 @@ class SAMPLERoot(tk.ThemedTk):
     self.title("SAMPLE")
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
+    self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+  def on_closing(self):
+    """Force destruction"""
+    logging.debug("Destroying root")
+    utils.get_root(self).destroy()
+    logging.debug("Closing pygame")
+    audio.TempAudio.close_pygame()
+    logging.debug("Killing process")
+    os.kill(os.getpid(), 9)
 
 
 _default_tabs = (
@@ -47,6 +58,14 @@ class SAMPLEGUI(SAMPLERoot):
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
+
+  def quit(self):
+    logging.info("Quitting GUI")
+    return super().quit()
+
+  def __del__(self):
+    logging.info("Deleting GUI")
+    return super().__del__()
 
 
 class SAMPLESplashScreen(SAMPLERoot):

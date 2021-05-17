@@ -1,16 +1,30 @@
 """SAMPLE GUI launcher"""
 from chromatictools import cli
 from sample.widgets import main, logging
+import multiprocessing
 import logging as _logging
 import argparse
 import sys
-import os
 
 
 if sys.platform == "linux":
   default_theme = "radiance"
 else:
   default_theme = "arc"
+
+
+def launch(args):
+  """Launch the GUI main loop
+
+  Args:
+    args (Namespace): Command-line arguments namespace"""
+  root = main.main(
+    splash_time=args.splash_time,
+    gui_kwargs=dict(
+      theme=args.theme,
+    ),
+  )
+  root.mainloop()
 
 
 @cli.main(__name__, *sys.argv[1:])
@@ -44,11 +58,7 @@ def run(*argv):
   logging.setLevel(args.log_level)
   logging.info("Args: %s", args)
 
-  main.main(
-    splash_time=args.splash_time,
-    gui_kwargs=dict(
-      theme=args.theme,
-    ),
-  ).mainloop()
-  os.kill(os.getpid(), 9)
+  root = multiprocessing.Process(target=launch, args=(args,))
+  root.start()
+  root.join()
   return 0
