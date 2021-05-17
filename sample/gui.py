@@ -7,6 +7,12 @@ import sys
 import os
 
 
+if sys.platform == "linux":
+  default_theme = "radiance"
+else:
+  default_theme = "arc"
+
+
 @cli.main(__name__, *sys.argv[1:])
 def run(*argv):
   """Launch the SAMPLE GUI"""
@@ -29,7 +35,7 @@ def run(*argv):
     help="Splash time (in milliseconds)",
   )
   parser.add_argument(
-    "--theme", metavar="NAME", default="arc",
+    "--theme", metavar="NAME", default=default_theme,
     help="GUI theme name (see "
          "https://ttkthemes.readthedocs.io/en/latest/themes.html)",
   )

@@ -26,7 +26,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     *args,
     pad_top_w: float = 0.09,
     pad_top_wm: float = 0.02,
-    pad_top_h: float = 0.05,
+    pad_top_h: float = 0.02,
     pad_bottom_w: float = 0.05,
     pad_bottom_h: float = 0.05,
     **kwargs
