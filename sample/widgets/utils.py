@@ -1,5 +1,5 @@
 """Utilities for SAMPLE GUI widgets"""
-from sample.widgets import logging
+from sample.widgets import logging, responsive
 import tkinter as tk
 from tkinter import ttk
 from typing import Generator
@@ -63,6 +63,7 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
     "audio_sr",
     "audio_trim_start",
     "audio_trim_stop",
+    "sample_object",
   )
 
   @property
@@ -101,3 +102,38 @@ def widget_children(
   for v in w.winfo_children():
     for u in widget_children(v, True):
       yield u
+
+
+class ScrollableFrame(responsive.Frame):
+  """Wrapper frame for scrolling
+
+  Args:
+    args: Positional arguments for :class:`tkinter.ttk.Frame`
+    kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.responsive(1, 1)
+    self.canvas = responsive.Canvas(
+      self, highlightthickness=0,
+      background=root_style(self, "TFrame", "background"),
+    )
+    self.canvas.grid(row=0, column=0)
+    self.canvas.responsive(1, 1)
+
+    self.scrollbar = responsive.Scrollbar(
+      self, orient="vertical",
+      command=self.canvas.yview
+    )
+    self.scrollbar.grid(row=0, column=1)
+
+    self.scrollable_frame = responsive.Frame(self.canvas)
+    self.scrollable_frame.bind(
+      "<Configure>", lambda _: self.canvas.configure(
+        scrollregion=self.canvas.bbox("all")
+      )
+    )
+    self.canvas.create_window(
+      (0, 0), anchor="nw",
+      window=self.scrollable_frame
+    )
+    self.canvas.configure(yscrollcommand=self.scrollbar.set)
