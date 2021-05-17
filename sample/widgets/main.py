@@ -1,5 +1,5 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images, audioload, settings
+from sample.widgets import responsive as tk, images, audioload, settings, analysis
 from typing import Iterable, Tuple, Dict, Any
 
 
@@ -19,6 +19,7 @@ class SAMPLERoot(tk.ThemedTk):
 _default_tabs = (
   ("Load Audio", audioload.AudioLoadTab, None),
   ("Settings", settings.SettingsTab, None),
+  ("Analysis", analysis.AnalysisTab, None),
 )
 
 

@@ -54,8 +54,8 @@ class PyplotFrame(tk.Frame):
     self,
     *args,
     fig_dpi: int = 72,
-    fig_w: int = 480,
-    fig_h: int = 270,
+    fig_w: int = 640,
+    fig_h: int = 360,
     **kwargs
   ):
     super().__init__(*args, **kwargs)

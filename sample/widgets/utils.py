@@ -64,6 +64,7 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
     "audio_trim_start",
     "audio_trim_stop",
     "sample_object",
+    "audio_resynth_x",
   )
 
   @property

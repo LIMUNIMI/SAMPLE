@@ -343,6 +343,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.grid()
 
     self.sample_object = sample.SAMPLE()
+    self.apply_cbk()
 
   def add_setting(
     self, name,
