@@ -1,0 +1,6 @@
+[run]
+source =
+	sample
+omit =
+    sample/widgets/*
+    sample/gui.py
