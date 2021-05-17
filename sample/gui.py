@@ -28,13 +28,21 @@ def run(*argv):
     default=3000, type=int,
     help="Splash time (in milliseconds)",
   )
+  parser.add_argument(
+    "--theme", metavar="NAME", default="arc",
+    help="GUI theme name (see "
+         "https://ttkthemes.readthedocs.io/en/latest/themes.html)",
+  )
   args, _ = parser.parse_known_args(argv)
 
   logging.setLevel(args.log_level)
   logging.info("Args: %s", args)
 
   main.main(
-    splash_time=args.splash_time
+    splash_time=args.splash_time,
+    gui_kwargs=dict(
+      theme=args.theme,
+    ),
   ).mainloop()
   os.kill(os.getpid(), 9)
   return 0

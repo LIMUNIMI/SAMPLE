@@ -7,9 +7,9 @@ class SAMPLERoot(tk.ThemedTk):
   """Root widgets for the SAMPLE GUI
 
   Args:
-    theme (str): Theme name. Default is :data:`"equilux"`
+    theme (str): Theme name. Default is :data:`"arc"`
     kwargs: Keyword arguments for :class:`ttkthemes.ThemedTk`"""
-  def __init__(self, theme: str = "equilux", **kwargs):
+  def __init__(self, theme: str = "arc", **kwargs):
     super().__init__(**kwargs, theme=theme)
     self.title("SAMPLE")
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
@@ -53,8 +53,11 @@ class SAMPLESplashScreen(SAMPLERoot):
 
   Args:
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
-  def __init__(self, splash_time: float = 3000, **kwargs):
+  def __init__(self, splash_time: float = 3000, gui_kwargs=None, **kwargs):
     super().__init__(**kwargs)
+    if gui_kwargs is None:
+      gui_kwargs = dict()
+    self.gui_kwargs = gui_kwargs
     self.__img = images.LogoImage()
     self.label = tk.Label(self, image=self.__img)
     self.label.grid()
@@ -64,7 +67,7 @@ class SAMPLESplashScreen(SAMPLERoot):
   def splash_cbk(self):
     """Callback for the splash screen"""
     self.destroy()
-    SAMPLEGUI()
+    SAMPLEGUI(**self.gui_kwargs)
 
 
 main = SAMPLESplashScreen

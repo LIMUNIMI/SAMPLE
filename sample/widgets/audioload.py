@@ -23,7 +23,10 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.plt = pyplot.PyplotFrame(self)
     self.plt.grid(row=0)
     self.ax = self.plt.fig.add_axes((0, 0, 1, 1))
-    self.ax.set_facecolor("#252525")
+    try:
+      self.ax.set_facecolor(utils.root_style(self, "TLabel", "background"))
+    except ValueError:
+      pass
     self._trim_side = None
     self.plt.canvas.mpl_connect(
       "button_press_event", self.manual_trim_cbk_press
@@ -228,17 +231,16 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.ax.clear()
     if self.audio_x is not None:
       # Plot audio
-      bg = utils.root_style(self, "TLabel", "background")
-      fg = utils.root_style(self, "TLabel", "foreground")
       t = np.arange(self.audio_x.size) / (self.audio_sr or 1)
-      self.ax.plot(t, self.audio_x, c=bg)
-      self.ax.grid(True, c="k")
+      fg = utils.root_style(self, "TLabel", "foreground")
+      self.ax.plot(t, self.audio_x, alpha=0.5, c=fg, zorder=5)
+      self.ax.grid(True, c=fg, alpha=0.25, zorder=4)
       if self.audio_loaded:
         # Plot audio in trim region
         self.ax.plot(
           t[self.audio_trim_start:self.audio_trim_stop],
           self.audio_x[self.audio_trim_start:self.audio_trim_stop],
-          c=fg,
+          c="C0", alpha=0.5, zorder=6
         )
       if self._plt_lims_valid:
         # Restore old axis lims

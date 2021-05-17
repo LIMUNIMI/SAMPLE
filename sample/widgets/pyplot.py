@@ -41,6 +41,9 @@ class PyplotFrame(tk.Frame):
     (tk.tk.Checkbutton, (
       ("background", "bg"),
       ("foreground", "fg"),
+      ("height", "height"),
+      ("width", "width"),
+      ("borderwidth", "borderwidth"),
     )),
     (tk.tk.Frame, (
       ("background", "bg"),
@@ -84,7 +87,8 @@ class PyplotFrame(tk.Frame):
               "%s of %s from %s of %s: %s",
               k_to, type(c).__name__, k_from, cls.__name__, v
             )
-            c.config(**{k_to: v})
+            if v != "":
+              c.config(**{k_to: v})
           break
 
     self.toolbar.update()
