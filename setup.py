@@ -30,8 +30,14 @@ setuptools.setup(
     "scikit-learn",
   ],
   extras_require={
+    "gui": [
+      "ttkthemes",
+      "librosa",
+      "pygame",
+    ],
     "plots": [
       "matplotlib",
+      "Pillow",
     ],
     "notebooks": [
       "jupyter",

@@ -17,6 +17,11 @@ matplotlib
 librosa
 requests
 
+# GUI
+ttkthemes
+Pillow
+pygame
+
 # Pylint
 pylint
 
