@@ -168,18 +168,10 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       k_min = 8 * k if k < 0 else k
       k_max = k if k < 0 else 8 * k
 
-    bb = (
+    return (
       (a_min, k_min, q_min),
       (a_max, k_max, q_max)
     )
-    for kb, lb, ub in zip("akq", *bb):
-      if lb >= ub:
-        raise ValueError(
-          "Lower bound for '{}' not less than upper bound: {} >= {}".format(
-            kb, lb, ub
-          )
-        )
-    return bb
 
   @property
   def _bounds(self) -> bounds_fun_type:
