@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
+  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0.dev0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -63,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.0.dev0
               </div>
             
           
@@ -93,10 +96,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.gui.html">sample.gui module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.regression.html">sample.regression module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">sample.sample module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.utils.html">sample.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.vid.html">sample.vid module</a></li>
 </ul>
 </li>
 </ul>
@@ -173,8 +178,8 @@
 <span id="sample-sample-module"></span><h1>sample.sample module<a class="headerlink" href="#module-sample.sample" title="Permalink to this headline">¶</a></h1>
 <p>Module for using the entire SAMPLE method pipeline</p>
 <dl class="py class">
-<dt id="sample.sample.SAMPLE">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sample.</span></code><code class="sig-name descname"><span class="pre">SAMPLE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sinusoidal_model=ModalModel(),</span> <span class="pre">regressor=HingeRegression(),</span> <span class="pre">regressor_k:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'k_',</span> <span class="pre">regressor_q:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'q_',</span> <span class="pre">freq_reduce:</span> <span class="pre">Callable[[numpy.ndarray],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">mean&gt;,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sample.SAMPLE">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sample.sample.</span></span><span class="sig-name descname"><span class="pre">SAMPLE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sinusoidal_model=ModalModel(),</span> <span class="pre">regressor=HingeRegression(),</span> <span class="pre">regressor_k:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'k_',</span> <span class="pre">regressor_q:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'q_',</span> <span class="pre">freq_reduce:</span> <span class="pre">Callable[[numpy.ndarray],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">mean&gt;,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>SAMPLE (Spectral Analysis for Modal Parameter Linear Estimate) model</p>
 <dl class="field-list simple">
@@ -197,27 +202,27 @@ please, refer to the documentation of the submodels</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="sample.sample.SAMPLE.amps_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">amps_</span></code><a class="headerlink" href="#sample.sample.SAMPLE.amps_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.amps_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">amps_</span></span><em class="property"><span class="pre">:</span> <span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.amps_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned modal amplitudes</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sample.SAMPLE.decays_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">decays_</span></code><a class="headerlink" href="#sample.sample.SAMPLE.decays_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.decays_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">decays_</span></span><em class="property"><span class="pre">:</span> <span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.decays_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned modal decays</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sample.SAMPLE.energies_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">energies_</span></code><a class="headerlink" href="#sample.sample.SAMPLE.energies_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.energies_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">energies_</span></span><em class="property"><span class="pre">:</span> <span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.energies_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned modal energies</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sample.SAMPLE.fit">
-<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE.fit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyze audio data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -236,15 +241,15 @@ please, refer to the documentation of the submodels</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sample.SAMPLE.freqs_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">freqs_</span></code><a class="headerlink" href="#sample.sample.SAMPLE.freqs_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.freqs_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">freqs_</span></span><em class="property"><span class="pre">:</span> <span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.freqs_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned modal frequencies</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sample.SAMPLE.predict">
-<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#sample.sample.SAMPLE.predict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#sample.sample.SAMPLE.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resynthesize audio</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -259,14 +264,14 @@ please, refer to the documentation of the submodels</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sample.SAMPLE.regressor">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">regressor</span></code><a class="headerlink" href="#sample.sample.SAMPLE.regressor" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.regressor">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">regressor</span></span><a class="headerlink" href="#sample.sample.SAMPLE.regressor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="sample.sample.SAMPLE.sdt_params_">
-<code class="sig-name descname"><span class="pre">sdt_params_</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'energies'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#sample.sample.SAMPLE.sdt_params_" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.sdt_params_">
+<span class="sig-name descname"><span class="pre">sdt_params_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'energies'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#sample.sample.SAMPLE.sdt_params_" title="Permalink to this definition">¶</a></dt>
 <dd><p>SDT parameters as a JSON serializable dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -288,9 +293,9 @@ Defaults to <code class="xref py py-data docutils literal notranslate"><span cla
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sample.SAMPLE.sinusoidal_model">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sinusoidal_model</span></code><a class="headerlink" href="#sample.sample.SAMPLE.sinusoidal_model" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.sinusoidal_model">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sinusoidal_model</span></span><a class="headerlink" href="#sample.sample.SAMPLE.sinusoidal_model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

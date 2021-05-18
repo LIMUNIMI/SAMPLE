@@ -1,0 +1,7 @@
+sample.vid module
+=================
+
+.. automodule:: sample.vid
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+sample.widgets.images module
+============================
+
+.. automodule:: sample.widgets.images
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.sms.dsp module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
+  <title>sample.sms.dsp module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0.dev0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -63,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.0.dev0
               </div>
             
           
@@ -96,6 +99,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="sample.sms.html#submodules">Submodules</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="sample.widgets.html">sample.widgets package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
@@ -175,8 +179,8 @@
 <span id="sample-sms-dsp-module"></span><h1>sample.sms.dsp module<a class="headerlink" href="#module-sample.sms.dsp" title="Permalink to this headline">¶</a></h1>
 <p>Signal processing functions for SMS</p>
 <dl class="py function">
-<dt id="sample.sms.dsp.dft">
-<code class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></code><code class="sig-name descname"><span class="pre">dft</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.dsp.dft" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.dsp.dft">
+<span class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></span><span class="sig-name descname"><span class="pre">dft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.dsp.dft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Discrete Fourier Transform with zero-phase windowing</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -198,8 +202,8 @@ for phase computation. Defaults to 1e-14</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sample.sms.dsp.peak_detect">
-<code class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></code><code class="sig-name descname"><span class="pre">peak_detect</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#sample.sms.dsp.peak_detect" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.dsp.peak_detect">
+<span class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></span><span class="sig-name descname"><span class="pre">peak_detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#sample.sms.dsp.peak_detect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect peaks (local maxima) in a signal</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -218,8 +222,8 @@ for phase computation. Defaults to 1e-14</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sample.sms.dsp.peak_detect_interp">
-<code class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></code><code class="sig-name descname"><span class="pre">peak_detect_interp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.dsp.peak_detect_interp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.dsp.peak_detect_interp">
+<span class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></span><span class="sig-name descname"><span class="pre">peak_detect_interp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.dsp.peak_detect_interp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect peaks (local maxima) in a signal, refining the value with
 parabolic interpolation</p>
 <dl class="field-list simple">
@@ -240,8 +244,8 @@ parabolic interpolation</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sample.sms.dsp.peak_refine">
-<code class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></code><code class="sig-name descname"><span class="pre">peak_refine</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ploc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.dsp.peak_refine" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.dsp.peak_refine">
+<span class="sig-prename descclassname"><span class="pre">sample.sms.dsp.</span></span><span class="sig-name descname"><span class="pre">peak_refine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ploc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.dsp.peak_refine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Refine detected peaks with parabolic approximation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

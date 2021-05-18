@@ -1,0 +1,23 @@
+sample.widgets package
+======================
+
+.. automodule:: sample.widgets
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   sample.widgets.analysis
+   sample.widgets.audio
+   sample.widgets.audioload
+   sample.widgets.images
+   sample.widgets.main
+   sample.widgets.pyplot
+   sample.widgets.responsive
+   sample.widgets.settings
+   sample.widgets.utils

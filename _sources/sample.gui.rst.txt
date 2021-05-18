@@ -1,0 +1,7 @@
+sample.gui module
+=================
+
+.. automodule:: sample.gui
+   :members:
+   :undoc-members:
+   :show-inheritance:

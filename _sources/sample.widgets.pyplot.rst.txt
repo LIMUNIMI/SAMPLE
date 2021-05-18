@@ -1,0 +1,7 @@
+sample.widgets.pyplot module
+============================
+
+.. automodule:: sample.widgets.pyplot
+   :members:
+   :undoc-members:
+   :show-inheritance:

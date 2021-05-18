@@ -1,0 +1,7 @@
+sample.widgets.settings module
+==============================
+
+.. automodule:: sample.widgets.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.plots module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
+  <title>sample.plots module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0.dev0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -39,7 +42,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="sample.regression module" href="sample.regression.html" />
-    <link rel="prev" title="sample.sms.sm module" href="sample.sms.sm.html" /> 
+    <link rel="prev" title="sample.gui module" href="sample.gui.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -63,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.0.dev0
               </div>
             
           
@@ -93,10 +96,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.gui.html">sample.gui module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">sample.plots module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.regression.html">sample.regression module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.sample.html">sample.sample module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.utils.html">sample.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.vid.html">sample.vid module</a></li>
 </ul>
 </li>
 </ul>
@@ -175,8 +180,8 @@
 <p>This module requires extra dependencies, which you can install with</p>
 <p><code class="xref py py-data docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lim-sample[plots]</span></code></p>
 <dl class="py function">
-<dt id="sample.plots.sine_tracking_2d">
-<code class="sig-prename descclassname"><span class="pre">sample.plots.</span></code><code class="sig-name descname"><span class="pre">sine_tracking_2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="sample.sms.sm.html#sample.sms.sm.SinusoidalModel" title="sample.sms.sm.SinusoidalModel"><span class="pre">sample.sms.sm.SinusoidalModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.plots.sine_tracking_2d" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.plots.sine_tracking_2d">
+<span class="sig-prename descclassname"><span class="pre">sample.plots.</span></span><span class="sig-name descname"><span class="pre">sine_tracking_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="sample.sms.sm.html#sample.sms.sm.SinusoidalModel" title="sample.sms.sm.SinusoidalModel"><span class="pre">sample.sms.sm.SinusoidalModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.plots.sine_tracking_2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot sinusoidal tracks detected by the model on two axes,
 one for frequency and one for magnitude</p>
 <dl class="field-list simple">
@@ -193,8 +198,8 @@ one for frequency and one for magnitude</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sample.plots.sine_tracking_3d">
-<code class="sig-prename descclassname"><span class="pre">sample.plots.</span></code><code class="sig-name descname"><span class="pre">sine_tracking_3d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="sample.sms.sm.html#sample.sms.sm.SinusoidalModel" title="sample.sms.sm.SinusoidalModel"><span class="pre">sample.sms.sm.SinusoidalModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.plots.sine_tracking_3d" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.plots.sine_tracking_3d">
+<span class="sig-prename descclassname"><span class="pre">sample.plots.</span></span><span class="sig-name descname"><span class="pre">sine_tracking_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="sample.sms.sm.html#sample.sms.sm.SinusoidalModel" title="sample.sms.sm.SinusoidalModel"><span class="pre">sample.sms.sm.SinusoidalModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.plots.sine_tracking_3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot sinusoidal tracks detected by the model on one 3D axis</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -218,7 +223,7 @@ one for frequency and one for magnitude</p>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="sample.regression.html" class="btn btn-neutral float-right" title="sample.regression module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="sample.sms.sm.html" class="btn btn-neutral float-left" title="sample.sms.sm module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sample.gui.html" class="btn btn-neutral float-left" title="sample.gui module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

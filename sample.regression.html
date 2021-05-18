@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.regression module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
+  <title>sample.regression module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0.dev0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,10 +31,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +67,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.0.dev0
               </div>
             
           
@@ -94,10 +97,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.gui.html">sample.gui module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">sample.regression module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.sample.html">sample.sample module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sample.utils.html">sample.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.vid.html">sample.vid module</a></li>
 </ul>
 </li>
 </ul>
@@ -174,8 +179,8 @@
 <span id="sample-regression-module"></span><h1>sample.regression module<a class="headerlink" href="#module-sample.regression" title="Permalink to this headline">¶</a></h1>
 <p>Regression models</p>
 <dl class="py class">
-<dt id="sample.regression.HingeRegression">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.regression.</span></code><code class="sig-name descname"><span class="pre">HingeRegression</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linear_regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LinearRegression()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'coef_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'intercept_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'dogbox'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs_init</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.regression.HingeRegression" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.regression.HingeRegression">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sample.regression.</span></span><span class="sig-name descname"><span class="pre">HingeRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linear_regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LinearRegression()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'coef_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'intercept_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'dogbox'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs_init</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.regression.HingeRegression" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>Regressor for fitting to a hinge function</p>
 <p><span class="math notranslate nohighlight">\(h(x) = k * min(x, a) + q\)</span></p>
@@ -206,8 +211,8 @@ coefficients <code class="xref py py-data docutils literal notranslate"><span cl
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="sample.regression.HingeRegression.coeffs_">
-<code class="sig-name descname"><span class="pre">coeffs_</span></code><a class="headerlink" href="#sample.regression.HingeRegression.coeffs_" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.coeffs_">
+<span class="sig-name descname"><span class="pre">coeffs_</span></span><a class="headerlink" href="#sample.regression.HingeRegression.coeffs_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned parameters (a, k, q). They are also accessible
 via their individual properties</p>
 <dl class="field-list simple">
@@ -218,8 +223,8 @@ via their individual properties</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sample.regression.HingeRegression.result_">
-<code class="sig-name descname"><span class="pre">result_</span></code><a class="headerlink" href="#sample.regression.HingeRegression.result_" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.result_">
+<span class="sig-name descname"><span class="pre">result_</span></span><a class="headerlink" href="#sample.regression.HingeRegression.result_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimization result of the nonlinear least
 squares procedure</p>
 <dl class="field-list simple">
@@ -229,15 +234,15 @@ squares procedure</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.regression.HingeRegression.a_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">a_</span></code><a class="headerlink" href="#sample.regression.HingeRegression.a_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.a_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">a_</span></span><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#sample.regression.HingeRegression.a_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned knee point</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.regression.HingeRegression.fit">
-<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.regression.HingeRegression.fit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.regression.HingeRegression.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit hinge function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -257,20 +262,20 @@ squares procedure</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.regression.HingeRegression.k_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">k_</span></code><a class="headerlink" href="#sample.regression.HingeRegression.k_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.k_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">k_</span></span><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#sample.regression.HingeRegression.k_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned slope</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.regression.HingeRegression.linear_regressor">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">linear_regressor</span></code><a class="headerlink" href="#sample.regression.HingeRegression.linear_regressor" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.linear_regressor">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">linear_regressor</span></span><a class="headerlink" href="#sample.regression.HingeRegression.linear_regressor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="sample.regression.HingeRegression.predict">
-<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.regression.HingeRegression.predict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.regression.HingeRegression.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate learned hinge function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -285,17 +290,17 @@ squares procedure</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.regression.HingeRegression.q_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">q_</span></code><a class="headerlink" href="#sample.regression.HingeRegression.q_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.regression.HingeRegression.q_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">q_</span></span><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#sample.regression.HingeRegression.q_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learned intercept</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="sample.regression.hinge_function">
-<code class="sig-prename descclassname"><span class="pre">sample.regression.</span></code><code class="sig-name descname"><span class="pre">hinge_function</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#sample.regression.hinge_function" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.regression.hinge_function">
+<span class="sig-prename descclassname"><span class="pre">sample.regression.</span></span><span class="sig-name descname"><span class="pre">hinge_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#sample.regression.hinge_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hinge function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

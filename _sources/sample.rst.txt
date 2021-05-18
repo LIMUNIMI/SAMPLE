@@ -13,6 +13,7 @@ Subpackages
    :maxdepth: 4
 
    sample.sms
+   sample.widgets
 
 Submodules
 ----------
@@ -20,7 +21,9 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   sample.gui
    sample.plots
    sample.regression
    sample.sample
    sample.utils
+   sample.vid

@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sample.sms.sm module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0 documentation</title>
+  <title>sample.sms.sm module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0.dev0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -38,7 +41,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="sample.plots module" href="sample.plots.html" />
+    <link rel="next" title="sample.widgets package" href="sample.widgets.html" />
     <link rel="prev" title="sample.sms.mm module" href="sample.sms.mm.html" /> 
 </head>
 
@@ -63,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.0.dev0
               </div>
             
           
@@ -96,6 +99,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="sample.sms.html#submodules">Submodules</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="sample.widgets.html">sample.widgets package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
@@ -175,8 +179,8 @@
 <span id="sample-sms-sm-module"></span><h1>sample.sms.sm module<a class="headerlink" href="#module-sample.sms.sm" title="Permalink to this headline">¶</a></h1>
 <p>Sinusoidal model</p>
 <dl class="py class">
-<dt id="sample.sms.sm.SineTracker">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sms.sm.</span></code><code class="sig-name descname"><span class="pre">SineTracker</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sines</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sine_dur</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_dev_offset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_dev_slope</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SineTracker" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sample.sms.sm.</span></span><span class="sig-name descname"><span class="pre">SineTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n_sines</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sine_dur</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_dev_offset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_dev_slope</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SineTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Model for keeping track of sinusiods across frames</p>
 <dl class="field-list simple">
@@ -190,8 +194,8 @@
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="sample.sms.sm.SineTracker.tracks_">
-<code class="sig-name descname"><span class="pre">tracks_</span></code><a class="headerlink" href="#sample.sms.sm.SineTracker.tracks_" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.tracks_">
+<span class="sig-name descname"><span class="pre">tracks_</span></span><a class="headerlink" href="#sample.sms.sm.SineTracker.tracks_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deactivated tracks</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -200,16 +204,16 @@
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sms.sm.SineTracker.all_tracks_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_tracks_</span></code><a class="headerlink" href="#sample.sms.sm.SineTracker.all_tracks_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.all_tracks_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">all_tracks_</span></span><em class="property"><span class="pre">:</span> <span class="pre">Iterable[dict]</span></em><a class="headerlink" href="#sample.sms.sm.SineTracker.all_tracks_" title="Permalink to this definition">¶</a></dt>
 <dd><p>All deactivated tracks in <a class="reference internal" href="#sample.sms.sm.SineTracker.tracks_" title="sample.sms.sm.SineTracker.tracks_"><code class="xref py py-attr docutils literal notranslate"><span class="pre">tracks_</span></code></a> and those active tracks
 that would pass the cleanness check at the current state of the tracker</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SineTracker.deactivate">
-<code class="sig-name descname"><span class="pre">deactivate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_index</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#sample.sms.sm.SineTracker.deactivate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.deactivate">
+<span class="sig-name descname"><span class="pre">deactivate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_index</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#sample.sms.sm.SineTracker.deactivate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove track from list of active tracks and save it in
 <a class="reference internal" href="#sample.sms.sm.SineTracker.tracks_" title="sample.sms.sm.SineTracker.tracks_"><code class="xref py py-attr docutils literal notranslate"><span class="pre">tracks_</span></code></a> if it meets cleanness criteria</p>
 <dl class="field-list simple">
@@ -226,8 +230,8 @@ that would pass the cleanness check at the current state of the tracker</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SineTracker.df">
-<code class="sig-name descname"><span class="pre">df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#sample.sms.sm.SineTracker.df" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.df">
+<span class="sig-name descname"><span class="pre">df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#sample.sms.sm.SineTracker.df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Frequency deviation threshold at given frequency</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -242,14 +246,14 @@ that would pass the cleanness check at the current state of the tracker</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sms.sm.SineTracker.n_active_tracks">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">n_active_tracks</span></code><a class="headerlink" href="#sample.sms.sm.SineTracker.n_active_tracks" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.n_active_tracks">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_active_tracks</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#sample.sms.sm.SineTracker.n_active_tracks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SineTracker.numpy_track">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">numpy_track</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#sample.sms.sm.SineTracker.numpy_track" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.numpy_track">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">numpy_track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#sample.sms.sm.SineTracker.numpy_track" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert to numpy arrays all values in track</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,8 +269,8 @@ that would pass the cleanness check at the current state of the tracker</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SineTracker.reset">
-<code class="sig-name descname"><span class="pre">reset</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SineTracker.reset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SineTracker.reset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset tracker state</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -279,8 +283,8 @@ that would pass the cleanness check at the current state of the tracker</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SineTracker.track_ok">
-<code class="sig-name descname"><span class="pre">track_ok</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#sample.sms.sm.SineTracker.track_ok" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SineTracker.track_ok">
+<span class="sig-name descname"><span class="pre">track_ok</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#sample.sms.sm.SineTracker.track_ok" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if deactivated track is ok to be saved</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -298,8 +302,8 @@ that would pass the cleanness check at the current state of the tracker</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="sample.sms.sm.SinusoidalModel">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sample.sms.sm.</span></code><code class="sig-name descname"><span class="pre">SinusoidalModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">44100</span></em>, <em class="sig-param"><span class="pre">w:</span> <span class="pre">Optional[numpy.ndarray]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">n:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2048</span></em>, <em class="sig-param"><span class="pre">h:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">500</span></em>, <em class="sig-param"><span class="pre">t:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">-90</span></em>, <em class="sig-param"><span class="pre">max_n_sines:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></em>, <em class="sig-param"><span class="pre">min_sine_dur:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.04</span></em>, <em class="sig-param"><span class="pre">freq_dev_offset:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">20</span></em>, <em class="sig-param"><span class="pre">freq_dev_slope:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.01</span></em>, <em class="sig-param"><span class="pre">reverse:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">sine_tracker_cls:</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'sample.sms.sm.SineTracker'&gt;</span></em>, <em class="sig-param"><span class="pre">save_intermediate:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sample.sms.sm.</span></span><span class="sig-name descname"><span class="pre">SinusoidalModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">44100</span></em>, <em class="sig-param"><span class="pre">w:</span> <span class="pre">Optional[numpy.ndarray]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">n:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2048</span></em>, <em class="sig-param"><span class="pre">h:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">500</span></em>, <em class="sig-param"><span class="pre">t:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">-90</span></em>, <em class="sig-param"><span class="pre">max_n_sines:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></em>, <em class="sig-param"><span class="pre">min_sine_dur:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.04</span></em>, <em class="sig-param"><span class="pre">freq_dev_offset:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">20</span></em>, <em class="sig-param"><span class="pre">freq_dev_slope:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.01</span></em>, <em class="sig-param"><span class="pre">reverse:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">sine_tracker_cls:</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'sample.sms.sm.SineTracker'&gt;</span></em>, <em class="sig-param"><span class="pre">save_intermediate:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.TransformerMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
 <p>Model for sinusoidal tracking</p>
 <dl class="field-list simple">
@@ -327,8 +331,8 @@ the attribute <a class="reference internal" href="#sample.sms.sm.SinusoidalModel
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="sample.sms.sm.SinusoidalModel.w_">
-<code class="sig-name descname"><span class="pre">w_</span></code><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.w_" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.w_">
+<span class="sig-name descname"><span class="pre">w_</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.w_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Effective analysis window</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -338,8 +342,8 @@ the attribute <a class="reference internal" href="#sample.sms.sm.SinusoidalModel
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="sample.sms.sm.SinusoidalModel.intermediate_">
-<code class="sig-name descname"><span class="pre">intermediate_</span></code><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.intermediate_" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.intermediate_">
+<span class="sig-name descname"><span class="pre">intermediate_</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.intermediate_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dictionary of intermediate data structures</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -348,15 +352,15 @@ the attribute <a class="reference internal" href="#sample.sms.sm.SinusoidalModel
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.default_window">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">default_window</span></code><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.default_window" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.default_window">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_window</span></span><em class="property"><span class="pre">:</span> <span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.default_window" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default window (2001 samples Hamming window)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.dft_frames">
-<code class="sig-name descname"><span class="pre">dft_frames</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.dft_frames" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.dft_frames">
+<span class="sig-name descname"><span class="pre">dft_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.dft_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterable of DFT frames for a given input</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -373,8 +377,8 @@ of the padded input</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.fit">
-<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.fit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyze audio data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -394,8 +398,8 @@ of the padded input</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.intermediate">
-<code class="sig-name descname"><span class="pre">intermediate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.intermediate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.intermediate">
+<span class="sig-name descname"><span class="pre">intermediate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.intermediate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save intermediate results if <code class="xref py py-data docutils literal notranslate"><span class="pre">save_intermediate</span></code> is True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -413,15 +417,15 @@ of the padded input</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.normalized_window">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">normalized_window</span></code><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.normalized_window" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.normalized_window">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">normalized_window</span></span><em class="property"><span class="pre">:</span> <span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.normalized_window" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalized analysis window (if None, normalized default window)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.pad_input">
-<code class="sig-name descname"><span class="pre">pad_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.pad_input" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.pad_input">
+<span class="sig-name descname"><span class="pre">pad_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.pad_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pad input at the beginning (so that the first window is centered at
 the first sample) and at the end (to analyze all samples)</p>
 <dl class="field-list simple">
@@ -437,15 +441,15 @@ the first sample) and at the end (to analyze all samples)</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.sine_tracker_kwargs">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sine_tracker_kwargs</span></code><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.sine_tracker_kwargs" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.sine_tracker_kwargs">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sine_tracker_kwargs</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.sine_tracker_kwargs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Arguments for sine tracker initialization</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.time_frames">
-<code class="sig-name descname"><span class="pre">time_frames</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.time_frames" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.time_frames">
+<span class="sig-name descname"><span class="pre">time_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.time_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator of frames for a given input</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -460,17 +464,17 @@ the first sample) and at the end (to analyze all samples)</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sample.sms.sm.SinusoidalModel.tracks_">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tracks_</span></code><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.tracks_" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sms.sm.SinusoidalModel.tracks_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tracks_</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[Dict[str,</span> <span class="pre">numpy.ndarray]]</span></em><a class="headerlink" href="#sample.sms.sm.SinusoidalModel.tracks_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tracked sinusoids</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="sample.sms.sm.min_key">
-<code class="sig-prename descclassname"><span class="pre">sample.sms.sm.</span></code><code class="sig-name descname"><span class="pre">min_key</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.min_key" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sample.sms.sm.min_key">
+<span class="sig-prename descclassname"><span class="pre">sample.sms.sm.</span></span><span class="sig-name descname"><span class="pre">min_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#sample.sms.sm.min_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimum value and corresponding argument</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -493,7 +497,7 @@ the first sample) and at the end (to analyze all samples)</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="sample.plots.html" class="btn btn-neutral float-right" title="sample.plots module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.widgets.html" class="btn btn-neutral float-right" title="sample.widgets package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="sample.sms.mm.html" class="btn btn-neutral float-left" title="sample.sms.mm module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

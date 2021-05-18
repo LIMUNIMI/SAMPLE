@@ -1,0 +1,7 @@
+sample.widgets.audioload module
+===============================
+
+.. automodule:: sample.widgets.audioload
+   :members:
+   :undoc-members:
+   :show-inheritance:
