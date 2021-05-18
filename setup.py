@@ -64,6 +64,7 @@ setuptools.setup(
     ],
     "packaging": [
       "twine",
+      "pyinstaller",
     ]
   },
   classifiers=[
