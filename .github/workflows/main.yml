@@ -27,7 +27,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: python -m pip install .[test,plots]
+      run: python -m pip install .[test,plots] --use-feature=in-tree-build
     - name: Test
       run: python -m unittest -v
 
@@ -37,13 +37,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: python -m pip install .[test,cov,plots]
+      run: python -m pip install .[test,cov,plots] --use-feature=in-tree-build
     - name: Run coverage
       run: python -m coverage run -m unittest
     - name: Make coverage JSON
       run: python -m coverage json
-    - name: Install chromatictools
-      run: python -m pip install chromatictools
     - name: Download badge
       run: wget $(python -m chromatictools.badges coverage) -O badge.svg
     - name: Upload svg
@@ -66,14 +64,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: python -m pip install .[lint]
+      run: python -m pip install .[lint] --use-feature=in-tree-build
     - name: Download pylintrc
       run: make pylintrc
       working-directory: docs
     - name: Run pylint
       run: pylint sample tests --rcfile docs/pylintrc --exit-zero > pylint.txt
-    - name: Install chromatictools
-      run: python -m pip install chromatictools
     - name: Download badge
       run: wget $(python -m chromatictools.badges pylint) -O badge.svg
     - name: Upload svg
@@ -98,7 +94,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install
-        run: python -m pip install .[docs,plots]
+        run: python -m pip install .[docs,plots] --use-feature=in-tree-build
       - name: Build HTML
         run: make html
         working-directory: docs
@@ -160,7 +156,7 @@ jobs:
     - name: Build
       run: python setup.py sdist
     - name: Install Twine
-      run: python -m pip install twine
+      run: python -m pip install twine --use-feature=in-tree-build
     - name: Upload
       run: python -m twine upload --verbose dist/*
       env:
@@ -168,3 +164,34 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         TWINE_REPOSITORY: ${{ secrets.TWINE_REPOSITORY }}
         TWINE_NON_INTERACTIVE: 1
+
+  pyinstaller-build:
+    strategy:
+      matrix:
+        os: [
+          windows-latest,
+#          ubuntu-latest
+        ]
+        include:
+          - os: windows-latest
+            exe_path: ./dist/SAMPLE.exe
+            exe_name: SAMPLE.exe
+#          - os: ubuntu-latest
+#            exe_path: ./dist/SAMPLE
+#            exe_name: SAMPLE.linux
+    needs: test
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
+    - name: Install
+      run: python -m pip install .[gui,installer] --use-feature=in-tree-build
+    - name: Build
+      run: python pyinstaller.py
+    - name: Upload executable
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.exe_name }}
+        path: ${{ matrix.exe_path }}
