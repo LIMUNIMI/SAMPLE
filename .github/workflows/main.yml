@@ -33,7 +33,7 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-    container: python:3.7
+    container: python:3.9
     steps:
     - uses: actions/checkout@v2
     - name: Install
@@ -60,7 +60,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    container: python:3.7
+    container: python:3.9
     steps:
     - uses: actions/checkout@v2
     - name: Install
@@ -107,7 +107,7 @@ jobs:
   release-create:
     if: ${{ startsWith( github.ref , 'refs/tags/' ) }}
     runs-on: ubuntu-latest
-    needs: [test, coverage, lint, sphinx]
+    needs: [test, coverage, lint, sphinx, pyinstaller-build]
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.VERSION }}
@@ -178,7 +178,7 @@ jobs:
             exe_name: SAMPLE.exe
 #          - os: ubuntu-latest
 #            exe_path: ./dist/SAMPLE
-#            exe_name: SAMPLE.linux
+#            exe_name: SAMPLE_linux
     needs: test
     runs-on: ${{ matrix.os }}
     steps:
@@ -195,3 +195,46 @@ jobs:
       with:
         name: ${{ matrix.exe_name }}
         path: ${{ matrix.exe_path }}
+
+  pyinstaller-upload:
+    strategy:
+      matrix:
+        os: [
+          windows-latest,
+#          ubuntu-latest
+        ]
+        include:
+          - os: windows-latest
+            exe_name: SAMPLE.exe
+            exe_prefix: SAMPLE_win_
+            exe_suffix: .exe
+#          - os: ubuntu-latest
+#            exe_name: SAMPLE_linux
+#            exe_prefix: SAMPLE_linux_
+#            exe_suffix: ""
+    runs-on: ubuntu-latest
+    container: python:3.9
+    needs: [release-create, pyinstaller-build]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ matrix.exe_name }}
+        path: .
+    - name: Install
+      run: python -m pip install . --use-feature=in-tree-build
+    - name: Set platform-specific version name
+      run: echo "SAMPLE_VERSION=$(python -c 'import sample; print(sample.__version__)' | tr '.' '_')" >> $GITHUB_ENV
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.release-create.outputs.upload_url }}
+        asset_path: ${{ matrix.exe_name }}
+        asset_name: ${{ matrix.exe_prefix }}${{ env.SAMPLE_VERSION }}${{ matrix.exe_suffix }}
+        asset_content_type: application/octet-stream
