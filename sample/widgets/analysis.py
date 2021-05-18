@@ -61,7 +61,9 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
         0.5 - 2 * pad_bottom_h,
       )),
     )
-    self.plt.fig.set_facecolor(utils.root_style(self, "TLabel", "background"))
+    fc = utils.root_color(self, "TLabel", "background")
+    if fc is not None:
+      self.plt.fig.set_facecolor(fc)
     for ax in self.ax:
       ax.set_frame_on(False)
       ax.set_xticks(())
@@ -140,26 +142,23 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     self.ax[2].plot(
       t, x_hat, c="C1", alpha=0.5, zorder=6, label="resynthesis",
     )
-    self.ax[2].legend(loc="lower right")
 
-    fc = utils.root_style(self, "TLabel", "foreground")
-    bc = utils.root_style(self, "TLabel", "background")
-    try:
-      self.ax[2].legend(loc="lower right", labelcolor=fc, facecolor=bc)
-    except ValueError:
-      pass
+    fc = utils.root_color(self, "TLabel", "foreground", key="labelcolor")
+    self.ax[2].legend(
+      loc="lower right", **fc,
+      **utils.root_color(self, "TLabel", "background", key="facecolor"),
+    )
 
     self.ax[2].set_xticks(())
     self.ax[2].set_yticks(())
-    for ax in self.ax[:2]:
-      try:
+    if len(fc) > 0:
+      fc = next(iter(fc.values()))
+      for ax in self.ax[:2]:
         ax.tick_params(axis="both", colors=fc)
         ax.spines["left"].set_color(fc)
         ax.spines["bottom"].set_color(fc)
         ax.xaxis.label.set_color(fc)
         ax.yaxis.label.set_color(fc)
-      except ValueError:
-        pass
 
     self.plt.canvas.draw()
 

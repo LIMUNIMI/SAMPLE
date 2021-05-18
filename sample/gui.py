@@ -50,6 +50,7 @@ def run(*argv):
   )
   parser.add_argument(
     "--theme", metavar="NAME", default=default_theme,
+    type=lambda s: str(s).lower(),
     help="GUI theme name (see "
          "https://ttkthemes.readthedocs.io/en/latest/themes.html)",
   )

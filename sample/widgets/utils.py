@@ -2,7 +2,8 @@
 from sample.widgets import logging, responsive
 import tkinter as tk
 from tkinter import ttk
-from typing import Generator
+from matplotlib import colors
+from typing import Generator, Optional
 
 
 def get_root(w: tk.Widget):
@@ -24,6 +25,26 @@ def root_style(w: tk.Widget, wname: str, wattr: str):
     wname (str): Get the style for this type of widgets
     wattr (str): Get the style for this attribute of a widget"""
   return ttk.Style(get_root(w)).lookup(wname, wattr)
+
+
+def root_color(
+  w: tk.Widget, wname: str, wattr: str,
+  default: Optional = None, key: Optional[str] = None
+):
+  """Get the color style of a widget from the root
+
+  Args:
+    w (Widget): Get the root of this widget as a style source
+    wname (str): Get the style for this type of widgets
+    wattr (str): Get the style for this attribute of a widget
+    default: If the attribute is not a valid color, then return this value
+    key (str): If specified, then output as a key-value dictionary"""
+  c = root_style(w=w, wname=wname, wattr=wattr)
+  if not colors.is_color_like(c):
+    c = default
+  if key is not None:
+    return {key: c} if c is not None else dict()
+  return c
 
 
 class RootProperty(property):
@@ -118,7 +139,7 @@ class ScrollableFrame(responsive.Frame):
     self.responsive(1, 1)
     self.canvas = responsive.Canvas(
       self, highlightthickness=0,
-      background=root_style(self, "TFrame", "background"),
+      **root_color(self, "TFrame", "background", key="background")
     )
     self.canvas.grid(row=0, column=0)
     self.canvas.responsive(1, 1)
