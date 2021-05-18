@@ -14,10 +14,10 @@ class TestInit(
     """Test full-screen logo"""
     with self.assert_doesnt_raise():
       with io.BytesIO() as buf:
-        vid.logo(buf)
+        vid.logo_plt_fn(buf)
 
   def test_icon(self):
     """Test icon logo"""
     with self.assert_doesnt_raise():
       with io.BytesIO() as buf:
-        vid.logo(buf, icon=True)
+        vid.icon_plt_fn(buf)

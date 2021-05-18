@@ -1,7 +1,11 @@
 """Pyinstaller run file"""
 import PyInstaller.__main__
 import itertools
+import contextlib
 from chromatictools import cli
+from sample import vid
+import PIL
+import io
 import os
 import librosa
 from typing import Tuple, Iterable
@@ -74,17 +78,37 @@ def module_data(
   )
 
 
+@contextlib.contextmanager
+def export_icon(fname: str):
+  """Context manager for exporting logo icon. The icon is removed on exit
+
+  Args:
+    fname: Icon file path
+
+  Yields:
+    str: Icon file path"""
+  with io.BytesIO() as buf:
+    vid.icon_plt_fn(buf)
+    buf.seek(0)
+    img = PIL.Image.open(buf)
+    img.save(fname)
+  yield fname
+  os.remove(fname)
+
+
 @cli.main(__name__)
 def main():
   """Run pyinstaller"""
-  PyInstaller.__main__.run([
-    "sample-gui.py", "-F",
-    "-n", "SAMPLE",
-    *hidden_imports((
-      "sklearn.utils._weight_vector",
-      "PIL._tkinter_finder",
-    )),
-    *module_data((
-      (librosa, "util", "example_data"),
-    )),
-  ])
+  with export_icon("SAMPLE.ico") as icon_fpath:
+    PyInstaller.__main__.run([
+      "sample-gui.py", "-F",
+      "--icon={}".format(icon_fpath),
+      "-n", "SAMPLE",
+      *hidden_imports((
+        "sklearn.utils._weight_vector",
+        "PIL._tkinter_finder",
+      )),
+      *module_data((
+        (librosa, "util", "example_data"),
+      )),
+    ])

@@ -64,7 +64,11 @@ setuptools.setup(
     ],
     "packaging": [
       "twine",
+    ],
+    "installer": [
       "pyinstaller",
+      "matplotlib",
+      "Pillow",
     ]
   },
   classifiers=[

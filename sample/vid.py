@@ -1,5 +1,6 @@
 """Visual identity"""
 from matplotlib import pyplot as plt, patches
+import functools
 import numpy as np
 from typing import Optional
 
@@ -85,3 +86,16 @@ def logo(
   if fname is not None:
     plt.savefig(fname, **kwargs)
     plt.clf()
+
+
+icon_plt_fn = functools.partial(
+  logo, format="png",
+  bbox_inches="tight", pad_inches=0,
+  size_inches=1, icon=True, tk=5,
+)
+
+
+logo_plt_fn = functools.partial(
+  logo, format="png", size_inches=8,
+  bbox_inches="tight", pad_inches=0,
+)
