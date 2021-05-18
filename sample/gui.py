@@ -1,6 +1,7 @@
 """SAMPLE GUI launcher"""
 from chromatictools import cli
 from sample.widgets import main, logging
+import sample
 import multiprocessing
 import logging as _logging
 import argparse
@@ -57,6 +58,7 @@ def run(*argv):
   args, _ = parser.parse_known_args(argv)
 
   logging.setLevel(args.log_level)
+  logging.info("SAMPLE: version %s", sample.__version__)
   logging.info("Args: %s", args)
 
   root = multiprocessing.Process(target=launch, args=(args,))

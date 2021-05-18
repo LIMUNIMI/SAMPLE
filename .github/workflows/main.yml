@@ -170,15 +170,11 @@ jobs:
       matrix:
         os: [
           windows-latest,
-#          ubuntu-latest
         ]
         include:
           - os: windows-latest
             exe_path: ./dist/SAMPLE.exe
             exe_name: SAMPLE.exe
-#          - os: ubuntu-latest
-#            exe_path: ./dist/SAMPLE
-#            exe_name: SAMPLE_linux
     needs: test
     runs-on: ${{ matrix.os }}
     steps:
@@ -201,19 +197,12 @@ jobs:
       matrix:
         os: [
           windows-latest,
-#          ubuntu-latest
         ]
         include:
           - os: windows-latest
+            os_label: win
             exe_name: SAMPLE.exe
-            exe_prefix: SAMPLE_win_
-            exe_suffix: .exe
-#          - os: ubuntu-latest
-#            exe_name: SAMPLE_linux
-#            exe_prefix: SAMPLE_linux_
-#            exe_suffix: ""
     runs-on: ubuntu-latest
-    container: python:3.9
     needs: [release-create, pyinstaller-build]
     steps:
     - uses: actions/checkout@v2
@@ -224,10 +213,15 @@ jobs:
       with:
         name: ${{ matrix.exe_name }}
         path: .
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
     - name: Install
       run: python -m pip install . --use-feature=in-tree-build
-    - name: Set platform-specific version name
-      run: echo "SAMPLE_VERSION=$(python -c 'import sample; print(sample.__version__)' | tr '.' '_')" >> $GITHUB_ENV
+    - name: Set version name
+      run: echo "SAMPLE_VERSION=$(python -c 'import sample; print(sample.__version__)')" >> $GITHUB_ENV
+    - name: Zip executable
+      run: zip SAMPLE.zip ${{ matrix.exe_name }}
     - name: Upload Release Asset
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
@@ -235,6 +229,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.release-create.outputs.upload_url }}
-        asset_path: ${{ matrix.exe_name }}
-        asset_name: ${{ matrix.exe_prefix }}${{ env.SAMPLE_VERSION }}${{ matrix.exe_suffix }}
-        asset_content_type: application/octet-stream
+        asset_path: SAMPLE.zip
+        asset_name: SAMPLE_${{ matrix.os_label }}_${{ env.SAMPLE_VERSION }}.zip
+        asset_content_type: application/zip
