@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Spectral Analysis for Modal Parameter Linear Estimate &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.4.0.dev11 documentation</title>
+  <title>Spectral Analysis for Modal Parameter Linear Estimate &mdash; Spectral Analysis for Modal Parameter Linear Estimate 1.5.0a0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                1.4.0.dev11
+                1.5.0a0
               </div>
             
           
@@ -173,7 +173,64 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">plots</span></code>: for plotting utilities</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">notebooks</span></code>: for running notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gui</span></code>: for running the GUI</p></li>
 </ul>
+</div>
+<div class="section" id="gui">
+<h2>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
+<p>If you don’t want write code to use SAMPLE,
+you can use the graphical user interface</p>
+<blockquote>
+<div><p>Please, note that the GUI is still in its alpha release phase</p>
+</div></blockquote>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>For Windows, a stand-alone executable is available. You can download the
+latest version from GitHub:</p>
+<ul class="simple">
+<li><p>Go to <a class="reference external" href="https://github.com/limunimi/sample/releases">https://github.com/limunimi/sample/releases</a></p></li>
+<li><p>Download the zip file from the latest release (<code class="docutils literal notranslate"><span class="pre">SAMPLE_win_&lt;version&gt;.zip</span></code>)</p></li>
+<li><p>Unzip the <code class="docutils literal notranslate"><span class="pre">SAMPLE.exe</span></code> file</p></li>
+<li><p>That’s it, you can run it!</p></li>
+</ul>
+<p>You can change the theme of the GUI (e.g. use a dark theme) this way:</p>
+<ul class="simple">
+<li><p>Create a shortcut to the <code class="docutils literal notranslate"><span class="pre">SAMPLE.exe</span></code> file
+(right-click on the file and select <code class="docutils literal notranslate"><span class="pre">Create</span> <span class="pre">shortcut</span></code>)</p></li>
+<li><p>Right-click on the shortcut and open <code class="docutils literal notranslate"><span class="pre">Properties</span></code></p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">Shortcut</span></code> tab, go to <code class="docutils literal notranslate"><span class="pre">Target</span></code> (it should be
+set to the path of the <code class="docutils literal notranslate"><span class="pre">SAMPLE.exe</span></code> file, e.g.
+<code class="docutils literal notranslate"><span class="pre">C:\Users\User\Downloads\SAMPLE.exe</span></code>)</p></li>
+<li><p>Add the theme option <code class="docutils literal notranslate"><span class="pre">--theme</span> <span class="pre">&lt;theme</span> <span class="pre">name&gt;</span></code> after the
+file path. E.g. if you want to use the theme <code class="docutils literal notranslate"><span class="pre">equilux</span></code>,
+you should add <code class="docutils literal notranslate"><span class="pre">--theme</span> <span class="pre">equilux</span></code></p></li>
+<li><p>That’s it, you can run it by clicking on the shortcut!</p></li>
+</ul>
+<p>For a full list of supported themes go to
+<a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html">ttkthemes.readthedocs.io</a>.<span class="raw-html-m2r"><br></span>
+The default theme for Windows is <a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html#arc">Arc</a>.
+Suggested dark theme is <a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html#equilux">Equilux</a>.</p>
+</div>
+<div class="section" id="python">
+<h3>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<p>You can install the GUI from the command line with Python via pip.<span class="raw-html-m2r"><br></span>
+It is recommended run these commands in a virtual environment in<span class="raw-html-m2r"><br></span>
+order to to keep your system clean</p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lim-sample[gui]==1.5.0a0</span></code></p>
+<p>To run the GUI from the command line, run</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">sample.gui</span></code></p>
+<p>You can change the theme of the GUI (e.g. use a dark theme) by
+specifying a theme option</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">sample.gui</span> <span class="pre">--theme</span> <span class="pre">&lt;theme</span> <span class="pre">name&gt;</span></code></p>
+<p>E.g. if you want to use the theme <code class="docutils literal notranslate"><span class="pre">equilux</span></code>, you should run</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">sample.gui</span> <span class="pre">--theme</span> <span class="pre">equilux</span></code></p>
+<p>For a full list of supported themes go to
+<a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html">ttkthemes.readthedocs.io</a>.<span class="raw-html-m2r"><br></span>
+The default theme is <a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html#radiance-ubuntu">Radiance</a>
+for Linux and <a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html#arc">Arc</a> for
+all other systems.<span class="raw-html-m2r"><br></span>
+Suggested dark theme is <a class="reference external" href="https://ttkthemes.readthedocs.io/en/latest/themes.html#equilux">Equilux</a>.</p>
+</div>
 </div>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
