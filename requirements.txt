@@ -17,6 +17,11 @@ matplotlib
 librosa
 requests
 
+# GUI
+ttkthemes
+Pillow
+pygame
+
 # Pylint
 pylint
 
@@ -31,3 +36,4 @@ recommonmark
 
 # Packaging
 twine
+pyinstaller

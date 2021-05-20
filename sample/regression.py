@@ -138,10 +138,39 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     Returns:
       ((float, float, float), (float, float, float)): Minimum and maximum bounds
         for a, k and q"""
-    dq = np.max(np.abs(y - q))
+    # Knee point bounds
+    if len(x) <= 1:
+      raise ValueError(
+        (
+          "Got a track of length={}. "
+          "Consider increasing the minimum sine length"
+        ).format(
+          len(x)
+        )
+      )
+    else:
+      a_min = np.min(x)
+      a_max = np.max(x)
+    if a_min == a_max:
+      a_min -= 1
+      a_max += 1
+
+    # Intercept bounds
+    dq = np.max(np.abs(y - q)) or 1
+    q_min = q - dq
+    q_max = q + dq
+
+    # Slope bounds
+    if k == 0:
+      k_min = -1
+      k_max = 1
+    else:
+      k_min = 8 * k if k < 0 else k
+      k_max = k if k < 0 else 8 * k
+
     return (
-      (np.min(x), 4 * k if k < 0 else k, q - dq),
-      (np.max(x), k if k < 0 else 4 * k, q + dq)
+      (a_min, k_min, q_min),
+      (a_max, k_max, q_max)
     )
 
   @property

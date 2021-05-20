@@ -31,7 +31,10 @@ def noisy_hinge(
   return 20 * np.log10(y + np.random.randn(*y.shape) * y * n)
 
 
-class TestClass(unittest.TestCase):
+class TestClass(
+  unittestmixins.AssertDoesntRaiseMixin,
+  unittest.TestCase
+):
   """"Test some regressor class techincal functions"""
   def test_coeffs_init(self):
     """Check that non-defult coeffs_init is used"""
@@ -52,6 +55,20 @@ class TestClass(unittest.TestCase):
       )._bounds,
       x
     )
+
+  def test_bounds_len1(self):
+    """Check bounds fail on inputs of length 1"""
+    with self.assertRaises(ValueError):
+      regression.HingeRegression()._default_bounds(
+        np.ones(1), np.ones(1), 0, 0,
+      )
+
+  def test_bounds_notequal(self):
+    """Check bounds don't fail on degenerate inputs"""
+    with self.assert_doesnt_raise():
+      regression.HingeRegression()._default_bounds(
+        np.ones(2), np.ones(2), 0, 0,
+      )
 
 
 class TestRegression(
