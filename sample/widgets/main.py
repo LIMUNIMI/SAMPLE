@@ -1,7 +1,12 @@
 """Main widgets for the SAMPLE GUI"""
 from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils
+import sample
 from typing import Iterable, Tuple, Dict, Any
 import os
+import re
+
+
+_prerelease = re.fullmatch(r"v?(\d\.)*\d", sample.__version__) is None
 
 
 class SAMPLERoot(tk.ThemedTk):
@@ -12,7 +17,9 @@ class SAMPLERoot(tk.ThemedTk):
     kwargs: Keyword arguments for :class:`ttkthemes.ThemedTk`"""
   def __init__(self, theme: str = "arc", **kwargs):
     super().__init__(**kwargs, theme=theme)
-    self.title("SAMPLE")
+    self.title("SAMPLE{}".format(
+      " ({})".format(sample.__version__) if _prerelease else ""
+    ))
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.protocol("WM_DELETE_WINDOW", self.on_closing)

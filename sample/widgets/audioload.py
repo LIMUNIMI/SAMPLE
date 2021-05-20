@@ -2,6 +2,7 @@
 from sample.widgets import responsive as tk, logging, utils, pyplot, audio
 from tkinter import filedialog, messagebox
 from matplotlib import backend_bases
+from matplotlib.backends import _backend_tk
 import numpy as np
 import librosa
 import threading
@@ -85,6 +86,19 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     )
     trim_entry_cbk(self.trim_stop_input_var, False)
     self.trim_stop_input.grid(column=2, row=0)
+
+    _backend_tk.ToolTip.createToolTip(
+      self.trim_start_input,
+      "Select the start of the region to\n"
+      "analyze by typing here the start\n"
+      "time or by clicking on the plot"
+    )
+    _backend_tk.ToolTip.createToolTip(
+      self.trim_stop_input,
+      "Select the end of the region to\n"
+      "analyze by typing here the end\n"
+      "time or by clicking on the plot"
+    )
     # ------------------------------------------------------------------------
 
     # Audio play button
@@ -92,6 +106,10 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.play_button = tk.Button(self.bottom_row, text="Play")
     self.play_button.grid(column=3, row=0)
     self.play_button.bind("<Button-1>", self.play_cbk)
+    _backend_tk.ToolTip.createToolTip(
+      self.play_button,
+      "Play back the selected region of audio"
+    )
 
   @property
   def toolbar_on(self) -> bool:
