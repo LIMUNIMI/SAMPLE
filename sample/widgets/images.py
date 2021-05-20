@@ -1,7 +1,6 @@
 """Utilities for images"""
 from PIL import Image, ImageTk
 from sample import vid
-import functools
 import io
 
 
@@ -25,19 +24,6 @@ class TempImage(ImageTk.PhotoImage):
       super().__init__(*args, **kwargs, image=img)
 
 
-icon_plt_fn = functools.partial(
-  vid.logo, format="png",
-  bbox_inches="tight", pad_inches=0,
-  size_inches=1, icon=True, tk=5,
-)
-
-
-logo_plt_fn = functools.partial(
-  vid.logo, format="png", size_inches=8,
-  bbox_inches="tight", pad_inches=0,
-)
-
-
 class LogoIcon(TempImage):
   """Temporary image for the GUI logo icon
 
@@ -48,7 +34,7 @@ class LogoIcon(TempImage):
     kwargs: Keyword arguments for :class:`TempImage`"""
   def __init__(
     self, *args,
-    plt_fn: callable = icon_plt_fn,
+    plt_fn: callable = vid.icon_plt_fn,
     **kwargs
   ):
     super().__init__(*args, plt_fn=plt_fn, **kwargs)
@@ -64,7 +50,7 @@ class LogoImage(TempImage):
     kwargs: Keyword arguments for :class:`TempImage`"""
   def __init__(
     self, *args,
-    plt_fn: callable = logo_plt_fn,
+    plt_fn: callable = vid.logo_plt_fn,
     **kwargs
   ):
     super().__init__(*args, plt_fn=plt_fn, **kwargs)

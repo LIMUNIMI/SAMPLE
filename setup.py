@@ -34,6 +34,8 @@ setuptools.setup(
       "ttkthemes",
       "librosa",
       "pygame",
+      "matplotlib",
+      "Pillow",
     ],
     "plots": [
       "matplotlib",
@@ -64,6 +66,9 @@ setuptools.setup(
     ],
     "packaging": [
       "twine",
+    ],
+    "installer": [
+      "pyinstaller",
     ]
   },
   classifiers=[

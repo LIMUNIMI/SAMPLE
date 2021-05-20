@@ -29,3 +29,6 @@ sms
 # Coverage
 .coverage
 htmlcov
+
+# Pyinstaller
+*.spec

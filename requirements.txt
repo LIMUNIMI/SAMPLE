@@ -36,3 +36,4 @@ recommonmark
 
 # Packaging
 twine
+pyinstaller
