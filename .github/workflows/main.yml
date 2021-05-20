@@ -168,15 +168,13 @@ jobs:
   pyinstaller-build:
     strategy:
       matrix:
-        os: [
-          windows-latest,
-        ]
+        os: [win]
         include:
-          - os: windows-latest
+          - os: win
+            runner: windows-latest
             exe_path: ./dist/SAMPLE.exe
-            exe_name: SAMPLE.exe
     needs: test
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -189,19 +187,16 @@ jobs:
     - name: Upload executable
       uses: actions/upload-artifact@v1
       with:
-        name: ${{ matrix.exe_name }}
+        name: SAMPLE_${{ matrix.os }}
         path: ${{ matrix.exe_path }}
 
   pyinstaller-upload:
     strategy:
       matrix:
-        os: [
-          windows-latest,
-        ]
+        os: [win]
         include:
-          - os: windows-latest
-            os_label: win
-            exe_name: SAMPLE.exe
+          - os: win
+            exe_path: SAMPLE.exe
     runs-on: ubuntu-latest
     needs: [release-create, pyinstaller-build]
     steps:
@@ -211,7 +206,7 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
-        name: ${{ matrix.exe_name }}
+        name: SAMPLE_${{ matrix.os }}
         path: .
     - uses: actions/setup-python@v2
       with:
@@ -221,7 +216,7 @@ jobs:
     - name: Set version name
       run: echo "SAMPLE_VERSION=$(python -c 'import sample; print(sample.__version__)')" >> $GITHUB_ENV
     - name: Zip executable
-      run: zip SAMPLE.zip ${{ matrix.exe_name }}
+      run: zip SAMPLE.zip ${{ matrix.exe_path }}
     - name: Upload Release Asset
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
@@ -230,5 +225,5 @@ jobs:
       with:
         upload_url: ${{ needs.release-create.outputs.upload_url }}
         asset_path: SAMPLE.zip
-        asset_name: SAMPLE_${{ matrix.os_label }}_${{ env.SAMPLE_VERSION }}.zip
+        asset_name: SAMPLE_${{ matrix.os }}_${{ env.SAMPLE_VERSION }}.zip
         asset_content_type: application/zip
