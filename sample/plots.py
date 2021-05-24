@@ -22,8 +22,19 @@ def sine_tracking_2d(m: sm.SinusoidalModel, ax=None):
     The axes list"""
   if ax is None:
     _, ax = plt.subplots(1, 2, sharex=True)
+  tmax = 0
+  if m.reverse:
+    if m.save_intermediate:
+      tmax = len(m.intermediate_["stft"]) * m.h / m.fs
+    else:
+      tmax = max(
+        (track["start_frame"] + track["freq"].size) * m.h / m.fs
+        for track in m.sine_tracker_.all_tracks_
+      )
   for track in m.sine_tracker_.all_tracks_:
     t_x = (track["start_frame"] + np.arange(track["freq"].size)) * m.h / m.fs
+    if m.reverse:
+      t_x = tmax - t_x
     ax[0].plot(t_x, track["freq"])
     ax[1].plot(t_x, track["mag"])
 

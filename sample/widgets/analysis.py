@@ -102,11 +102,9 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       ax.clear()
     m = self.sample_object.sinusoidal_model
     stft = np.array([mx for mx, _ in m.intermediate_["stft"]]).T
-    tmax = max((
-        track["start_frame"] + track["freq"].size
-        for track in m.sine_tracker_.all_tracks_
-      ), default=0,
-    ) * m.h / m.fs
+    if m.reverse:
+      stft = np.fliplr(stft)
+    tmax = len(m.intermediate_["stft"]) * m.h / m.fs
 
     plots.sine_tracking_2d(m, ax=self.ax)
 
