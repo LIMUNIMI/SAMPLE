@@ -19,5 +19,6 @@ Submodules
    sample.widgets.main
    sample.widgets.pyplot
    sample.widgets.responsive
+   sample.widgets.sample
    sample.widgets.settings
    sample.widgets.utils
