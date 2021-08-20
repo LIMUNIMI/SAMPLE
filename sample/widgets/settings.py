@@ -1,6 +1,5 @@
 """Settings tab"""
-import sample
-from sample.widgets import responsive as tk, utils, logging
+from sample.widgets import responsive as tk, utils, logging, sample
 from matplotlib.backends import _backend_tk
 from scipy import signal
 import functools

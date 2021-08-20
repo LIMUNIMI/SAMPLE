@@ -36,6 +36,7 @@ setuptools.setup(
       "pygame",
       "matplotlib",
       "Pillow",
+      "throttle",
     ],
     "plots": [
       "matplotlib",

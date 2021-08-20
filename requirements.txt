@@ -21,6 +21,7 @@ requests
 ttkthemes
 Pillow
 pygame
+throttle
 
 # Pylint
 pylint

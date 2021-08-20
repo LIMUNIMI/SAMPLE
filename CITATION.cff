@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software in your work, please cite the SMC 2020 paper as below."
+authors:
+- family-names: "Tiraboschi"
+  given-names: "Marco"
+  orcid: "https://orcid.org/0000-0001-5761-4837"
+title: "SAMPLE"
+version: 1.5.0a2
+date-released: 2021-02-26
+url: "https://github.com/limunimi/sample"
+repository-code: "https://github.com/limunimi/sample"
+license: MIT
+type: software
+preferred-citation:
+  type: proceedings
+  title: "Spectral Analysis for Modal Parameters Linear Estimate"
+  authors:
+    - family-names: "Tiraboschi"
+      given-names: "Marco"
+      orcid: "https://orcid.org/0000-0001-5761-4837"
+    - family-names: "Avanzini"
+      given-names: "Federico"
+      orcid: "https://orcid.org/0000-0002-1257-5878"
+    - family-names: "Ntalampiras"
+      given-names: "Stavros"
+      orcid: "https://orcid.org/0000-0003-3482-9215"
+  doi: "10.5281/zenodo.3898795"
+  journal: "Proceedings of the 17th Sound and Music Computing Conference"
+  month: 6
+  year: 2020
+  start: 276
+  end: 283

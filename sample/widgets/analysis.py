@@ -70,8 +70,11 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       ax.set_yticks(())
     # ------------------------------------------------------------------------
 
+    self.progressbar = tk.Progressbar(self, maximum=1, value=0)
+    self.progressbar.grid(row=1)
+
     self.bottom_row = tk.Frame(self)
-    self.bottom_row.grid(row=1)
+    self.bottom_row.grid(row=2)
     self.bottom_row.responsive(1, 4)
 
     # Analysis button
@@ -99,11 +102,9 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       ax.clear()
     m = self.sample_object.sinusoidal_model
     stft = np.array([mx for mx, _ in m.intermediate_["stft"]]).T
-    tmax = max((
-        track["start_frame"] + track["freq"].size
-        for track in m.sine_tracker_.all_tracks_
-      ), default=0,
-    ) * m.h / m.fs
+    if m.reverse:
+      stft = np.fliplr(stft)
+    tmax = len(m.intermediate_["stft"]) * m.h / m.fs
 
     plots.sine_tracking_2d(m, ax=self.ax)
 
@@ -175,13 +176,13 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       self.sample_object.fit(
         x, sinusoidal_model__fs=self.audio_sr,
         sinusoidal_model__save_intermediate=True,
+        sinusoidal_model__progressbar=self.progressbar,
       )
     except Exception as e:  # pylint: disable=W0703
       messagebox.showerror(
         type(e).__name__, str(e)
       )
       return
-    messagebox.showinfo("Success", "Analysis done!")
     self.audio_resynth_x = None
     self.update_plot()
 
