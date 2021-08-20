@@ -8,6 +8,9 @@ title: "SAMPLE"
 version: 1.5.0a2
 date-released: 2021-02-26
 url: "https://github.com/limunimi/sample"
+repository-code: "https://github.com/limunimi/sample"
+license: MIT
+type: software
 preferred-citation:
   type: proceedings
   title: "Spectral Analysis for Modal Parameters Linear Estimate"
