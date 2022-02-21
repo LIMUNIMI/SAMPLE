@@ -38,12 +38,30 @@ class PyplotFrame(tk.Frame):
     args: Positional arguments for :class:`tkinter.ttk.Frame`
     kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
   _remap_style = (
+    (tk.tk.Button, (
+      ("background", "bg"),
+      ("foreground", "fg"),
+      ("height", "height"),
+      ("width", "width"),
+      ("borderwidth", "bd"),
+      ("active background", "active background"),
+      ("active foreground", "active foreground"),
+    )),
+    (tk.tk.Label, (
+      ("background", "bg"),
+      ("foreground", "fg"),
+      ("height", "height"),
+      ("width", "width"),
+      ("borderwidth", "bd"),
+    )),
     (tk.tk.Checkbutton, (
       ("background", "bg"),
       ("foreground", "fg"),
       ("height", "height"),
       ("width", "width"),
-      ("borderwidth", "borderwidth"),
+      ("borderwidth", "bd"),
+      ("active background", "active background"),
+      ("active foreground", "active foreground"),
     )),
     (tk.tk.Frame, (
       ("background", "bg"),
@@ -72,15 +90,16 @@ class PyplotFrame(tk.Frame):
     self.canvas_widget = self.canvas.get_tk_widget()
     self.canvas_widget.grid(row=1, sticky=tk.NSEW)
 
-    with mock_tk2ttk("Button", "Label"):
-      self.toolbar = backend_tkagg.NavigationToolbar2Tk(
-        self.canvas, self, pack_toolbar=False
-      )
+    self.toolbar = backend_tkagg.NavigationToolbar2Tk(
+      self.canvas, self, pack_toolbar=False
+    )
 
     for c in utils.widget_children(self.toolbar, True):
       logging.debug("Toolbar Children: %s (%s)", c, type(c))
       for cls, mappings in self._remap_style:
         if isinstance(c, cls):
+          if cls in (tk.tk.Button, tk.tk.Checkbutton):
+            c.config(relief=tk.tk.FLAT)
           for k_from, k_to in mappings:
             v = utils.root_style(self, "T{}".format(cls.__name__), k_from)
             logging.debug(
