@@ -15,6 +15,7 @@ docs/source/*.rst
 
 # IDE
 .idea
+.vscode
 
 # Configuration files
 *.conf
