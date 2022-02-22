@@ -99,6 +99,6 @@ class UserTtkTheme:
   def get(self, k: str = "gui_theme") -> str:
     if self.file.is_valid() and self.file.exists():
       s = self.file.load_json()
-      if k in s:
+      if self.is_valid(s.get(k, None)):
         return s[k]
     return self.default()
