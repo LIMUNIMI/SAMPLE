@@ -12,7 +12,7 @@ def launch(args, reload_queue: Optional[multiprocessing.SimpleQueue] = None):
 
   Args:
     args (Namespace): Command-line arguments namespace"""
-  from sample.widgets import main, logging, utils  # pylint: disable=C0415
+  from sample.widgets import main, logging  # pylint: disable=C0415
   import logging as _logging  # pylint: disable=C0415
   import sample  # pylint: disable=C0415
 
