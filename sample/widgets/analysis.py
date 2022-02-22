@@ -246,7 +246,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       logging.info("Saving JSON: %s", filename)
       self.filedialog_dir_save = os.path.dirname(filename)
       try:
-        with open(filename, "w") as f:
+        with open(filename, mode="w", encoding="utf-8") as f:
           json.dump(j, f, indent=2)
       except Exception as e:  # pylint: disable=W0703
         messagebox.showerror(type(e).__name__, str(e))
