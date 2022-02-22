@@ -28,7 +28,6 @@ def launch(args):
   root = main.main(
     splash_time=args.splash_time,
     gui_kwargs=dict(
-      theme=args.theme,
       persistent_dir=userfiles.UserDir(args.dir),
     ),
   )
@@ -38,11 +37,6 @@ def launch(args):
 @cli.main(__name__, *sys.argv[1:])
 def run(*argv):
   """Launch the SAMPLE GUI"""
-  if sys.platform == "linux":
-    default_theme = "radiance"
-  else:
-    default_theme = "arc"
-
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument(
     "-l", "--log-level", dest="log_level", metavar="LEVEL",
@@ -53,12 +47,6 @@ def run(*argv):
     "--splash-time", dest="splash_time", metavar="MSEC",
     default=3000, type=int,
     help="Splash time (in milliseconds)",
-  )
-  parser.add_argument(
-    "--theme", metavar="NAME", default=default_theme,
-    type=lambda s: str(s).lower(),
-    help="GUI theme name (see "
-         "https://ttkthemes.readthedocs.io/en/latest/themes.html)",
   )
   parser.add_argument(
     "--dir", metavar="PATH",

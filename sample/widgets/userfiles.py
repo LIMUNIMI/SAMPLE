@@ -1,7 +1,8 @@
 """Classes and functions for handling user files"""
 import contextlib
-import functools
+import ttkthemes
 import json
+import sys
 import os
 
 
@@ -65,3 +66,22 @@ class UserDir:
     Args:
       subpath: Path of the file in the directory"""
     return self.UserFile(userdir=self, subpath=subpath)
+
+
+class UserTtkTheme:
+  @staticmethod
+  def is_valid(theme: str) -> bool:
+    return theme in ttkthemes.THEMES
+
+  def __init__(self, file: UserDir.UserFile):
+    self.file = file
+
+  def get(self, k: str = "gui_theme") -> str:
+    if self.file.is_valid() and self.file.exists():
+      s = self.file.load_json()
+      if k in s:
+        return s[k]
+    if sys.platform == "linux":
+      return "radiance"
+    else:
+      return "arc"
