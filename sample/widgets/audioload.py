@@ -142,7 +142,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
   def auto_trim(self):
     """Automatically trim audio via onset detection"""
-    onsets = librosa.onset.onset_detect(self.audio_x,
+    onsets = librosa.onset.onset_detect(y=self.audio_x,
                                         sr=self.audio_sr,
                                         units="samples")
     logging.debug("Onsets: %s", onsets)
