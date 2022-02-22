@@ -23,8 +23,7 @@ class SAMPLERoot(tk.ThemedTk):
     self.reload_queue = reload_queue
     self.should_reload = False
     super().__init__(**kwargs, theme=theme)
-    self.title("SAMPLE{}".format(
-        " ({})".format(sample.__version__) if _prerelease else ""))
+    self.title(f"SAMPLE ({sample.__version__})" if _prerelease else "SAMPLE")
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.protocol("WM_DELETE_WINDOW", self.on_closing)

@@ -98,7 +98,7 @@ class PyplotFrame(tk.Frame):
           if cls in (tk.tk.Button, tk.tk.Checkbutton):
             c.config(relief=tk.tk.FLAT)
           for k_from, k_to in mappings:
-            v = utils.root_style(self, "T{}".format(cls.__name__), k_from)
+            v = utils.root_style(self, f"T{cls.__name__}", k_from)
             logging.debug("%s of %s from %s of %s: %s", k_to,
                           type(c).__name__, k_from, cls.__name__, v)
             if v != "":

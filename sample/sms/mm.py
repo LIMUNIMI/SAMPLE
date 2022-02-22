@@ -118,11 +118,10 @@ class ModalTracker(sm.SineTracker):
   def freq_diff_function(self) -> Callable:
     """Frequency difference function for current merge strategy"""
     if self.merge_strategy not in self._diff_funcion_dict:
-      raise KeyError("merge strategy for object of type '{}'"
-                     "should be one of the following: {}".format(
-                         self.__class__.__name__, ", ".join(
-                             map("'{}'".format,
-                                 self._diff_funcion_dict.keys()))))
+      raise KeyError(
+          f"merge strategy for object of type '{self.__class__.__name__}'" +
+          f"""should be one of the following: {", ".join(f"'{k}'" for k in self._diff_funcion_dict.keys())}"""
+      )
     return self._diff_funcion_dict[self.merge_strategy]
 
   def deactivate(self, track_index: int) -> dict:

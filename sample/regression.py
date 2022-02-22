@@ -137,8 +137,8 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     # Knee point bounds
     if len(x) <= 1:
       raise ValueError(
-          ("Got a track of length={}. "
-           "Consider increasing the minimum sine length").format(len(x)))
+          f"Got a track of length={len(x)}. Consider increasing the minimum sine length"
+      )
     else:
       a_min = np.min(x)
       a_max = np.max(x)

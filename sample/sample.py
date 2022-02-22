@@ -133,7 +133,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     Returns:
       dict: SDT parameters"""
     n_modes = self.freqs_.size
-    m_ord = np.argsort(getattr(self, "{}_".format(order))).tolist()
+    m_ord = np.argsort(getattr(self, f"{order}_")).tolist()
     if reverse:
       m_ord = list(reversed(m_ord))
     return {

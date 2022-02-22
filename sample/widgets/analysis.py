@@ -251,4 +251,4 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       except Exception as e:  # pylint: disable=W0703
         messagebox.showerror(type(e).__name__, str(e))
       else:
-        messagebox.showinfo("Saved", "Saved JSON to file:\n{}".format(filename))
+        messagebox.showinfo("Saved", f"Saved JSON to file:\n{filename}")

@@ -22,9 +22,8 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
   def setUpClass(cls):
     """Download SMS and install it as a package"""
     if not os.path.isfile("sms/__init__.py"):
-      os.system("git clone {} sms --recurse-submodules".format(
-          cls.sms_pack_repo))
-      os.system("cd sms && {} setup.py".format(sys.executable))
+      os.system(f"git clone {cls.sms_pack_repo} sms --recurse-submodules")
+      os.system(f"cd sms && {sys.executable} setup.py")
 
   @classmethod
   def tearDownClass(cls):
@@ -103,7 +102,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
 
     def get_time(func: str,):
       return timeit.timeit(
-          "{}(mx, px, ploc)".format(func),
+          f"{func}(mx, px, ploc)",
           number=256,
           globals=g,
       )
@@ -111,7 +110,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
     t = get_time("sample_dsp.peak_refine")
     t_sms = get_time("utilFunctions.peakInterp")
     self.assertLessEqual(t, t_sms)
-    print("\n  {} <= {}".format(t, t_sms))
+    print("\n" + f"  {t} <= {t_sms}")
 
   def test_intermediate(self):
     """Check that intermediate results are saved"""
