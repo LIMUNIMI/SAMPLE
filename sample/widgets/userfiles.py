@@ -79,7 +79,8 @@ class UserTtkTheme:
   def is_valid(theme: str, log: bool = False, messagebox: bool = False) -> bool:
     b = theme in ttkthemes.THEMES
     if not b and (log or messagebox):
-      m = f"""Unsupported theme: '{theme}'. Supported themes are: {", ".join(f"'{t}'" for t in ttkthemes.THEMES)}"""
+      m = f"Unsupported theme: '{theme}'. Supported themes are: " + \
+          ", ".join(f"'{t}'" for t in ttkthemes.THEMES)
       if log:
         logging.warning(m)
       if messagebox:
