@@ -49,10 +49,19 @@ class UserDir:
       return os.path.isfile(self.path)
 
     def save_json(self, data, **kwargs):
+      """Serialize an object to JSON and save in the file
+
+      Args:
+        data: Python object to serialize
+        kwargs: Keyword arguments for :func:`json.dump`"""
       with self.open(mode="w") as f:
         json.dump(data, f, **kwargs)
 
     def load_json(self, **kwargs):
+      """Load JSON from the file and deserialize as a Python object
+
+      Args:
+        kwargs: Keyword arguments for :func:`json.load`"""
       with self.open(mode="r") as f:
         return json.load(f, **kwargs)
 
@@ -74,9 +83,22 @@ class UserDir:
 
 
 class UserTtkTheme:
+  """Convenience class for handling the GUI ttk theme
+
+  Args:
+    file (UserDir.UserFile): File for settings caching"""
+  def __init__(self, file: UserDir.UserFile):
+    self.file = file
 
   @staticmethod
   def is_valid(theme: str, log: bool = False, messagebox: bool = False) -> bool:
+    """Check validity of theme name
+
+    Args:
+      theme (str): Theme name
+      log (bool): If :data:`True`, log warning on invalid theme name
+      messagebox (bool): If :data:`True`, open a message box on invalid
+        theme name"""
     b = theme in ttkthemes.THEMES
     if not b and (log or messagebox):
       m = f"Unsupported theme: '{theme}'. Supported themes are: " + \
@@ -89,15 +111,20 @@ class UserTtkTheme:
 
   @staticmethod
   def default() -> str:
+    """Default theme name for the platform"""
     if sys.platform == "linux":
       return "radiance"
     else:
       return "arc"
 
-  def __init__(self, file: UserDir.UserFile):
-    self.file = file
-
   def get(self, k: str = "gui_theme") -> str:
+    """Retrieve the GUI theme setting value
+
+    Args:
+      k (str): Key of the GUI theme in the settings dictionary
+
+    Returns:
+      str: The GUI theme setting value"""
     if self.file.is_valid() and self.file.exists():
       s = self.file.load_json()
       if self.is_valid(s.get(k, None)):
