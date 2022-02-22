@@ -1,4 +1,5 @@
 """Settings tab"""
+from tkinter import messagebox
 from sample.widgets import responsive as tk, utils, logging, sample, userfiles
 from matplotlib.backends import _backend_tk
 from scipy import signal
@@ -391,6 +392,8 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
   def apply_cbk(self, *args, from_file: bool = False, **kwargs):  # pylint: disable=W0613
     """Callback for updating parameters from the settings"""
+    ttk_theme = userfiles.UserTtkTheme(self.settings_file)
+    prev_theme = ttk_theme.get()
     settings = dict()
     if from_file and self.settings_file.is_valid() and self.settings_file.exists():
       settings = self.settings_file.load_json()
@@ -419,3 +422,12 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       self._settings[k].set(v)
     self.sample_object.set_params(**params)
     logging.debug("SAMPLE: %s", self.sample_object)
+    if prev_theme != ttk_theme.get():
+      logging.info("Reload GUI to apply changes")
+      if messagebox.askyesno(
+        "Reload",
+        "Reload GUI to apply changes to the theme. Do you want to reload now?"
+      ):
+        r = utils.get_root(self)
+        r.master.should_reload = True
+        r.quit()

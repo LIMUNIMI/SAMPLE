@@ -1,6 +1,7 @@
 """Main widgets for the SAMPLE GUI"""
 from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils, userfiles
 import sample
+import multiprocessing
 from typing import Iterable, Tuple, Dict, Any, Optional
 import os
 import re
@@ -15,7 +16,12 @@ class SAMPLERoot(tk.ThemedTk):
   Args:
     theme (str): Theme name. Default is :data:`"arc"`
     kwargs: Keyword arguments for :class:`ttkthemes.ThemedTk`"""
-  def __init__(self, theme: str = "arc", **kwargs):
+  def __init__(self,
+               theme: str = "arc",
+               reload_queue: Optional[multiprocessing.SimpleQueue] = None,
+              **kwargs):
+    self.reload_queue = reload_queue
+    self.should_reload = False
     super().__init__(**kwargs, theme=theme)
     self.title("SAMPLE{}".format(
       " ({})".format(sample.__version__) if _prerelease else ""
@@ -26,6 +32,8 @@ class SAMPLERoot(tk.ThemedTk):
 
   def on_closing(self):
     """Force destruction"""
+    if self.reload_queue is not None:
+      self.reload_queue.put(self.should_reload)
     logging.debug("Destroying root")
     utils.get_root(self).destroy()
     logging.debug("Closing pygame")

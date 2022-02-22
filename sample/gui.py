@@ -4,14 +4,15 @@ from sample.widgets import userfiles
 import multiprocessing
 import argparse
 import sys
+from typing import Optional
 
 
-def launch(args):
+def launch(args, reload_queue: Optional[multiprocessing.SimpleQueue] = None):
   """Launch the GUI main loop
 
   Args:
     args (Namespace): Command-line arguments namespace"""
-  from sample.widgets import main, logging  # pylint: disable=C0415
+  from sample.widgets import main, logging, utils  # pylint: disable=C0415
   import logging as _logging  # pylint: disable=C0415
   import sample  # pylint: disable=C0415
 
@@ -29,6 +30,7 @@ def launch(args):
     splash_time=args.splash_time,
     gui_kwargs=dict(
       persistent_dir=userfiles.UserDir(args.dir),
+      reload_queue=reload_queue,
     ),
   )
   root.mainloop()
@@ -55,7 +57,13 @@ def run(*argv):
   )
   args, _ = parser.parse_known_args(argv)
 
-  root = multiprocessing.Process(target=launch, args=(args,))
-  root.start()
-  root.join()
+  ctx = multiprocessing.get_context()
+  q = ctx.SimpleQueue()
+  while q.empty() or q.get():
+    root = multiprocessing.Process(target=launch, args=(args,), kwargs=dict(
+      reload_queue=q,
+    ))
+    root.start()
+    root.join()
+  q.close()
   return 0
