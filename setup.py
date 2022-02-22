@@ -1,3 +1,4 @@
+"""Setup script for PyPI package"""
 import setuptools
 
 with open("README.md", "r") as f:
