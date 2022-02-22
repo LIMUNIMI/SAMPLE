@@ -10,10 +10,10 @@ import os
 
 class UserDir:
   """Utility class for the user files directory
-  
+
   Args:
     path: Directory path
-    in_home (bool): If :data:`True`, the :data:`path` is a 
+    in_home (bool): If :data:`True`, the :data:`path` is a
       subpath of the user home directory"""
 
   class UserFile:
