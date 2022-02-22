@@ -1,7 +1,7 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils
+from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils, userfiles
 import sample
-from typing import Iterable, Tuple, Dict, Any
+from typing import Iterable, Tuple, Dict, Any, Optional
 import os
 import re
 
@@ -49,14 +49,17 @@ class SAMPLEGUI(SAMPLERoot):
       Every tuple should have three elements: tab title (:class:`str`),
       tab init function (:class:`callable`), tab init function keyword
       arguments (:class:`dict`)
+    persistent_dir: Directory for persistent files
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
   def __init__(
     self,
     tabs: Iterable[Tuple[str, callable, Dict[str, Any]]] = _default_tabs,
+    persistent_dir: Optional = None,
     **kwargs
   ):
     super().__init__(**kwargs)
     self.notebook = tk.Notebook(self)
+    self.notebook.persistent_dir = None if persistent_dir is None else userfiles.UserDir(persistent_dir)
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:

@@ -1,5 +1,6 @@
 """SAMPLE GUI launcher"""
 from chromatictools import cli
+from sample.widgets import userfiles
 import multiprocessing
 import argparse
 import sys
@@ -28,6 +29,7 @@ def launch(args):
     splash_time=args.splash_time,
     gui_kwargs=dict(
       theme=args.theme,
+      persistent_dir=args.dir,
     ),
   )
   root.mainloop()
@@ -57,6 +59,11 @@ def run(*argv):
     type=lambda s: str(s).lower(),
     help="GUI theme name (see "
          "https://ttkthemes.readthedocs.io/en/latest/themes.html)",
+  )
+  parser.add_argument(
+    "--dir", metavar="PATH",
+    default=userfiles.UserDir(".lim-sample", in_home=True).path,
+    help="Directory for persistent files",
   )
   args, _ = parser.parse_known_args(argv)
 
