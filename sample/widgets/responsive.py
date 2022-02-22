@@ -8,6 +8,7 @@ from typing import Iterable, Union, Optional, Dict
 
 class ResponsiveMixin:
   """Mixin class for responsive widgets"""
+
   def grid(self, *args, sticky=tk.NSEW, **kwargs):  # pylint: disable=W0235
     """Add the widget to a grid layout
 
@@ -18,9 +19,9 @@ class ResponsiveMixin:
     return super().grid(*args, sticky=sticky, **kwargs)
 
   def responsive(
-    self,
-    rows: Optional[Union[int, Iterable[int]]] = None,
-    cols: Optional[Union[int, Iterable[int]]] = None,
+      self,
+      rows: Optional[Union[int, Iterable[int]]] = None,
+      cols: Optional[Union[int, Iterable[int]]] = None,
   ):
     """Set up responsive rows and columns
 
@@ -35,14 +36,12 @@ class ResponsiveMixin:
     Returns:
       self"""
     for it, meth in (
-      (rows, "grid_rowconfigure"),
-      (cols, "grid_columnconfigure"),
+        (rows, "grid_rowconfigure"),
+        (cols, "grid_columnconfigure"),
     ):
       if not hasattr(self, meth):
-        logging.warning(
-          "Object of type '%s' doesn't have attribute '%s'",
-          type(self).__name__, meth
-        )
+        logging.warning("Object of type '%s' doesn't have attribute '%s'",
+                        type(self).__name__, meth)
       elif it is not None:
         if not isinstance(it, Iterable):
           it = range(it)
@@ -59,16 +58,12 @@ def responsive(cls: type) -> type:
 
   Returns:
     type: Child class"""
-  return type(
-    "Responsive{}".format(cls.__name__),
-    (ResponsiveMixin, cls), dict()
-  )
+  return type("Responsive{}".format(cls.__name__), (ResponsiveMixin, cls),
+              dict())
 
 
 __responsive_classes: Dict[type, type] = dict()
-__tk_modules = (
-  ttkthemes, ttk, tk
-)
+__tk_modules = (ttkthemes, ttk, tk)
 
 
 def __getattr__(name):  # pylint: disable=C0103
@@ -78,11 +73,8 @@ def __getattr__(name):  # pylint: disable=C0103
       cls = getattr(m, name)
       break
   else:
-    raise AttributeError(
-      "module '{}' has no attribute '{}'".format(
-        __name__, name
-      )
-    )
+    raise AttributeError("module '{}' has no attribute '{}'".format(
+        __name__, name))
   if not isinstance(cls, type):
     return cls
   if cls not in __responsive_classes:

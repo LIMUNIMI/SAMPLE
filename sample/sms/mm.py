@@ -5,7 +5,6 @@ import numpy as np
 import functools
 from typing import Tuple, Optional, Dict, Callable, Iterable
 
-
 TractT = Dict[str, np.ndarray]
 
 
@@ -56,23 +55,24 @@ class ModalTracker(sm.SineTracker):
       difference of average frequencies)
     strip_t (float): Strip time (in frames). Tracks starting later than this
       time will be omitted from the track list. If :data:`None`, don't strip"""
+
   def __init__(
-    self,
-    max_n_sines: int,
-    min_sine_dur: float,
-    freq_dev_offset: float,
-    freq_dev_slope: float,
-    frequency_bounds: Tuple[Optional[float], Optional[float]],
-    peak_threshold: float,
-    reverse: bool,
-    merge_strategy: str,
-    strip_t: Optional[float],
+      self,
+      max_n_sines: int,
+      min_sine_dur: float,
+      freq_dev_offset: float,
+      freq_dev_slope: float,
+      frequency_bounds: Tuple[Optional[float], Optional[float]],
+      peak_threshold: float,
+      reverse: bool,
+      merge_strategy: str,
+      strip_t: Optional[float],
   ):
     super().__init__(
-      max_n_sines=max_n_sines,
-      min_sine_dur=min_sine_dur,
-      freq_dev_offset=freq_dev_offset,
-      freq_dev_slope=freq_dev_slope,
+        max_n_sines=max_n_sines,
+        min_sine_dur=min_sine_dur,
+        freq_dev_offset=freq_dev_offset,
+        freq_dev_slope=freq_dev_slope,
     )
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
@@ -110,21 +110,19 @@ class ModalTracker(sm.SineTracker):
     return True
 
   _diff_funcion_dict: Dict[str, Callable] = {
-    "single": _track_diff_single,
-    "average": _track_diff_avg,
+      "single": _track_diff_single,
+      "average": _track_diff_avg,
   }
 
   @property
   def freq_diff_function(self) -> Callable:
     """Frequency difference function for current merge strategy"""
     if self.merge_strategy not in self._diff_funcion_dict:
-      raise KeyError(
-        "merge strategy for object of type '{}'"
-        "should be one of the following: {}".format(
-          self.__class__.__name__,
-          ", ".join(map("'{}'".format, self._diff_funcion_dict.keys()))
-        )
-      )
+      raise KeyError("merge strategy for object of type '{}'"
+                     "should be one of the following: {}".format(
+                         self.__class__.__name__, ", ".join(
+                             map("'{}'".format,
+                                 self._diff_funcion_dict.keys()))))
     return self._diff_funcion_dict[self.merge_strategy]
 
   def deactivate(self, track_index: int) -> dict:
@@ -139,23 +137,17 @@ class ModalTracker(sm.SineTracker):
     t = self.numpy_track(self._active_tracks.pop(track_index))
     if self.track_ok(t):
       u, df = sm.min_key(
-        # choose amongst previous tracks only
-        filter(
-          lambda u: (u["start_frame"] + u["mag"].size) < t["start_frame"],
-          self.tracks_
-        ),
-        # absolute difference of the two tracks according to the strategy
-        functools.partial(self.freq_diff_function, u=t)
-      )
+          # choose amongst previous tracks only
+          filter(
+              lambda u: (u["start_frame"] + u["mag"].size) < t["start_frame"],
+              self.tracks_),
+          # absolute difference of the two tracks according to the strategy
+          functools.partial(self.freq_diff_function, u=t))
       if u is not None and df < self.df(t["freq"][0]):
-        pad = np.full(
-          t["start_frame"] - u["start_frame"] - u["mag"].size,
-          np.nan
-        )
+        pad = np.full(t["start_frame"] - u["start_frame"] - u["mag"].size,
+                      np.nan)
         for k in ("freq", "mag", "phase"):
-          u[k] = np.concatenate((
-            u[k], pad, t[k]
-          ), axis=None)
+          u[k] = np.concatenate((u[k], pad, t[k]), axis=None)
       else:
         self.tracks_.append(t)
     return t
@@ -210,38 +202,39 @@ class ModalModel(sm.SinusoidalModel):
     strip_t (float): Strip time (in seconds). Tracks starting later than this
       time will be omitted from the track list.
       Default is :data:`None` (don't strip)"""
+
   def __init__(
-    self,
-    fs: int = 44100,
-    w: Optional[np.ndarray] = None,
-    n: int = 2048,
-    h: int = 500,
-    t: float = -90,
-    max_n_sines: int = 100,
-    min_sine_dur: float = 0.04,
-    freq_dev_offset: float = 20,
-    freq_dev_slope: float = 0.01,
-    reverse: bool = False,
-    sine_tracker_cls: type = ModalTracker,
-    save_intermediate: bool = False,
-    frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
-    peak_threshold: float = -90,
-    merge_strategy: str = "average",
-    strip_t: Optional[float] = None,
+      self,
+      fs: int = 44100,
+      w: Optional[np.ndarray] = None,
+      n: int = 2048,
+      h: int = 500,
+      t: float = -90,
+      max_n_sines: int = 100,
+      min_sine_dur: float = 0.04,
+      freq_dev_offset: float = 20,
+      freq_dev_slope: float = 0.01,
+      reverse: bool = False,
+      sine_tracker_cls: type = ModalTracker,
+      save_intermediate: bool = False,
+      frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
+      peak_threshold: float = -90,
+      merge_strategy: str = "average",
+      strip_t: Optional[float] = None,
   ):
     super().__init__(
-      fs=fs,
-      w=w,
-      n=n,
-      h=h,
-      t=t,
-      max_n_sines=max_n_sines,
-      min_sine_dur=min_sine_dur,
-      freq_dev_offset=freq_dev_offset,
-      freq_dev_slope=freq_dev_slope,
-      reverse=reverse,
-      sine_tracker_cls=sine_tracker_cls,
-      save_intermediate=save_intermediate,
+        fs=fs,
+        w=w,
+        n=n,
+        h=h,
+        t=t,
+        max_n_sines=max_n_sines,
+        min_sine_dur=min_sine_dur,
+        freq_dev_offset=freq_dev_offset,
+        freq_dev_slope=freq_dev_slope,
+        reverse=reverse,
+        sine_tracker_cls=sine_tracker_cls,
+        save_intermediate=save_intermediate,
     )
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
@@ -256,11 +249,12 @@ class ModalModel(sm.SinusoidalModel):
       strip_t = self.strip_t
     else:
       strip_t = int(self.strip_t * self.fs / self.h)
-    kwargs.update(dict(
-      frequency_bounds=self.frequency_bounds,
-      peak_threshold=self.peak_threshold,
-      reverse=self.reverse,
-      merge_strategy=self.merge_strategy,
-      strip_t=strip_t,
-    ))
+    kwargs.update(
+        dict(
+            frequency_bounds=self.frequency_bounds,
+            peak_threshold=self.peak_threshold,
+            reverse=self.reverse,
+            merge_strategy=self.merge_strategy,
+            strip_t=strip_t,
+        ))
     return kwargs

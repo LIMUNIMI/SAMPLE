@@ -20,10 +20,11 @@ def mock_tk2ttk(*args):
     if n <= depth:
       yield
     else:
-      with mock_tk2ttk_inner(depth=depth+1):
+      with mock_tk2ttk_inner(depth=depth + 1):
         k = args[depth]
         with mock.patch.object(tk.tk, k, getattr(tk, k)):
           yield
+
   with mock_tk2ttk_inner():
     yield
 
@@ -38,50 +39,46 @@ class PyplotFrame(tk.Frame):
     args: Positional arguments for :class:`tkinter.ttk.Frame`
     kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
   _remap_style = (
-    (tk.tk.Button, (
-      ("background", "bg"),
-      ("foreground", "fg"),
-      ("height", "height"),
-      ("width", "width"),
-      ("borderwidth", "bd"),
-      ("active background", "active background"),
-      ("active foreground", "active foreground"),
-    )),
-    (tk.tk.Label, (
-      ("background", "bg"),
-      ("foreground", "fg"),
-      ("height", "height"),
-      ("width", "width"),
-      ("borderwidth", "bd"),
-    )),
-    (tk.tk.Checkbutton, (
-      ("background", "bg"),
-      ("foreground", "fg"),
-      ("height", "height"),
-      ("width", "width"),
-      ("borderwidth", "bd"),
-      ("active background", "active background"),
-      ("active foreground", "active foreground"),
-    )),
-    (tk.tk.Frame, (
-      ("background", "bg"),
-    )),
+      (tk.tk.Button, (
+          ("background", "bg"),
+          ("foreground", "fg"),
+          ("height", "height"),
+          ("width", "width"),
+          ("borderwidth", "bd"),
+          ("active background", "active background"),
+          ("active foreground", "active foreground"),
+      )),
+      (tk.tk.Label, (
+          ("background", "bg"),
+          ("foreground", "fg"),
+          ("height", "height"),
+          ("width", "width"),
+          ("borderwidth", "bd"),
+      )),
+      (tk.tk.Checkbutton, (
+          ("background", "bg"),
+          ("foreground", "fg"),
+          ("height", "height"),
+          ("width", "width"),
+          ("borderwidth", "bd"),
+          ("active background", "active background"),
+          ("active foreground", "active foreground"),
+      )),
+      (tk.tk.Frame, (("background", "bg"),)),
   )
 
-  def __init__(
-    self,
-    *args,
-    fig_dpi: int = 72,
-    fig_w: int = 640,
-    fig_h: int = 360,
-    **kwargs
-  ):
+  def __init__(self,
+               *args,
+               fig_dpi: int = 72,
+               fig_w: int = 640,
+               fig_h: int = 360,
+               **kwargs):
     super().__init__(*args, **kwargs)
     self.responsive((1,), 1)
 
     self.fig = figure.Figure(
-      figsize=(fig_w / fig_dpi, fig_h / fig_dpi),
-      dpi=fig_dpi,
+        figsize=(fig_w / fig_dpi, fig_h / fig_dpi),
+        dpi=fig_dpi,
     )
 
     self.canvas = backend_tkagg.FigureCanvasTkAgg(self.fig, master=self)
@@ -90,9 +87,9 @@ class PyplotFrame(tk.Frame):
     self.canvas_widget = self.canvas.get_tk_widget()
     self.canvas_widget.grid(row=1, sticky=tk.NSEW)
 
-    self.toolbar = backend_tkagg.NavigationToolbar2Tk(
-      self.canvas, self, pack_toolbar=False
-    )
+    self.toolbar = backend_tkagg.NavigationToolbar2Tk(self.canvas,
+                                                      self,
+                                                      pack_toolbar=False)
 
     for c in utils.widget_children(self.toolbar, True):
       logging.debug("Toolbar Children: %s (%s)", c, type(c))
@@ -102,10 +99,8 @@ class PyplotFrame(tk.Frame):
             c.config(relief=tk.tk.FLAT)
           for k_from, k_to in mappings:
             v = utils.root_style(self, "T{}".format(cls.__name__), k_from)
-            logging.debug(
-              "%s of %s from %s of %s: %s",
-              k_to, type(c).__name__, k_from, cls.__name__, v
-            )
+            logging.debug("%s of %s from %s of %s: %s", k_to,
+                          type(c).__name__, k_from, cls.__name__, v)
             if v != "":
               c.config(**{k_to: v})
           break

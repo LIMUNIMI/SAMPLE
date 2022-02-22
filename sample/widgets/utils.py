@@ -27,10 +27,11 @@ def root_style(w: tk.Widget, wname: str, wattr: str):
   return ttk.Style(get_root(w)).lookup(wname, wattr)
 
 
-def root_color(
-  w: tk.Widget, wname: str, wattr: str,
-  default: Optional = None, key: Optional[str] = None
-):
+def root_color(w: tk.Widget,
+               wname: str,
+               wattr: str,
+               default: Optional = None,
+               key: Optional[str] = None):
   """Get the color style of a widget from the root
 
   Args:
@@ -52,12 +53,15 @@ class RootProperty(property):
 
   Args:
     name (str): Name of the property"""
+
   def __init__(self, name: str):
+
     def fget(self_):
       return getattr(get_root(self_), name, None)
 
     def fset(self_, value):
       setattr(get_root(self_), name, value)
+
     fget.__name__ = name
     fset.__name__ = name
     super().__init__(fget=fget, fset=fset)
@@ -66,6 +70,7 @@ class RootProperty(property):
 class DataOnRootMeta(type):
   """Metaclass for getting and setting shared
   attributes via the root widget"""
+
   def __new__(mcs, name, bases, classdict):
     k = "sample_gui_root_properties"
     if k in classdict:
@@ -79,31 +84,28 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
   """Mixin class for getting and setting shared
   attributes via the root widget"""
   sample_gui_root_properties = (
-    "filedialog_dir",
-    "filedialog_file",
-    "filedialog_dir_save",
-    "audio_x",
-    "audio_sr",
-    "audio_trim_start",
-    "audio_trim_stop",
-    "sample_object",
-    "audio_resynth_x",
-    "persistent_dir",
-    "settings_file",
+      "filedialog_dir",
+      "filedialog_file",
+      "filedialog_dir_save",
+      "audio_x",
+      "audio_sr",
+      "audio_trim_start",
+      "audio_trim_stop",
+      "sample_object",
+      "audio_resynth_x",
+      "persistent_dir",
+      "settings_file",
   )
 
   @property
   def audio_loaded(self) -> bool:
     """Check if audio is loaded or not"""
-    return all(
-      v is not None
-      for v in (
+    return all(v is not None for v in (
         self.audio_x,
         self.audio_sr,
         self.audio_trim_start,
         self.audio_trim_stop,
-      )
-    )
+    ))
 
   def log_root_properties(self, *args, **kwargs):  # pylint: disable=W0613
     """Log all :class:`RootProperty` to debug level"""
@@ -112,8 +114,8 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
 
 
 def widget_children(
-  w: tk.Widget, include_root: bool = False
-) -> Generator[tk.Widget, None, None]:
+    w: tk.Widget,
+    include_root: bool = False) -> Generator[tk.Widget, None, None]:
   """Get all children of the current widget
 
   Args:
@@ -136,30 +138,27 @@ class ScrollableFrame(responsive.Frame):
   Args:
     args: Positional arguments for :class:`tkinter.ttk.Frame`
     kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
+
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.responsive(1, 1)
-    self.canvas = responsive.Canvas(
-      self, highlightthickness=0,
-      **root_color(self, "TFrame", "background", key="background")
-    )
+    self.canvas = responsive.Canvas(self,
+                                    highlightthickness=0,
+                                    **root_color(self,
+                                                 "TFrame",
+                                                 "background",
+                                                 key="background"))
     self.canvas.grid(row=0, column=0)
     self.canvas.responsive(1, 1)
 
-    self.scrollbar = responsive.Scrollbar(
-      self, orient="vertical",
-      command=self.canvas.yview
-    )
+    self.scrollbar = responsive.Scrollbar(self,
+                                          orient="vertical",
+                                          command=self.canvas.yview)
     self.scrollbar.grid(row=0, column=1)
 
     self.scrollable_frame = responsive.Frame(self.canvas)
     self.scrollable_frame.bind(
-      "<Configure>", lambda _: self.canvas.configure(
-        scrollregion=self.canvas.bbox("all")
-      )
-    )
-    self.canvas.create_window(
-      (0, 0), anchor="nw",
-      window=self.scrollable_frame
-    )
+        "<Configure>",
+        lambda _: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+    self.canvas.create_window((0, 0), anchor="nw", window=self.scrollable_frame)
     self.canvas.configure(yscrollcommand=self.scrollbar.set)

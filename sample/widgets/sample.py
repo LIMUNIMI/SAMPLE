@@ -10,6 +10,7 @@ from typing import Optional, Tuple
 class SAMPLE(sample.SAMPLE):
   """SAMPLE model for use in the GUI. For a full list of arguments see
   :class:`sample.sample.SAMPLE`"""
+
   class SinusoidalModel(mm.ModalModel):
     """Sinusoidal tracker for use in the GUI. For a full list of
     arguments see :class:`sample.sms.mm.ModalModel`
@@ -17,40 +18,45 @@ class SAMPLE(sample.SAMPLE):
     Args:
       progressbar (optional): Progressbar widget for visualizing
         the peak tracking progress"""
+
     def __init__(
-      self,
-      progressbar: Optional[tk.Widget] = None,
-      fs: int = 44100,
-      w: Optional[np.ndarray] = None,
-      n: int = 2048,
-      h: int = 500,
-      t: float = -90,
-      max_n_sines: int = 100,
-      min_sine_dur: float = 0.04,
-      freq_dev_offset: float = 20,
-      freq_dev_slope: float = 0.01,
-      reverse: bool = False,
-      sine_tracker_cls: type = mm.ModalTracker,
-      save_intermediate: bool = False,
-      frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
-      peak_threshold: float = -90,
-      merge_strategy: str = "average",
-      strip_t: Optional[float] = None,
+        self,
+        progressbar: Optional[tk.Widget] = None,
+        fs: int = 44100,
+        w: Optional[np.ndarray] = None,
+        n: int = 2048,
+        h: int = 500,
+        t: float = -90,
+        max_n_sines: int = 100,
+        min_sine_dur: float = 0.04,
+        freq_dev_offset: float = 20,
+        freq_dev_slope: float = 0.01,
+        reverse: bool = False,
+        sine_tracker_cls: type = mm.ModalTracker,
+        save_intermediate: bool = False,
+        frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
+        peak_threshold: float = -90,
+        merge_strategy: str = "average",
+        strip_t: Optional[float] = None,
     ):
       self.progressbar = progressbar
       super().__init__(
-        fs=fs, w=w, n=n, h=h, t=t,
-        max_n_sines=max_n_sines,
-        min_sine_dur=min_sine_dur,
-        freq_dev_offset=freq_dev_offset,
-        freq_dev_slope=freq_dev_slope,
-        reverse=reverse,
-        sine_tracker_cls=sine_tracker_cls,
-        save_intermediate=save_intermediate,
-        frequency_bounds=frequency_bounds,
-        peak_threshold=peak_threshold,
-        merge_strategy=merge_strategy,
-        strip_t=strip_t,
+          fs=fs,
+          w=w,
+          n=n,
+          h=h,
+          t=t,
+          max_n_sines=max_n_sines,
+          min_sine_dur=min_sine_dur,
+          freq_dev_offset=freq_dev_offset,
+          freq_dev_slope=freq_dev_slope,
+          reverse=reverse,
+          sine_tracker_cls=sine_tracker_cls,
+          save_intermediate=save_intermediate,
+          frequency_bounds=frequency_bounds,
+          peak_threshold=peak_threshold,
+          merge_strategy=merge_strategy,
+          strip_t=strip_t,
       )
 
     def fit(self, x: np.ndarray, y=None, **kwargs):
@@ -67,12 +73,7 @@ class SAMPLE(sample.SAMPLE):
       self.w_ = self.normalized_window
       if self.progressbar is not None:
         self.progressbar["maximum"] = -1
-        self.progressbar.config(
-          value=0,
-          maximum=len(list(
-            self.time_frames(x)
-          ))
-        )
+        self.progressbar.config(value=0, maximum=len(list(self.time_frames(x))))
       s = super().fit(x=x, y=y)
       if self.progressbar is not None:
         self.progressbar.config(value=1, maximum=1)
@@ -96,9 +97,11 @@ class SAMPLE(sample.SAMPLE):
         generator: Generator of overlapping frames of the padded input"""
       it = super().time_frames(x)
       if self.progressbar is not None and self.progressbar["maximum"] > 0:
+
         def func(t):
           self.progressbar_update(value=t[0])
           return t[-1]
+
         it = map(func, enumerate(it))
       for f in it:
         yield f

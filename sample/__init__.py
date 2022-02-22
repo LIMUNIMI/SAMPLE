@@ -24,7 +24,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 from chromatictools import cli
 from sample.sample import SAMPLE
 
-
 __version__ = "1.5.0a2"
 
 

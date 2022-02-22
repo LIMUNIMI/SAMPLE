@@ -20,16 +20,12 @@ def hinge_function(x: np.ndarray, a: float, k: float, q: float) -> np.ndarray:
   return k * np.minimum(x, a) + q
 
 
-coeff_init_type: type = Callable[
-  [np.ndarray, np.ndarray, float, float],
-  Tuple[float, float, float]
-]
+coeff_init_type: type = Callable[[np.ndarray, np.ndarray, float, float],
+                                 Tuple[float, float, float]]
 
-
-bounds_fun_type: type = Callable[
-  [np.ndarray, np.ndarray, float, float],
-  Tuple[Tuple[float, float, float], Tuple[float, float, float]]
-]
+bounds_fun_type: type = Callable[[np.ndarray, np.ndarray, float, float],
+                                 Tuple[Tuple[float, float, float],
+                                       Tuple[float, float, float]]]
 
 
 class HingeRegression(base.RegressorMixin, base.BaseEstimator):
@@ -64,14 +60,15 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       via their individual properties
     result_ (OptimizeResult): Optimization result of the nonlinear least
       squares procedure"""
+
   def __init__(
-    self,
-    linear_regressor=linear_model.LinearRegression(),
-    linear_regressor_k: str = "coef_",
-    linear_regressor_q: str = "intercept_",
-    method: str = "dogbox",
-    coeffs_init: Optional[coeff_init_type] = None,
-    bounds: Optional[bounds_fun_type] = None,
+      self,
+      linear_regressor=linear_model.LinearRegression(),
+      linear_regressor_k: str = "coef_",
+      linear_regressor_q: str = "intercept_",
+      method: str = "dogbox",
+      coeffs_init: Optional[coeff_init_type] = None,
+      bounds: Optional[bounds_fun_type] = None,
   ):
     self.linear_regressor = linear_regressor
     self.linear_regressor_k = linear_regressor_k
@@ -90,11 +87,10 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
 
   @staticmethod
   def _default_coeffs_init(
-    x: np.ndarray,
-    y: np.ndarray,  # pylint: disable=W0613
-    k: float,
-    q: float
-  ) -> Tuple[float, float, float]:
+      x: np.ndarray,
+      y: np.ndarray,  # pylint: disable=W0613
+      k: float,
+      q: float) -> Tuple[float, float, float]:
     """Default coefficient initializer
 
     Args:
@@ -121,11 +117,11 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     return self.coeffs_init
 
   def _default_bounds(
-    self,
-    x: np.ndarray,
-    y: np.ndarray,
-    k: float,
-    q: float  # pylint: disable=W0613
+      self,
+      x: np.ndarray,
+      y: np.ndarray,
+      k: float,
+      q: float  # pylint: disable=W0613
   ) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
     """Default boundaries
 
@@ -141,13 +137,8 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     # Knee point bounds
     if len(x) <= 1:
       raise ValueError(
-        (
-          "Got a track of length={}. "
-          "Consider increasing the minimum sine length"
-        ).format(
-          len(x)
-        )
-      )
+          ("Got a track of length={}. "
+           "Consider increasing the minimum sine length").format(len(x)))
     else:
       a_min = np.min(x)
       a_max = np.max(x)
@@ -168,10 +159,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       k_min = 8 * k if k < 0 else k
       k_max = k if k < 0 else 8 * k
 
-    return (
-      (a_min, k_min, q_min),
-      (a_max, k_max, q_max)
-    )
+    return ((a_min, k_min, q_min), (a_max, k_max, q_max))
 
   @property
   def _bounds(self) -> bounds_fun_type:
@@ -195,10 +183,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     return hinge_function(x, *self.coeffs_)
 
   @staticmethod
-  def _residual(
-    x: np.ndarray,
-    y: np.ndarray
-  ) -> Callable[..., np.ndarray]:
+  def _residual(x: np.ndarray, y: np.ndarray) -> Callable[..., np.ndarray]:
     """Function for residual computation
 
     Args:
@@ -243,18 +228,18 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       HingeRegression: self"""
     self.linear_regressor.fit(x, y)
     self.coeffs_ = self._coeffs_init(  # pylint: disable=E1102 (false positive)
-      x, y,
-      np.squeeze(getattr(self.linear_regressor, self.linear_regressor_k)),
-      np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q)),
+        x,
+        y,
+        np.squeeze(getattr(self.linear_regressor, self.linear_regressor_k)),
+        np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q)),
     )
 
     self.result_ = optimize.least_squares(
-      fun=self._residual(x, y),
-      x0=self.coeffs_,
-      bounds=self._bounds(x, y, *self.coeffs_[1:]),  # pylint: disable=E1102 (false positive)
-      method=self.method,
-      **kwargs
-    )
+        fun=self._residual(x, y),
+        x0=self.coeffs_,
+        bounds=self._bounds(x, y, *self.coeffs_[1:]),  # pylint: disable=E1102 (false positive)
+        method=self.method,
+        **kwargs)
     self.coeffs_ = self.result_.x
 
     return self

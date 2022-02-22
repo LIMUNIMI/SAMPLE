@@ -6,7 +6,6 @@ from typing import Iterable, Tuple, Dict, Any, Optional
 import os
 import re
 
-
 _prerelease = re.fullmatch(r"v?(\d\.)*\d", sample.__version__) is None
 
 
@@ -16,16 +15,16 @@ class SAMPLERoot(tk.ThemedTk):
   Args:
     theme (str): Theme name. Default is :data:`"arc"`
     kwargs: Keyword arguments for :class:`ttkthemes.ThemedTk`"""
+
   def __init__(self,
                theme: str = "arc",
                reload_queue: Optional[multiprocessing.SimpleQueue] = None,
-              **kwargs):
+               **kwargs):
     self.reload_queue = reload_queue
     self.should_reload = False
     super().__init__(**kwargs, theme=theme)
     self.title("SAMPLE{}".format(
-      " ({})".format(sample.__version__) if _prerelease else ""
-    ))
+        " ({})".format(sample.__version__) if _prerelease else ""))
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -43,9 +42,9 @@ class SAMPLERoot(tk.ThemedTk):
 
 
 _default_tabs = (
-  ("Load Audio", audioload.AudioLoadTab, None),
-  ("Settings", settings.SettingsTab, None),
-  ("Analysis", analysis.AnalysisTab, None),
+    ("Load Audio", audioload.AudioLoadTab, None),
+    ("Settings", settings.SettingsTab, None),
+    ("Analysis", analysis.AnalysisTab, None),
 )
 
 
@@ -59,12 +58,12 @@ class SAMPLEGUI(SAMPLERoot):
       arguments (:class:`dict`)
     persistent_dir: Directory for persistent files
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
-  def __init__(
-    self,
-    persistent_dir: userfiles.UserDir,
-    tabs: Iterable[Tuple[str, callable, Dict[str, Any]]] = _default_tabs,
-    **kwargs
-  ):
+
+  def __init__(self,
+               persistent_dir: userfiles.UserDir,
+               tabs: Iterable[Tuple[str, callable, Dict[str,
+                                                        Any]]] = _default_tabs,
+               **kwargs):
     settings_file = persistent_dir.user_file("settings_cache.json")
     if "theme" not in kwargs:
       kwargs["theme"] = userfiles.UserTtkTheme(settings_file).get()
@@ -95,6 +94,7 @@ class SAMPLESplashScreen(SAMPLERoot):
 
   Args:
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
+
   def __init__(self, splash_time: float = 3000, gui_kwargs=None, **kwargs):
     super().__init__(**kwargs)
     if gui_kwargs is None:

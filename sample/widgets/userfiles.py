@@ -15,12 +15,14 @@ class UserDir:
     path: Directory path
     in_home (bool): If :data:`True`, the :data:`path` is a 
       subpath of the user home directory"""
+
   class UserFile:
     """Utility class for user files
 
     Args:
       userdir (UserDir): User directory object
       subpath: Path of the file inside the directory"""
+
     def __init__(self, userdir: "UserDir", subpath) -> None:
       self.subpath = subpath
       self.userdir = userdir
@@ -31,7 +33,7 @@ class UserDir:
       return os.path.join(self.userdir.path, self.subpath)
 
     @contextlib.contextmanager
-    def open(self, encoding = "utf-8", **kwargs):
+    def open(self, encoding="utf-8", **kwargs):
       """Helper context manager to interface with :func:`os.open`"""
       os.makedirs(os.path.dirname(self.path), exist_ok=True)
       with open(self.path, encoding=encoding, **kwargs) as f:
@@ -39,13 +41,14 @@ class UserDir:
 
     def is_valid(self) -> bool:
       """Check that path is not :data:`None` or empty"""
-      return self.userdir.is_valid() and self.subpath is not None and len(str(self.subpath)) > 0
+      return self.userdir.is_valid() and self.subpath is not None and len(
+          str(self.subpath)) > 0
 
     def exists(self) -> bool:
       """Test existance of file"""
       return os.path.isfile(self.path)
 
-    def save_json(self,data, **kwargs):
+    def save_json(self, data, **kwargs):
       with self.open(mode="w") as f:
         json.dump(data, f, **kwargs)
 
@@ -71,6 +74,7 @@ class UserDir:
 
 
 class UserTtkTheme:
+
   @staticmethod
   def is_valid(theme: str, log: bool = False, messagebox: bool = False) -> bool:
     b = theme in ttkthemes.THEMES

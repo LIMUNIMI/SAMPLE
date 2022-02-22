@@ -6,7 +6,7 @@ This module requires extra dependencies, which you can install with
 from sample.sms import sm
 import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits import mplot3d         # pylint: disable=W0611
+from mpl_toolkits import mplot3d  # pylint: disable=W0611
 from mpl_toolkits.mplot3d import axes3d  # pylint: disable=W0611
 
 
@@ -27,10 +27,8 @@ def sine_tracking_2d(m: sm.SinusoidalModel, ax=None):
     if m.save_intermediate:
       tmax = len(m.intermediate_["stft"]) * m.h / m.fs
     else:
-      tmax = max(
-        (track["start_frame"] + track["freq"].size) * m.h / m.fs
-        for track in m.sine_tracker_.all_tracks_
-      )
+      tmax = max((track["start_frame"] + track["freq"].size) * m.h / m.fs
+                 for track in m.sine_tracker_.all_tracks_)
   for track in m.sine_tracker_.all_tracks_:
     t_x = (track["start_frame"] + np.arange(track["freq"].size)) * m.h / m.fs
     if m.reverse:
