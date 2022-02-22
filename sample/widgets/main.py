@@ -53,13 +53,14 @@ class SAMPLEGUI(SAMPLERoot):
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
   def __init__(
     self,
+    persistent_dir: userfiles.UserDir,
     tabs: Iterable[Tuple[str, callable, Dict[str, Any]]] = _default_tabs,
-    persistent_dir: Optional = None,
     **kwargs
   ):
     super().__init__(**kwargs)
     self.notebook = tk.Notebook(self)
-    self.notebook.persistent_dir = None if persistent_dir is None else userfiles.UserDir(persistent_dir)
+    self.notebook.persistent_dir = persistent_dir
+    self.notebook.settings_file = persistent_dir.user_file("settings_cache.json")
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:

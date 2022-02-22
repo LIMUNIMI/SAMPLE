@@ -342,7 +342,6 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.grid()
 
     self.sample_object = sample.SAMPLE()
-    self.settings_file = self.persistent_dir.user_file("settings_cache.json")
     self.apply_cbk(from_file=True)
 
   def add_setting(
@@ -373,14 +372,15 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
   def apply_cbk(self, *args, from_file: bool = False, **kwargs):  # pylint: disable=W0613
     """Callback for updating parameters from the settings"""
-    if from_file and self.settings_file.exists():
+    if from_file and self.settings_file.is_valid() and self.settings_file.exists():
       settings = self.settings_file.load_json()
     else:
       settings = {
         k: s.get()
         for k, s in self._settings.items()
       }
-      self.settings_file.save_json(settings, indent=2)
+      if self.settings_file.is_valid():
+        self.settings_file.save_json(settings, indent=2)
     params = settings
     for func in self._postprocess:
       keys = inspect.signature(func).parameters.keys()

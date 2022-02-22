@@ -29,7 +29,7 @@ def launch(args):
     splash_time=args.splash_time,
     gui_kwargs=dict(
       theme=args.theme,
-      persistent_dir=args.dir,
+      persistent_dir=userfiles.UserDir(args.dir),
     ),
   )
   root.mainloop()

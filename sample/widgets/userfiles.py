@@ -34,6 +34,10 @@ class UserDir:
       with open(self.path, encoding=encoding, **kwargs) as f:
         yield f
 
+    def is_valid(self) -> bool:
+      """Check that path is not :data:`None` or empty"""
+      return self.userdir.is_valid() and self.subpath is not None and len(str(self.subpath)) > 0
+
     def exists(self) -> bool:
       """Test existance of file"""
       return os.path.isfile(self.path)
@@ -50,6 +54,10 @@ class UserDir:
     if in_home:
       path = os.path.expanduser(os.path.join("~", path))
     self.path = path
+
+  def is_valid(self) -> bool:
+    """Check that path is not :data:`None` or empty"""
+    return self.path is not None and len(str(self.path)) > 0
 
   def user_file(self, subpath):
     """Get a user file utility object
