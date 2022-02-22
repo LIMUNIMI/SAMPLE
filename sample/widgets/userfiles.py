@@ -87,6 +87,7 @@ class UserTtkTheme:
 
   Args:
     file (UserDir.UserFile): File for settings caching"""
+
   def __init__(self, file: UserDir.UserFile):
     self.file = file
 

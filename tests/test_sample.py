@@ -55,8 +55,9 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     with self.subTest(step="chek state is non-empty", var="tracks"):
       self.assertNotEqual(len(s.sinusoidal_model.sine_tracker_.tracks_), 0)  # pylint: disable=W0212
     with self.subTest(step="chek state is non-empty", var="_active_tracks"):
-      self.assertNotEqual(len(s.sinusoidal_model.sine_tracker_._active_tracks),  # pylint: disable=W0212
-                          0)
+      self.assertNotEqual(
+          len(s.sinusoidal_model.sine_tracker_._active_tracks),  # pylint: disable=W0212
+          0)
     with self.subTest(step="chek state is non-empty", var="_frame"):
       self.assertNotEqual(s.sinusoidal_model.sine_tracker_._frame, 0)  # pylint: disable=W0212
     s.sinusoidal_model.sine_tracker_.reset()

@@ -8,7 +8,6 @@ dist
 
 # Sphinx
 docs/build
-docs/pylintrc
 docs/source/*.rst
 !docs/source/index.rst
 !docs/source/changelog.rst
