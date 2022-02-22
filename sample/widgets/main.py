@@ -1,7 +1,8 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils
+from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils, userfiles
 import sample
-from typing import Iterable, Tuple, Dict, Any
+import multiprocessing
+from typing import Iterable, Tuple, Dict, Any, Optional
 import os
 import re
 
@@ -15,7 +16,12 @@ class SAMPLERoot(tk.ThemedTk):
   Args:
     theme (str): Theme name. Default is :data:`"arc"`
     kwargs: Keyword arguments for :class:`ttkthemes.ThemedTk`"""
-  def __init__(self, theme: str = "arc", **kwargs):
+  def __init__(self,
+               theme: str = "arc",
+               reload_queue: Optional[multiprocessing.SimpleQueue] = None,
+              **kwargs):
+    self.reload_queue = reload_queue
+    self.should_reload = False
     super().__init__(**kwargs, theme=theme)
     self.title("SAMPLE{}".format(
       " ({})".format(sample.__version__) if _prerelease else ""
@@ -26,6 +32,8 @@ class SAMPLERoot(tk.ThemedTk):
 
   def on_closing(self):
     """Force destruction"""
+    if self.reload_queue is not None:
+      self.reload_queue.put(self.should_reload)
     logging.debug("Destroying root")
     utils.get_root(self).destroy()
     logging.debug("Closing pygame")
@@ -49,14 +57,21 @@ class SAMPLEGUI(SAMPLERoot):
       Every tuple should have three elements: tab title (:class:`str`),
       tab init function (:class:`callable`), tab init function keyword
       arguments (:class:`dict`)
+    persistent_dir: Directory for persistent files
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
   def __init__(
     self,
+    persistent_dir: userfiles.UserDir,
     tabs: Iterable[Tuple[str, callable, Dict[str, Any]]] = _default_tabs,
     **kwargs
   ):
+    settings_file = persistent_dir.user_file("settings_cache.json")
+    if "theme" not in kwargs:
+      kwargs["theme"] = userfiles.UserTtkTheme(settings_file).get()
     super().__init__(**kwargs)
     self.notebook = tk.Notebook(self)
+    self.notebook.persistent_dir = persistent_dir
+    self.notebook.settings_file = settings_file
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:

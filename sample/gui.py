@@ -1,16 +1,18 @@
 """SAMPLE GUI launcher"""
 from chromatictools import cli
+from sample.widgets import userfiles
 import multiprocessing
 import argparse
 import sys
+from typing import Optional
 
 
-def launch(args):
+def launch(args, reload_queue: Optional[multiprocessing.SimpleQueue] = None):
   """Launch the GUI main loop
 
   Args:
     args (Namespace): Command-line arguments namespace"""
-  from sample.widgets import main, logging  # pylint: disable=C0415
+  from sample.widgets import main, logging, utils  # pylint: disable=C0415
   import logging as _logging  # pylint: disable=C0415
   import sample  # pylint: disable=C0415
 
@@ -27,7 +29,8 @@ def launch(args):
   root = main.main(
     splash_time=args.splash_time,
     gui_kwargs=dict(
-      theme=args.theme,
+      persistent_dir=userfiles.UserDir(args.dir),
+      reload_queue=reload_queue,
     ),
   )
   root.mainloop()
@@ -36,11 +39,6 @@ def launch(args):
 @cli.main(__name__, *sys.argv[1:])
 def run(*argv):
   """Launch the SAMPLE GUI"""
-  if sys.platform == "linux":
-    default_theme = "radiance"
-  else:
-    default_theme = "arc"
-
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument(
     "-l", "--log-level", dest="log_level", metavar="LEVEL",
@@ -53,14 +51,19 @@ def run(*argv):
     help="Splash time (in milliseconds)",
   )
   parser.add_argument(
-    "--theme", metavar="NAME", default=default_theme,
-    type=lambda s: str(s).lower(),
-    help="GUI theme name (see "
-         "https://ttkthemes.readthedocs.io/en/latest/themes.html)",
+    "--dir", metavar="PATH",
+    default=userfiles.UserDir(".lim-sample", in_home=True).path,
+    help="Directory for persistent files",
   )
   args, _ = parser.parse_known_args(argv)
 
-  root = multiprocessing.Process(target=launch, args=(args,))
-  root.start()
-  root.join()
+  ctx = multiprocessing.get_context()
+  q = ctx.SimpleQueue()
+  while q.empty() or q.get():
+    root = multiprocessing.Process(target=launch, args=(args,), kwargs=dict(
+      reload_queue=q,
+    ))
+    root.start()
+    root.join()
+  q.close()
   return 0
