@@ -74,7 +74,7 @@ class SAMPLEGUI(SAMPLERoot):
     self.tabs = []
     for k, func, kw in tabs:
       if kw is None:
-        kw = dict()
+        kw = {}
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
@@ -97,7 +97,7 @@ class SAMPLESplashScreen(SAMPLERoot):
   def __init__(self, splash_time: float = 3000, gui_kwargs=None, **kwargs):
     super().__init__(**kwargs)
     if gui_kwargs is None:
-      gui_kwargs = dict()
+      gui_kwargs = {}
     self.gui_kwargs = gui_kwargs
     self.__img = images.LogoImage()
     self.label = tk.Label(self, image=self.__img)

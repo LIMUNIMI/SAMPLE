@@ -58,10 +58,10 @@ def responsive(cls: type) -> type:
 
   Returns:
     type: Child class"""
-  return type(f"Responsive{cls.__name__}", (ResponsiveMixin, cls), dict())
+  return type(f"Responsive{cls.__name__}", (ResponsiveMixin, cls), {})
 
 
-__responsive_classes: Dict[type, type] = dict()
+__responsive_classes: Dict[type, type] = {}
 __tk_modules = (ttkthemes, ttk, tk)
 
 

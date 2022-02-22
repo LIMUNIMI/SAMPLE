@@ -371,10 +371,10 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.scrollframe.responsive(1, 1)
     self.scrollframe.grid(row=0)
     self.scrollframe.scrollable_frame.responsive(len(setting_specs), (0, 2))
-    self._settings = dict()
+    self._settings = {}
     for k, kw in setting_specs:
       if kw is None:
-        kw = dict()
+        kw = {}
       self.add_setting(k, **kw)
 
     self.bottom_row = tk.Frame(self)
@@ -417,7 +417,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     """Callback for updating parameters from the settings"""
     ttk_theme = userfiles.UserTtkTheme(self.settings_file)
     prev_theme = ttk_theme.get()
-    settings = dict()
+    settings = {}
     if from_file and self.settings_file.is_valid(
     ) and self.settings_file.exists():
       settings = self.settings_file.load_json()
@@ -425,8 +425,8 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     params = settings
     for func in self._postprocess:
       keys = inspect.signature(func).parameters.keys()
-      kw = dict()
-      tp = dict()
+      kw = {}
+      tp = {}
       for k, v in params.items():
         d = kw if k in keys else tp
         d[k] = v
