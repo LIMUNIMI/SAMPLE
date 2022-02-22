@@ -1,5 +1,5 @@
 """Settings tab"""
-from sample.widgets import responsive as tk, utils, logging, sample
+from sample.widgets import responsive as tk, utils, logging, sample, userfiles
 from matplotlib.backends import _backend_tk
 from scipy import signal
 import functools
@@ -165,6 +165,20 @@ def postprocess_windows(
     sinusoidal_model__w=w
   )
   return in_kw, out_kw
+
+def postprocess_guitheme(
+  gui_theme: str,
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+  """Postprocess GUI theme
+
+  Args:
+    gui_theme (str): GUI theme name
+
+  Returns:
+    dict, dict: Postprocessed settings and parameters as dictionaries"""
+  if not userfiles.UserTtkTheme.is_valid(gui_theme, log=True, messagebox=len(gui_theme)):
+    gui_theme = userfiles.UserTtkTheme.default()
+  return dict(gui_theme=gui_theme), {}
 # ----------------------------------------------------------------------------
 
 
@@ -228,12 +242,17 @@ _settings = (
     label="reverse", get_fn=custom_bool, set_fn=str, init_value=True,
     tooltip="If True, then process audio in reverse order of time",
   )),
+  ("gui_theme", dict(
+    label="gui theme", init_value=userfiles.UserTtkTheme.default(),
+    tooltip="GUI theme",
+  )),
 )
 
 
 _postprocess = (
   postprocess_windows,
   postprocess_fbound,
+  postprocess_guitheme,
 )
 
 
@@ -372,15 +391,15 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
   def apply_cbk(self, *args, from_file: bool = False, **kwargs):  # pylint: disable=W0613
     """Callback for updating parameters from the settings"""
+    settings = dict()
     if from_file and self.settings_file.is_valid() and self.settings_file.exists():
       settings = self.settings_file.load_json()
-    else:
-      settings = {
-        k: s.get()
-        for k, s in self._settings.items()
-      }
-      if self.settings_file.is_valid():
-        self.settings_file.save_json(settings, indent=2)
+    settings = {
+      k: settings.get(k, s.get())
+      for k, s in self._settings.items()
+    }
+    if self.settings_file.is_valid():
+      self.settings_file.save_json(settings, indent=2)
     params = settings
     for func in self._postprocess:
       keys = inspect.signature(func).parameters.keys()

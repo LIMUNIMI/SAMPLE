@@ -1,6 +1,8 @@
 """Classes and functions for handling user files"""
 import contextlib
+import logging
 import ttkthemes
+import tkinter.messagebox
 import json
 import sys
 import os
@@ -70,8 +72,23 @@ class UserDir:
 
 class UserTtkTheme:
   @staticmethod
-  def is_valid(theme: str) -> bool:
-    return theme in ttkthemes.THEMES
+  def is_valid(theme: str, log: bool = False, messagebox: bool = False) -> bool:
+    b = theme in ttkthemes.THEMES
+    if not b and (log or messagebox):
+      m = f"Unsupported theme: '{theme}'. Supported themes are: "
+      m += ", ".join(f"'{t}'" for t in ttkthemes.THEMES)
+      if log:
+        logging.warning(m)
+      if messagebox:
+        tkinter.messagebox.showwarning("Unsupported theme", m)
+    return b
+
+  @staticmethod
+  def default() -> str:
+    if sys.platform == "linux":
+      return "radiance"
+    else:
+      return "arc"
 
   def __init__(self, file: UserDir.UserFile):
     self.file = file
@@ -81,7 +98,4 @@ class UserTtkTheme:
       s = self.file.load_json()
       if k in s:
         return s[k]
-    if sys.platform == "linux":
-      return "radiance"
-    else:
-      return "arc"
+    return self.default()
