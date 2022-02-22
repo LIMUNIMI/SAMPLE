@@ -90,7 +90,7 @@ def main():
   """Run pyinstaller"""
   with export_icon("SAMPLE.ico") as icon_fpath:
     PyInstaller.__main__.run([
-        "sample-gui.py",
+        "sample_gui.py",
         "-F",
         f"--icon={icon_fpath}",
         "-n",
