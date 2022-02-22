@@ -44,7 +44,7 @@ def root_color(w: tk.Widget,
   if not colors.is_color_like(c):
     c = default
   if key is not None:
-    return {key: c} if c is not None else dict()
+    return {key: c} if c is not None else {}
   return c
 
 

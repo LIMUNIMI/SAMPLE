@@ -29,4 +29,4 @@ __version__ = "1.5.0a2"
 
 @cli.main(__name__)
 def main():
-  print("{}\n\nVersion: {}".format(__doc__, __version__))
+  print(f"{__doc__}\n\nVersion: {__version__}")

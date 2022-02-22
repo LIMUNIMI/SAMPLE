@@ -170,7 +170,7 @@ def postprocess_guitheme(
     dict, dict: Postprocessed settings and parameters as dictionaries"""
   if not userfiles.UserTtkTheme.is_valid(
       gui_theme, log=True, messagebox=len(gui_theme)):
-    gui_theme = userfiles.UserTtkTheme.default()
+    gui_theme = ""
   return dict(gui_theme=gui_theme), {}
 
 
@@ -266,12 +266,11 @@ _settings = (
          init_value=True,
          tooltip="If True, then process audio in reverse order of time",
      )),
-    ("gui_theme",
-     dict(
-         label="gui theme",
-         init_value=userfiles.UserTtkTheme.default(),
-         tooltip="GUI theme",
-     )),
+    ("gui_theme", dict(
+        label="gui theme",
+        init_value="",
+        tooltip="GUI theme",
+    )),
 )
 
 _postprocess = (
@@ -372,10 +371,10 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.scrollframe.responsive(1, 1)
     self.scrollframe.grid(row=0)
     self.scrollframe.scrollable_frame.responsive(len(setting_specs), (0, 2))
-    self._settings = dict()
+    self._settings = {}
     for k, kw in setting_specs:
       if kw is None:
-        kw = dict()
+        kw = {}
       self.add_setting(k, **kw)
 
     self.bottom_row = tk.Frame(self)
@@ -418,18 +417,16 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     """Callback for updating parameters from the settings"""
     ttk_theme = userfiles.UserTtkTheme(self.settings_file)
     prev_theme = ttk_theme.get()
-    settings = dict()
+    settings = {}
     if from_file and self.settings_file.is_valid(
     ) and self.settings_file.exists():
       settings = self.settings_file.load_json()
     settings = {k: settings.get(k, s.get()) for k, s in self._settings.items()}
-    if self.settings_file.is_valid():
-      self.settings_file.save_json(settings, indent=2)
     params = settings
     for func in self._postprocess:
       keys = inspect.signature(func).parameters.keys()
-      kw = dict()
-      tp = dict()
+      kw = {}
+      tp = {}
       for k, v in params.items():
         d = kw if k in keys else tp
         d[k] = v
@@ -439,7 +436,11 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       for k, v in param_update.items():
         tp[k] = v
       params = tp
+    if len(settings["gui_theme"]) == 0:
+      settings["gui_theme"] = prev_theme
     logging.debug("Settings: %s", settings)
+    if self.settings_file.is_valid():
+      self.settings_file.save_json(settings, indent=2)
     for k, v in settings.items():
       self._settings[k].set(v)
     self.sample_object.set_params(**params)

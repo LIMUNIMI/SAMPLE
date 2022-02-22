@@ -37,7 +37,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.plt.canvas.mpl_connect("button_release_event",
                                 self.manual_trim_cbk_release)
     # bind checkbutton values to variables to later inspect them
-    self._check_vals = dict()
+    self._check_vals = {}
     for k in ("Pan", "Zoom"):
       b = self.plt.toolbar._buttons[k]
       v = tk.BooleanVar(b, value=False)
@@ -142,7 +142,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
   def auto_trim(self):
     """Automatically trim audio via onset detection"""
-    onsets = librosa.onset.onset_detect(self.audio_x,
+    onsets = librosa.onset.onset_detect(y=self.audio_x,
                                         sr=self.audio_sr,
                                         units="samples")
     logging.debug("Onsets: %s", onsets)

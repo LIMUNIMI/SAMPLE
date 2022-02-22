@@ -92,7 +92,7 @@ def main():
     PyInstaller.__main__.run([
         "sample-gui.py",
         "-F",
-        "--icon={}".format(icon_fpath),
+        f"--icon={icon_fpath}",
         "-n",
         "SAMPLE",
         *hidden_imports((

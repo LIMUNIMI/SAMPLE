@@ -10,10 +10,10 @@ import os
 
 class UserDir:
   """Utility class for the user files directory
-  
+
   Args:
     path: Directory path
-    in_home (bool): If :data:`True`, the :data:`path` is a 
+    in_home (bool): If :data:`True`, the :data:`path` is a
       subpath of the user home directory"""
 
   class UserFile:
@@ -79,8 +79,8 @@ class UserTtkTheme:
   def is_valid(theme: str, log: bool = False, messagebox: bool = False) -> bool:
     b = theme in ttkthemes.THEMES
     if not b and (log or messagebox):
-      m = f"Unsupported theme: '{theme}'. Supported themes are: "
-      m += ", ".join(f"'{t}'" for t in ttkthemes.THEMES)
+      m = f"Unsupported theme: '{theme}'. Supported themes are: " + \
+          ", ".join(f"'{t}'" for t in ttkthemes.THEMES)
       if log:
         logging.warning(m)
       if messagebox:
@@ -100,6 +100,6 @@ class UserTtkTheme:
   def get(self, k: str = "gui_theme") -> str:
     if self.file.is_valid() and self.file.exists():
       s = self.file.load_json()
-      if k in s:
+      if self.is_valid(s.get(k, None)):
         return s[k]
     return self.default()

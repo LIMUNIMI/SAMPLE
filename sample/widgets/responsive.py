@@ -58,11 +58,10 @@ def responsive(cls: type) -> type:
 
   Returns:
     type: Child class"""
-  return type("Responsive{}".format(cls.__name__), (ResponsiveMixin, cls),
-              dict())
+  return type(f"Responsive{cls.__name__}", (ResponsiveMixin, cls), {})
 
 
-__responsive_classes: Dict[type, type] = dict()
+__responsive_classes: Dict[type, type] = {}
 __tk_modules = (ttkthemes, ttk, tk)
 
 
@@ -73,8 +72,7 @@ def __getattr__(name):  # pylint: disable=C0103
       cls = getattr(m, name)
       break
   else:
-    raise AttributeError("module '{}' has no attribute '{}'".format(
-        __name__, name))
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
   if not isinstance(cls, type):
     return cls
   if cls not in __responsive_classes:

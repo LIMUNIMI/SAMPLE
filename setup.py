@@ -1,8 +1,9 @@
+"""Setup script for PyPI package"""
 import setuptools
 
-with open("README.md", "r") as f:
+with open("README.md", mode="r", encoding="utf-8") as f:
   readme = f.read()
-with open("sample/__init__.py", "r") as f:
+with open("sample/__init__.py", mode="r", encoding="utf-8") as f:
   version = f.read().split("__version__ = \"", 1)[-1].split("\"", 1)[0]
 
 setuptools.setup(

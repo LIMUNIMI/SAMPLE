@@ -53,7 +53,7 @@ class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_bounds_len1(self):
     """Check bounds fail on inputs of length 1"""
     with self.assertRaises(ValueError):
-      regression.HingeRegression()._default_bounds(
+      regression.HingeRegression()._default_bounds(  # pylint: disable=W0212
           np.ones(1),
           np.ones(1),
           0,
@@ -63,7 +63,7 @@ class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_bounds_notequal(self):
     """Check bounds don't fail on degenerate inputs"""
     with self.assert_doesnt_raise():
-      regression.HingeRegression()._default_bounds(
+      regression.HingeRegression()._default_bounds(  # pylint: disable=W0212
           np.ones(2),
           np.ones(2),
           0,

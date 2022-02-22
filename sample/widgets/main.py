@@ -23,8 +23,7 @@ class SAMPLERoot(tk.ThemedTk):
     self.reload_queue = reload_queue
     self.should_reload = False
     super().__init__(**kwargs, theme=theme)
-    self.title("SAMPLE{}".format(
-        " ({})".format(sample.__version__) if _prerelease else ""))
+    self.title(f"SAMPLE ({sample.__version__})" if _prerelease else "SAMPLE")
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -75,7 +74,7 @@ class SAMPLEGUI(SAMPLERoot):
     self.tabs = []
     for k, func, kw in tabs:
       if kw is None:
-        kw = dict()
+        kw = {}
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
@@ -98,7 +97,7 @@ class SAMPLESplashScreen(SAMPLERoot):
   def __init__(self, splash_time: float = 3000, gui_kwargs=None, **kwargs):
     super().__init__(**kwargs)
     if gui_kwargs is None:
-      gui_kwargs = dict()
+      gui_kwargs = {}
     self.gui_kwargs = gui_kwargs
     self.__img = images.LogoImage()
     self.label = tk.Label(self, image=self.__img)
