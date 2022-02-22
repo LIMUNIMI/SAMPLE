@@ -121,7 +121,7 @@ class ModalTracker(sm.SineTracker):
       raise KeyError(
           f"merge strategy for object of type '{self.__class__.__name__}'" +
           " should be one of the following: " +
-          ", ".join(f"'{k}'" for k in self._diff_funcion_dict.keys()))
+          ", ".join(f"'{k}'" for k in self._diff_funcion_dict))
     return self._diff_funcion_dict[self.merge_strategy]
 
   def deactivate(self, track_index: int) -> dict:
