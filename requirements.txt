@@ -23,8 +23,9 @@ Pillow
 pygame
 throttle
 
-# Pylint
+# Style
 pylint
+yapf
 
 # Coverage
 coverage

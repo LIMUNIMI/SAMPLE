@@ -14,10 +14,7 @@ import os
 import warnings
 
 
-class TestSMS(
-  unittestmixins.RMSEAssertMixin,
-  unittest.TestCase
-):
+class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
   """Tests related to SMS"""
   sms_pack_repo = "https://gitlab.com/ChromaticIsobar/sms.git"
 
@@ -25,12 +22,8 @@ class TestSMS(
   def setUpClass(cls):
     """Download SMS and install it as a package"""
     if not os.path.isfile("sms/__init__.py"):
-      os.system(
-        "git clone {} sms --recurse-submodules".format(
-          cls.sms_pack_repo
-        )
-      )
-      os.system("cd sms && {} setup.py".format(sys.executable))
+      os.system(f"git clone {cls.sms_pack_repo} sms --recurse-submodules")
+      os.system(f"cd sms && {sys.executable} setup.py")
 
   @classmethod
   def tearDownClass(cls):
@@ -45,10 +38,7 @@ class TestSMS(
     self.sm = sample_sm.SinusoidalModel()
     self.sm.w_ = self.sm.normalized_window
 
-    warnings.filterwarnings(
-      "ignore",
-      message="numpy.ufunc size changed"
-    )
+    warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
   def tearDown(self):
     """Cleanup after each test"""
@@ -103,26 +93,24 @@ class TestSMS(
 
     mx, px = more_itertools.first(self.sm.dft_frames(self.x))
     g = {
-      "mx": mx,
-      "px": px,
-      "ploc": sample_dsp.peak_detect(mx, self.sm.t),
-      "sample_dsp": sample_dsp,
-      "utilFunctions": utilFunctions,
+        "mx": mx,
+        "px": px,
+        "ploc": sample_dsp.peak_detect(mx, self.sm.t),
+        "sample_dsp": sample_dsp,
+        "utilFunctions": utilFunctions,
     }
 
-    def get_time(
-      func: str,
-    ):
+    def get_time(func: str,):
       return timeit.timeit(
-        "{}(mx, px, ploc)".format(func),
-        number=256,
-        globals=g,
+          f"{func}(mx, px, ploc)",
+          number=256,
+          globals=g,
       )
 
     t = get_time("sample_dsp.peak_refine")
     t_sms = get_time("utilFunctions.peakInterp")
     self.assertLessEqual(t, t_sms)
-    print("\n  {} <= {}".format(t, t_sms))
+    print("\n" + f"  {t} <= {t_sms}")
 
   def test_intermediate(self):
     """Check that intermediate results are saved"""
@@ -130,8 +118,8 @@ class TestSMS(
     self.assertTrue(hasattr(self.sm, "intermediate_"))
 
     for k in (
-      "stft",
-      "peaks",
+        "stft",
+        "peaks",
     ):
       with self.subTest(key=k):
         self.assertTrue(k in self.sm.intermediate_, "Key not found")

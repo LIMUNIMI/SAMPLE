@@ -1,5 +1,6 @@
 """Settings tab"""
-from sample.widgets import responsive as tk, utils, logging, sample
+from tkinter import messagebox
+from sample.widgets import responsive as tk, utils, logging, sample, userfiles
 from matplotlib.backends import _backend_tk
 from scipy import signal
 import functools
@@ -8,11 +9,9 @@ from typing import Optional, Union, Type, Tuple, Dict, Any, Sequence, Callable
 
 
 # --- Parsers ----------------------------------------------------------------
-def try_func(
-  func: Callable,
-  exc: Union[Type[Exception], Tuple[Type[Exception], ...]],
-  default: Optional = None
-):
+def try_func(func: Callable,
+             exc: Union[Type[Exception], Tuple[Type[Exception], ...]],
+             default: Optional = None):
   """Function wrapper for returning a default value on fail
   Args:
     func (callable): Function to wrap
@@ -21,12 +20,14 @@ def try_func(
     default: Value returned on exception. Default is :data:`None`
   Returns:
     callable: Wrapped function"""
+
   @functools.wraps(func)
   def func_(*args, **kwargs):
     try:
       return func(*args, **kwargs)
     except exc:
       return default
+
   return func_
 
 
@@ -98,13 +99,14 @@ def next_power_of_2(x: str) -> int:
   Returns:
     int: The minimum power of two greater or equal to :data:`floor(x)`"""
   return 2**(custom_positive_int(x) - 1).bit_length()
+
+
 # ----------------------------------------------------------------------------
 
 
 # --- Post-processing --------------------------------------------------------
-def postprocess_fbound(
-  smfb_0: float, smfb_1: float
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def postprocess_fbound(smfb_0: float,
+                       smfb_1: float) -> Tuple[Dict[str, Any], Dict[str, Any]]:
   """Postprocess frequency bounds
 
   Args:
@@ -119,21 +121,15 @@ def postprocess_fbound(
     smfb_0 = 20
     smfb_1 = 16000
   in_kw = dict(
-    smfb_0=smfb_0,
-    smfb_1=smfb_1,
+      smfb_0=smfb_0,
+      smfb_1=smfb_1,
   )
-  out_kw = dict(
-    sinusoidal_model__frequency_bounds=(
-      smfb_0, smfb_1
-    )
-  )
+  out_kw = dict(sinusoidal_model__frequency_bounds=(smfb_0, smfb_1))
   return in_kw, out_kw
 
 
-def postprocess_windows(
-  sinusoidal_model__n: int,
-  wsize: int, wtype: str
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def postprocess_windows(sinusoidal_model__n: int, wsize: int,
+                        wtype: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
   """Postprocess frequency bounds
 
   Args:
@@ -156,84 +152,131 @@ def postprocess_windows(
       continue
     else:
       break
-  in_kw = dict(
-    sinusoidal_model__n=sinusoidal_model__n,
-    wsize=wsize, wtype=wtype
-  )
-  out_kw = dict(
-    sinusoidal_model__n=sinusoidal_model__n,
-    sinusoidal_model__w=w
-  )
+  in_kw = dict(sinusoidal_model__n=sinusoidal_model__n,
+               wsize=wsize,
+               wtype=wtype)
+  out_kw = dict(sinusoidal_model__n=sinusoidal_model__n, sinusoidal_model__w=w)
   return in_kw, out_kw
+
+
+def postprocess_guitheme(
+    gui_theme: str,) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+  """Postprocess GUI theme
+
+  Args:
+    gui_theme (str): GUI theme name
+
+  Returns:
+    dict, dict: Postprocessed settings and parameters as dictionaries"""
+  if not userfiles.UserTtkTheme.is_valid(
+      gui_theme, log=True, messagebox=len(gui_theme)):
+    gui_theme = ""
+  return dict(gui_theme=gui_theme), {}
+
+
 # ----------------------------------------------------------------------------
 
-
 _settings = (
-  ("sinusoidal_model__max_n_sines", dict(
-    label="n sines", get_fn=custom_positive_int, init_value=64,
-    tooltip="Maximum number of sinusoidal tracks per frame"
-  )),
-  ("sinusoidal_model__n", dict(
-    label="fft size", get_fn=next_power_of_2, init_value=4096,
-    tooltip="FFT size (in bins)"
-  )),
-  ("sinusoidal_model__h", dict(
-    label="hop size", get_fn=custom_positive_int, init_value=1024,
-    tooltip="FTT analysis window hop size (in samples)"
-  )),
-  ("wsize", dict(
-    label="window size", get_fn=custom_positive_int, init_value=4096,
-    tooltip="FFT analysis window size (in samples)",
-  )),
-  ("wtype", dict(
-    label="window type", init_value="blackman",
-    tooltip="FFT analysis window type",
-  )),
-  ("sinusoidal_model__freq_dev_offset", dict(
-    label="frequency deviation offset", get_fn=try_float, init_value=20,
-    tooltip="Frequency deviation threshold at 0 Hz (in Hertz)",
-  )),
-  ("sinusoidal_model__freq_dev_slope", dict(
-    label="frequency deviation slope", get_fn=try_float, init_value=.0025,
-    tooltip="Slope of frequency deviation threshold"
-  )),
-  ("smfb_0", dict(
-    label="lower frequency bound", get_fn=try_float, init_value=20,
-    tooltip="Minimum and accepted mean frequency (in Hertz)",
-  )),
-  ("smfb_1", dict(
-    label="upper frequency bound", get_fn=try_float, init_value=16000,
-    tooltip="Maximum and accepted mean frequency (in Hertz)",
-  )),
-  ("sinusoidal_model__peak_threshold", dict(
-    label="onset threshold", get_fn=try_float, init_value=-66,
-    tooltip="Minimum peak magnitude for modal tracks "
-            "(magnitude at time=0, in dB)",
-  )),
-  ("sinusoidal_model__t", dict(
-    label="peak detection threshold", get_fn=try_float, init_value=-90,
-    tooltip="Threshold in dB for the peak detection algorithm"
-  )),
-  ("sinusoidal_model__min_sine_dur", dict(
-    label="minimum sine duration", get_fn=non_negative, init_value=0.1,
-    tooltip="Minimum duration of a track (in seconds)"
-  )),
-  ("sinusoidal_model__strip_t", dict(
-    label="strip time", get_fn=strip_time_parse, init_value=0.5,
-    tooltip="Strip time (in seconds). Tracks starting later "
-            "than this time will be omitted from the track "
-            "list. If is None, then don't strip",
-  )),
-  ("sinusoidal_model__reverse", dict(
-    label="reverse", get_fn=custom_bool, set_fn=str, init_value=True,
-    tooltip="If True, then process audio in reverse order of time",
-  )),
+    ("sinusoidal_model__max_n_sines",
+     dict(label="n sines",
+          get_fn=custom_positive_int,
+          init_value=64,
+          tooltip="Maximum number of sinusoidal tracks per frame")),
+    ("sinusoidal_model__n",
+     dict(label="fft size",
+          get_fn=next_power_of_2,
+          init_value=4096,
+          tooltip="FFT size (in bins)")),
+    ("sinusoidal_model__h",
+     dict(label="hop size",
+          get_fn=custom_positive_int,
+          init_value=1024,
+          tooltip="FTT analysis window hop size (in samples)")),
+    ("wsize",
+     dict(
+         label="window size",
+         get_fn=custom_positive_int,
+         init_value=4096,
+         tooltip="FFT analysis window size (in samples)",
+     )),
+    ("wtype",
+     dict(
+         label="window type",
+         init_value="blackman",
+         tooltip="FFT analysis window type",
+     )),
+    ("sinusoidal_model__freq_dev_offset",
+     dict(
+         label="frequency deviation offset",
+         get_fn=try_float,
+         init_value=20,
+         tooltip="Frequency deviation threshold at 0 Hz (in Hertz)",
+     )),
+    ("sinusoidal_model__freq_dev_slope",
+     dict(label="frequency deviation slope",
+          get_fn=try_float,
+          init_value=.0025,
+          tooltip="Slope of frequency deviation threshold")),
+    ("smfb_0",
+     dict(
+         label="lower frequency bound",
+         get_fn=try_float,
+         init_value=20,
+         tooltip="Minimum and accepted mean frequency (in Hertz)",
+     )),
+    ("smfb_1",
+     dict(
+         label="upper frequency bound",
+         get_fn=try_float,
+         init_value=16000,
+         tooltip="Maximum and accepted mean frequency (in Hertz)",
+     )),
+    ("sinusoidal_model__peak_threshold",
+     dict(
+         label="onset threshold",
+         get_fn=try_float,
+         init_value=-66,
+         tooltip="Minimum peak magnitude for modal tracks "
+         "(magnitude at time=0, in dB)",
+     )),
+    ("sinusoidal_model__t",
+     dict(label="peak detection threshold",
+          get_fn=try_float,
+          init_value=-90,
+          tooltip="Threshold in dB for the peak detection algorithm")),
+    ("sinusoidal_model__min_sine_dur",
+     dict(label="minimum sine duration",
+          get_fn=non_negative,
+          init_value=0.1,
+          tooltip="Minimum duration of a track (in seconds)")),
+    ("sinusoidal_model__strip_t",
+     dict(
+         label="strip time",
+         get_fn=strip_time_parse,
+         init_value=0.5,
+         tooltip="Strip time (in seconds). Tracks starting later "
+         "than this time will be omitted from the track "
+         "list. If is None, then don't strip",
+     )),
+    ("sinusoidal_model__reverse",
+     dict(
+         label="reverse",
+         get_fn=custom_bool,
+         set_fn=str,
+         init_value=True,
+         tooltip="If True, then process audio in reverse order of time",
+     )),
+    ("gui_theme", dict(
+        label="gui theme",
+        init_value="",
+        tooltip="GUI theme",
+    )),
 )
 
-
 _postprocess = (
-  postprocess_windows,
-  postprocess_fbound,
+    postprocess_windows,
+    postprocess_fbound,
+    postprocess_guitheme,
 )
 
 
@@ -250,6 +293,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       update the parameter values
     args: Positional arguments for :class:`tkinter.ttk.Frame`
     kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
+
   class Setting:
     """Setting wrapper
 
@@ -261,15 +305,16 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       get_fn (callable): Parse function from entry value
       set_fn (callable): Entry value set function
       init_value: Initial value"""
+
     def __init__(
-      self,
-      parent: tk.Widget,
-      name: str,
-      label: Optional[str] = None,
-      tooltip: Optional[str] = None,
-      get_fn: Optional[Callable] = None,
-      set_fn: Optional[Callable] = None,
-      init_value: Optional = None,
+        self,
+        parent: tk.Widget,
+        name: str,
+        label: Optional[str] = None,
+        tooltip: Optional[str] = None,
+        get_fn: Optional[Callable] = None,
+        set_fn: Optional[Callable] = None,
+        init_value: Optional = None,
     ):
       self.name = name
       self.label = tk.Label(parent, text=label or name)
@@ -281,9 +326,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       if tooltip is None:
         self.tooltip = None
       else:
-        self.tooltip = _backend_tk.ToolTip.createToolTip(
-          self.label, tooltip
-        )
+        self.tooltip = _backend_tk.ToolTip.createToolTip(self.label, tooltip)
       if init_value is not None:
         self.set(init_value)
 
@@ -310,15 +353,16 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       self.var.set(value)
       return self
 
-  def __init__(
-    self,
-    *args,
-    setting_specs: Sequence[Tuple[str, Optional[Dict[str, Any]]]] = _settings,
-    postprocess: Sequence[
-      Callable[..., Tuple[Dict[str, Any], Dict[str, Any]]]
-    ] = _postprocess,
-    **kwargs
-  ):
+  def __init__(self,
+               *args,
+               setting_specs: Sequence[Tuple[str,
+                                             Optional[Dict[str,
+                                                           Any]]]] = _settings,
+               postprocess: Sequence[Callable[...,
+                                              Tuple[Dict[str, Any],
+                                                    Dict[str,
+                                                         Any]]]] = _postprocess,
+               **kwargs):
     super().__init__(*args, **kwargs)
     self._postprocess = postprocess
     self.responsive(1, 1)
@@ -327,10 +371,10 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.scrollframe.responsive(1, 1)
     self.scrollframe.grid(row=0)
     self.scrollframe.scrollable_frame.responsive(len(setting_specs), (0, 2))
-    self._settings = dict()
+    self._settings = {}
     for k, kw in setting_specs:
       if kw is None:
-        kw = dict()
+        kw = {}
       self.add_setting(k, **kw)
 
     self.bottom_row = tk.Frame(self)
@@ -342,13 +386,13 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.grid()
 
     self.sample_object = sample.SAMPLE()
-    self.apply_cbk()
+    self.apply_cbk(from_file=True)
 
-  def add_setting(
-    self, name,
-    i: Optional[int] = None, grid: bool = True,
-    **kwargs
-  ):
+  def add_setting(self,
+                  name,
+                  i: Optional[int] = None,
+                  grid: bool = True,
+                  **kwargs):
     """Add a setting to the tab
 
     Args:
@@ -360,27 +404,29 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       kwargs: Keyword arguments for :class:`SettingsTab.Setting`"""
     if i is None:
       i = len(self._settings)
-    v = self._settings[name] = self.Setting(
-      self.scrollframe.scrollable_frame,
-      name=name, **kwargs
-    )
+    v = self._settings[name] = self.Setting(self.scrollframe.scrollable_frame,
+                                            name=name,
+                                            **kwargs)
     if grid:
       v.label.grid(row=i, column=0)
       v.spacer.grid(row=i, column=1)
       v.entry.grid(row=i, column=2)
     return v
 
-  def apply_cbk(self, *args, **kwargs):  # pylint: disable=W0613
+  def apply_cbk(self, *args, from_file: bool = False, **kwargs):  # pylint: disable=W0613
     """Callback for updating parameters from the settings"""
-    settings = {
-      k: s.get()
-      for k, s in self._settings.items()
-    }
+    ttk_theme = userfiles.UserTtkTheme(self.settings_file)
+    prev_theme = ttk_theme.get()
+    settings = {}
+    if from_file and self.settings_file.is_valid(
+    ) and self.settings_file.exists():
+      settings = self.settings_file.load_json()
+    settings = {k: settings.get(k, s.get()) for k, s in self._settings.items()}
     params = settings
     for func in self._postprocess:
       keys = inspect.signature(func).parameters.keys()
-      kw = dict()
-      tp = dict()
+      kw = {}
+      tp = {}
       for k, v in params.items():
         d = kw if k in keys else tp
         d[k] = v
@@ -390,8 +436,21 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       for k, v in param_update.items():
         tp[k] = v
       params = tp
+    if len(settings["gui_theme"]) == 0:
+      settings["gui_theme"] = prev_theme
     logging.debug("Settings: %s", settings)
+    if self.settings_file.is_valid():
+      self.settings_file.save_json(settings, indent=2)
     for k, v in settings.items():
       self._settings[k].set(v)
     self.sample_object.set_params(**params)
     logging.debug("SAMPLE: %s", self.sample_object)
+    if prev_theme != ttk_theme.get():
+      logging.info("Reload GUI to apply changes")
+      if messagebox.askyesno(
+          "Reload",
+          "Reload GUI to apply changes to the theme. Do you want to reload now?"
+      ):
+        r = utils.get_root(self)
+        r.master.should_reload = True
+        r.quit()

@@ -26,14 +26,15 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       complete list of all parameter names and default values, please, run
       :data:`SAMPLE().get_params()`. For an explanation of the parameters,
       please, refer to the documentation of the submodels"""
+
   def __init__(
-    self,
-    sinusoidal_model=mm.ModalModel(),
-    regressor=HingeRegression(),
-    regressor_k: str = "k_",
-    regressor_q: str = "q_",
-    freq_reduce: Callable[[np.ndarray], float] = np.mean,
-    **kwargs,
+      self,
+      sinusoidal_model=mm.ModalModel(),
+      regressor=HingeRegression(),
+      regressor_k: str = "k_",
+      regressor_q: str = "q_",
+      freq_reduce: Callable[[np.ndarray], float] = np.mean,
+      **kwargs,
   ):
     self.sinusoidal_model = sinusoidal_model
     self.regressor = regressor
@@ -132,18 +133,18 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     Returns:
       dict: SDT parameters"""
     n_modes = self.freqs_.size
-    m_ord = np.argsort(getattr(self, "{}_".format(order))).tolist()
+    m_ord = np.argsort(getattr(self, f"{order}_")).tolist()
     if reverse:
       m_ord = list(reversed(m_ord))
     return {
-      "nModes": n_modes,
-      "nPickups": 1,
-      "activeModes": n_modes,
-      "fragmentSize": 1.0,
-      "freqs": self.freqs_[m_ord].tolist(),
-      "decays": self.decays_[m_ord].tolist(),
-      "weights": np.full(n_modes, 1 / n_modes).tolist(),
-      "gains": [self.amps_[m_ord].tolist()],
+        "nModes": n_modes,
+        "nPickups": 1,
+        "activeModes": n_modes,
+        "fragmentSize": 1.0,
+        "freqs": self.freqs_[m_ord].tolist(),
+        "decays": self.decays_[m_ord].tolist(),
+        "weights": np.full(n_modes, 1 / n_modes).tolist(),
+        "gains": [self.amps_[m_ord].tolist()],
     }
 
   def predict(self, x: np.ndarray) -> np.ndarray:

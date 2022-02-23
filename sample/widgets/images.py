@@ -12,11 +12,8 @@ class TempImage(ImageTk.PhotoImage):
       with a file as the only argument
     args: Positional arguments for :class:`PIL.ImageTk.PhotoImage`
     kwargs: Keyword arguments for :class:`PIL.ImageTk.PhotoImage`"""
-  def __init__(
-    self, *args,
-    plt_fn: callable,
-    **kwargs
-  ):
+
+  def __init__(self, *args, plt_fn: callable, **kwargs):
     with io.BytesIO() as buf:
       plt_fn(buf)
       buf.seek(0)
@@ -32,11 +29,8 @@ class LogoIcon(TempImage):
       with a file as the only argument
     args: Positional arguments for :class:`TempImage`
     kwargs: Keyword arguments for :class:`TempImage`"""
-  def __init__(
-    self, *args,
-    plt_fn: callable = vid.icon_plt_fn,
-    **kwargs
-  ):
+
+  def __init__(self, *args, plt_fn: callable = vid.icon_plt_fn, **kwargs):
     super().__init__(*args, plt_fn=plt_fn, **kwargs)
 
 
@@ -48,9 +42,6 @@ class LogoImage(TempImage):
       with a file as the only argument
     args: Positional arguments for :class:`TempImage`
     kwargs: Keyword arguments for :class:`TempImage`"""
-  def __init__(
-    self, *args,
-    plt_fn: callable = vid.logo_plt_fn,
-    **kwargs
-  ):
+
+  def __init__(self, *args, plt_fn: callable = vid.logo_plt_fn, **kwargs):
     super().__init__(*args, plt_fn=plt_fn, **kwargs)

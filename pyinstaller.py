@@ -48,18 +48,11 @@ def hidden_imports(it: Iterable[str]) -> Tuple[str, ...]:
   Returns:
     tuple of str: Cli arguments for hidden imports"""
   return tuple(
-    itertools.chain.from_iterable(
-      zip(
-        itertools.repeat("--hidden-import"),
-        it
-      )
-    )
-  )
+      itertools.chain.from_iterable(zip(itertools.repeat("--hidden-import"),
+                                        it)))
 
 
-def module_data(
-  it: Iterable["Tuple[ModuleType, str, ...]"]
-) -> Tuple[str, ...]:
+def module_data(it: Iterable["Tuple[ModuleType, str, ...]"]) -> Tuple[str, ...]:
   """Get cli arguments for hidden imports
 
   Args:
@@ -69,13 +62,9 @@ def module_data(
   Returns:
     tuple of str: Cli arguments for adding data"""
   return tuple(
-    itertools.chain.from_iterable(
-      zip(
-        itertools.repeat("--add-data"),
-        map(lambda t: module_data_path(*t), it)
-      )
-    )
-  )
+      itertools.chain.from_iterable(
+          zip(itertools.repeat("--add-data"),
+              map(lambda t: module_data_path(*t), it))))
 
 
 @contextlib.contextmanager
@@ -101,14 +90,14 @@ def main():
   """Run pyinstaller"""
   with export_icon("SAMPLE.ico") as icon_fpath:
     PyInstaller.__main__.run([
-      "sample-gui.py", "-F",
-      "--icon={}".format(icon_fpath),
-      "-n", "SAMPLE",
-      *hidden_imports((
-        "sklearn.utils._weight_vector",
-        "PIL._tkinter_finder",
-      )),
-      *module_data((
-        (librosa, "util", "example_data"),
-      )),
+        "sample_gui.py",
+        "-F",
+        f"--icon={icon_fpath}",
+        "-n",
+        "SAMPLE",
+        *hidden_imports((
+            "sklearn.utils._weight_vector",
+            "PIL._tkinter_finder",
+        )),
+        *module_data(((librosa, "util", "example_data"),)),
     ])

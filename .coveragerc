@@ -1,6 +1,10 @@
 [run]
+command_line = -m unittest
 source =
 	sample
 omit =
     sample/widgets/*
     sample/gui.py
+
+[json]
+pretty_print = True

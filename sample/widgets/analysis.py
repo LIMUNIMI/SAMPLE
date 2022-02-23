@@ -21,16 +21,15 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       of the whole figure)
     args: Positional arguments for :class:`tkinter.ttk.Frame`
     kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
-  def __init__(
-    self,
-    *args,
-    pad_top_w: float = 0.09,
-    pad_top_wm: float = 0.02,
-    pad_top_h: float = 0.02,
-    pad_bottom_w: float = 0.05,
-    pad_bottom_h: float = 0.05,
-    **kwargs
-  ):
+
+  def __init__(self,
+               *args,
+               pad_top_w: float = 0.09,
+               pad_top_wm: float = 0.02,
+               pad_top_h: float = 0.02,
+               pad_bottom_w: float = 0.05,
+               pad_bottom_h: float = 0.05,
+               **kwargs):
     super().__init__(*args, **kwargs)
     self.filedialog_dir_save = None
     self.responsive(1, 1)
@@ -42,24 +41,24 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     top_width = 0.5 - pad_top_w - 0.5 * pad_top_wm
     top_height = 0.5 - 2 * pad_top_h
     self.ax = (
-      self.plt.fig.add_axes((
-        pad_top_w,
-        0.5 + pad_top_h,
-        top_width,
-        top_height,
-      )),
-      self.plt.fig.add_axes((
-        0.50 + pad_top_wm / 2,
-        0.50 + pad_top_h,
-        top_width,
-        top_height,
-      )),
-      self.plt.fig.add_axes((
-        pad_bottom_w,
-        pad_bottom_h,
-        1 - 2 * pad_bottom_w,
-        0.5 - 2 * pad_bottom_h,
-      )),
+        self.plt.fig.add_axes((
+            pad_top_w,
+            0.5 + pad_top_h,
+            top_width,
+            top_height,
+        )),
+        self.plt.fig.add_axes((
+            0.50 + pad_top_wm / 2,
+            0.50 + pad_top_h,
+            top_width,
+            top_height,
+        )),
+        self.plt.fig.add_axes((
+            pad_bottom_w,
+            pad_bottom_h,
+            1 - 2 * pad_bottom_w,
+            0.5 - 2 * pad_bottom_h,
+        )),
     )
     fc = utils.root_color(self, "TLabel", "background")
     if fc is not None:
@@ -115,9 +114,11 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     ylim = self.ax[0].get_ylim()
 
     self.ax[0].imshow(
-      stft, cmap="Greys",
-      origin="lower",  aspect="auto",
-      extent=(*xlim, 0, m.fs/2),
+        stft,
+        cmap="Greys",
+        origin="lower",
+        aspect="auto",
+        extent=(*xlim, 0, m.fs / 2),
     )
     self.ax[0].set_ylim(ylim)
     self.ax[0].set_xlim(xlim)
@@ -133,21 +134,30 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
     t = np.arange(x.size) / self.audio_sr
     if self.audio_resynth_x is None:
-      self.audio_resynth_x = np.clip(
-        self.sample_object.predict(t), -1, +1
-      )
+      self.audio_resynth_x = np.clip(self.sample_object.predict(t), -1, +1)
     x_hat = self.audio_resynth_x
     self.ax[2].plot(
-      t, x, c="C0", alpha=0.5, zorder=6, label="original",
+        t,
+        x,
+        c="C0",
+        alpha=0.5,
+        zorder=6,
+        label="original",
     )
     self.ax[2].plot(
-      t, x_hat, c="C1", alpha=0.5, zorder=6, label="resynthesis",
+        t,
+        x_hat,
+        c="C1",
+        alpha=0.5,
+        zorder=6,
+        label="resynthesis",
     )
 
     fc = utils.root_color(self, "TLabel", "foreground", key="labelcolor")
     self.ax[2].legend(
-      loc="lower right", **fc,
-      **utils.root_color(self, "TLabel", "background", key="facecolor"),
+        loc="lower right",
+        **fc,
+        **utils.root_color(self, "TLabel", "background", key="facecolor"),
     )
 
     self.ax[2].set_xticks(())
@@ -166,54 +176,50 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
   def analysis_cbk(self, *args, **kwargs):  # pylint: disable=W0613
     """Analysis callback"""
     if not self.audio_loaded:
-      messagebox.showerror(
-        "No audio",
-        "You have to load an audio file before analyzing"
-      )
+      messagebox.showerror("No audio",
+                           "You have to load an audio file before analyzing")
       return
     x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
     try:
       self.sample_object.fit(
-        x, sinusoidal_model__fs=self.audio_sr,
-        sinusoidal_model__save_intermediate=True,
-        sinusoidal_model__progressbar=self.progressbar,
+          x,
+          sinusoidal_model__fs=self.audio_sr,
+          sinusoidal_model__save_intermediate=True,
+          sinusoidal_model__progressbar=self.progressbar,
       )
     except Exception as e:  # pylint: disable=W0703
-      messagebox.showerror(
-        type(e).__name__, str(e)
-      )
+      messagebox.showerror(type(e).__name__, str(e))
       return
     self.audio_resynth_x = None
     self.update_plot()
 
   def play_cbk(self, original: bool = True):
     """Audio playback callback constructor"""
+
     def play_cbk_(*args, **kwargs):  # pylint: disable=W0613
       """Audio playback callback"""
       if not self.audio_loaded:
         messagebox.showerror(
-          "No audio",
-          "You have to load an audio file before playing anything back"
-        )
+            "No audio",
+            "You have to load an audio file before playing anything back")
         return
       x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
       if not original:
         if self.audio_resynth_x is None:
           try:
-            self.audio_resynth_x = np.clip(self.sample_object.predict(
-              np.arange(x.size) / self.audio_sr,
-            ), -1, +1)
+            self.audio_resynth_x = np.clip(
+                self.sample_object.predict(np.arange(x.size) / self.audio_sr,),
+                -1, +1)
           except AttributeError:
             messagebox.showerror(
-              "Not analyzed",
-              "You have to analyse an audio file before "
-              "playing back the resynthesis"
-            )
+                "Not analyzed", "You have to analyse an audio file before "
+                "playing back the resynthesis")
             self.audio_resynth_x = None
             return
         x = self.audio_resynth_x
       self._tmp_audio = audio.TempAudio(x, self.audio_sr)
       self._tmp_audio.play()
+
     return play_cbk_
 
   def export_cbk(self, *args, **kwargs):  # pylint: disable=W0613
@@ -222,33 +228,27 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       j = self.sample_object.sdt_params_()
     except AttributeError:
       messagebox.showerror(
-        "Not analyzed",
-        "You have to analyse an audio file before "
-        "exporting the parameters"
-      )
+          "Not analyzed", "You have to analyse an audio file before "
+          "exporting the parameters")
       return
     logging.debug("SDT JSON: %s", j)
     filename = filedialog.asksaveasfilename(
-      title="Save JSON file",
-      initialdir=self.filedialog_dir_save,
-      initialfile=os.path.basename(
-        os.path.splitext(self.filedialog_file)[0]
-      ),
-      defaultextension=".json",
-      filetypes=[
-        ("JSON", ".json"),
-        ("Text", ".txt"),
-      ],
+        title="Save JSON file",
+        initialdir=self.filedialog_dir_save,
+        initialfile=os.path.basename(os.path.splitext(self.filedialog_file)[0]),
+        defaultextension=".json",
+        filetypes=[
+            ("JSON", ".json"),
+            ("Text", ".txt"),
+        ],
     )
     if filename:
       logging.info("Saving JSON: %s", filename)
       self.filedialog_dir_save = os.path.dirname(filename)
       try:
-        with open(filename, "w") as f:
+        with open(filename, mode="w", encoding="utf-8") as f:
           json.dump(j, f, indent=2)
       except Exception as e:  # pylint: disable=W0703
         messagebox.showerror(type(e).__name__, str(e))
       else:
-        messagebox.showinfo(
-          "Saved", "Saved JSON to file:\n{}".format(filename)
-        )
+        messagebox.showinfo("Saved", f"Saved JSON to file:\n{filename}")

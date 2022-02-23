@@ -15,6 +15,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
   Args:
     args: Positional arguments for :class:`tkinter.ttk.Frame`
     kwargs: Keyword arguments for :class:`tkinter.ttk.Frame`"""
+
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.filedialog_dir = os.path.expanduser("~")
@@ -31,14 +32,12 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     if fc is not None:
       self.ax.set_facecolor(fc)
     self._trim_side = None
-    self.plt.canvas.mpl_connect(
-      "button_press_event", self.manual_trim_cbk_press
-    )
-    self.plt.canvas.mpl_connect(
-      "button_release_event", self.manual_trim_cbk_release
-    )
+    self.plt.canvas.mpl_connect("button_press_event",
+                                self.manual_trim_cbk_press)
+    self.plt.canvas.mpl_connect("button_release_event",
+                                self.manual_trim_cbk_release)
     # bind checkbutton values to variables to later inspect them
-    self._check_vals = dict()
+    self._check_vals = {}
     for k in ("Pan", "Zoom"):
       b = self.plt.toolbar._buttons[k]
       v = tk.BooleanVar(b, value=False)
@@ -58,47 +57,39 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
     # --- Trim start/stop entries --------------------------------------------
     def trim_entry_cbk(tvar, start: bool):
+
       def trim_entry_cbk_(*args, **kwargs):  # pylint: disable=W0613
         try:
           tval = float(tvar.get())
         except Exception as e:  # pylint: disable=W0703
-          logging.warning(
-            "Error parsing trim %s value: %s",
-            "start" if start else "stop", e
-          )
+          logging.warning("Error parsing trim %s value: %s",
+                          "start" if start else "stop", e)
           tval = 0.
         self.set_trim(tval, samples=False, start=start, update=True)
+
       tvar.trace_add("write", trim_entry_cbk_)
       return trim_entry_cbk_
 
     self.trim_start_input_var = tk.StringVar(self, value=None)
-    self.trim_start_input = tk.Entry(
-      self.bottom_row,
-      textvariable=self.trim_start_input_var
-    )
+    self.trim_start_input = tk.Entry(self.bottom_row,
+                                     textvariable=self.trim_start_input_var)
     trim_entry_cbk(self.trim_start_input_var, True)
     self.trim_start_input.grid(column=1, row=0)
 
     self.trim_stop_input_var = tk.StringVar(self, value=None)
-    self.trim_stop_input = tk.Entry(
-      self.bottom_row,
-      textvariable=self.trim_stop_input_var
-    )
+    self.trim_stop_input = tk.Entry(self.bottom_row,
+                                    textvariable=self.trim_stop_input_var)
     trim_entry_cbk(self.trim_stop_input_var, False)
     self.trim_stop_input.grid(column=2, row=0)
 
     _backend_tk.ToolTip.createToolTip(
-      self.trim_start_input,
-      "Select the start of the region to\n"
-      "analyze by typing here the start\n"
-      "time or by clicking on the plot"
-    )
+        self.trim_start_input, "Select the start of the region to\n"
+        "analyze by typing here the start\n"
+        "time or by clicking on the plot")
     _backend_tk.ToolTip.createToolTip(
-      self.trim_stop_input,
-      "Select the end of the region to\n"
-      "analyze by typing here the end\n"
-      "time or by clicking on the plot"
-    )
+        self.trim_stop_input, "Select the end of the region to\n"
+        "analyze by typing here the end\n"
+        "time or by clicking on the plot")
     # ------------------------------------------------------------------------
 
     # Audio play button
@@ -106,34 +97,28 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.play_button = tk.Button(self.bottom_row, text="Play")
     self.play_button.grid(column=3, row=0)
     self.play_button.bind("<Button-1>", self.play_cbk)
-    _backend_tk.ToolTip.createToolTip(
-      self.play_button,
-      "Play back the selected region of audio"
-    )
+    _backend_tk.ToolTip.createToolTip(self.play_button,
+                                      "Play back the selected region of audio")
 
   @property
   def toolbar_on(self) -> bool:
     """It is :data:`True` if any toolbar checkbutton is on"""
-    return any(
-      v.get()
-      for v in self._check_vals.values()
-    )
+    return any(v.get() for v in self._check_vals.values())
 
   def play_cbk(self, *args, **kwargs):  # pylint: disable=W0613
     """Audio playback callback"""
     if self.audio_loaded:
       self._tmp_audio = audio.TempAudio(
-        self.audio_x[self.audio_trim_start:self.audio_trim_stop],
-        self.audio_sr
-      )
+          self.audio_x[self.audio_trim_start:self.audio_trim_stop],
+          self.audio_sr)
       self._tmp_audio.play()
 
   def load_cbk(self, *args, **kwargs):  # pylint: disable=W0613
     """Audio load callback"""
     filename = filedialog.askopenfilename(
-      title="Load audio file",
-      initialdir=self.filedialog_dir,
-      multiple=False,
+        title="Load audio file",
+        initialdir=self.filedialog_dir,
+        multiple=False,
     )
     if filename:
       logging.info("Loading audio: %s", filename)
@@ -146,12 +131,8 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       except Exception as e:  # pylint: disable=W0703
         logging.error("Error loading audio: [%s] %s", type(e).__name__, e)
         messagebox.showerror(
-          type(e).__name__,
-          str(e) or "".join((
-            type(e).__name__, "\n",
-            "Filename: ", filename
-          ))
-        )
+            type(e).__name__,
+            str(e) or "".join((type(e).__name__, "\n", "Filename: ", filename)))
       else:
         self.audio_x = x
         self.audio_sr = sr
@@ -161,9 +142,9 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
   def auto_trim(self):
     """Automatically trim audio via onset detection"""
-    onsets = librosa.onset.onset_detect(
-      self.audio_x, sr=self.audio_sr, units="samples"
-    )
+    onsets = librosa.onset.onset_detect(y=self.audio_x,
+                                        sr=self.audio_sr,
+                                        units="samples")
     logging.debug("Onsets: %s", onsets)
     onsets = np.array([*onsets, self.audio_x.size])
     onset_max_i = np.argmax(np.diff(onsets)).flatten()[0]
@@ -172,14 +153,12 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
   _manual_trim_lock = threading.Lock()
 
-  def set_trim(
-    self,
-    value,
-    start: bool = True,
-    samples: bool = True,
-    update: bool = False,
-    update_vars: bool = False
-  ):
+  def set_trim(self,
+               value,
+               start: bool = True,
+               samples: bool = True,
+               update: bool = False,
+               update_vars: bool = False):
     """Set trim index
 
     Args:
@@ -196,16 +175,11 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       if not samples:
         value = int(value * self.audio_sr)
       if start:
-        self.audio_trim_start = min(
-          self.audio_trim_stop - 1,
-          max(0, value)
-        )
+        self.audio_trim_start = min(self.audio_trim_stop - 1, max(0, value))
         logging.debug("Audio trim start: %d", self.audio_trim_start)
       else:
-        self.audio_trim_stop = max(
-          self.audio_trim_start + 1,
-          min(self.audio_x.size, value)
-        )
+        self.audio_trim_stop = max(self.audio_trim_start + 1,
+                                   min(self.audio_x.size, value))
         logging.debug("Audio trim stop: %d", self.audio_trim_stop)
       if update:
         self.update_plot(update_vars=update_vars)
@@ -231,11 +205,11 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
         self._trim_side = None
       elif self.audio_loaded and self._trim_side is not None:
         self.set_trim(
-          event.xdata,
-          start=self._trim_side,
-          samples=False,
-          update=True,
-          update_vars=True,
+            event.xdata,
+            start=self._trim_side,
+            samples=False,
+            update=True,
+            update_vars=True,
         )
         self._trim_side = None
 
@@ -256,17 +230,20 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       # Plot audio
       t = np.arange(self.audio_x.size) / (self.audio_sr or 1)
       fg = utils.root_color(
-        self, "TLabel", "foreground", "C3"  # "#cccccc"
+          self,
+          "TLabel",
+          "foreground",
+          "C3"  # "#cccccc"
       )
       self.ax.plot(t, self.audio_x, alpha=0.33, c=fg, zorder=5)
       self.ax.grid(True, c=fg, alpha=0.25, zorder=4)
       if self.audio_loaded:
         # Plot audio in trim region
-        self.ax.plot(
-          t[self.audio_trim_start:self.audio_trim_stop],
-          self.audio_x[self.audio_trim_start:self.audio_trim_stop],
-          c="C0", alpha=0.5, zorder=6
-        )
+        self.ax.plot(t[self.audio_trim_start:self.audio_trim_stop],
+                     self.audio_x[self.audio_trim_start:self.audio_trim_stop],
+                     c="C0",
+                     alpha=0.5,
+                     zorder=6)
       if self._plt_lims_valid:
         # Restore old axis lims
         logging.debug("Setting lims: %s-%s", xlim, ylim)
@@ -278,12 +255,9 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       self._plt_lims_valid = True
       if update_vars and self.audio_loaded:
         # Update trim entries
-        self.trim_start_input_var.set(
-          str(self.audio_trim_start / self.audio_sr)
-        )
-        self.trim_stop_input_var.set(
-          str(self.audio_trim_stop / self.audio_sr)
-        )
+        self.trim_start_input_var.set(str(self.audio_trim_start /
+                                          self.audio_sr))
+        self.trim_stop_input_var.set(str(self.audio_trim_stop / self.audio_sr))
     else:
       # In no audio is found, reset variables
       self._plt_lims_valid = False

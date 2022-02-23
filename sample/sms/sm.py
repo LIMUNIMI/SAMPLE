@@ -37,12 +37,13 @@ class SineTracker:
 
   Attributes:
     tracks_ (list of dict): Deactivated tracks"""
+
   def __init__(
-    self,
-    max_n_sines: int,
-    min_sine_dur: float,
-    freq_dev_offset: float,
-    freq_dev_slope: float,
+      self,
+      max_n_sines: int,
+      min_sine_dur: float,
+      freq_dev_offset: float,
+      freq_dev_slope: float,
   ):
     self.max_n_sines = max_n_sines
     self.min_sine_dur = min_sine_dur
@@ -71,9 +72,8 @@ class SineTracker:
     """All deactivated tracks in :attr:`tracks_` and those active tracks
     that would pass the cleanness check at the current state of the tracker"""
     return itertools.chain(
-      self.tracks_,
-      filter(self.track_ok, map(self.numpy_track, self._active_tracks))
-    )
+        self.tracks_,
+        filter(self.track_ok, map(self.numpy_track, self._active_tracks)))
 
   def df(self, f: float) -> float:
     """Frequency deviation threshold at given frequency
@@ -94,10 +94,7 @@ class SineTracker:
 
     Returns:
       dict: Converted track"""
-    return {
-      k: np.array(v)
-      for k, v in track.items()
-    }
+    return {k: np.array(v) for k, v in track.items()}
 
   def track_ok(self, track: dict) -> bool:
     """Check if deactivated track is ok to be saved
@@ -142,10 +139,10 @@ class SineTracker:
       if not any(free_track):
         break
       t_i, df = min_key(
-        # choose amongst free tracks only
-        filter(free_track.__getitem__, range(self.n_active_tracks)),
-        # absolute difference from last peak's frequency
-        lambda i, p=p_i: np.abs(self._active_tracks[i]["freq"][-1] - pfreq[p])
+          # choose amongst free tracks only
+          filter(free_track.__getitem__, range(self.n_active_tracks)),
+          # absolute difference from last peak's frequency
+          lambda i, p=p_i: np.abs(self._active_tracks[i]["freq"][-1] - pfreq[p])
       )
       # If deviation is below threshold, add peak to active track
       if df < self.df(pfreq[p_i]):
@@ -156,10 +153,8 @@ class SineTracker:
         free_peak[p_i] = False
 
     # Deactivate non-continued tracks
-    for t_i in filter(
-      free_track.__getitem__,
-      reversed(range(self.n_active_tracks))
-    ):
+    for t_i in filter(free_track.__getitem__,
+                      reversed(range(self.n_active_tracks))):
       self.deactivate(t_i)
 
     # Activate new tracks for free peaks
@@ -167,10 +162,10 @@ class SineTracker:
       if self.n_active_tracks >= self.max_n_sines:
         break
       self._active_tracks.append({
-        "start_frame": self._frame,
-        "freq": [pfreq[p_i]],
-        "mag": [pmag[p_i]],
-        "phase": [pph[p_i]],
+          "start_frame": self._frame,
+          "freq": [pfreq[p_i]],
+          "mag": [pmag[p_i]],
+          "phase": [pph[p_i]],
       })
 
     self._frame += 1
@@ -203,20 +198,21 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   Attributes:
     w_ (array): Effective analysis window
     intermediate_ (dict): Dictionary of intermediate data structures"""
+
   def __init__(
-    self,
-    fs: int = 44100,
-    w: Optional[np.ndarray] = None,
-    n: int = 2048,
-    h: int = 500,
-    t: float = -90,
-    max_n_sines: int = 100,
-    min_sine_dur: float = 0.04,
-    freq_dev_offset: float = 20,
-    freq_dev_slope: float = 0.01,
-    reverse: bool = False,
-    sine_tracker_cls: type = SineTracker,
-    save_intermediate: bool = False,
+      self,
+      fs: int = 44100,
+      w: Optional[np.ndarray] = None,
+      n: int = 2048,
+      h: int = 500,
+      t: float = -90,
+      max_n_sines: int = 100,
+      min_sine_dur: float = 0.04,
+      freq_dev_offset: float = 20,
+      freq_dev_slope: float = 0.01,
+      reverse: bool = False,
+      sine_tracker_cls: type = SineTracker,
+      save_intermediate: bool = False,
   ):
     self.fs = fs
     self.w = w
@@ -232,11 +228,10 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.save_intermediate = save_intermediate
 
   def fit(
-    self,
-    x: np.ndarray,
-    y=None,  # pylint: disable=W0613
-    **kwargs
-  ):
+      self,
+      x: np.ndarray,
+      y=None,  # pylint: disable=W0613
+      **kwargs):
     """Analyze audio data
 
     Args:
@@ -251,20 +246,14 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       del self.intermediate_
     self.set_params(**kwargs)
     self.w_ = self.normalized_window
-    self.sine_tracker_ = self.sine_tracker_cls(
-      **self.sine_tracker_kwargs
-    )
+    self.sine_tracker_ = self.sine_tracker_cls(**self.sine_tracker_kwargs)
     if self.reverse:
       x = np.flip(x)
 
-    for mx, px in map(
-      functools.partial(self.intermediate, "stft"),
-      self.dft_frames(x)
-    ):
+    for mx, px in map(functools.partial(self.intermediate, "stft"),
+                      self.dft_frames(x)):
       ploc, pmag, pph = self.intermediate(
-        "peaks",
-        dsp.peak_detect_interp(mx, px, self.t)
-      )
+          "peaks", dsp.peak_detect_interp(mx, px, self.t))
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
       self.sine_tracker_(pfreq, pmag, pph)
     return self
@@ -278,10 +267,10 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   def sine_tracker_kwargs(self) -> dict:
     """Arguments for sine tracker initialization"""
     return dict(
-      max_n_sines=self.max_n_sines,
-      min_sine_dur=self.min_sine_dur * self.fs / self.h,
-      freq_dev_offset=self.freq_dev_offset,
-      freq_dev_slope=self.freq_dev_slope,
+        max_n_sines=self.max_n_sines,
+        min_sine_dur=self.min_sine_dur * self.fs / self.h,
+        freq_dev_offset=self.freq_dev_offset,
+        freq_dev_slope=self.freq_dev_slope,
     )
 
   def intermediate(self, key: str, value):
@@ -339,10 +328,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     for i in range(a, y.size - a, self.h):
       yield y[(i - a):(i - a + self.w_.size)]
 
-  def dft_frames(
-    self,
-    x: np.ndarray
-  ) -> Iterable[Tuple[np.ndarray, np.ndarray]]:
+  def dft_frames(self,
+                 x: np.ndarray) -> Iterable[Tuple[np.ndarray, np.ndarray]]:
     """Iterable of DFT frames for a given input
 
     Args:
@@ -351,7 +338,5 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     Returns:
       iterable: Iterable of overlapping DFT frames (magnitude and phase)
       of the padded input"""
-    return map(
-      functools.partial(dsp.dft, w=self.w_, n=self.n),
-      self.time_frames(x)
-    )
+    return map(functools.partial(dsp.dft, w=self.w_, n=self.n),
+               self.time_frames(x))

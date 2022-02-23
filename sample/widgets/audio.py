@@ -17,10 +17,10 @@ class TempAudio:
   lock = threading.Lock()
 
   def __init__(
-    self,
-    x: np.ndarray,
-    sr: int,
-    format_: str = "wav",
+      self,
+      x: np.ndarray,
+      sr: int,
+      format_: str = "wav",
   ):
     self.buf = io.BytesIO()
     self.x = x
@@ -40,8 +40,8 @@ class TempAudio:
   def open_pygame(self):
     pygame.init()
     mixer.init(
-      frequency=self.sr,
-      channels=1,
+        frequency=self.sr,
+        channels=1,
     )
 
   def play(self):

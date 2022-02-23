@@ -1,10 +1,10 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils
+from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils, userfiles
 import sample
-from typing import Iterable, Tuple, Dict, Any
+import multiprocessing
+from typing import Iterable, Tuple, Dict, Any, Optional
 import os
 import re
-
 
 _prerelease = re.fullmatch(r"v?(\d\.)*\d", sample.__version__) is None
 
@@ -15,17 +15,23 @@ class SAMPLERoot(tk.ThemedTk):
   Args:
     theme (str): Theme name. Default is :data:`"arc"`
     kwargs: Keyword arguments for :class:`ttkthemes.ThemedTk`"""
-  def __init__(self, theme: str = "arc", **kwargs):
+
+  def __init__(self,
+               theme: str = "arc",
+               reload_queue: Optional[multiprocessing.SimpleQueue] = None,
+               **kwargs):
+    self.reload_queue = reload_queue
+    self.should_reload = False
     super().__init__(**kwargs, theme=theme)
-    self.title("SAMPLE{}".format(
-      " ({})".format(sample.__version__) if _prerelease else ""
-    ))
+    self.title(f"SAMPLE ({sample.__version__})" if _prerelease else "SAMPLE")
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
   def on_closing(self):
     """Force destruction"""
+    if self.reload_queue is not None:
+      self.reload_queue.put(self.should_reload)
     logging.debug("Destroying root")
     utils.get_root(self).destroy()
     logging.debug("Closing pygame")
@@ -35,9 +41,9 @@ class SAMPLERoot(tk.ThemedTk):
 
 
 _default_tabs = (
-  ("Load Audio", audioload.AudioLoadTab, None),
-  ("Settings", settings.SettingsTab, None),
-  ("Analysis", analysis.AnalysisTab, None),
+    ("Load Audio", audioload.AudioLoadTab, None),
+    ("Settings", settings.SettingsTab, None),
+    ("Analysis", analysis.AnalysisTab, None),
 )
 
 
@@ -49,19 +55,26 @@ class SAMPLEGUI(SAMPLERoot):
       Every tuple should have three elements: tab title (:class:`str`),
       tab init function (:class:`callable`), tab init function keyword
       arguments (:class:`dict`)
+    persistent_dir: Directory for persistent files
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
-  def __init__(
-    self,
-    tabs: Iterable[Tuple[str, callable, Dict[str, Any]]] = _default_tabs,
-    **kwargs
-  ):
+
+  def __init__(self,
+               persistent_dir: userfiles.UserDir,
+               tabs: Iterable[Tuple[str, callable, Dict[str,
+                                                        Any]]] = _default_tabs,
+               **kwargs):
+    settings_file = persistent_dir.user_file("settings_cache.json")
+    if "theme" not in kwargs:
+      kwargs["theme"] = userfiles.UserTtkTheme(settings_file).get()
     super().__init__(**kwargs)
     self.notebook = tk.Notebook(self)
+    self.notebook.persistent_dir = persistent_dir
+    self.notebook.settings_file = settings_file
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:
       if kw is None:
-        kw = dict()
+        kw = {}
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
@@ -80,10 +93,11 @@ class SAMPLESplashScreen(SAMPLERoot):
 
   Args:
     kwargs: Keyword arguments for :class:`SAMPLERoot`"""
+
   def __init__(self, splash_time: float = 3000, gui_kwargs=None, **kwargs):
     super().__init__(**kwargs)
     if gui_kwargs is None:
-      gui_kwargs = dict()
+      gui_kwargs = {}
     self.gui_kwargs = gui_kwargs
     self.__img = images.LogoImage()
     self.label = tk.Label(self, image=self.__img)

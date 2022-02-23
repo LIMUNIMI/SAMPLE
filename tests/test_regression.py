@@ -7,12 +7,12 @@ import numpy as np
 
 
 def noisy_hinge(
-  x: np.ndarray,
-  a: float,
-  k: float,
-  q: float,
-  n: float,
-  seed: int = 42,
+    x: np.ndarray,
+    a: float,
+    k: float,
+    q: float,
+    n: float,
+    seed: int = 42,
 ) -> np.ndarray:
   """Synthesize a noisy hinge function sample
 
@@ -31,52 +31,50 @@ def noisy_hinge(
   return 20 * np.log10(y + np.random.randn(*y.shape) * y * n)
 
 
-class TestClass(
-  unittestmixins.AssertDoesntRaiseMixin,
-  unittest.TestCase
-):
+class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   """"Test some regressor class techincal functions"""
+
   def test_coeffs_init(self):
     """Check that non-defult coeffs_init is used"""
     x = object()
     self.assertIs(
-      regression.HingeRegression(  # pylint: disable=W0212
-        coeffs_init=x
-      )._coeffs_init,
-      x
-    )
+        regression.HingeRegression(  # pylint: disable=W0212
+            coeffs_init=x)._coeffs_init,
+        x)
 
   def test_bounds(self):
     """Check that non-defult bounds is used"""
     x = object()
     self.assertIs(
-      regression.HingeRegression(  # pylint: disable=W0212
-        bounds=x
-      )._bounds,
-      x
-    )
+        regression.HingeRegression(  # pylint: disable=W0212
+            bounds=x)._bounds,
+        x)
 
   def test_bounds_len1(self):
     """Check bounds fail on inputs of length 1"""
     with self.assertRaises(ValueError):
-      regression.HingeRegression()._default_bounds(
-        np.ones(1), np.ones(1), 0, 0,
+      regression.HingeRegression()._default_bounds(  # pylint: disable=W0212
+          np.ones(1),
+          np.ones(1),
+          0,
+          0,
       )
 
   def test_bounds_notequal(self):
     """Check bounds don't fail on degenerate inputs"""
     with self.assert_doesnt_raise():
-      regression.HingeRegression()._default_bounds(
-        np.ones(2), np.ones(2), 0, 0,
+      regression.HingeRegression()._default_bounds(  # pylint: disable=W0212
+          np.ones(2),
+          np.ones(2),
+          0,
+          0,
       )
 
 
-class TestRegression(
-  unittestmixins.SignificantPlacesAssertMixin,
-  unittestmixins.RMSEAssertMixin,
-  unittest.TestCase
-):
+class TestRegression(unittestmixins.SignificantPlacesAssertMixin,
+                     unittestmixins.RMSEAssertMixin, unittest.TestCase):
   """Tests related to regression"""
+
   def setUp(self) -> None:
     """Initialize test sample and model"""
     self.a = 37
@@ -99,10 +97,10 @@ class TestRegression(
       self.assert_almost_equal_significant(self.hr.q_, self.q, places=1)
     with self.subTest(step="rmse"):
       self.assert_almost_equal_rmse(
-        self.hr.predict(self.x),
-        regression.hinge_function(self.x, self.a, self.k, self.q),
-        rmse=0.274,
-        places=3,
+          self.hr.predict(self.x),
+          regression.hinge_function(self.x, self.a, self.k, self.q),
+          rmse=0.274,
+          places=3,
       )
 
   def test_linear_model_incorrect(self):
@@ -111,18 +109,16 @@ class TestRegression(
     self.hr.linear_regressor.fit(self.x, self.y)
     with self.subTest(variable="k"):
       with self.assertRaises(AssertionError):
-        self.assert_almost_equal_significant(
-          np.squeeze(self.hr.linear_regressor.coef_),
-          self.k,
-          places=1
-        )
+        self.assert_almost_equal_significant(np.squeeze(
+            self.hr.linear_regressor.coef_),
+                                             self.k,
+                                             places=1)
     with self.subTest(variable="q"):
       with self.assertRaises(AssertionError):
-        self.assert_almost_equal_significant(
-          np.squeeze(self.hr.linear_regressor.intercept_),
-          self.q,
-          places=1
-        )
+        self.assert_almost_equal_significant(np.squeeze(
+            self.hr.linear_regressor.intercept_),
+                                             self.q,
+                                             places=1)
 
 
 if __name__ == "__main__":

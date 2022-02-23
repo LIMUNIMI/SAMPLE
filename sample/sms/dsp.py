@@ -6,10 +6,10 @@ from typing import Optional, Tuple
 
 
 def dft(
-  x: np.ndarray,
-  w: np.ndarray,
-  n: int,
-  tol: float = 1e-14,
+    x: np.ndarray,
+    w: np.ndarray,
+    n: int,
+    tol: float = 1e-14,
 ):
   """Discrete Fourier Transform with zero-phase windowing
 
@@ -26,7 +26,7 @@ def dft(
 
   xw = x * w
   x_z = np.zeros(n)
-  x_z[:w.size-hw] = xw[hw:]
+  x_z[:w.size - hw] = xw[hw:]
   x_z[-hw:] = xw[:hw]
 
   x_fft = fft.rfft(x_z)
@@ -48,21 +48,17 @@ def peak_detect(x: np.ndarray, t: Optional[float] = None) -> np.ndarray:
   Returns:
     array: The indices of the peaks in x"""
   conditions = [
-    np.greater(x[1:-1], x[2:]),   # greater than next sample
-    np.greater(x[1:-1], x[:-2]),  # greater than previous sample
+      np.greater(x[1:-1], x[2:]),  # greater than next sample
+      np.greater(x[1:-1], x[:-2]),  # greater than previous sample
   ]
   if t is not None:
     conditions.append(np.greater(x[1:-1], t))  # above threshold
-  return np.flatnonzero(
-    functools.reduce(np.logical_and, conditions)
-  ) + 1  # compensate for skipping first sample
+  return np.flatnonzero(functools.reduce(
+      np.logical_and, conditions)) + 1  # compensate for skipping first sample
 
 
-def peak_refine(
-  mx: np.ndarray,
-  px: np.ndarray,
-  ploc: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def peak_refine(mx: np.ndarray, px: np.ndarray,
+                ploc: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
   """Refine detected peaks with parabolic approximation
 
   Arguments:
@@ -78,21 +74,17 @@ def peak_refine(
 
   dmx = mx_l - mx_r
   ploc_d = .5 * dmx / (mx_l - 2 * mx_c + mx_r)
-  ploc_i = ploc + ploc_d              # x-coordinate of vertex
+  ploc_i = ploc + ploc_d  # x-coordinate of vertex
   pmag_i = mx_c - .25 * dmx * ploc_d  # y-coordinate of vertex
-  pph_i = np.interp(                  # linear interpolation for phase
-    ploc_i,
-    np.arange(0, px.size),
-    px
-  )
+  pph_i = np.interp(  # linear interpolation for phase
+      ploc_i, np.arange(0, px.size), px)
   return ploc_i, pmag_i, pph_i
 
 
 def peak_detect_interp(
-  mx: np.ndarray,
-  px: np.ndarray,
-  t: Optional[float] = None
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    mx: np.ndarray,
+    px: np.ndarray,
+    t: Optional[float] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
   """Detect peaks (local maxima) in a signal, refining the value with
   parabolic interpolation
 
