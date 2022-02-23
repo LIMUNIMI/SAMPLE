@@ -43,6 +43,11 @@ jobs:
       run: coverage run
     - name: Make coverage JSON
       run: coverage json
+    - name: Upload coverage JSON
+      uses: actions/upload-artifact@v1
+      with:
+        name: coverage_report
+        path: coverage.json
     - name: Download badge
       run: wget $(python -m chromatictools.badges coverage) -O badge.svg
     - name: Upload svg
