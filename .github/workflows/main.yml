@@ -27,8 +27,10 @@ jobs:
     container: python:${{ matrix.pyversion }}
     steps:
     - uses: actions/checkout@v2
+    - name: Update PIP
+      run: pip install -U pip
     - name: Install
-      run: pip install .[test,plots] --use-feature=in-tree-build
+      run: pip install .[test,plots]
     - name: Test
       run: python -m unittest -v
 
@@ -37,12 +39,19 @@ jobs:
     container: python:3.10
     steps:
     - uses: actions/checkout@v2
+    - name: Update PIP
+      run: pip install -U pip
     - name: Install
-      run: pip install .[test,cov,plots] --use-feature=in-tree-build
+      run: pip install .[test,cov,plots]
     - name: Run coverage
       run: coverage run
     - name: Make coverage JSON
       run: coverage json
+    - name: Upload coverage JSON
+      uses: actions/upload-artifact@v1
+      with:
+        name: coverage_report
+        path: coverage.json
     - name: Download badge
       run: wget $(python -m chromatictools.badges coverage) -O badge.svg
     - name: Upload svg
@@ -64,8 +73,10 @@ jobs:
     container: python:3.10
     steps:
     - uses: actions/checkout@v2
+    - name: Update PIP
+      run: pip install -U pip
     - name: Install
-      run: pip install .[style] --use-feature=in-tree-build
+      run: pip install .[style]
     - name: Run pylint
       run: pylint -r y --exit-zero --jobs 1 --persistent=n --rcfile=pylintrc sample tests ./*.py > pylint.txt
     - name: Upload lint report
@@ -93,19 +104,21 @@ jobs:
     runs-on: ubuntu-latest
     container: sphinxdoc/sphinx
     steps:
-      - uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-      - name: Install
-        run: pip install .[docs,plots] --use-feature=in-tree-build
-      - name: Build HTML
-        run: make html
-        working-directory: docs
-      - name: Upload HTML
-        uses: actions/upload-artifact@v1
-        with:
-          name: pages
-          path: docs/build/html
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: Update PIP
+      run: pip install -U pip
+    - name: Install
+      run: pip install .[docs,plots]
+    - name: Build HTML
+      run: make html
+      working-directory: docs
+    - name: Upload HTML
+      uses: actions/upload-artifact@v1
+      with:
+        name: pages
+        path: docs/build/html
 
   release-create:
     if: ${{ startsWith( github.ref , 'refs/tags/' ) }}
@@ -115,6 +128,15 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.VERSION }}
     steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: Update PIP
+      run: pip install -U pip
+    - name: Install
+      run: pip install .
+    - name: Extract changelog
+      run: python changelog.py --output change.log
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -125,6 +147,7 @@ jobs:
         release_name: ${{ github.ref }}
         draft: false
         prerelease: ${{ contains( github.ref , 'dev' ) || contains( github.ref , 'a' ) || contains( github.ref , 'b' ) || contains( github.ref , 'rc' ) }}
+        body_path: change.log
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
@@ -133,22 +156,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: [sphinx, release-create]
     steps:
-      - uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: pages
-          path: pages
-      - name: No Jekyll in pages
-        run: touch pages/.nojekyll
-      - name: Deploy pages
-        uses: JamesIves/github-pages-deploy-action@releases/v3
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: pages
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: pages
+        path: pages
+    - name: No Jekyll in pages
+      run: touch pages/.nojekyll
+    - name: Deploy pages
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: pages
 
   pypi-upload:
     runs-on: ubuntu-latest
@@ -159,7 +182,7 @@ jobs:
     - name: Build
       run: python setup.py sdist
     - name: Install Twine
-      run: python -m pip install twine --use-feature=in-tree-build
+      run: python -m pip install twine
     - name: Upload
       run: python -m twine upload --verbose dist/*
       env:
@@ -183,8 +206,10 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: "3.10"
+    - name: Update PIP
+      run: pip install --user -U pip
     - name: Install
-      run: python -m pip install .[gui,installer] --use-feature=in-tree-build
+      run: pip install .[gui,installer]
     - name: Build
       run: python pyinstaller.py
     - name: Upload executable
@@ -214,8 +239,10 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: "3.10"
+    - name: Update PIP
+      run: pip install -U pip
     - name: Install
-      run: python -m pip install . --use-feature=in-tree-build
+      run: pip install .
     - name: Set version name
       run: echo "SAMPLE_VERSION=$(python -c 'import sample; print(sample.__version__)')" >> $GITHUB_ENV
     - name: Zip executable
