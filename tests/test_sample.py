@@ -1,6 +1,7 @@
 """Tests for the overall method"""
 import unittest
 from chromatictools import unittestmixins
+import itertools
 import sample
 from sample import utils, plots
 import numpy as np
@@ -142,9 +143,16 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_plot_2d(self):
     """Test 2D plot"""
-    s = copy.deepcopy(self.sample).fit(self.x)
-    with self.assert_doesnt_raise():
-      plots.sine_tracking_2d(s.sinusoidal_model)
+    for r, s in itertools.product(*itertools.tee(map(bool, range(2)), 2)):
+      kw = dict(sinusoidal_model__reverse=r,
+                sinusoidal_model__save_intermediate=s)
+      with self.subTest(**kw):
+        m = copy.deepcopy(self.sample)
+        m.set_params(**kw)
+        m.fit(self.x)
+        with self.assert_doesnt_raise():
+          plots.sine_tracking_2d(m.sinusoidal_model)
+          plots.plt.clf()
 
   def test_plot_3d(self):
     """Test 3D plot"""
