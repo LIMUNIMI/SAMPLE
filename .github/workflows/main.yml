@@ -120,6 +120,13 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.VERSION }}
     steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: Install
+      run: pip install . --use-feature=in-tree-build
+    - name: Extract changelog
+      run: python changelog.py --output change.log
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -130,6 +137,7 @@ jobs:
         release_name: ${{ github.ref }}
         draft: false
         prerelease: ${{ contains( github.ref , 'dev' ) || contains( github.ref , 'a' ) || contains( github.ref , 'b' ) || contains( github.ref , 'rc' ) }}
+        body_path: change.log
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
