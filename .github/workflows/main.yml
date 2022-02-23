@@ -68,6 +68,11 @@ jobs:
       run: pip install .[style] --use-feature=in-tree-build
     - name: Run pylint
       run: pylint -r y --exit-zero --jobs 1 --persistent=n --rcfile=pylintrc sample tests ./*.py > pylint.txt
+    - name: Upload lint report
+      uses: actions/upload-artifact@v1
+      with:
+        name: lint_report
+        path: pylint.txt
     - name: Download badge
       run: wget $(python -m chromatictools.badges pylint) -O badge.svg
     - name: Upload svg
