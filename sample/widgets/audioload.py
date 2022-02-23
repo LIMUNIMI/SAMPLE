@@ -70,24 +70,36 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       tvar.trace_add("write", trim_entry_cbk_)
       return trim_entry_cbk_
 
+    self.trim_start_label = tk.Label(self.bottom_row,
+                                     text="start",
+                                     anchor=tk.CENTER,
+                                     padding=-128,
+                                     width=5)
+    self.trim_start_label.grid(column=1, row=0)
     self.trim_start_input_var = tk.StringVar(self, value=None)
     self.trim_start_input = tk.Entry(self.bottom_row,
                                      textvariable=self.trim_start_input_var)
     trim_entry_cbk(self.trim_start_input_var, True)
-    self.trim_start_input.grid(column=1, row=0)
+    self.trim_start_input.grid(column=2, row=0)
 
+    self.trim_stop_label = tk.Label(self.bottom_row,
+                                    text="stop",
+                                    anchor=tk.CENTER,
+                                    padding=-128,
+                                    width=5)
+    self.trim_stop_label.grid(column=3, row=0)
     self.trim_stop_input_var = tk.StringVar(self, value=None)
     self.trim_stop_input = tk.Entry(self.bottom_row,
                                     textvariable=self.trim_stop_input_var)
     trim_entry_cbk(self.trim_stop_input_var, False)
-    self.trim_stop_input.grid(column=2, row=0)
+    self.trim_stop_input.grid(column=4, row=0)
 
     _backend_tk.ToolTip.createToolTip(
-        self.trim_start_input, "Select the start of the region to\n"
+        self.trim_start_label, "Select the start of the region to\n"
         "analyze by typing here the start\n"
         "time or by clicking on the plot")
     _backend_tk.ToolTip.createToolTip(
-        self.trim_stop_input, "Select the end of the region to\n"
+        self.trim_stop_label, "Select the end of the region to\n"
         "analyze by typing here the end\n"
         "time or by clicking on the plot")
     # ------------------------------------------------------------------------
@@ -95,10 +107,8 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     # Audio play button
     self._tmp_audio = None
     self.play_button = tk.Button(self.bottom_row, text="Play")
-    self.play_button.grid(column=3, row=0)
+    self.play_button.grid(column=5, row=0)
     self.play_button.bind("<Button-1>", self.play_cbk)
-    _backend_tk.ToolTip.createToolTip(self.play_button,
-                                      "Play back the selected region of audio")
 
   @property
   def toolbar_on(self) -> bool:
