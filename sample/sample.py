@@ -199,10 +199,25 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       else:
         n_modes = self.max_n_modes
     m_ord = self.mode_argsort_(order=order, reverse=reverse)[:n_modes]
-    row = functools.partial(np.reshape, newshape=(1, -1))
-    col = functools.partial(np.reshape, newshape=(-1, 1))
+    return additive_synth(x, self.freqs_[m_ord], self.decays_[m_ord],
+                          self.amps_[m_ord])
 
-    osc = np.sin(2 * np.pi * col(x) @ row(self.freqs_[m_ord]))
-    dec = np.exp(col(x) @ row(-2 / self.decays_[m_ord]))
-    amp = col(self.amps_[m_ord])
-    return np.squeeze((dec * osc) @ amp)
+
+def additive_synth(x, freqs, decays, amps) -> np.array:
+  """Additively synthesize audio
+
+    Args:
+      x (array): Time axis
+      freqs (array): Modal frequencies
+      decays (array): Modal decays
+      amps (array): Modal amplitudes
+
+    Returns:
+      array: Array of audio samples"""
+  row = functools.partial(np.reshape, newshape=(1, -1))
+  col = functools.partial(np.reshape, newshape=(-1, 1))
+
+  osc = np.sin(2 * np.pi * col(x) @ row(freqs))
+  dec = np.exp(col(x) @ row(-2 / decays))
+  amp = col(amps)
+  return np.squeeze((dec * osc) @ amp)
