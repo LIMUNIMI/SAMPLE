@@ -1,9 +1,10 @@
 """Regression models"""
-from sklearn import linear_model, base
-from scipy import optimize
-import numpy as np
 import copy
-from typing import Tuple, Optional, Callable
+from typing import Callable, Optional, Tuple
+
+import numpy as np
+from scipy import optimize
+from sklearn import base, linear_model
 
 
 def hinge_function(x: np.ndarray, a: float, k: float, q: float) -> np.ndarray:

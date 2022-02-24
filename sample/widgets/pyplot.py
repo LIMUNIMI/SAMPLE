@@ -1,9 +1,13 @@
 """Pyplot widgets"""
-from sample.widgets import responsive as tk, logging, utils
-from matplotlib.backends import backend_tkagg
-from matplotlib import figure
-from unittest import mock
 import contextlib
+from unittest import mock
+
+from matplotlib import figure
+from matplotlib.backends import backend_tkagg
+
+from sample.widgets import logging
+from sample.widgets import responsive as tk
+from sample.widgets import utils
 
 
 @contextlib.contextmanager

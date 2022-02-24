@@ -1,8 +1,10 @@
 """Visual identity"""
-from matplotlib import pyplot as plt, patches
 import functools
-import numpy as np
 from typing import Optional
+
+import numpy as np
+from matplotlib import patches
+from matplotlib import pyplot as plt
 
 
 def logo(fname: Optional[str] = None,

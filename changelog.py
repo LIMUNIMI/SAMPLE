@@ -1,11 +1,13 @@
 """Retrieve changelog for the correct version"""
-from chromatictools import cli
+import argparse
 import contextlib
 import itertools
-import argparse
-import sample
-import sys
 import os
+import sys
+
+from chromatictools import cli
+
+import sample
 
 
 @contextlib.contextmanager

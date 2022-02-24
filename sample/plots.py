@@ -3,11 +3,12 @@
 This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
-from sample.sms import sm
 import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d  # pylint: disable=W0611
 from mpl_toolkits.mplot3d import axes3d  # pylint: disable=W0611
+
+from sample.sms import sm
 
 
 def sine_tracking_2d(m: sm.SinusoidalModel, ax=None):

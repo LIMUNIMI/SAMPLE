@@ -1,15 +1,17 @@
 """Pyinstaller run file"""
-import PyInstaller.__main__
-import itertools
 import contextlib
-from chromatictools import cli
-from sample import vid
-import PIL
 import io
+import itertools
 import os
-import librosa
-from typing import Tuple, Iterable
 from types import ModuleType
+from typing import Iterable, Tuple
+
+import librosa
+import PIL
+import PyInstaller.__main__
+from chromatictools import cli
+
+from sample import vid
 
 
 def module_dir(mod: ModuleType) -> str:

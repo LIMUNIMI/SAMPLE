@@ -1,9 +1,11 @@
 """Utilities for SAMPLE GUI widgets"""
-from sample.widgets import logging, responsive
 import tkinter as tk
 from tkinter import ttk
-from matplotlib import colors
 from typing import Generator, Optional
+
+from matplotlib import colors
+
+from sample.widgets import logging, responsive
 
 
 def get_root(w: tk.Widget):

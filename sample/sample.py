@@ -1,11 +1,13 @@
 """Module for using the entire SAMPLE method pipeline"""
-from sklearn import base
-from sample.sms import mm
-from sample.regression import HingeRegression
-import numpy as np
-import functools
 import copy
+import functools
 from typing import Callable
+
+import numpy as np
+from sklearn import base
+
+from sample.regression import HingeRegression
+from sample.sms import mm
 
 
 class SAMPLE(base.RegressorMixin, base.BaseEstimator):

@@ -1,10 +1,14 @@
 """Analysis tab"""
-from sample.widgets import responsive as tk, pyplot, utils, audio, logging
-from sample import plots
-from tkinter import messagebox, filedialog
-import numpy as np
 import json
 import os
+from tkinter import filedialog, messagebox
+
+import numpy as np
+
+from sample import plots
+from sample.widgets import audio, logging, pyplot
+from sample.widgets import responsive as tk
+from sample.widgets import utils
 
 
 class AnalysisTab(utils.DataOnRootMixin, tk.Frame):

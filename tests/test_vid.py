@@ -1,8 +1,9 @@
 """Test logo generation"""
-import unittest
-from sample import vid
-from chromatictools import unittestmixins
 import io
+import unittest
+
+from chromatictools import unittestmixins
+from sample import vid
 
 
 class TestInit(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):

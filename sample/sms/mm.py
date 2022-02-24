@@ -1,9 +1,10 @@
 """Sinusoidal model with added functionality for modal sounds"""
+import functools
+from typing import Callable, Dict, Iterable, Optional, Tuple
+
+import numpy as np
 from sample.sms import sm
 from sklearn import linear_model
-import numpy as np
-import functools
-from typing import Tuple, Optional, Dict, Callable, Iterable
 
 TractT = Dict[str, np.ndarray]
 

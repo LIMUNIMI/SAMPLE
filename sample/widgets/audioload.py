@@ -1,12 +1,16 @@
 """Audio loading tab"""
-from sample.widgets import responsive as tk, logging, utils, pyplot, audio
+import os
+import threading
 from tkinter import filedialog, messagebox
+
+import librosa
+import numpy as np
 from matplotlib import backend_bases
 from matplotlib.backends import _backend_tk
-import numpy as np
-import librosa
-import threading
-import os
+
+from sample.widgets import audio, logging, pyplot
+from sample.widgets import responsive as tk
+from sample.widgets import utils
 
 
 class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):

@@ -1,12 +1,13 @@
 """Tests for the overall method"""
-import unittest
-from chromatictools import unittestmixins
-import itertools
-import sample
-from sample import utils, plots
-import numpy as np
 import copy
+import itertools
 import json
+import unittest
+
+import numpy as np
+import sample
+from chromatictools import unittestmixins
+from sample import plots, utils
 
 
 class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):

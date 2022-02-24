@@ -1,10 +1,12 @@
 """SAMPLE class for use in GUI"""
-from sample import sample
-from sample.sms import mm
 import tkinter as tk
+from typing import Optional, Tuple
+
 import numpy as np
 import throttle
-from typing import Optional, Tuple
+
+from sample import sample
+from sample.sms import mm
 
 
 class SAMPLE(sample.SAMPLE):
