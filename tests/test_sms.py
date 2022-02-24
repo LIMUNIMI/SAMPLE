@@ -9,7 +9,7 @@ import warnings
 import more_itertools
 import numpy as np
 from chromatictools import unittestmixins
-from sample import utils as sample_utils
+from sample.evaluation import random
 from sample.sms import dsp as sample_dsp
 from sample.sms import sm as sample_sm
 
@@ -35,8 +35,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
 
   def setUp(self) -> None:
     """Initialize test audio and sinusoidal model"""
-    self.fs = 44100
-    self.x = sample_utils.test_audio(fs=self.fs)
+    self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
     self.sm = sample_sm.SinusoidalModel()
     self.sm.w_ = self.sm.normalized_window
 
@@ -45,10 +44,6 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
   def tearDown(self):
     """Cleanup after each test"""
     warnings.resetwarnings()
-
-  def test_input_peaks_at_one(self):
-    """Test that the input audio peaks at 1"""
-    self.assertEqual(np.max(np.abs(self.x)), 1)
 
   def test_dft(self):
     """Check that DFT computation is consistent"""
