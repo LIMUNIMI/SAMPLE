@@ -9,6 +9,39 @@ from sample import psycho
 from scipy import special
 
 
+def _repeated_samples(func, key: str = "size"):
+  """Decorator for sampling multiple values
+
+  Args:
+    func (callable): Function for sampling one sample
+    key (str): Argument name for the number of samples
+
+  Returns:
+    Decorated function"""
+
+  @functools.wraps(func)
+  def func_(*args, **kwargs):
+    n = kwargs.pop(key, 1)
+    x = [func(*args, **kwargs) for _ in range(n)]
+    if n == 1:
+      return x[0]
+    else:
+      return x
+
+  # Add parameter to signature
+  sig = inspect.signature(func)
+  params = list(sig.parameters.values())
+  params.insert(
+      len(params) - (params[-1].kind == inspect.Parameter.VAR_KEYWORD),
+      inspect.Parameter(name=key,
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                        default=1,
+                        annotation=int))
+  func_.__signature__ = sig.replace(parameters=params)
+
+  return func_
+
+
 class BeatsGenerator:
   """Random generator for audio with beats.
   It generates audio with three partials and noise,
@@ -85,39 +118,6 @@ class BeatsGenerator:
   def sine_amp(self) -> float:
     """Amplitude of sinusoidal component"""
     return self.snr_amp / (1 + self.snr_amp)
-
-  @staticmethod
-  def _repeated_samples(func, key: str = "size"):
-    """Decorator for sampling multiple values
-
-    Args:
-      func (callable): Function for sampling one sample
-      key (str): Argument name for the number of samples
-
-    Returns:
-      Decorated function"""
-
-    @functools.wraps(func)
-    def func_(*args, **kwargs):
-      n = kwargs.pop(key, 1)
-      x = [func(*args, **kwargs) for _ in range(n)]
-      if n == 1:
-        return x[0]
-      else:
-        return x
-
-    # Add parameter to signature
-    sig = inspect.signature(func)
-    params = list(sig.parameters.values())
-    params.insert(
-        len(params) - (params[-1].kind == inspect.Parameter.VAR_KEYWORD),
-        inspect.Parameter(name=key,
-                          kind=inspect.Parameter.KEYWORD_ONLY,
-                          default=1,
-                          annotation=int))
-    func_.__signature__ = sig.replace(parameters=params)
-
-    return func_
 
   @_repeated_samples
   def beta_twosides(self,
