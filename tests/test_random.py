@@ -23,9 +23,8 @@ class TestRandom(unittest.TestCase):
     ):
       r += l
       with self.subTest(a=a, b=b, n=n, l=l, r=r):
-        x = np.array(
-            [self.rng.beta_twosides(a=a, b=b, left=l, right=r,
-                                    size=n)]).flatten()
+        x = np.array(self.rng.beta_twosides(a=a, b=b, left=l, right=r,
+                                            size=n)).flatten()
         with self.subTest(what="size"):
           self.assertEqual(np.size(x), n)
         with self.subTest(what="bounds"):

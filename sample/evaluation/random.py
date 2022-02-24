@@ -21,12 +21,9 @@ def _repeated_samples(func, key: str = "size"):
 
   @functools.wraps(func)
   def func_(*args, **kwargs):
-    n = kwargs.pop(key, 1)
-    x = [func(*args, **kwargs) for _ in range(n)]
-    if n == 1:
-      return x[0]
-    else:
-      return x
+    n = kwargs.pop(key, None)
+    x = [func(*args, **kwargs) for _ in range(1 if n is None else n)]
+    return x[0] if n is None else x
 
   # Add parameter to signature
   sig = inspect.signature(func)
@@ -35,8 +32,8 @@ def _repeated_samples(func, key: str = "size"):
       len(params) - (params[-1].kind == inspect.Parameter.VAR_KEYWORD),
       inspect.Parameter(name=key,
                         kind=inspect.Parameter.KEYWORD_ONLY,
-                        default=1,
-                        annotation=int))
+                        default=None,
+                        annotation=Optional[int]))
   func_.__signature__ = sig.replace(parameters=params)
 
   return func_

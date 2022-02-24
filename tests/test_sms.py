@@ -7,7 +7,6 @@ import unittest
 import warnings
 
 import more_itertools
-import numpy as np
 from chromatictools import unittestmixins
 from sample.evaluation import random
 from sample.sms import dsp as sample_dsp

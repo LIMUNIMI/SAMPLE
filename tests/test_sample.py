@@ -17,10 +17,11 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def setUp(self) -> None:
     """Initialize test audio and SAMPLE model"""
     self.fs = 44100
-    self.x = sample.sample.additive_synth(np.arange(int(2 * self.fs)) / self.fs,
-      freqs=np.array([440, 650, 690]),
-      amps=np.array([1, .5, .45]),
-      decays=np.array([.66, .4, .35]),
+    self.x = sample.sample.additive_synth(
+        np.arange(int(2 * self.fs)) / self.fs,
+        freqs=np.array([440, 650, 690]),
+        amps=np.array([1, .5, .45]),
+        decays=np.array([.66, .4, .35]),
     )
     np.random.seed(42)
     self.noise = np.random.randn(*self.x.shape)
