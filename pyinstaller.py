@@ -99,6 +99,7 @@ def main():
         "SAMPLE",
         *hidden_imports((
             "sklearn.utils._weight_vector",
+            "sklearn.utils._typedefs",
             "PIL._tkinter_finder",
         )),
         *module_data(((librosa, "util", "example_data"),)),
