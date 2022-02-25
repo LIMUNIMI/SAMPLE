@@ -81,6 +81,9 @@ class SAMPLEGUI(SAMPLERoot):
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
+    self.lift()
+    self.attributes("-topmost", True)
+    self.focus_force()
 
   def quit(self):
     logging.info("Quitting GUI")
