@@ -100,6 +100,7 @@ def main():
         *hidden_imports((
             "sklearn.utils._weight_vector",
             "sklearn.utils._typedefs",
+            "sklearn.neighbors._partition_nodes",
             "PIL._tkinter_finder",
         )),
         *module_data(((librosa, "util", "example_data"),)),
