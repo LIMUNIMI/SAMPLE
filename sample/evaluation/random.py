@@ -1,11 +1,10 @@
 """Random generation of modal-like sounds"""
 import functools
-import inspect
 from typing import Optional
 
 import numpy as np
 import sample.sample
-from sample import psycho
+from sample import psycho, utils
 from scipy import special
 
 
@@ -19,22 +18,12 @@ def _repeated_samples(func, key: str = "size"):
   Returns:
     Decorated function"""
 
+  @utils.add_keyword_arg(name=key, default=None, annotation=Optional[int])
   @functools.wraps(func)
   def func_(*args, **kwargs):
     n = kwargs.pop(key, None)
     x = [func(*args, **kwargs) for _ in range(1 if n is None else n)]
     return x[0] if n is None else x
-
-  # Add parameter to signature
-  sig = inspect.signature(func)
-  params = list(sig.parameters.values())
-  params.insert(
-      len(params) - (params[-1].kind == inspect.Parameter.VAR_KEYWORD),
-      inspect.Parameter(name=key,
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                        default=None,
-                        annotation=Optional[int]))
-  func_.__signature__ = sig.replace(parameters=params)
 
   return func_
 
