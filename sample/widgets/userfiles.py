@@ -9,6 +9,8 @@ import tkinter.messagebox
 import ttkthemes
 from chromatictools import pickle
 
+from sample import utils
+
 
 class UserDir:
   """Utility class for the user files directory
@@ -122,7 +124,7 @@ class UserTtkTheme:
     b = theme in ttkthemes.THEMES
     if not b and (log or messagebox):
       m = f"Unsupported theme: '{theme}'. Supported themes are: " + \
-          ", ".join(f"'{t}'" for t in ttkthemes.THEMES)
+          utils.comma_join_quote(ttkthemes.THEMES)
       if log:
         logging.warning(m)
       if messagebox:

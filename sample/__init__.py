@@ -30,4 +30,5 @@ __version__ = "1.5.1"
 
 @cli.main(__name__)
 def main():
-  print(f"{__doc__}\n\nVersion: {__version__}")
+  nl = "\n"
+  print(f"{__doc__}{nl}{nl}Version: {__version__}")

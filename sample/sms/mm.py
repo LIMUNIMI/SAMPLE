@@ -3,6 +3,7 @@ import functools
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
 import numpy as np
+from sample import utils
 from sample.sms import sm
 from sklearn import linear_model
 
@@ -122,7 +123,7 @@ class ModalTracker(sm.SineTracker):
       raise KeyError(
           f"merge strategy for object of type '{self.__class__.__name__}'" +
           " should be one of the following: " +
-          ", ".join(f"'{k}'" for k in self._diff_funcion_dict))
+          utils.comma_join_quote(self._diff_funcion_dict))
     return self._diff_funcion_dict[self.merge_strategy]
 
   def deactivate(self, track_index: int) -> dict:
