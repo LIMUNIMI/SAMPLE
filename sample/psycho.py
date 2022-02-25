@@ -14,7 +14,7 @@ def hz2bark(f, mode: str = "traunmuller"):  # pylint: disable=W0613
 
   Returns:
     Frequency value(s) in Bark"""
-  pass
+  pass  # pragma: no cover
 
 
 @utils.function_with_variants(key="mode", default="traunmuller")
@@ -27,7 +27,7 @@ def bark2hz(b, mode: str = "traunmuller"):  # pylint: disable=W0613
 
   Returns:
     Frequency value(s) in Hertz"""
-  pass
+  pass  # pragma: no cover
 
 
 @utils.function_variant(hz2bark, "zwicker")
