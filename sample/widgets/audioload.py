@@ -77,7 +77,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.trim_start_label = tk.Label(self.bottom_row,
                                      text="start",
                                      anchor=tk.CENTER,
-                                     padding=-128,
+                                     padding=0,
                                      width=5)
     self.trim_start_label.grid(column=1, row=0)
     self.trim_start_input_var = tk.StringVar(self, value=None)
@@ -89,7 +89,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.trim_stop_label = tk.Label(self.bottom_row,
                                     text="stop",
                                     anchor=tk.CENTER,
-                                    padding=-128,
+                                    padding=0,
                                     width=5)
     self.trim_stop_label.grid(column=3, row=0)
     self.trim_stop_input_var = tk.StringVar(self, value=None)
