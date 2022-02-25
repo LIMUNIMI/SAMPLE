@@ -92,3 +92,55 @@ def _bark2hz_wang(b):
   Returns:
     Frequency value(s) in Hertz"""
   return 600.0 * np.sinh(b / 6.0)
+
+
+@utils.function_with_variants(key="mode", this="default")
+def hz2mel(f, mode: str = "default"):  # pylint: disable=W0613
+  """Convert Hertz to Mel
+
+  Args:
+    f: Frequency value(s) in Hertz
+    mode (str): Name of the Mel definition (default, fant)
+
+  Returns:
+    Frequency value(s) in Mel"""
+  return 2595.0 * np.log10(1.0 + f / 700.0)
+
+
+@utils.function_with_variants(key="mode", this="default")
+def mel2hz(m, mode: str = "default"):  # pylint: disable=W0613
+  """Convert Mel to Hertz
+
+  Args:
+    m: Frequency value(s) in Mel
+    mode (str): Name of the Mel definition (default, fant)
+
+  Returns:
+    Frequency value(s) in Hertz"""
+  return (np.power(10, m / 2595.0) - 1.0) * 700.0
+
+
+@utils.function_variant(hz2mel, "fant")
+def _hz2mel_fant(f):
+  """Definition of the Mel scale by Fant (Analysis and synthesis
+  of speech processes, 1968)
+
+  Args:
+    f: Frequency value(s) in Hertz
+
+  Returns:
+    Frequency value(s) in Mel"""
+  return 1000.0 * np.log2(1.0 + f / 1000.0)
+
+
+@utils.function_variant(mel2hz, "fant")
+def _mel2hz_fant(m):
+  """Definition of the Mel scale by Fant (Analysis and synthesis
+  of speech processes, 1968)
+
+  Args:
+    m: Frequency value(s) in Mel
+
+  Returns:
+    Frequency value(s) in Hertz"""
+  return (np.power(2.0, m / 1000.0) - 1.0) * 1000.0
