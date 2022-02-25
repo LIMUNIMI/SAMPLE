@@ -1,10 +1,12 @@
 """Sinusoidal model"""
-from sample.sms import dsp
-import numpy as np
-from sklearn import base
 import functools
 import itertools
-from typing import Optional, Tuple, Generator, Iterable, Callable, Any, List, Dict
+from typing import (Any, Callable, Dict, Generator, Iterable, List, Optional,
+                    Tuple)
+
+import numpy as np
+from sample.sms import dsp
+from sklearn import base
 
 
 def min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:

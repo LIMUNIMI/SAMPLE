@@ -1,10 +1,13 @@
 """Main widgets for the SAMPLE GUI"""
-from sample.widgets import responsive as tk, images, audioload, settings, analysis, logging, audio, utils, userfiles
-import sample
 import multiprocessing
-from typing import Iterable, Tuple, Dict, Any, Optional
 import os
 import re
+from typing import Any, Dict, Iterable, Optional, Tuple
+
+import sample
+from sample.widgets import analysis, audio, audioload, images, logging
+from sample.widgets import responsive as tk
+from sample.widgets import settings, userfiles, utils
 
 _prerelease = re.fullmatch(r"v?(\d\.)*\d", sample.__version__) is None
 
@@ -78,6 +81,9 @@ class SAMPLEGUI(SAMPLERoot):
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
+    self.lift()
+    self.attributes("-topmost", True)
+    self.focus_force()
 
   def quit(self):
     logging.info("Quitting GUI")

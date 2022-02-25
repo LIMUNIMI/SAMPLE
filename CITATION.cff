@@ -5,7 +5,7 @@ authors:
   given-names: "Marco"
   orcid: "https://orcid.org/0000-0001-5761-4837"
 title: "SAMPLE"
-version: 1.5.0b0
+version: 1.5.0b1
 date-released: 2021-02-26
 url: "https://github.com/limunimi/sample"
 repository-code: "https://github.com/limunimi/sample"

@@ -1,9 +1,10 @@
 """Utilities for responsive SAMPLE GUI widgets"""
+import logging
 import tkinter as tk
 from tkinter import ttk
+from typing import Dict, Iterable, Optional, Union
+
 import ttkthemes
-import logging
-from typing import Iterable, Union, Optional, Dict
 
 
 class ResponsiveMixin:

@@ -1,10 +1,11 @@
 """Utilities for audio"""
-import soundfile as sf
+import io
+import threading
+
 import numpy as np
 import pygame
+import soundfile as sf
 from pygame import mixer
-import threading
-import io
 
 
 class TempAudio:

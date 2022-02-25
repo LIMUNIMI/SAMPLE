@@ -1,17 +1,19 @@
 """Tests related to SMS"""
-import unittest
-from tests import utils
-from chromatictools import unittestmixins
-from sample.sms import sm as sample_sm
-from sample.sms import dsp as sample_dsp
-from sample import utils as sample_utils
 import itertools
-import more_itertools
-import timeit
-import numpy as np
-import sys
 import os
+import sys
+import timeit
+import unittest
 import warnings
+
+import more_itertools
+import numpy as np
+from chromatictools import unittestmixins
+from sample import utils as sample_utils
+from sample.sms import dsp as sample_dsp
+from sample.sms import sm as sample_sm
+
+from tests import utils
 
 
 class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):

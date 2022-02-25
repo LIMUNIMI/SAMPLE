@@ -1,10 +1,12 @@
 """SAMPLE GUI launcher"""
-from chromatictools import cli
-from sample.widgets import userfiles
-import multiprocessing
 import argparse
+import multiprocessing
 import sys
 from typing import Optional
+
+from chromatictools import cli
+
+from sample.widgets import userfiles
 
 
 def launch(args, reload_queue: Optional[multiprocessing.SimpleQueue] = None):
@@ -12,9 +14,10 @@ def launch(args, reload_queue: Optional[multiprocessing.SimpleQueue] = None):
 
   Args:
     args (Namespace): Command-line arguments namespace"""
-  from sample.widgets import main, logging  # pylint: disable=C0415
   import logging as _logging  # pylint: disable=C0415
+
   import sample  # pylint: disable=C0415
+  from sample.widgets import logging, main  # pylint: disable=C0415
 
   _logging.basicConfig(
       level=_logging.WARNING,

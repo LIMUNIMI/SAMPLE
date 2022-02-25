@@ -1,7 +1,8 @@
 """Tests for top-level module"""
 import unittest
-from chromatictools import unittestmixins
+
 import sample
+from chromatictools import unittestmixins
 
 
 class TestInit(unittestmixins.AssertPrintsMixin, unittest.TestCase):

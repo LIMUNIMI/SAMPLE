@@ -1,11 +1,15 @@
 """Settings tab"""
-from tkinter import messagebox
-from sample.widgets import responsive as tk, utils, logging, sample, userfiles
-from matplotlib.backends import _backend_tk
-from scipy import signal
 import functools
 import inspect
-from typing import Optional, Union, Type, Tuple, Dict, Any, Sequence, Callable
+from tkinter import messagebox
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Type, Union
+
+from matplotlib.backends import _backend_tk
+from scipy import signal
+
+from sample.widgets import logging
+from sample.widgets import responsive as tk
+from sample.widgets import sample, userfiles, utils
 
 
 # --- Parsers ----------------------------------------------------------------

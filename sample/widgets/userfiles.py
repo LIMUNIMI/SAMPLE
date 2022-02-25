@@ -1,11 +1,12 @@
 """Classes and functions for handling user files"""
 import contextlib
-import logging
-import ttkthemes
-import tkinter.messagebox
 import json
-import sys
+import logging
 import os
+import sys
+import tkinter.messagebox
+
+import ttkthemes
 
 
 class UserDir:

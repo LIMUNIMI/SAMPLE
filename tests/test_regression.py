@@ -1,9 +1,10 @@
 """Tests related to regression"""
 import unittest
+
+import numpy as np
 from chromatictools import unittestmixins
 from sample import regression
 from scipy import special
-import numpy as np
 
 
 def noisy_hinge(

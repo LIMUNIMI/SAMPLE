@@ -1,7 +1,9 @@
 """Utilities for images"""
-from PIL import Image, ImageTk
-from sample import vid
 import io
+
+from PIL import Image, ImageTk
+
+from sample import vid
 
 
 class TempImage(ImageTk.PhotoImage):
