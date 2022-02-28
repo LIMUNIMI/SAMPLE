@@ -66,7 +66,7 @@ class SAMPLEGUI(SAMPLERoot):
                tabs: Iterable[Tuple[str, callable, Dict[str,
                                                         Any]]] = _default_tabs,
                **kwargs):
-    settings_file = persistent_dir.user_file("settings_cache.json")
+    settings_file = persistent_dir.user_file("settings.json")
     if "theme" not in kwargs:
       kwargs["theme"] = userfiles.UserTtkTheme(settings_file).get()
     super().__init__(**kwargs)
