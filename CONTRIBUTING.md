@@ -100,6 +100,7 @@ Coverage settings are in the [`.coveragerc`](.coveragerc) file.
 To evaluate test coverage, run this commands from the repository root directory
 ```
 coverage run
+coverage combine
 ```
 
 You can output human-readable reports with
