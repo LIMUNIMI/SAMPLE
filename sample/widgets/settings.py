@@ -375,7 +375,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.scrollframe.responsive(1, 1)
     self.scrollframe.grid(row=0)
     self.scrollframe.scrollable_frame.responsive(len(setting_specs), (0, 2))
-    self._settings = {}
+    self._settings: Dict[str, SettingsTab.Setting] = {}
     for k, kw in setting_specs:
       if kw is None:
         kw = {}
@@ -391,6 +391,11 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
     self.sample_object = sample.SAMPLE()
     self.apply_cbk(from_file=True)
+
+  def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613
+    """Reset selections in entries"""
+    for v in self._settings.values():
+      v.entry.selection_clear()
 
   def add_setting(self,
                   name,

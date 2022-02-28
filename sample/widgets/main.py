@@ -81,10 +81,20 @@ class SAMPLEGUI(SAMPLERoot):
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
+    self.notebook.bind("<<NotebookTabChanged>>", self.reset_selections)
+
     self.lift()
     self.attributes("-topmost", True)
     self.focus_force()
     self.attributes("-topmost", False)
+
+  def reset_selections(self, *args, **kwargs):
+    """Reset selections in tabs"""
+    for t in self.tabs:
+      try:
+        t.reset_selections(*args, **kwargs)
+      except AttributeError:
+        continue
 
   def quit(self):
     logging.info("Quitting GUI")
