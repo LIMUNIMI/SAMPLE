@@ -42,6 +42,7 @@ setuptools.setup(
             "Pillow",
         ],
         "notebooks": [
+            "ipython",
             "jupyter",
             "matplotlib",
             "librosa",
@@ -49,6 +50,7 @@ setuptools.setup(
             "requests",
         ],
         "test": [
+            "ipython",
             "cython",
             "more-itertools",
         ],
