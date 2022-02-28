@@ -1,6 +1,8 @@
 """Metrics for model evaluation"""
 import copy
-from typing import Optional
+import functools
+import multiprocessing as mp
+from typing import Any, Callable, Dict, Iterable, Optional
 
 import numpy as np
 from sample.sms import sm
@@ -91,6 +93,8 @@ def lin_log_spectral_loss(
   """Compute a sum of linear and log loss on the STFT (lower is better)
 
   Args:
+    x (array): First audio input
+    y (array): Second audio input
     w: Analysis window. Defaults to None (if None,
       the :attr:`default_window` is used)
     n (int): FFT size. Defaults to 2048
@@ -115,3 +119,73 @@ def lin_log_spectral_loss(
       norm_p=norm_p,
       floor_db=floor_db,
   ).fit(x, y).loss_
+
+
+class MultiScaleSpectralLoss:
+  """Class for computing multiscale losses on the STFT online
+  and in parallel
+
+  Args:
+    spectral_loss (callable): Base function for computing a spectral loss
+    stfts (iterable of dict): Multiple dictionaries of
+      keyword arguments for :func:`spectral_loss`"""
+
+  def __init__(self, spectral_loss: Callable, stfts: Iterable[Dict[str, Any]]):
+    self.funcs = [functools.partial(spectral_loss, **kw) for kw in stfts]
+
+  def __call__(self,
+               *args,
+               pool: Optional[mp.Pool] = None,
+               njobs: Optional[int] = None,
+               **kwargs) -> float:
+    """Compute the loss
+
+    Args:
+      args: Additional positional arguments for the base loss function
+      pool (multiprocessing.Pool): If not :data:`None`, then compute the
+        losses in parallel processes from this pool
+      njobs (int): If not :data:`None`, then compute the
+        losses in parallel using a process pool with :data:`njobs` workers
+      kwargs: Additional keyword arguments for the base loss function
+
+    Returns:
+      float: Sum of all losses"""
+    if pool is None:
+      if njobs is None:
+        it = (f(*args, **kwargs) for f in self.funcs)
+      else:
+        with mp.Pool(processes=njobs) as pool_:
+          return self(*args, pool=pool_, njobs=njobs, **kwargs)
+    else:
+      results = [pool.apply_async(f, args, kwargs) for f in self.funcs]
+      it = (r.get() for r in results)
+    return sum(it)
+
+
+def multiscale_spectral_loss(x,
+                             y,
+                             *args,
+                             spectral_loss: Callable = lin_log_spectral_loss,
+                             stfts: Iterable[Dict[str, Any]] = tuple(
+                                 dict(n=1 << i) for i in range(6, 12)),
+                             **kwargs) -> float:
+  """Compute a multiscale spectral loss
+
+  Args:
+    x (array): First audio input
+    y (array): Second audio input
+    args: Additional positional arguments for the base loss function
+    spectral_loss (callable): Base function for computing a spectral loss.
+      Default is :func:`lin_log_spectral_loss`
+    stfts (iterable of dict): Multiple dictionaries of
+    pool (multiprocessing.Pool): If not :data:`None`, then compute the
+      losses in parallel processes from this pool
+    njobs (int): If not :data:`None`, then compute the
+      losses in parallel using a process pool with :data:`njobs` workers
+    kwargs: Additional keyword arguments for the base loss function
+
+  Return:
+    float: Sum of loss values"""
+  return MultiScaleSpectralLoss(stfts=stfts,
+                                spectral_loss=spectral_loss)(x, y, *args,
+                                                             **kwargs)
