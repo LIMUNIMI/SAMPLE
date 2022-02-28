@@ -114,6 +114,23 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     self.play_button.grid(column=5, row=0)
     self.play_button.bind("<Button-1>", self.play_cbk)
 
+    # Load cache
+    if self.audio_cache_file.is_valid() and self.audio_cache_file.exists():
+      logging.info("Loading cache from %s", self.audio_cache_file.path)
+      d = self.audio_cache_file.load_pickled()
+      for k, v in d.items():
+        logging.debug("%s: %s", k, v)
+        if v is not None:
+          setattr(self, k, v)
+      if self.audio_x is not None:
+        if self.audio_sr is None:
+          self.audio_sr = 44100
+        if self.audio_trim_start is None or self.audio_trim_stop is None:
+          self.auto_trim()
+        self._plt_lims_valid = False
+        self.update_plot()
+      self.audio_cache_file.delete()
+
   @property
   def toolbar_on(self) -> bool:
     """It is :data:`True` if any toolbar checkbutton is on"""
@@ -273,7 +290,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
                                           self.audio_sr))
         self.trim_stop_input_var.set(str(self.audio_trim_stop / self.audio_sr))
     else:
-      # In no audio is found, reset variables
+      # If no audio is found, reset variables
       self._plt_lims_valid = False
       if update_vars:
         self.trim_start_input_var.set("")

@@ -460,6 +460,16 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
           "Reload",
           "Reload GUI to apply changes to the theme. Do you want to reload now?"
       ):
+        if self.audio_cache_file.is_valid():
+          logging.info("Caching audio input state to %s",
+                       self.audio_cache_file.path)
+          self.audio_cache_file.save_pickled(
+              dict(
+                  audio_x=self.audio_x,
+                  audio_sr=self.audio_sr,
+                  audio_trim_start=self.audio_trim_start,
+                  audio_trim_stop=self.audio_trim_stop,
+              ))
         r = utils.get_root(self)
         r.master.should_reload = True
         r.quit()

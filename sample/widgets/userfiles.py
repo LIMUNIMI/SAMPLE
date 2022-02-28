@@ -7,6 +7,7 @@ import sys
 import tkinter.messagebox
 
 import ttkthemes
+from chromatictools import pickle
 
 
 class UserDir:
@@ -49,6 +50,10 @@ class UserDir:
       """Test existance of file"""
       return os.path.isfile(self.path)
 
+    def delete(self):
+      """Delete file"""
+      os.remove(self.path)
+
     def save_json(self, data, **kwargs):
       """Serialize an object to JSON and save in the file
 
@@ -65,6 +70,19 @@ class UserDir:
         kwargs: Keyword arguments for :func:`json.load`"""
       with self.open(mode="r") as f:
         return json.load(f, **kwargs)
+
+    def save_pickled(self, data):
+      """Serialize an object to pickle and save in the file
+
+      Args:
+        data: Python object to serialize"""
+      os.makedirs(os.path.dirname(self.path), exist_ok=True)
+      pickle.save_pickled(data, self.path)
+
+    def load_pickled(self):
+      """Load pickled data from the file and
+      deserialize as a Python object"""
+      return pickle.read_pickled(self.path)
 
   def __init__(self, path, in_home: bool = False):
     if in_home:

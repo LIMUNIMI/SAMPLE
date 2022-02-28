@@ -97,6 +97,7 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
       "audio_resynth_x",
       "persistent_dir",
       "settings_file",
+      "audio_cache_file",
   )
 
   @property

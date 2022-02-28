@@ -73,6 +73,7 @@ class SAMPLEGUI(SAMPLERoot):
     self.notebook = tk.Notebook(self)
     self.notebook.persistent_dir = persistent_dir
     self.notebook.settings_file = settings_file
+    self.notebook.audio_cache_file = persistent_dir.user_file("audio.cache")
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:
