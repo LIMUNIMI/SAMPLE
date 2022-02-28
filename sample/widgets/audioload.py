@@ -118,7 +118,8 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
     if self.audio_cache_file.is_valid() and self.audio_cache_file.exists():
       logging.info("Loading cache from %s", self.audio_cache_file.path)
       d = self.audio_cache_file.load_pickled()
-      for k, v in d.items():
+      for k in ("audio_x", "audio_sr", "audio_trim_start", "audio_trim_stop"):
+        v = d.get(k, None)
         logging.debug("%s: %s", k, v)
         if v is not None:
           setattr(self, k, v)
@@ -129,7 +130,6 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
           self.auto_trim()
         self._plt_lims_valid = False
         self.update_plot()
-      self.audio_cache_file.delete()
 
   @property
   def toolbar_on(self) -> bool:

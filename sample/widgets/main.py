@@ -84,10 +84,16 @@ class SAMPLEGUI(SAMPLERoot):
       self.notebook.add(v, text=k)
     self.notebook.bind("<<NotebookTabChanged>>", self.reset_selections)
 
+    # Move window up
     self.lift()
     self.attributes("-topmost", True)
     self.focus_force()
     self.attributes("-topmost", False)
+
+    # Clear cache
+    if self.notebook.audio_cache_file.is_valid(
+    ) and self.notebook.audio_cache_file.exists():
+      self.notebook.audio_cache_file.delete()
 
   def reset_selections(self, *args, **kwargs):
     """Reset selections in tabs"""
