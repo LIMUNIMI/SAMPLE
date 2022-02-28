@@ -5,7 +5,7 @@ import json
 import os
 
 
-def WebAudio(x, rate: int):
+def WebAudio(x, rate: int, label: str = "Play"):
   """Use instead of :class:`IPython.display.Audio` as a workaround for VS Code
 
   Args:
@@ -21,4 +21,5 @@ def WebAudio(x, rate: int):
     return ipd.HTML(f.read().format(x=json.dumps(
         np.reshape(x, newshape=(1 if np.ndim(x) == 1 else np.shape(x)[0],
                                 -1)).tolist()),
-                                    rate=rate))
+                                    rate=rate,
+                                    label=label))
