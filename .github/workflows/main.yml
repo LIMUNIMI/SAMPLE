@@ -167,11 +167,12 @@ jobs:
     - name: No Jekyll in pages
       run: touch pages/.nojekyll
     - name: Deploy pages
-      uses: JamesIves/github-pages-deploy-action@releases/v3
+      uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH: gh-pages
-        FOLDER: pages
+        branch: gh-pages
+        folder: pages
+        single-commit: true
 
   pypi-upload:
     runs-on: ubuntu-latest
