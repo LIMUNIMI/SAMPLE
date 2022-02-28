@@ -84,6 +84,7 @@ class SAMPLEGUI(SAMPLERoot):
     self.lift()
     self.attributes("-topmost", True)
     self.focus_force()
+    self.attributes("-topmost", False)
 
   def quit(self):
     logging.info("Quitting GUI")
