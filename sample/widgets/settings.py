@@ -375,7 +375,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.scrollframe.responsive(1, 1)
     self.scrollframe.grid(row=0)
     self.scrollframe.scrollable_frame.responsive(len(setting_specs), (0, 2))
-    self._settings = {}
+    self._settings: Dict[str, SettingsTab.Setting] = {}
     for k, kw in setting_specs:
       if kw is None:
         kw = {}
@@ -391,6 +391,11 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
     self.sample_object = sample.SAMPLE()
     self.apply_cbk(from_file=True)
+
+  def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613
+    """Reset selections in entries"""
+    for v in self._settings.values():
+      v.entry.selection_clear()
 
   def add_setting(self,
                   name,
@@ -455,6 +460,15 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
           "Reload",
           "Reload GUI to apply changes to the theme. Do you want to reload now?"
       ):
+        if self.audio_cache_file.is_valid():
+          logging.info("Caching state to %s", self.audio_cache_file.path)
+          self.audio_cache_file.save_pickled(
+              dict(
+                  audio_x=self.audio_x,
+                  audio_sr=self.audio_sr,
+                  audio_trim_start=self.audio_trim_start,
+                  audio_trim_stop=self.audio_trim_stop,
+              ))
         r = utils.get_root(self)
         r.master.should_reload = True
         r.quit()

@@ -66,13 +66,14 @@ class SAMPLEGUI(SAMPLERoot):
                tabs: Iterable[Tuple[str, callable, Dict[str,
                                                         Any]]] = _default_tabs,
                **kwargs):
-    settings_file = persistent_dir.user_file("settings_cache.json")
+    settings_file = persistent_dir.user_file("settings.json")
     if "theme" not in kwargs:
       kwargs["theme"] = userfiles.UserTtkTheme(settings_file).get()
     super().__init__(**kwargs)
     self.notebook = tk.Notebook(self)
     self.notebook.persistent_dir = persistent_dir
     self.notebook.settings_file = settings_file
+    self.notebook.audio_cache_file = persistent_dir.user_file("audio.cache")
     self.notebook.grid()
     self.tabs = []
     for k, func, kw in tabs:
@@ -81,9 +82,26 @@ class SAMPLEGUI(SAMPLERoot):
       v = func(self.notebook, **kw)
       self.tabs.append(v)
       self.notebook.add(v, text=k)
+    self.notebook.bind("<<NotebookTabChanged>>", self.reset_selections)
+
+    # Move window up
     self.lift()
     self.attributes("-topmost", True)
     self.focus_force()
+    self.attributes("-topmost", False)
+
+    # Clear cache
+    if self.notebook.audio_cache_file.is_valid(
+    ) and self.notebook.audio_cache_file.exists():
+      self.notebook.audio_cache_file.delete()
+
+  def reset_selections(self, *args, **kwargs):
+    """Reset selections in tabs"""
+    for t in self.tabs:
+      try:
+        t.reset_selections(*args, **kwargs)
+      except AttributeError:
+        continue
 
   def quit(self):
     logging.info("Quitting GUI")

@@ -37,7 +37,7 @@ It is recommended run these commands in a virtual environment in
 order to to keep your system clean
 
 ```
-pip install lim-sample[gui]==1.5.0b1
+pip install lim-sample[gui]==1.5.0b2
 ```
 
 To run the GUI from the command line, run
