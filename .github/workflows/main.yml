@@ -48,6 +48,8 @@ jobs:
       run: pip install .[test,cov,plots]
     - name: Run coverage
       run: coverage run
+    - name: Combine coverage results from multiprocessing
+      run: coverage combine
     - name: Make coverage JSON
       run: coverage json
     - name: Upload coverage JSON
