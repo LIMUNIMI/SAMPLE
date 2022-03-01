@@ -1,7 +1,7 @@
 """Module for using the entire SAMPLE method pipeline"""
 import copy
 import functools
-from typing import Callable
+from typing import Callable, Optional, List
 
 import numpy as np
 from sklearn import base
@@ -24,6 +24,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       coefficient of :data:`regressor`
     freq_reduce (callable): Callable function for reducing the frequency track
       into a single frequency. Defaults to :func:`numpy.mean`
+    max_n_modes (int): Number of modes to use in resynthesis. If :data:`None`
+      (default), then synthesise all modes
     **kwargs: Keyword arguments, will be set as parameters of submodels. For a
       complete list of all parameter names and default values, please, run
       :data:`SAMPLE().get_params()`. For an explanation of the parameters,
@@ -36,6 +38,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       regressor_k: str = "k_",
       regressor_q: str = "q_",
       freq_reduce: Callable[[np.ndarray], float] = np.mean,
+      max_n_modes: Optional[int] = None,
       **kwargs,
   ):
     self.sinusoidal_model = sinusoidal_model
@@ -43,6 +46,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     self.regressor_k = regressor_k
     self.regressor_q = regressor_q
     self.freq_reduce = freq_reduce
+    self.max_n_modes = max_n_modes
     self.set_params(**kwargs)
 
   @property
@@ -121,6 +125,26 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     """Learned modal energies"""
     return 4 * self.amps_**2 / self.decays_
 
+  def mode_argsort_(self,
+                    order: str = "energies",
+                    reverse: bool = True) -> List[int]:
+    """Get the indices for sorting modes
+
+    Args:
+      order (str): Feature to use for ordering modes. Default is
+        :data:`"energies"`, so that reducing active modes keeps the
+        modes with most energy. Other options are :data:`"freqs"`,
+        :data:`"amps"` and :data:`"decays"`
+      reverse (bool): Whether the order should be reversed (decreasing).
+        Defaults to :data:`True`
+
+    Returns:
+      array: Array of indices for sorting"""
+    asort = np.argsort(getattr(self, f"{order}_")).tolist()
+    if reverse:
+      asort = list(reversed(asort))
+    return asort
+
   def sdt_params_(self, order: str = "energies", reverse: bool = True) -> dict:
     """SDT parameters as a JSON serializable dictionary
 
@@ -135,13 +159,13 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     Returns:
       dict: SDT parameters"""
     n_modes = self.freqs_.size
-    m_ord = np.argsort(getattr(self, f"{order}_")).tolist()
-    if reverse:
-      m_ord = list(reversed(m_ord))
+    m_ord = self.mode_argsort_(order=order, reverse=reverse)
+    active_modes = n_modes if self.max_n_modes is None else min(
+        self.max_n_modes, n_modes)
     return {
         "nModes": n_modes,
         "nPickups": 1,
-        "activeModes": n_modes,
+        "activeModes": active_modes,
         "fragmentSize": 1.0,
         "freqs": self.freqs_[m_ord].tolist(),
         "decays": self.decays_[m_ord].tolist(),
@@ -149,18 +173,36 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
         "gains": [self.amps_[m_ord].tolist()],
     }
 
-  def predict(self, x: np.ndarray) -> np.ndarray:
+  def predict(self,
+              x: np.ndarray,
+              n_modes: Optional[int] = None,
+              order: str = "energies",
+              reverse: bool = True) -> np.ndarray:
     """Resynthesize audio
 
     Args:
       x (array): Time axis
+      n_modes (int): Number of modes to synthesize. If :data:`None`,
+        then use the :data:`max_n_modes` parameter
+      order (str): Feature to use for ordering modes. Default is
+        :data:`"energies"`, so that reducing active modes keeps the
+        modes with most energy. Other options are :data:`"freqs"`,
+        :data:`"amps"` and :data:`"decays"`
+      reverse (bool): Whether the order should be reversed (decreasing).
+        Defaults to :data:`True`
 
     Returns:
       array: Array of audio samples"""
+    if n_modes is None:
+      if self.max_n_modes is None:
+        n_modes = self.freqs_.size
+      else:
+        n_modes = self.max_n_modes
+    m_ord = self.mode_argsort_(order=order, reverse=reverse)[:n_modes]
     row = functools.partial(np.reshape, newshape=(1, -1))
     col = functools.partial(np.reshape, newshape=(-1, 1))
 
-    osc = np.sin(2 * np.pi * col(x) @ row(self.freqs_))
-    dec = np.exp(col(x) @ row(-2 / self.decays_))
-    amp = col(self.amps_)
+    osc = np.sin(2 * np.pi * col(x) @ row(self.freqs_[m_ord]))
+    dec = np.exp(col(x) @ row(-2 / self.decays_[m_ord]))
+    amp = col(self.amps_[m_ord])
     return np.squeeze((dec * osc) @ amp)
