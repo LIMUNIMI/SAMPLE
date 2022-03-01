@@ -27,6 +27,7 @@ setuptools.setup(
         "numpy",
         "scipy",
         "scikit-learn",
+        "scikit-optimize",
     ],
     extras_require={
         "gui": [

@@ -6,6 +6,7 @@ chromatictools
 numpy
 scipy
 scikit-learn
+scikit-optimize
 
 # Test
 cython
