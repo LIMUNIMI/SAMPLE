@@ -1,7 +1,7 @@
 """Utility functions"""
 import functools
 import inspect
-from typing import Iterable, Callable, Optional
+from typing import Callable, Iterable, Optional
 
 
 def comma_join_quote(it: Iterable) -> str:

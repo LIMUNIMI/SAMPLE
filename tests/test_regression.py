@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 from chromatictools import unittestmixins
-from sample import regression
+from sample import regression, psycho
 from scipy import special
 
 
@@ -29,7 +29,7 @@ def noisy_hinge(
     array: Noisy hinge sample :py:data:`h(x) + N(0, h(x)*n)`"""
   np.random.seed(seed)
   y = special.exp10(regression.hinge_function(x, a, k, q) / 20)
-  return 20 * np.log10(y + np.random.randn(*y.shape) * y * n)
+  return psycho.a2db(y + np.random.randn(*y.shape) * y * n)
 
 
 class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):

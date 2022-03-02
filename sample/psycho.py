@@ -1,7 +1,92 @@
 """Classes and functions related to psychoacoustic models"""
+from typing import Optional
+import functools
+
 import numpy as np
 
 from sample import utils
+
+
+@functools.partial(np.frompyfunc, nin=1, nout=1)
+def db2a(d: float) -> float:
+  """Convert decibels to linear amplitude values
+
+  Args:
+    d (array): Decibel values
+    **kwargs: For other keyword-only arguments, see the `ufunc docs`_
+
+  Returns:
+    array: Amplitude values
+
+  .. _ufunc docs:
+    https://numpy.org/doc/stable/reference/ufuncs.html#ufuncs-kwargs"""
+  return 10**(d / 20)
+
+
+def a2db(a: np.ndarray,
+         floor: Optional[np.ndarray] = None,
+         floor_db: bool = False,
+         **kwargs):
+  """Convert linear amplitude values to decibel
+
+  Args:
+    a (array): Amplitude values
+    floor (array): Floor value(s). If specified, the amplitude values will be
+      clipped to this value. Use this to avoid computing the logarithm of zero
+    floor_db (bool): Set this to :data:`True` if :data:`floor` is
+      specified in decibel
+    **kwargs: For other keyword-only arguments, see the `ufunc docs`_
+
+  Returns:
+    array: Decibel values
+
+  .. _ufunc docs:
+    https://numpy.org/doc/stable/reference/ufuncs.html#ufuncs-kwargs"""
+  if floor is None:
+    return a2db.floorless(a, **kwargs)
+  if floor_db:
+    floor = db2a(floor)
+  return a2db.floored(a, floor)
+
+
+@functools.partial(np.frompyfunc, nin=1, nout=1)
+def _a2db_floorless(a: float) -> float:
+  """Convert linear amplitude values to decibel
+
+  Args:
+    a (array): Amplitude values
+    **kwargs: For other keyword-only arguments, see the `ufunc docs`_
+
+  Returns:
+    array: Decibel values
+
+  .. _ufunc docs:
+    https://numpy.org/doc/stable/reference/ufuncs.html#ufuncs-kwargs"""
+  return 20 * np.log10(a)
+
+
+a2db.floorless = _a2db_floorless
+
+
+@functools.partial(np.frompyfunc, nin=2, nout=1)
+def _a2db_floored(a: float, f: float) -> float:
+  """Convert linear amplitude values to decibel, specifying a floor
+
+  Args:
+    a (array): Amplitude values
+    floor (array): Floor value(s). If specified, the amplitude values will be
+      clipped to this value. Use this to avoid computing the logarithm of zero
+    **kwargs: For other keyword-only arguments, see the `ufunc docs`_
+
+  Returns:
+    array: Decibel values
+
+  .. _ufunc docs:
+    https://numpy.org/doc/stable/reference/ufuncs.html#ufuncs-kwargs"""
+  return _a2db_floorless(max(a, f))
+
+
+a2db.floored = _a2db_floored
 
 
 @utils.function_with_variants(key="mode", default="traunmuller")
