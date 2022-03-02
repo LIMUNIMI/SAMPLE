@@ -14,7 +14,7 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
   def _t3st_coherence(self,
                       fwd: Callable,
                       bak: Callable,
-                      modes: Iterable[str],
+                      modes: Optional[Iterable[str]] = None,
                       f=np.linspace(0, 2e4, 1024),
                       no_fwd: Optional[Container[str]] = None,
                       no_bak: Optional[Container[str]] = None,
@@ -34,22 +34,25 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
       no_fwd = ()
     if no_bak is None:
       no_bak = ()
+    if modes is None:
+      modes = [None]
     for m in modes:
-      with self.subTest(mode=m, conversion="forward"):
+      kw = {} if m is None else dict(mode=m)
+      with self.subTest(conversion="forward", **kw):
         if m in no_fwd:
           with self.assertRaises(ValueError):
-            fwd(f, mode=m)
+            fwd(f, **kw)
         else:
           with self.assert_doesnt_raise():
-            b = fwd(f, mode=m)
-      with self.subTest(mode=m, conversion="backward"):
+            b = fwd(f, **kw)
+      with self.subTest(conversion="backward", **kw):
         if m in no_fwd:
           pass
         elif m in no_bak:
           with self.assertRaises(ValueError):
-            bak(b, mode=m)
+            bak(b, **kw)
         else:
-          f_ = bak(b, mode=m)
+          f_ = bak(b, **kw)
           self.assert_almost_equal_rmse(f, f_, **kwargs)
 
   def test_bark(self):
@@ -68,3 +71,20 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                          bak=psycho.mel2hz,
                          modes=("unsupported", "default", "fant"),
                          no_fwd=("unsupported",))
+
+  def test_db(self):
+    """Test coherence of conversion for dB"""
+    self._t3st_coherence(fwd=psycho.db2a,
+                         bak=psycho.a2db,
+                         f=np.linspace(-60, 60, 1024))
+
+  def test_db_floor(self):
+    """Test floor for dB conversion"""
+    f = -60
+    a = np.linspace(0, 1, 1024)
+    psycho.a2db(a, floor=f, floor_db=True, out=a)
+    with self.subTest(check="dB"):
+      self.assertTrue(np.greater_equal(a, f).all())
+    psycho.db2a(a, out=a)
+    with self.subTest(check="a"):
+      self.assertTrue(np.greater_equal(a, psycho.db2a(f)).all())
