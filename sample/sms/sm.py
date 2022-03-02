@@ -106,7 +106,7 @@ class SineTracker:
 
     Returns:
       bool: Whether the track is ok or not"""
-    return len(track["freq"]) > self.min_sine_dur
+    return len(track["freq"]) >= self.min_sine_dur
 
   def deactivate(self, track_index: int) -> dict:
     """Remove track from list of active tracks and save it in
@@ -187,6 +187,11 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
     min_sine_dur (float): Minimum duration of a track in seconds.
       Defaults to 0.04
+    safe_sine_len (int): Minimum safe length of a track in number of
+      frames. This mainly serves as a check over the :data:`min_sine_dur`
+      parameter. If :data:`None` (default), then, do not
+      check :data:`min_sine_dur`. Set this to :data:`2` to avoid length
+      errors for the regressor.
     freq_dev_offset (float): Frequency deviation threshold at 0Hz.
       Defaults to 20
     freq_dev_slope (float): Slope of frequency deviation threshold.
@@ -210,6 +215,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       t: float = -90,
       max_n_sines: int = 100,
       min_sine_dur: float = 0.04,
+      safe_sine_len: Optional[int] = None,
       freq_dev_offset: float = 20,
       freq_dev_slope: float = 0.01,
       reverse: bool = False,
@@ -223,6 +229,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.t = t
     self.max_n_sines = max_n_sines
     self.min_sine_dur = min_sine_dur
+    self.safe_sine_len = safe_sine_len
     self.freq_dev_offset = freq_dev_offset
     self.freq_dev_slope = freq_dev_slope
     self.reverse = reverse
@@ -268,9 +275,12 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   @property
   def sine_tracker_kwargs(self) -> dict:
     """Arguments for sine tracker initialization"""
+    min_sine_len = int(self.min_sine_dur * self.fs / self.h)
+    if self.safe_sine_len is not None:
+      min_sine_len = max(self.safe_sine_len, min_sine_len)
     return dict(
         max_n_sines=self.max_n_sines,
-        min_sine_dur=self.min_sine_dur * self.fs / self.h,
+        min_sine_dur=min_sine_len,
         freq_dev_offset=self.freq_dev_offset,
         freq_dev_slope=self.freq_dev_slope,
     )
