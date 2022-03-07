@@ -3,6 +3,8 @@ import functools
 import inspect
 from typing import Callable, Iterable, Optional
 
+import numpy as np
+
 
 def comma_join_quote(it: Iterable) -> str:
   """Join strings with a comma and surround each element with quotes
@@ -114,3 +116,26 @@ def function_variant(main_func: Callable,
     return functools.partial(function_variant, main_func, key)
   main_func._variants_dict[key] = this  # pylint: disable=W0212
   return this
+
+
+def numpy_out(func: Optional[Callable] = None, key: str = "out"):
+  """Automatically handle the preprocesing of the :data:`out` argument for
+  a numpy-like function
+
+  Args:
+    func (callable): Numpy-like function
+    key (str): Argument name
+
+  Returns:
+    callable: Decorated function"""
+  if func is None:
+    return functools.partial(numpy_out, key=key)
+  @functools.wraps(func)
+  def func_(a, *args, **kwargs):
+    nd = None
+    if key not in kwargs:
+      nd = np.ndim(a)
+      kwargs[key] = np.empty(() if nd == 0 else np.shape(a))
+    out = func(a, *args, **kwargs)
+    return out if nd is None or nd != 0 else out[()]
+  return func_
