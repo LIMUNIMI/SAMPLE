@@ -1,11 +1,11 @@
 """SAMPLE class for use in GUI"""
 import tkinter as tk
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Callable
 
 import numpy as np
 import throttle
 
-from sample import sample
+from sample import sample, regression
 from sample.sms import mm
 
 
@@ -108,5 +108,18 @@ class SAMPLE(sample.SAMPLE):
       for f in it:
         yield f
 
-  def __init__(self, sinusoidal_model=SinusoidalModel(), **kwargs):
-    super().__init__(sinusoidal_model=sinusoidal_model, **kwargs)
+  def __init__(self,
+               sinusoidal_model=SinusoidalModel(),
+               regressor=regression.HingeRegression(),
+               regressor_k: str = "k_",
+               regressor_q: str = "q_",
+               freq_reduce: Callable[[np.ndarray], float] = np.mean,
+               max_n_modes: Optional[int] = None,
+               **kwargs):
+    super().__init__(sinusoidal_model=sinusoidal_model,
+                     regressor=regressor,
+                     regressor_k=regressor_k,
+                     regressor_q=regressor_q,
+                     freq_reduce=freq_reduce,
+                     max_n_modes=max_n_modes,
+                     **kwargs)
