@@ -130,6 +130,7 @@ def numpy_out(func: Optional[Callable] = None, key: str = "out"):
     callable: Decorated function"""
   if func is None:
     return functools.partial(numpy_out, key=key)
+
   @functools.wraps(func)
   def func_(a, *args, **kwargs):
     nd = None
@@ -138,4 +139,5 @@ def numpy_out(func: Optional[Callable] = None, key: str = "out"):
       kwargs[key] = np.empty(() if nd == 0 else np.shape(a))
     out = func(a, *args, **kwargs)
     return out if nd is None or nd != 0 else out[()]
+
   return func_

@@ -63,7 +63,9 @@ a2db.floorless = _a2db_floorless
 
 
 @utils.numpy_out
-def _a2db_floored(a: float, f: float, out: Optional[np.ndarray] = None) -> float:
+def _a2db_floored(a: float,
+                  f: float,
+                  out: Optional[np.ndarray] = None) -> float:
   """Convert linear amplitude values to decibel, specifying a floor
 
   Args:
