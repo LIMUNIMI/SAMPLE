@@ -3,6 +3,7 @@ import functools
 from typing import Optional, Tuple
 
 import numpy as np
+from sample import psycho
 from scipy import fft
 
 
@@ -31,8 +32,9 @@ def dft(
   x_z[-hw:] = xw[:hw]
 
   x_fft = fft.rfft(x_z)
-  ax = np.maximum(np.abs(x_fft), np.finfo(float).eps)  # avoid zeros in log
-  mx = 20 * np.log10(ax)
+  ax = np.abs(x_fft)
+  ax = np.maximum(ax, np.finfo(float).eps, out=ax)  # avoid zeros in log
+  mx = psycho.a2db.floorless(ax)
 
   x_fft[ax < tol] = complex(0)
   px = np.unwrap(np.angle(x_fft))

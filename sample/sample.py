@@ -1,11 +1,12 @@
 """Module for using the entire SAMPLE method pipeline"""
 import copy
 import functools
-from typing import Callable, Optional, List
+from typing import Callable, List, Optional
 
 import numpy as np
 from sklearn import base
 
+from sample import psycho
 from sample.regression import HingeRegression
 from sample.sms import mm
 
@@ -90,7 +91,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       self.param_matrix_[1, i] = \
         -40 * np.log10(np.e) / getattr(self.regressor, self.regressor_k)
       self.param_matrix_[2, i] = \
-        2 * 10**(getattr(self.regressor, self.regressor_q) / 20)
+        2 * psycho.db2a(getattr(self.regressor, self.regressor_q))
     return self
 
   @property

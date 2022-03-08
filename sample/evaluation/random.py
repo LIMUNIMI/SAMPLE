@@ -93,7 +93,7 @@ class BeatsGenerator:
   @property
   def snr_amp(self) -> float:
     """Linear SNR"""
-    return np.power(10, self.snr / 20)
+    return psycho.db2a(self.snr)
 
   @property
   def noise_amp(self) -> float:
