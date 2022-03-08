@@ -3,12 +3,10 @@ import unittest
 import multiprocessing as mp
 
 import numpy as np
-from chromatictools import unittestmixins
 from sample.evaluation import metrics, random
 
 
-class TestMetrics(unittestmixins.AssertDoesntRaiseMixin,
-                  unittestmixins.RMSEAssertMixin, unittest.TestCase):
+class TestMetrics(unittest.TestCase):
   """Tests for evaluation metrics"""
 
   def setUp(self) -> None:
