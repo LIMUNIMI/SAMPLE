@@ -1,95 +1,46 @@
 """Metrics for model evaluation"""
-import copy
 import functools
 import multiprocessing as mp
 from typing import Any, Callable, Dict, Iterable, Optional
 
 import numpy as np
-from sample.sms import sm
+from sample import psycho
 from scipy import signal
 
 
-class _STFTDifferenceCalculator(sm.SinusoidalModel):
-  """Class for computing losses on the STFT online
+def lp_distance(x, y, p: float = 1):
+  """Compute the distance between two vectors as
+  the lp-norm of their difference
 
   Args:
-    w: Analysis window. Defaults to None (if None,
-      the :attr:`default_window` is used)
-    n (int): FFT size. Defaults to 2048
-    h (int): Window hop size. Defaults to 500
-    alpha (float): Weight of the log-difference
-    norm_p (float): Exponent patameter for norm. Default is :data:`1.0`
-    floor_db (float): Minimum magnitude for STFT in dB"""
+    x (array): First vector
+    y (array): Second vector
+    p (float): Exponent for the lp-norm
 
-  def __init__(
-      self,
-      w: Optional[np.ndarray] = None,
-      n: int = 2048,
-      h: int = 500,
-      alpha: float = 1.0,
-      norm_p: float = 1.0,
-      floor_db: float = -60,
-  ):
-    super().__init__(
-        w=w,
-        n=n,
-        h=h,
-    )
-    self.alpha = alpha
-    self.norm_p = norm_p
-    self.floor_db = floor_db
-
-  def _lpp_distance(self, x: np.ndarray, y: np.ndarray) -> float:
-    """Compute the p-norm distance between x and y to the power p
-
-    Args:
-      x (array): first input
-      y (array): second input
-
-    Returns:
-      float: p-norm distance to the power p"""
-    return np.sum(np.power(np.abs(x - y), self.norm_p))
-
-  def fit(self, x: np.ndarray, y: np.ndarray, **kwargs):
-    """Compute the STFT differences online
-
-    Args:
-      x (array): first audio input
-      y (ignored): second audio input
-      kwargs: Any parameter, overrides initialization
-
-    Returns:
-      SinusoidalModel: self"""
-    self.set_params(**kwargs)
-    self.w_ = self.normalized_window
-
-    x_dft = (f[0] for f in copy.deepcopy(self).dft_frames(x))
-    y_dft = (f[0] for f in copy.deepcopy(self).dft_frames(y))
-
-    diff = np.zeros((2, 1))
-    for x_fft, y_fft in zip(x_dft, y_dft):  # these are log magnitudes
-      diff[0, 0] += self._lpp_distance(np.power(10, x_fft / 20),
-                                       np.power(10, y_fft / 20))  # lin diff
-      diff[1, 0] += self._lpp_distance(np.maximum(x_fft, self.floor_db),
-                                       np.maximum(y_fft,
-                                                  self.floor_db))  # log diff
-    self.loss_ = np.squeeze(
-        np.array([[1, self.alpha]]) @ np.power(diff, 1 / self.norm_p))[()]
-    return self
+  Returns:
+    float: The distance"""
+  tmp = np.empty_like(x)
+  np.subtract(x, y, out=tmp)
+  np.abs(tmp, out=tmp)
+  if p != 1:
+    np.power(tmp, p, out=tmp)
+  d = np.sum(tmp)
+  if p != 1:
+    d = np.power(d, 1 / p)
+  return d
 
 
-def lin_log_spectral_loss(
-    x,
-    y,
-    n: int = 2048,
-    olap: float = 0.75,
-    w: Optional[np.ndarray] = None,
-    wtype: str = "hamming",
-    wsize: Optional[int] = None,
-    alpha: Optional[float] = None,
-    norm_p: float = 1.0,
-    floor_db: float = -60,
-):
+def lin_log_spectral_loss(x,
+                          y,
+                          n: int = 2048,
+                          olap: float = 0.75,
+                          w: Optional[np.ndarray] = None,
+                          wtype: str = "hamming",
+                          wsize: Optional[int] = None,
+                          alpha: Optional[float] = None,
+                          norm_p: float = 1.0,
+                          floor_db: float = -60,
+                          **kwargs):
   """Compute a sum of linear and log loss on the STFT (lower is better)
 
   Args:
@@ -102,6 +53,7 @@ def lin_log_spectral_loss(
     alpha (float): Weight of the log-difference
     norm_p (float): Exponent patameter for norm. Default is :data:`1.0`
     floor_db (float): Minimum magnitude for STFT in dB
+    kwargs: Keyword arguments for :func:`scipy.signal.stft`
 
   Return:
     float: loss value"""
@@ -111,14 +63,27 @@ def lin_log_spectral_loss(
     w = signal.get_window(window=wtype, Nx=wsize)
   if alpha is None:
     alpha = 1 / max(1, -floor_db)
-  return _STFTDifferenceCalculator(
-      n=n,
-      h=max(1, int(np.size(w) * (1 - olap))),
-      w=w,
-      alpha=alpha,
-      norm_p=norm_p,
-      floor_db=floor_db,
-  ).fit(x, y).loss_
+
+  noverlap = int(olap * np.size(w))
+  _, _, x_stft = signal.stft(x,
+                             window=w,
+                             nperseg=np.size(w),
+                             nfft=n,
+                             noverlap=noverlap,
+                             **kwargs)
+  _, _, y_stft = signal.stft(y,
+                             window=w,
+                             nperseg=np.size(w),
+                             nfft=n,
+                             noverlap=noverlap,
+                             **kwargs)
+  x_stft = np.abs(x_stft)
+  y_stft = np.abs(y_stft)
+  loss = lp_distance(x_stft, y_stft, p=norm_p)
+  psycho.a2db(x_stft, out=x_stft, floor=floor_db, floor_db=True)
+  psycho.a2db(y_stft, out=y_stft, floor=floor_db, floor_db=True)
+  loss += alpha * lp_distance(x_stft, y_stft, p=norm_p)
+  return loss
 
 
 class MultiScaleSpectralLoss:
