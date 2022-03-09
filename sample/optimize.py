@@ -137,6 +137,7 @@ class SAMPLEOptimizer:
       self,
       x: np.ndarray,
       fs: float = 44100,
+      state: Optional[scipy.optimize.OptimizeResult] = None,
       **kwargs) -> Tuple[sample.SAMPLE, scipy.optimize.OptimizeResult]:
     """Use :func:`skopt.gp_minimize` to tune the hyperparameters
 
@@ -147,6 +148,9 @@ class SAMPLEOptimizer:
 
     Returns:
       SAMPLE, OptimizeResult: Best model, and optimization summary"""
+    if state is not None and "x0" not in kwargs and "y0" not in kwargs:
+      kwargs["x0"] = state.x_iters
+      kwargs["y0"] = state.func_vals
     res = skopt.gp_minimize(self.loss(x, fs), self.dimensions.values(),
                             **kwargs)
     model = self.sample_fn(
