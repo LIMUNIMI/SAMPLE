@@ -71,14 +71,21 @@ class SAMPLEOptimizer:
     remap (callable): Function that accepts keyword arguments and
       returns a new dictionary of keyword arguments for :data:`sample_fn`.
       Default is :func:`sample_kwargs_remapper`
+    clip (bool): If :data:`True` (default), then clip resynthesised audio
+      to the same peak of the original audio
     **kwargs: Parameters to optimize. See :func:`skopt.gp_minimize`
       **dimensions** for definition options"""
+
   def __init__(self,
                sample_fn: Callable[..., sample.SAMPLE] = sample.SAMPLE,
                sample_kw: Optional[Dict[str, Any]] = None,
-               loss_fn: Callable[[np.ndarray, np.ndarray], float] = metrics.multiscale_spectral_loss,
+               loss_fn: Callable[[np.ndarray, np.ndarray],
+                                 float] = metrics.multiscale_spectral_loss,
                loss_kw: Optional[Dict[str, Any]] = None,
-               remap: Optional[Callable[..., Dict[str, Any]]] = sample_kwargs_remapper,
+               remap: Optional[Callable[...,
+                                        Dict[str,
+                                             Any]]] = sample_kwargs_remapper,
+               clip: bool = True,
                **kwargs):
     self.loss_fn = loss_fn if loss_kw is None else functools.partial(
         loss_fn, **loss_kw)
@@ -86,6 +93,7 @@ class SAMPLEOptimizer:
     self.sample_kw = {} if sample_kw is None else sample_kw
     self.dimensions = collections.OrderedDict(kwargs)
     self.remap = remap
+    self.clip = clip
 
   def _kwargs(self, *args, **kwargs) -> Dict[str, Any]:
     """Compose positional and keyword arguments together.
@@ -116,6 +124,9 @@ class SAMPLEOptimizer:
 
     Returns:
       callable: Loss function"""
+    if self.clip:
+      peak = np.max(np.abs(x))
+
     def loss_(args: Tuple = (),
               *more_args,
               x=x,
@@ -128,7 +139,10 @@ class SAMPLEOptimizer:
                          **self.sample_kw,
                          sinusoidal_model__fs=sinusoidal_model__fs))
       model.fit(x)
-      y = model.predict(np.arange(x.size) / sinusoidal_model__fs)
+      y = model.predict(np.arange(x.size) / sinusoidal_model__fs,
+                        phases="random")
+      if self.clip:
+        np.clip(y, -peak, peak, out=y)
       return self.loss_fn(x, y)
 
     return loss_
