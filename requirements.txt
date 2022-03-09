@@ -3,6 +3,7 @@ wheel
 
 # Run
 chromatictools
+tqdm
 numpy
 scipy
 scikit-learn

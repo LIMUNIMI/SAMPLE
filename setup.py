@@ -24,6 +24,7 @@ setuptools.setup(
     ],
     install_requires=[
         "chromatictools",
+        "tqdm",
         "numpy",
         "scipy",
         "scikit-learn",
