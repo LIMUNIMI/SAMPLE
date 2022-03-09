@@ -78,7 +78,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       SAMPLE: self"""
     self.set_params(**kwargs)
     tracks = self.sinusoidal_model.fit(x, y).tracks_
-    self.param_matrix_ = np.zeros((3, len(tracks)))
+    self.param_matrix_ = np.empty((3, len(tracks)))
     for i, t in enumerate(tracks):
       notnans = np.logical_not(np.isnan(t["mag"]))
       self.param_matrix_[0, i] = self.freq_reduce(t["freq"][notnans])
@@ -92,7 +92,12 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
         -40 * np.log10(np.e) / getattr(self.regressor, self.regressor_k)
       self.param_matrix_[2, i] = \
         2 * psycho.db2a(getattr(self.regressor, self.regressor_q))
+    self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
+
+  @property
+  def _valid_params_(self) -> Sequence[bool]:
+    return np.isfinite(self.param_matrix_).all(axis=0)
 
   @property
   def freqs_(self) -> np.ndarray:
