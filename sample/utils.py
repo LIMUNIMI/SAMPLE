@@ -118,7 +118,7 @@ def function_variant(main_func: Callable,
   return this
 
 
-def numpy_out(func: Optional[Callable] = None, key: str = "out"):
+def numpy_out(func: Callable, key: str = "out"):
   """Automatically handle the preprocesing of the :data:`out` argument for
   a numpy-like function
 
@@ -128,9 +128,8 @@ def numpy_out(func: Optional[Callable] = None, key: str = "out"):
 
   Returns:
     callable: Decorated function"""
-  if func is None:
-    return functools.partial(numpy_out, key=key)
-
+  # if func is None:
+  #   return functools.partial(numpy_out, key=key)
   @functools.wraps(func)
   def func_(a, *args, **kwargs):
     nd = None
