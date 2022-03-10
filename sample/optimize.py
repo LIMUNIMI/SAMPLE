@@ -1,16 +1,17 @@
 """Automatic optimization of SAMPLE hyperparameters"""
-from argparse import ArgumentError
 import collections
 import functools
-from scipy import signal
+from argparse import ArgumentError
 from typing import Any, Callable, Dict, Optional, Tuple
 
+import numpy as np
 import scipy.optimize
+import skopt
+import tqdm
+from scipy import signal
 
 import sample
 from sample.evaluation import metrics
-import numpy as np
-import skopt
 
 
 def sample_kwargs_remapper(sinusoidal_model__log_n: Optional[int] = None,
@@ -171,3 +172,71 @@ class SAMPLEOptimizer:
         **self._kwargs(*res.x, sinusoidal_model__fs=fs, **self.sample_kw))
     model.fit(x)
     return model, res
+
+
+class TqdmCallback:
+  """Callback for using tqdm with :class:`SAMPLEOptimizer`
+
+  Args:
+    sample_opt (SAMPLEOptimizer): Optimizer instance
+    n_calls (int): Number of total calls
+    n_initial_points (int): Number of initial (random) points
+    tqdm_fn (callable): Constructor for a tqdm object
+    minimum (bool): If :data:`True` (default), show current
+      minimum in postfix"""
+
+  def __init__(self,
+               sample_opt: SAMPLEOptimizer,
+               n_calls: int,
+               n_initial_points: int = 0,
+               tqdm_fn: Callable[..., tqdm.tqdm] = tqdm.tqdm,
+               minimum: bool = True):
+    self.sample_opt = sample_opt
+    self.n_calls = n_calls
+    self.n_initial_points = n_initial_points
+    self.tqdm_fn = tqdm_fn
+    self.i = None
+    self.tqdm = None
+    self.minimum = minimum
+
+  @property
+  def started(self) -> bool:
+    """If :data:`True`, the callback has already been started"""
+    return self.tqdm is not None or self.i is not None
+
+  def reset(self) -> "TqdmCallback":
+    """Reset the state of the callback, e.g. for using it again"""
+    if self.tqdm is not None:
+      self.tqdm.close()
+    self.i = None
+    self.tqdm = None
+    return self
+
+  def start(self) -> "TqdmCallback":
+    """Start the callback.
+    Calls to this method initialize internal objects"""
+    self.tqdm = self.tqdm_fn(total=self.n_calls)
+    self.i = 0
+    return self
+
+  def __call__(self, res: scipy.optimize.OptimizeResult):
+    """Callback function
+
+    Args:
+      res (OptimizeResult): Current result state"""
+    if not self.started:
+      self.start()
+    self.i += 1
+    if self.i > self.n_calls:
+      return
+    self.tqdm.update()
+    if self.i <= self.n_initial_points:
+      postfix_str = "stage=randomize"
+    else:
+      postfix_str = "stage=minimize"
+    if self.minimum:
+      params_str = ", ".join(
+          f"{k}={v}" for k, v in zip(self.sample_opt.dimensions, res.x))
+      postfix_str += f", minimum=(value={res.fun}, params=({params_str}))"
+    if len(postfix_str) > 0:
+      self.tqdm.set_postfix_str(postfix_str)
