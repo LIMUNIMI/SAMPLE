@@ -1,7 +1,6 @@
 """Automatic optimization of SAMPLE hyperparameters"""
 import collections
 import functools
-from argparse import ArgumentError
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
@@ -109,9 +108,8 @@ class SAMPLEOptimizer:
     Returns:
       dict: Composed keyword arguments"""
     if len(args) != len(self.dimensions):
-      raise ArgumentError(
-          None, f"Expected {len(self.dimensions)} "
-          f"positional arguments, got {len(args)}")
+      raise ValueError(f"Expected {len(self.dimensions)} "
+                       f"positional arguments, got {len(args)}")
     if self.remap is not None:
       kwargs = self.remap(**dict(zip(self.dimensions, args)), **kwargs)
     return kwargs
@@ -224,8 +222,6 @@ class TqdmCallback:
     if not self.started:
       self.start()
     self.i += 1
-    if self.i > self.n_calls:
-      return
     self.tqdm.update()
     if self.i <= self.n_initial_points:
       postfix_str = "stage=randomize"

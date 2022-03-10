@@ -1,8 +1,13 @@
 """Tests for optimzation routines"""
 import itertools
 import unittest
+import copy
 
+import skopt.space
 from sample import optimize
+from sample.evaluation import random
+
+from chromatictools import unittestmixins
 
 
 class TestRemapper(unittest.TestCase):
@@ -49,3 +54,78 @@ class TestRemapper(unittest.TestCase):
         self.assertAlmostEqual(
             olap, 1 -
             kwargs["sinusoidal_model__h"] / kwargs["sinusoidal_model__w"].size)
+
+
+class TestOptimize(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
+  """Tests for optimizer class"""
+
+  def setUp(self) -> None:
+    """Initialize test audio and SAMPLE model"""
+    self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
+    self.sample_opt = optimize.SAMPLEOptimizer(
+        sample_kw=dict(
+            max_n_modes=3,
+            sinusoidal_model__reverse=True,
+            sinusoidal_model__safe_sine_len=2,
+            sinusoidal_model__frequency_bounds=(50, 20e3),
+        ),
+        sinusoidal_model__log_n=skopt.space.Integer(6, 15, name="log2(n)"),
+        sinusoidal_model__max_n_sines=skopt.space.Integer(16,
+                                                          128,
+                                                          name="n sines"),
+        sinusoidal_model__peak_threshold=skopt.space.Real(
+            -120, -30, name="peak threshold"),
+        sinusoidal_model__min_sine_dur=skopt.space.Real(0,
+                                                        0.5,
+                                                        name="min duration"),
+        sinusoidal_model__overlap=skopt.space.Real(0, 0.75, name="overlap"),
+    )
+
+  def test_no_exceptions(self):
+    """Test that no exceptions arise during optimization"""
+    with self.assert_doesnt_raise():
+      copy.deepcopy(self.sample_opt).gp_minimize(
+          x=self.x,
+          fs=self.fs,
+          n_calls=8,
+          n_initial_points=4,
+      )
+
+  def test_no_exceptions_tqdm(self, n_calls=8, n_initial_points=4):
+    """Test tqdm callback"""
+    sample_opt = copy.deepcopy(self.sample_opt)
+    callback = optimize.TqdmCallback(
+        sample_opt=sample_opt,
+        n_calls=n_calls,
+        n_initial_points=n_initial_points,
+    )
+    with self.assert_doesnt_raise():
+      sample_opt.gp_minimize(x=self.x,
+                             fs=self.fs,
+                             n_calls=n_calls,
+                             n_initial_points=n_initial_points,
+                             callback=callback)
+    with self.subTest(test="i == n_calls"):
+      self.assertEqual(callback.i, n_calls)
+    callback.reset().start()
+    with self.subTest(test="reset"):
+      self.assertEqual(callback.i, 0)
+
+  def test_optimize_continue(self, n_calls=4, n_initial_points=2, times=2):
+    """Test continuing optimization"""
+    sample_opt = copy.deepcopy(self.sample_opt)
+    res = None
+    for i in range(1, times + 1):
+      with self.assert_doesnt_raise():
+        _, res = sample_opt.gp_minimize(x=self.x,
+                                        fs=self.fs,
+                                        n_calls=n_calls,
+                                        n_initial_points=n_initial_points,
+                                        state=res)
+      with self.subTest(step=i):
+        self.assertEqual(len(res.x_iters), i * n_calls)
+
+  def test_error_on_kwargs(self):
+    """Test error for incorrect number of arguments"""
+    with self.assertRaises(ValueError):
+      self.sample_opt.loss(self.x, self.fs)()
