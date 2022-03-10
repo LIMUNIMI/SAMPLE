@@ -1,12 +1,12 @@
 """Module for using the entire SAMPLE method pipeline"""
 import copy
 import functools
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Sequence, Union, Dict
 
 import numpy as np
 from sklearn import base
 
-from sample import psycho
+from sample import psycho, utils
 from sample.regression import HingeRegression
 from sample.sms import mm
 
@@ -78,7 +78,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       SAMPLE: self"""
     self.set_params(**kwargs)
     tracks = self.sinusoidal_model.fit(x, y).tracks_
-    self.param_matrix_ = np.zeros((3, len(tracks)))
+    self.param_matrix_ = np.empty((3, len(tracks)))
     for i, t in enumerate(tracks):
       notnans = np.logical_not(np.isnan(t["mag"]))
       self.param_matrix_[0, i] = self.freq_reduce(t["freq"][notnans])
@@ -92,7 +92,12 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
         -40 * np.log10(np.e) / getattr(self.regressor, self.regressor_k)
       self.param_matrix_[2, i] = \
         2 * psycho.db2a(getattr(self.regressor, self.regressor_q))
+    self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
+
+  @property
+  def _valid_params_(self) -> Sequence[bool]:
+    return np.isfinite(self.param_matrix_).all(axis=0)
 
   @property
   def freqs_(self) -> np.ndarray:
@@ -178,7 +183,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
               x: np.ndarray,
               n_modes: Optional[int] = None,
               order: str = "energies",
-              reverse: bool = True) -> np.ndarray:
+              reverse: bool = True,
+              **kwargs) -> np.ndarray:
     """Resynthesize audio
 
     Args:
@@ -191,6 +197,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
         :data:`"amps"` and :data:`"decays"`
       reverse (bool): Whether the order should be reversed (decreasing).
         Defaults to :data:`True`
+      **kwargs: Keyword arguments for :func:`additive_synth`
 
     Returns:
       array: Array of audio samples"""
@@ -201,10 +208,37 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
         n_modes = self.max_n_modes
     m_ord = self.mode_argsort_(order=order, reverse=reverse)[:n_modes]
     return additive_synth(x, self.freqs_[m_ord], self.decays_[m_ord],
-                          self.amps_[m_ord])
+                          self.amps_[m_ord], **kwargs)
 
 
-def additive_synth(x, freqs, decays, amps) -> np.array:
+def _random_phases(n: int,
+                   seed: Optional[int] = None,
+                   rng: Optional[np.random.Generator] = None) -> np.ndarray:
+  """Randomize a number of phase values between 0 and 2*pi
+
+  Args:
+    n (int): Number of phase values to sample
+    rng (np.random.Generator): Random number generator
+    seed (int): Seed for random number generator
+
+  Returns:
+    array: Random phase values"""
+  if rng is None:
+    rng = np.random.default_rng(seed=seed)
+  return rng.uniform(0, 2 * np.pi, n)
+
+
+_phases_funcs: Dict[str, Callable[[int], np.ndarray]] = {
+    "random": _random_phases,
+}
+
+
+def additive_synth(x,
+                   freqs: Sequence[float],
+                   decays: Sequence[float],
+                   amps: Sequence[float],
+                   phases: Optional[Union[Sequence[float], str]] = None,
+                   **kwargs) -> np.array:
   """Additively synthesize audio
 
     Args:
@@ -212,13 +246,27 @@ def additive_synth(x, freqs, decays, amps) -> np.array:
       freqs (array): Modal frequencies
       decays (array): Modal decays
       amps (array): Modal amplitudes
+      phases (array): Starting phase for every mode, optional
+      **kwargs: Keyword arguments for random phase generator
 
     Returns:
       array: Array of audio samples"""
   row = functools.partial(np.reshape, newshape=(1, -1))
   col = functools.partial(np.reshape, newshape=(-1, 1))
 
-  osc = np.sin(2 * np.pi * col(x) @ row(freqs))
-  dec = np.exp(col(x) @ row(-2 / decays))
+  osc = (2 * np.pi * col(x)) @ row(freqs)
+  if phases is not None:
+    if isinstance(phases, str):
+      try:
+        phases = _phases_funcs[phases](np.size(freqs), **kwargs)
+      except KeyError as e:
+        raise ValueError(
+            f"Unsupported option for phases: '{phases}'. "
+            f"Supported options are: {utils.comma_join_quote(_phases_funcs)}"
+        ) from e
+    np.add(osc, row(phases), out=osc)
+  np.sin(osc, out=osc)
+  dec = col(x) @ (-2 / row(decays))
+  np.exp(dec, out=dec)
   amp = col(amps)
   return np.squeeze((dec * osc) @ amp)
