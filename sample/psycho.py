@@ -1,6 +1,5 @@
 """Classes and functions related to psychoacoustic models"""
 from typing import Optional
-import functools
 
 import numpy as np
 
