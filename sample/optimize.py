@@ -39,7 +39,8 @@ def sample_kwargs_remapper(sinusoidal_model__log_n: Optional[int] = None,
   Returns:
     dict: Remapped keyword arguments"""
   # FFT size from log-size
-  if sinusoidal_model__log_n is not None and "sinusoidal_model__n" not in kwargs:
+  if sinusoidal_model__log_n is not None and \
+    "sinusoidal_model__n" not in kwargs:
     kwargs["sinusoidal_model__n"] = 1 << sinusoidal_model__log_n
   # Window from name and size
   if "sinusoidal_model__w" not in kwargs:
@@ -128,14 +129,10 @@ class SAMPLEOptimizer:
     if self.clip:
       peak = np.max(np.abs(x))
 
-    def loss_(args: Tuple = (),
-              *more_args,
-              x=x,
-              sinusoidal_model__fs=fs,
+    def loss_(args: Tuple = (), x=x, sinusoidal_model__fs=fs,
               **kwargs) -> float:
       model = self.sample_fn(
           **self._kwargs(*args,
-                         *more_args,
                          **kwargs,
                          **self.sample_kw,
                          sinusoidal_model__fs=sinusoidal_model__fs))
