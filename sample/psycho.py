@@ -76,7 +76,7 @@ def _a2db_floored(a: float,
   Returns:
     array: Decibel values"""
   np.maximum(a, f, out=out)
-  return _a2db_floorless(a, out=out)
+  return _a2db_floorless(out, out=out)
 
 
 a2db.floored = _a2db_floored
