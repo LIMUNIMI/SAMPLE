@@ -17,6 +17,7 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                       fwd: Callable,
                       bak: Callable,
                       modes: Optional[Iterable[str]] = None,
+                      mode_key: str = "mode",
                       f=np.linspace(0, 2e4, 1024),
                       no_fwd: Optional[Container[str]] = None,
                       no_bak: Optional[Container[str]] = None,
@@ -39,7 +40,7 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
     if modes is None:
       modes = [None]
     for m, use_buf in itertools.product(modes, (False, True)):
-      kw = {} if m is None else dict(mode=m)
+      kw = {} if m is None else {mode_key: m}
       subt_kw = copy.deepcopy(kw)
       if use_buf:
         kw["out"] = np.empty_like(f)
@@ -94,3 +95,11 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
     psycho.db2a(a, out=a)
     with self.subTest(check="a"):
       self.assertTrue(np.greater_equal(a, psycho.db2a(f)).all())
+
+  def test_cams(self):
+    """Test coherence of conversion for ERB-rate scale"""
+    self._t3st_coherence(fwd=psycho.hz2cams,
+                         bak=psycho.cams2hz,
+                         mode_key="degree",
+                         modes=("unsupported", "linear", "quadratic"),
+                         no_fwd=("unsupported",))
