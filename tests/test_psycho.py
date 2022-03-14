@@ -1,4 +1,6 @@
 """Tests for psychoacoustic models"""
+import copy
+import itertools
 import unittest
 from typing import Callable, Container, Iterable, Optional
 
@@ -36,16 +38,20 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
       no_bak = ()
     if modes is None:
       modes = [None]
-    for m in modes:
+    for m, use_buf in itertools.product(modes, (False, True)):
       kw = {} if m is None else dict(mode=m)
-      with self.subTest(conversion="forward", **kw):
+      subt_kw = copy.deepcopy(kw)
+      if use_buf:
+        kw["out"] = np.empty_like(f)
+      subt_kw["buffer"] = use_buf
+      with self.subTest(conversion="forward", **subt_kw):
         if m in no_fwd:
           with self.assertRaises(ValueError):
             fwd(f, **kw)
         else:
           with self.assert_doesnt_raise():
             b = fwd(f, **kw)
-      with self.subTest(conversion="backward", **kw):
+      with self.subTest(conversion="backward", **subt_kw):
         if m in no_fwd:
           pass
         elif m in no_bak:
