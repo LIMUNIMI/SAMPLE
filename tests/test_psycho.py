@@ -103,3 +103,14 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                          mode_key="degree",
                          modes=("unsupported", "linear", "quadratic"),
                          no_fwd=("unsupported",))
+
+  def test_erb_monotonicity(self):
+    """Test monotonicity of ERBs"""
+    f = np.linspace(0, 2e4, 1024)
+    for deg, use_buf in itertools.product(("linear", "quadratic"),
+                                          (False, True)):
+      kw = {} if use_buf else dict(out=np.empty_like(f))
+      kw["degree"] = deg
+      erbs = psycho.erb(f, **kw)
+      with self.subTest(degree=deg, buffer=use_buf):
+        self.assertTrue(np.greater(np.diff(erbs), 0).all())
