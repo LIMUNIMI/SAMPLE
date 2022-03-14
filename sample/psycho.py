@@ -6,7 +6,7 @@ import numpy as np
 from sample import utils
 
 
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def db2a(d: float, out: Optional[np.ndarray] = None) -> float:
   """Convert decibels to linear amplitude values
 
@@ -20,7 +20,7 @@ def db2a(d: float, out: Optional[np.ndarray] = None) -> float:
   return np.power(10.0, out, out=out)
 
 
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def a2db(a: np.ndarray,
          floor: Optional[np.ndarray] = None,
          floor_db: bool = False,
@@ -44,7 +44,7 @@ def a2db(a: np.ndarray,
   return a2db.floored(a, floor, out=out)
 
 
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _a2db_floorless(a: float, out: Optional[np.ndarray] = None) -> float:
   """Convert linear amplitude values to decibel
 
@@ -61,7 +61,7 @@ def _a2db_floorless(a: float, out: Optional[np.ndarray] = None) -> float:
 a2db.floorless = _a2db_floorless
 
 
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _a2db_floored(a: float,
                   f: float,
                   out: Optional[np.ndarray] = None) -> float:
@@ -82,7 +82,7 @@ def _a2db_floored(a: float,
 a2db.floored = _a2db_floored
 
 
-@utils.numpy_out
+@utils.numpy_out(dtype=float, dtype_promote=False)
 def complex2db(c, out=None, **kwargs):
   """Convert linear complex values to decibel
 
@@ -126,7 +126,7 @@ def bark2hz(b, mode: str = "traunmuller", out: Optional[np.ndarray] = None):  # 
 
 
 @utils.function_variant(hz2bark, "zwicker")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _hz2bark_zwicker(f, out: Optional[np.ndarray] = None):
   """Original definition of the Bark scale (Zwicker & Terhardt (1980))
 
@@ -151,7 +151,7 @@ def _hz2bark_zwicker(f, out: Optional[np.ndarray] = None):
 
 
 @utils.function_variant(hz2bark, "traunmuller")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _hz2bark_traunmuller(f, out: Optional[np.ndarray] = None):
   """Definition of the Bark scale by Traunmuller
   (Analytical expressions for the tonotopic sensory scale, 1990)
@@ -172,7 +172,7 @@ def _hz2bark_traunmuller(f, out: Optional[np.ndarray] = None):
 
 
 @utils.function_variant(hz2bark, "wang")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _hz2bark_wang(f, out: Optional[np.ndarray] = None):
   """Definition of the Bark scale by Wang et al. (An objective measure for
   predicting subjective quality of speech coders, 1992)
@@ -190,7 +190,7 @@ def _hz2bark_wang(f, out: Optional[np.ndarray] = None):
 
 
 @utils.function_variant(bark2hz, "traunmuller")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _bark2hz_traunmuller(b, out: Optional[np.ndarray] = None):
   """Definition of the Bark scale by Traunmuller
   (Analytical expressions for the tonotopic sensory scale, 1990)
@@ -211,7 +211,7 @@ def _bark2hz_traunmuller(b, out: Optional[np.ndarray] = None):
 
 
 @utils.function_variant(bark2hz, "wang")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _bark2hz_wang(b, out: Optional[np.ndarray] = None):
   """Definition of the Bark scale by Wang et al. (An objective measure for
   predicting subjective quality of speech coders, 1992)
@@ -229,7 +229,7 @@ def _bark2hz_wang(b, out: Optional[np.ndarray] = None):
 
 
 @utils.function_with_variants(key="mode", this="default")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def hz2mel(f, mode: str = "default", out: Optional[np.ndarray] = None):  # pylint: disable=W0613
   """Convert Hertz to Mel
 
@@ -248,7 +248,7 @@ def hz2mel(f, mode: str = "default", out: Optional[np.ndarray] = None):  # pylin
 
 
 @utils.function_with_variants(key="mode", this="default")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def mel2hz(m, mode: str = "default", out: Optional[np.ndarray] = None):  # pylint: disable=W0613
   """Convert Mel to Hertz
 
@@ -267,7 +267,7 @@ def mel2hz(m, mode: str = "default", out: Optional[np.ndarray] = None):  # pylin
 
 
 @utils.function_variant(hz2mel, "fant")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _hz2mel_fant(f, out: Optional[np.ndarray] = None):
   """Definition of the Mel scale by Fant (Analysis and synthesis
   of speech processes, 1968)
@@ -286,7 +286,7 @@ def _hz2mel_fant(f, out: Optional[np.ndarray] = None):
 
 
 @utils.function_variant(mel2hz, "fant")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _mel2hz_fant(m, out: Optional[np.ndarray] = None):
   """Definition of the Mel scale by Fant (Analysis and synthesis
   of speech processes, 1968)
@@ -307,7 +307,7 @@ def _mel2hz_fant(m, out: Optional[np.ndarray] = None):
 @utils.function_with_variants(key="degree",
                               default="quadratic",
                               this="quadratic")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def erb(
     f: float,
     degree: str = "quadratic",  # pylint: disable=W0613
@@ -334,7 +334,7 @@ def erb(
 
 
 @utils.function_variant(erb, "linear")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _erb_linear(f: float, out: Optional[np.ndarray] = None) -> float:
   """Definition of equivalent rectangular bandwidth by Moore and
   Glasberg, "Derivation of auditory filter shapes from
@@ -355,7 +355,7 @@ def _erb_linear(f: float, out: Optional[np.ndarray] = None) -> float:
 @utils.function_with_variants(key="degree",
                               default="quadratic",
                               this="quadratic")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def hz2cams(
     f: float,
     degree: str = "quadratic",  # pylint: disable=W0613
@@ -381,7 +381,7 @@ def hz2cams(
 
 
 @utils.function_variant(hz2cams, "linear")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _hz2cams_linear(f: float, out: Optional[np.ndarray] = None) -> float:
   """Linear definition of ERB-rate-scale
 
@@ -401,7 +401,7 @@ def _hz2cams_linear(f: float, out: Optional[np.ndarray] = None) -> float:
 @utils.function_with_variants(key="degree",
                               default="quadratic",
                               this="quadratic")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def cams2hz(
     c: float,
     degree: str = "quadratic",  # pylint: disable=W0613
@@ -428,7 +428,7 @@ def cams2hz(
 
 
 @utils.function_variant(cams2hz, "linear")
-@utils.numpy_out
+@utils.numpy_out(dtype=float)
 def _cams2hz_linear(c: float, out: Optional[np.ndarray] = None) -> float:
   """Linear definition of ERB-rate-scale
 
