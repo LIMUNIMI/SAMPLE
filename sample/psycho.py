@@ -1,5 +1,5 @@
 """Classes and functions related to psychoacoustic models"""
-from typing import Optional, Callable, Union
+from typing import Optional, Callable, Union, Sequence, Tuple
 
 import numpy as np
 
@@ -504,7 +504,7 @@ def gammatone_filter(
   if t is None:
     if size is None:
       raise ValueError("Please, specify either time axis ot filter size")
-    t = np.arange(n) / fs
+    t = np.arange(size) / fs
 
   if callable(b):
     b = b(f)
@@ -536,3 +536,35 @@ def gammatone_filter(
   np.multiply(tmp, filt, out=filt)
 
   return filt
+
+
+def gammatone_filterbank(freqs: Sequence[float] = (20, 20000),
+                         n_filters: Optional[int] = None,
+                         freq_transform: Tuple[Callable[[float], float],
+                                               Callable[[float],
+                                                        float]] = (hz2cams,
+                                                                   cams2hz),
+                         **kwargs):
+  """Compute the IRs of a gamatone filter-bank
+
+  Args:
+    freqs: If :data:`n_filters` is :data:`None`, the center
+      frequencies of the gammatone filters. Otherwise,
+      the center frequencies of the first and the last gammatone filters
+    n_filters (int): Number of gammatone filters
+    freq_transform: Couple of callables that implement transformations
+      from and to Hertz, respectively. If :data:`n_filters` is not
+      :data:`None`, the center frequencies of the gammatone filters will be
+      chosen linearly between :data:`freqs[0]` and :data:`freqs[1]` in the
+      transformed space. Default is :func:`hz2cams`, :func:`cams2hz` for
+      linear spacing on the ERB-rate scale
+    **kwargs: Keyword arguments for :func:`gammatone_filter`
+
+  Returns:
+    matrix, array: The gammatone filterbank matrix (filter x time) and the
+    array of center frequencies"""
+  if n_filters is not None:
+    freqs = freq_transform[1](np.linspace(freq_transform[0](freqs[0]),
+                                          freq_transform[0](freqs[-1]),
+                                          n_filters))
+  return np.array([gammatone_filter(f=f, **kwargs) for f in freqs]), freqs

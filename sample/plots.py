@@ -3,15 +3,13 @@
 This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
-import functools
-from typing import Callable, Optional, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d  # pylint: disable=W0611
 from mpl_toolkits.mplot3d import axes3d  # pylint: disable=W0611
 
-from sample import psycho
 from sample.sms import sm
 
 
@@ -104,6 +102,7 @@ def tf_plot(tf,
   ylim = flim if ylim is None else ylim
   do_resize = ax is None
   ax = plt.gca() if do_resize else ax
+
   ax.imshow(tf,
             extent=(*tlim, *flim),
             aspect=np.diff(xlim) / (aspect_ratio * np.diff(ylim)),
