@@ -3,11 +3,15 @@
 This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
+import functools
+from typing import Callable, Optional, Tuple
+
 import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d  # pylint: disable=W0611
 from mpl_toolkits.mplot3d import axes3d  # pylint: disable=W0611
 
+from sample import psycho
 from sample.sms import sm
 
 
@@ -69,4 +73,44 @@ def sine_tracking_3d(m: sm.SinusoidalModel, ax=None):
   ax.set_ylabel("frequency (Hz)")
   ax.set_zlabel("magnitude (dB)")
 
+  return ax
+
+
+def tf_plot(tf,
+            tlim: Tuple[float, float] = (0, 1),
+            flim: Tuple[float, float] = (0, 1),
+            xlim: Optional[Tuple[float, float]] = None,
+            ylim: Optional[Tuple[float, float]] = None,
+            ax: Optional[plt.Axes] = None,
+            aspect_ratio: float = 4 / 3,
+            width: float = 8,
+            **kwargs):
+  """Plot a time-frequency matrix
+
+  Args:
+    tf (matrix): Time-frequency matrix
+    tlim (float, float): Extrema for time axis of matrix
+    flim (float, float): Extrema for frequency axis of matrix
+    xlim (float, float): Extrema for time axis of plot
+    ylim (float, float): Extrema for frequency axis of plot
+    ax (Axes): Axes onto which to plot the matrix
+    aspect_ratio (float): Aspect ratio for image
+    width (float): Width for figure size
+    **kwargs: Keyword arguments for :func:`imhsow`
+
+  Returns:
+    Axes: Axes where the matrix has been plotted"""
+  xlim = tlim if xlim is None else xlim
+  ylim = flim if ylim is None else ylim
+  do_resize = ax is None
+  ax = plt.gca() if do_resize else ax
+  ax.imshow(tf,
+            extent=(*tlim, *flim),
+            aspect=np.diff(xlim) / (aspect_ratio * np.diff(ylim)),
+            origin="lower",
+            **kwargs)
+  ax.set_xlim(xlim)
+  ax.set_ylim(ylim)
+  if do_resize:
+    ax.get_figure().set_size_inches(np.array([aspect_ratio, 1]) * width)
   return ax

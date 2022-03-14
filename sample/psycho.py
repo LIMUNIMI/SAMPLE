@@ -82,6 +82,21 @@ def _a2db_floored(a: float,
 a2db.floored = _a2db_floored
 
 
+@utils.numpy_out
+def complex2db(c, out=None, **kwargs):
+  """Convert linear complex values to decibel
+
+  Args:
+    c (array): Amplitude values
+    out (array): Optional. Array to use for storing results
+    **kwargs: Keyword arguments for :func:`a2db`
+
+  Returns:
+    array: Decibel values"""
+  np.abs(c, out=out)
+  return a2db(out, out=out, **kwargs)
+
+
 @utils.function_with_variants(key="mode", default="traunmuller")
 def hz2bark(f, mode: str = "traunmuller", out: Optional[np.ndarray] = None):  # pylint: disable=W0613
   """Convert Hertz to Bark
