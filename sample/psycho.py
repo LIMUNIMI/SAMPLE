@@ -302,6 +302,7 @@ def erb(f: float,
 
   Args:
     f (array): Frequency value(s) in Hertz
+    degree (str): Name of the ERB definition (linear, quadratic)
     out (array): Optional. Array to use for storing results
 
   Returns:
@@ -347,6 +348,7 @@ def hz2cams(f: float,
 
   Args:
     f (array): Frequency value(s) in Hertz
+    degree (str): Name of the ERB definition (linear, quadratic)
     out (array): Optional. Array to use for storing results
 
   Returns:
@@ -378,3 +380,50 @@ def _hz2cams_linear(f: float, out: Optional[np.ndarray] = None) -> float:
   np.add(1, out, out=out)
   np.log10(out, out=out)
   return np.multiply(21.4, out, out=out)
+
+
+
+@utils.function_with_variants(key="degree",
+                              default="quadratic",
+                              this="quadratic")
+@utils.numpy_out
+def cams2hz(c: float,
+            degree: str = "quadratic",  # pylint: disable=W0613
+            out: Optional[np.ndarray] = None) -> float:
+  """Quadratic definition of ERB-rate-scale
+
+  Args:
+    c (array): Frequency value(s) in Cams
+    degree (str): Name of the ERB definition (linear, quadratic)
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Frequency value(s) in Hz"""
+  # k = e^((c - 43) / 11.17)
+  k = np.empty_like(out)
+  np.subtract(c, 43, out=k)
+  np.true_divide(k, 11.17, out=k)
+  np.exp(k, out=k)
+  # f = (312 - 14675 * k) / (k - 1)
+  np.multiply(14675, k, out=out)
+  np.subtract(312, out, out=out)
+  np.subtract(k, 1, out=k)
+  return np.true_divide(out, k, out=out)
+
+
+@utils.function_variant(cams2hz, "linear")
+@utils.numpy_out
+def _cams2hz_linear(c: float, out: Optional[np.ndarray] = None) -> float:
+  """Linear definition of ERB-rate-scale
+
+  Args:
+    c (array): Frequency value(s) in Cams
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Frequency value(s) in Hz"""
+  # (10^(c / 21.4) - 1) / 0.00437
+  np.true_divide(c, 21.4, out=out)
+  np.power(10, out, out=out)
+  np.subtract(out, 1, out=out)
+  return np.true_divide(out, 0.00437, out=out)
