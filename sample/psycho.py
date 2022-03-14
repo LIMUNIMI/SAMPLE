@@ -1,5 +1,5 @@
 """Classes and functions related to psychoacoustic models"""
-from typing import Optional
+from typing import Optional, Callable, Union
 
 import numpy as np
 
@@ -428,3 +428,96 @@ def _cams2hz_linear(c: float, out: Optional[np.ndarray] = None) -> float:
   np.power(10, out, out=out)
   np.subtract(out, 1, out=out)
   return np.true_divide(out, 0.00437, out=out)
+
+
+def gammatone_leadtime(n: int, b: float) -> float:
+  """Default leading time for gammatone fiters
+
+  Args:
+    n (int): Filter order
+    b (float): Filter bandwidth
+
+  Returns:
+    float: Leading time"""
+  return (n - 1) / (2 * np.pi * b)
+
+
+def gammatone_phase(f: float, t_c: float) -> float:
+  """Default phase for gammatone fiters
+
+  Args:
+    f (float): Center frequency
+    t_c (float): Leading time
+
+  Returns:
+    float: Phase"""
+  return -2 * np.pi * f * t_c
+
+
+def gammatone_filter(
+    f: float,
+    t=None,
+    size: Optional[int] = None,
+    fs: float = 1,
+    n: int = 4,
+    a: float = 1,
+    b: Union[float, Callable[[float], float]] = erb,
+    t_c: Union[float, Callable[[int, float], float]] = gammatone_leadtime,
+    phi: Union[float, Callable[[float, float], float]] = gammatone_phase,
+):
+  """Compute a gammatone filter IR
+
+  Args:
+    f (float): Center frequency
+    t (array): Time axis. If provided, arguments :data:`size` and :data:`fs`
+      will be ignored
+    size (int): Number of samples in the filter
+    fs (float): Sample frequency
+    n (int): Filter order
+    a (float): IR amplitude
+    b (float): Filter bandwidth. If callable, it is a function of the center
+      frequency. Default is :func:`erb`
+    t_c (float): Leading time for alignment. If callable, it is a function of
+      the filter order and the bandwidth.
+      Default is :func:`gammatone_leadtime`
+    phi (float): Phase for the filter tone. If callable, it is a function of
+      the center frequency and the leading time.
+      Default is :func:`gammatone_phase`
+
+  Returns:
+    array: Gammatone filter IR"""
+  if t is None:
+    if size is None:
+      raise ValueError("Please, specify either time axis ot filter size")
+    t = np.arange(n) / fs
+
+  if callable(b):
+    b = b(f)
+  if callable(t_c):
+    t_c = t_c(n, b)
+  if callable(phi):
+    phi = phi(f, t_c)
+
+  tmp = np.empty_like(t)
+  filt = np.empty_like(t)
+  # t + t_c
+  t_ = np.empty_like(t)
+  np.add(t, t_c, out=t_)
+  # u(t + t_c)
+  np.greater_equal(t_, 0, out=filt)
+  # u(t + t_c) * a
+  np.multiply(a, filt, out=filt)
+  # u(t + t_c) * a * (t + t_c)^(n-1)
+  np.power(t_, n - 1, out=tmp)
+  np.multiply(tmp, filt, out=filt)
+  # u(t + t_c) * a * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b)
+  np.multiply(-2 * np.pi * b, t_, out=tmp)
+  np.exp(tmp, out=tmp)
+  np.multiply(tmp, filt, out=filt)
+  # u(t + t_c) * a * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b) * cos(2pi * f * t + phi)
+  np.multiply(2 * np.pi * f, t, out=tmp)
+  np.add(tmp, phi, out=tmp)
+  np.cos(tmp, out=tmp)
+  np.multiply(tmp, filt, out=filt)
+
+  return filt
