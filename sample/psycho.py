@@ -623,3 +623,68 @@ def cochleagram(x: Sequence[float],
     convolve_kws = {}
   return np.array(
       [signal.convolve(x, filt, **convolve_kws) for filt in filterbank]), freqs
+
+
+def mel_triangular_filterbank(freqs: Sequence[float],
+                              n_filters: int = 81,
+                              flim: Optional[Tuple[float, float]] = None):
+  """Compute a frequency-domain triangular filterbank
+
+  Args:
+    freqs (array): Frequencies at which to evaluate the filters
+    n_filters (int): Number of filters
+    flim (float, float): Frequency band lower and upper limits
+
+  Returns:
+    matrix, array: The triangular filterbank matrix (filter x frequency) and
+    the array of center frequencies"""
+  if flim is None:
+    flim = freqs[0], freqs[-1]
+  filts = np.empty((n_filters, *freqs.shape))
+  c_freqs = mel2hz(np.linspace(hz2mel(flim[0]), hz2mel(flim[1]), n_filters + 2))
+  for i in range(n_filters):
+    filts[i, ...] = np.interp(freqs, c_freqs[np.arange(i, i + 3)], [0, 1, 0])
+  return filts, c_freqs[1:-1]
+
+
+def stft2mel(stft: Sequence[Sequence[complex]],
+             freqs: Sequence[float],
+             filterbank: Optional[Sequence[Sequence[float]]] = None,
+             **kwargs):
+  """Compute the mel-spectrogram from a STFT
+
+  Args:
+    stft (matrix): STFT matrix (frequency x time)
+    freqs (array): Frequencies axis for :data:`stft`
+    filterbank (matrix): Filterbank matrix. If unspecified, it will be
+      computed with :func:`mel_triangular_filterbank`
+    **kwargs: Keyword arguments for :func:`mel_triangular_filterbank`
+
+  Returns:
+    matrix, array: Mel-spectrogram matrix (filter x time) and the array of
+    center frequencies (only if :data:`filterbank` is unspecified,
+    otherwise :data:`None`)"""
+  if filterbank is None:
+    filterbank, c_freqs = mel_triangular_filterbank(freqs, **kwargs)
+  else:
+    c_freqs = None
+  melspec = filterbank @ stft
+  return melspec, c_freqs
+
+
+def mel_spectrogram(x: Sequence[float],
+                    stft_kws: Optional[Dict[str, Any]] = None,
+                    **kwargs):
+  """Compute the mel-spectrogram from a STFT
+
+  Args:
+    x (array): Array of audio samples
+    stft_kws: Keyword arguments for :func:`scipy.signal.stft`
+    **kwargs: Keyword arguments for :func:`stft2mel`
+
+  Returns:
+    array, array, matrix: The array of center frequencies, the array of
+    time-steps, and the Mel-spectrogram matrix (filter x time)"""
+  freqs, times, stft = signal.stft(x, **stft_kws)
+  melspec, c_freqs = stft2mel(stft=stft, freqs=freqs, **kwargs)
+  return c_freqs, times, melspec
