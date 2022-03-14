@@ -1,4 +1,6 @@
 """Tests for psychoacoustic models"""
+import copy
+import itertools
 import unittest
 from typing import Callable, Container, Iterable, Optional
 
@@ -15,6 +17,7 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                       fwd: Callable,
                       bak: Callable,
                       modes: Optional[Iterable[str]] = None,
+                      mode_key: str = "mode",
                       f=np.linspace(0, 2e4, 1024),
                       no_fwd: Optional[Container[str]] = None,
                       no_bak: Optional[Container[str]] = None,
@@ -36,16 +39,20 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
       no_bak = ()
     if modes is None:
       modes = [None]
-    for m in modes:
-      kw = {} if m is None else dict(mode=m)
-      with self.subTest(conversion="forward", **kw):
+    for m, use_buf in itertools.product(modes, (False, True)):
+      kw = {} if m is None else {mode_key: m}
+      subt_kw = copy.deepcopy(kw)
+      if use_buf:
+        kw["out"] = np.empty_like(f)
+      subt_kw["buffer"] = use_buf
+      with self.subTest(conversion="forward", **subt_kw):
         if m in no_fwd:
           with self.assertRaises(ValueError):
             fwd(f, **kw)
         else:
           with self.assert_doesnt_raise():
             b = fwd(f, **kw)
-      with self.subTest(conversion="backward", **kw):
+      with self.subTest(conversion="backward", **subt_kw):
         if m in no_fwd:
           pass
         elif m in no_bak:
@@ -88,3 +95,22 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
     psycho.db2a(a, out=a)
     with self.subTest(check="a"):
       self.assertTrue(np.greater_equal(a, psycho.db2a(f)).all())
+
+  def test_cams(self):
+    """Test coherence of conversion for ERB-rate scale"""
+    self._t3st_coherence(fwd=psycho.hz2cams,
+                         bak=psycho.cams2hz,
+                         mode_key="degree",
+                         modes=("unsupported", "linear", "quadratic"),
+                         no_fwd=("unsupported",))
+
+  def test_erb_monotonicity(self):
+    """Test monotonicity of ERBs"""
+    f = np.linspace(0, 2e4, 1024)
+    for deg, use_buf in itertools.product(("linear", "quadratic"),
+                                          (False, True)):
+      kw = {} if use_buf else dict(out=np.empty_like(f))
+      kw["degree"] = deg
+      erbs = psycho.erb(f, **kw)
+      with self.subTest(degree=deg, buffer=use_buf):
+        self.assertTrue(np.greater(np.diff(erbs), 0).all())
