@@ -334,3 +334,47 @@ def _erb_linear(f: float, out: Optional[np.ndarray] = None) -> float:
   np.multiply(0.00437, f, out=out)
   np.add(out, 1, out=out)
   return np.multiply(24.7, out, out=out)
+
+
+@utils.function_with_variants(key="degree",
+                              default="quadratic",
+                              this="quadratic")
+@utils.numpy_out
+def hz2cams(f: float,
+            degree: str = "quadratic",  # pylint: disable=W0613
+            out: Optional[np.ndarray] = None) -> float:
+  """Quadratic definition of ERB-rate-scale
+
+  Args:
+    f (array): Frequency value(s) in Hertz
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Frequency value(s) in Cams"""
+  # f + 312
+  tmp = np.empty_like(out)
+  np.add(f, 312, out=tmp)
+  # 11.17 * logn((f + 312) / (f + 14675)) + 43.0
+  np.add(f, 14675, out=out)
+  np.true_divide(tmp, out, out=out)
+  np.log(out, out=out)
+  np.multiply(11.17, out, out=out)
+  return np.add(out, 43.0, out=out)
+
+
+@utils.function_variant(hz2cams, "linear")
+@utils.numpy_out
+def _hz2cams_linear(f: float, out: Optional[np.ndarray] = None) -> float:
+  """Linear definition of ERB-rate-scale
+
+  Args:
+    f (array): Frequency value(s) in Hertz
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Frequency value(s) in Cams"""
+  # 21.4 * log10(1 + 0.00437 * f)
+  np.multiply(0.00437, f, out=out)
+  np.add(1, out, out=out)
+  np.log10(out, out=out)
+  return np.multiply(21.4, out, out=out)
