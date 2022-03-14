@@ -287,3 +287,50 @@ def _mel2hz_fant(m, out: Optional[np.ndarray] = None):
   np.power(2.0, out, out=out)
   np.subtract(out, 1.0, out=out)
   return np.multiply(out, 1000.0, out=out)
+
+
+@utils.function_with_variants(key="degree",
+                              default="quadratic",
+                              this="quadratic")
+@utils.numpy_out
+def erb(f: float,
+        degree: str = "quadratic",  # pylint: disable=W0613
+        out: Optional[np.ndarray] = None) -> float:
+  """Definition of equivalent rectangular bandwidth by Moore and
+  Glasberg, "Suggested formulae for calculating auditory-filter
+  bandwidths and excitation patterns"
+
+  Args:
+    f (array): Frequency value(s) in Hertz
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Equivalent recrangular bandwidths at the given frequencies"""
+  # 0.009339 * f
+  tmp = np.empty_like(out)
+  np.multiply(0.009339, f, out=tmp)
+  # 6.23 * (f/1000)^2 + 0.009339 * f + 28.52
+  np.true_divide(f, 1000, out=out)
+  np.square(out, out=out)
+  np.multiply(6.23, out, out=out)
+  np.add(out, tmp, out=out)
+  return np.add(out, 28.52, out=out)
+
+
+@utils.function_variant(erb, "linear")
+@utils.numpy_out
+def _erb_linear(f: float, out: Optional[np.ndarray] = None) -> float:
+  """Definition of equivalent rectangular bandwidth by Moore and
+  Glasberg, "Derivation of auditory filter shapes from
+  notched-noise data"
+
+  Args:
+    f (array): Frequency value(s) in Hertz
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Equivalent recrangular bandwidths at the given frequencies"""
+  # 24.7 * (0.00437 * f + 1)
+  np.multiply(0.00437, f, out=out)
+  np.add(out, 1, out=out)
+  return np.multiply(24.7, out, out=out)
