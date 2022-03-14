@@ -1,7 +1,9 @@
 """Classes and functions related to psychoacoustic models"""
-from typing import Optional, Callable, Union, Sequence, Tuple
+import functools
+from typing import Callable, Optional, Sequence, Tuple, Union, Dict, Any
 
 import numpy as np
+from scipy import signal
 
 from sample import utils
 
@@ -469,6 +471,16 @@ def gammatone_phase(f: float, t_c: float) -> float:
   return -2 * np.pi * f * t_c
 
 
+def _preprocess_gammatone_time(t=None,
+                               size: Optional[int] = None,
+                               fs: float = 1):
+  if t is not None:
+    return t
+  if size is None:
+    raise ValueError("Please, specify either time axis ot filter size")
+  return np.arange(size) / fs
+
+
 def gammatone_filter(
     f: float,
     t=None,
@@ -501,10 +513,7 @@ def gammatone_filter(
 
   Returns:
     array: Gammatone filter IR"""
-  if t is None:
-    if size is None:
-      raise ValueError("Please, specify either time axis ot filter size")
-    t = np.arange(size) / fs
+  t = _preprocess_gammatone_time(t=t, size=size, fs=fs)
 
   if callable(b):
     b = b(f)
@@ -544,6 +553,13 @@ def gammatone_filterbank(freqs: Sequence[float] = (20, 20000),
                                                Callable[[float],
                                                         float]] = (hz2cams,
                                                                    cams2hz),
+                         t=None,
+                         size: Optional[int] = None,
+                         fs: float = 1,
+                         n: int = 4,
+                         t_c: Union[float,
+                                    Callable[[int, float],
+                                             float]] = gammatone_leadtime,
                          **kwargs):
   """Compute the IRs of a gamatone filter-bank
 
@@ -558,6 +574,14 @@ def gammatone_filterbank(freqs: Sequence[float] = (20, 20000),
       chosen linearly between :data:`freqs[0]` and :data:`freqs[1]` in the
       transformed space. Default is :func:`hz2cams`, :func:`cams2hz` for
       linear spacing on the ERB-rate scale
+    t (array): Time axis. If provided, arguments :data:`size` and :data:`fs`
+      will be ignored
+    size (int): Number of samples in the filters
+    fs (float): Sample frequency
+    n (int): Filter order
+    t_c (float): Leading time for alignment. If callable, it is a function of
+      the filter order and the bandwidth.
+      Default is :func:`gammatone_leadtime`
     **kwargs: Keyword arguments for :func:`gammatone_filter`
 
   Returns:
@@ -567,4 +591,35 @@ def gammatone_filterbank(freqs: Sequence[float] = (20, 20000),
     freqs = freq_transform[1](np.linspace(freq_transform[0](freqs[0]),
                                           freq_transform[0](freqs[-1]),
                                           n_filters))
-  return np.array([gammatone_filter(f=f, **kwargs) for f in freqs]), freqs
+  t_ = _preprocess_gammatone_time(t=t, size=size, fs=fs)
+  if t is None:
+    t_ -= max(map(functools.partial(t_c, n), freqs)) if callable(t_c) else t_c
+  return np.array(
+      [gammatone_filter(f=f, t=t_, t_c=t_c, **kwargs) for f in freqs]), freqs
+
+
+def cochleagram(x: Sequence[float],
+                filterbank: Optional[Sequence[Sequence[float]]] = None,
+                convolve_kws: Optional[Dict[str, Any]] = None,
+                **kwargs):
+  """Compute the cochleagram for the signal
+
+  Args:
+    x (array): Array of audio samples
+    filterbank (matrix): Filterbank matrix. If unspecified, it will be
+      computed with :func:`gammatone_filterbank`
+    convolve_kws: Keyword arguments for :func:`scipy.signal.convolve`
+    **kwargs: Keyword arguments for :func:`gammatone_filterbank`
+
+  Returns:
+    matrix, array: Cochleagram matrix (filter x time) and the array of center
+    frequencies (only if :data:`filterbank` is unspecified, otherwise
+    :data:`None`)"""
+  if filterbank is None:
+    filterbank, freqs = gammatone_filterbank(**kwargs)
+  else:
+    freqs = None
+  if convolve_kws is None:
+    convolve_kws = {}
+  return np.array(
+      [signal.convolve(x, filt, **convolve_kws) for filt in filterbank]), freqs
