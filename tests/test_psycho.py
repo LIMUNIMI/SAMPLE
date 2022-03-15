@@ -124,7 +124,7 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
         self.assertTrue(np.greater(np.diff(erbs), 0).all())
 
 
-class TestTF(unittest.TestCase):
+class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   """Test time-frequency representations"""
 
   def setUp(self):
@@ -165,10 +165,39 @@ class TestTF(unittest.TestCase):
       # same-size convolution
       self.assertEqual(coch.shape[1], self.x.size)
 
-  def test_cochleagram_error(self):
+  def test_cochleagram_error_undef(self):
     """Test cochleagram error when filter size is undefined"""
     with self.assertRaises(ValueError):
       psycho.cochleagram(self.x, fs=self.fs)
+
+  def test_cochleagram_retry_nonlin(self,
+                                    n_filters: int = 81,
+                                    size: float = 1 / 16):
+    """Test that nonlinearity is first tried with a "out" parameter"""
+    size = int(size * self.fs)
+
+    class NonLinearity:
+
+      def __init__(self):
+        self.called_out = False
+        self.called_no_out = False
+
+      def __call__(self, a, *args, **kwargs):
+        if "out" in kwargs:
+          self.called_out = True
+          raise TypeError
+        self.called_no_out = True
+        return np.square(a, *args, **kwargs)
+
+    nonlinearity = NonLinearity()
+    with self.assert_doesnt_raise():
+      psycho.cochleagram(self.x,
+                         fs=self.fs,
+                         nonlinearity=nonlinearity,
+                         n_filters=n_filters,
+                         size=size)
+    self.assertTrue(nonlinearity.called_out)
+    self.assertTrue(nonlinearity.called_no_out)
 
   def test_cochleagram_rms_peak(self,
                                 n_filters: int = 40,
