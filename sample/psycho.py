@@ -538,7 +538,8 @@ def gammatone_filter(
   np.multiply(-2 * np.pi * b, t_, out=tmp)
   np.exp(tmp, out=tmp)
   np.multiply(tmp, filt, out=filt)
-  # u(t + t_c) * a * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b) * cos(2pi * f * t + phi)
+  # u(t + t_c) * a * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b) *
+  # * cos(2pi * f * t + phi)
   np.multiply(2 * np.pi * f, t, out=tmp)
   np.add(tmp, phi, out=tmp)
   np.cos(tmp, out=tmp)
@@ -625,31 +626,83 @@ def cochleagram(x: Sequence[float],
       [signal.convolve(x, filt, **convolve_kws) for filt in filterbank]), freqs
 
 
-def mel_triangular_filterbank(freqs: Sequence[float],
-                              n_filters: int = 81,
-                              flim: Optional[Tuple[float, float]] = None):
-  """Compute a frequency-domain triangular filterbank
+def mel_triangular_filterbank(
+    freqs: Sequence[float],
+    n_filters: Optional[int] = None,
+    bandwidth: Optional[Callable[[float], float]] = None,
+    flim: Optional[Sequence[float]] = None,
+    freq_transform: Tuple[Callable[[float], float],
+                          Callable[[float], float]] = (hz2mel, mel2hz),
+):
+  """Compute a frequency-domain triangular filterbank. Specify at least one of
+  :data:`n_filters`, :data:`bandwidth`, or :data:`flim`
 
   Args:
-    freqs (array): Frequencies at which to evaluate the filters
-    n_filters (int): Number of filters
-    flim (float, float): Frequency band lower and upper limits
+    freqs (array): Frequency axis for frequency-domain filters
+    n_filters (int): Number of filters. If :data:`None` (default), infer from
+      other arguments
+    bandwidth (callable): Bandwidth function that maps a center frequency to
+      the -3 dB bandwidth of the filter at that frequency. If :data:`None`,
+      (default), then one filter's -inf dB cutoff frequencies will be the
+      center frequencies of the previous and the next filter (50% overlapping
+      filters). In this case, the frequency limits :data:`flim` include the
+      lower cutoff frequency of the first filter and the higher cutoff
+      frequency of the last filter.
+      If a function is provided, then the frequency limits :data:`flim` are
+      only the center frequencies of the filters
+    flim (array): Corner/center frequencies for the filters. If
+      :data:`n_filters` and :data:`bandwidth` are both :data:`None`, they must
+      be 2 more than the number of desired filters. If :data:`None`, then
+      it will be set to the first and last elements of :data:`freqs`
+    freq_transform: Couple of callables that implement transformations
+      from and to Hertz, respectively. If :data:`n_filters` is not
+      :data:`None`, the center frequencies of the triangular filters will be
+      chosen linearly between :data:`freqs[0]` and :data:`freqs[1]` in the
+      transformed space. Default is :func:`hz2mel`, :func:`mel2hz` for
+      linear spacing on the Mel scale
 
   Returns:
     matrix, array: The triangular filterbank matrix (filter x frequency) and
     the array of center frequencies"""
   if flim is None:
     flim = freqs[0], freqs[-1]
+  if n_filters is None:
+    n_filters = len(flim) - (2 if bandwidth is None else 0)
+  else:
+    flim = freq_transform[1](np.linspace(
+        freq_transform[0](flim[0]), freq_transform[0](flim[-1]),
+        n_filters + (2 if bandwidth is None else 0)))
+  if n_filters <= 0:
+    n_freqs = len(flim)
+    b = bandwidth is None
+    raise ValueError(
+        "Specify either a bandwidth function or at least 3 corner frequencies "
+        f"(at least 1 filter). Got: {n_freqs} corner frequencies and "
+        f"""{"no " if b else ""}bandwidth function """
+        f"""{"" if b else f"'{bandwidth} '"}({n_filters} filters)""")
+  if bandwidth is None:
+    freqs_l = flim[:-2]
+    freqs_c = flim[1:-1]
+    freqs_r = flim[2:]
+  else:
+    # divide by 4 because:
+    #   - width is double the "radius"
+    #   - -3dB is at half-way of the triangle
+    b = np.true_divide(list(map(bandwidth, flim)), 4)
+    freqs_l = flim - b
+    freqs_c = flim
+    freqs_r = flim + b
   filts = np.empty((n_filters, *freqs.shape))
-  c_freqs = mel2hz(np.linspace(hz2mel(flim[0]), hz2mel(flim[1]), n_filters + 2))
   for i in range(n_filters):
-    filts[i, ...] = np.interp(freqs, c_freqs[np.arange(i, i + 3)], [0, 1, 0])
-  return filts, c_freqs[1:-1]
+    filts[i, ...] = np.interp(freqs, [freqs_l[i], freqs_c[i], freqs_r[i]],
+                              [0, 1, 0])
+  return filts, freqs_c
 
 
 def stft2mel(stft: Sequence[Sequence[complex]],
              freqs: Sequence[float],
              filterbank: Optional[Sequence[Sequence[float]]] = None,
+             power: Optional[float] = 2,
              **kwargs):
   """Compute the mel-spectrogram from a STFT
 
@@ -658,6 +711,10 @@ def stft2mel(stft: Sequence[Sequence[complex]],
     freqs (array): Frequencies axis for :data:`stft`
     filterbank (matrix): Filterbank matrix. If unspecified, it will be
       computed with :func:`mel_triangular_filterbank`
+    power (float): Power for magnitude computation before frequency-domain
+      filtering. After filtering, the inverse power is computed for
+      consistence. Default is :data`2`. If :data`None`, then filter the
+      complex stft matrix
     **kwargs: Keyword arguments for :func:`mel_triangular_filterbank`
 
   Returns:
@@ -668,7 +725,15 @@ def stft2mel(stft: Sequence[Sequence[complex]],
     filterbank, c_freqs = mel_triangular_filterbank(freqs, **kwargs)
   else:
     c_freqs = None
+  p = False
+  if power is not None:
+    stft = np.abs(stft)
+    if power != 1:
+      p = True
+      np.power(stft, power, out=stft)
   melspec = filterbank @ stft
+  if p:
+    np.power(melspec, 1 / power, out=melspec)
   return melspec, c_freqs
 
 
