@@ -477,7 +477,7 @@ def _preprocess_gammatone_time(t=None,
   if t is not None:
     return t
   if size is None:
-    raise ValueError("Please, specify either time axis ot filter size")
+    raise ValueError("Please, specify either time axis or filter size")
   return np.arange(size) / fs
 
 
