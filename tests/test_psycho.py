@@ -85,6 +85,13 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                          bak=psycho.a2db,
                          f=np.linspace(-60, 60, 1024))
 
+  def test_complex_db(self):
+    """Test coherence of conversion for dB from complex"""
+    self._t3st_coherence(fwd=lambda *args, **kwargs: psycho.db2a(
+        *args, **kwargs).astype(complex),
+                         bak=psycho.complex2db,
+                         f=np.linspace(-60, 60, 1024))
+
   def test_db_floor(self):
     """Test floor for dB conversion"""
     f = -60
