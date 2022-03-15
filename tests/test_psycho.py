@@ -7,6 +7,7 @@ from typing import Callable, Container, Iterable, Optional
 import numpy as np
 from chromatictools import unittestmixins
 from sample import psycho
+from sample.evaluation import random
 
 
 class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
@@ -121,3 +122,72 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
       erbs = psycho.erb(f, **kw)
       with self.subTest(degree=deg, buffer=use_buf):
         self.assertTrue(np.greater(np.diff(erbs), 0).all())
+
+
+class TestTF(unittest.TestCase):
+  """Test time-frequency representations"""
+
+  def setUp(self):
+    """Setup test audio"""
+    self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
+
+  def test_cochleagram_shape(self, n_filters: int = 81, size: float = 1 / 16):
+    """Test cochleagram shape"""
+    size = int(size * self.fs)
+    coch, freqs = psycho.cochleagram(self.x,
+                                     n_filters=n_filters,
+                                     size=size,
+                                     fs=self.fs)
+    with self.subTest(shape="rows"):
+      self.assertEqual(coch.shape[0], np.size(freqs))
+      self.assertEqual(coch.shape[0], n_filters)
+    with self.subTest(shape="cols"):
+      # default is full convolution
+      self.assertEqual(coch.shape[1], self.x.size + size - 1)
+
+  def test_cochleagram_shape_twostep(self,
+                                     n_filters: int = 81,
+                                     size: float = 1 / 16):
+    """Test cochleagram shape by providing filterbank"""
+    size = int(size * self.fs)
+    filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
+                                                    size=size,
+                                                    fs=self.fs)
+    coch, freqs_none = psycho.cochleagram(self.x,
+                                          filterbank=filterbank,
+                                          convolve_kws=dict(mode="same"))
+    with self.subTest(freq=None):
+      self.assertIsNone(freqs_none)
+    with self.subTest(shape="rows"):
+      self.assertEqual(coch.shape[0], freqs.size)
+      self.assertEqual(coch.shape[0], n_filters)
+    with self.subTest(shape="cols"):
+      # same-size convolution
+      self.assertEqual(coch.shape[1], self.x.size)
+
+  def test_cochleagram_error(self):
+    """Test cochleagram error when filter size is undefined"""
+    with self.assertRaises(ValueError):
+      psycho.cochleagram(self.x, fs=self.fs)
+
+  def test_cochleagram_rms_peak(self,
+                                n_filters: int = 16,
+                                size: float = 1 / 16):
+    """Test cochleagram RMS peak"""
+    size = int(size * self.fs)
+    filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
+                                                    freqs=(35, 2000),
+                                                    size=size,
+                                                    fs=self.fs)
+    t = np.arange(int(self.fs * 4)) / self.fs
+    x = np.empty_like(t)
+    for i, f in enumerate(freqs):
+      np.multiply(2 * np.pi * f, t, out=x)
+      np.sin(x, out=x)
+      coch, _ = psycho.cochleagram(x,
+                                   filterbank=filterbank,
+                                   convolve_kws=dict(mode="same"))
+      coch_rms = np.sqrt(np.mean(np.square(coch), axis=1))
+      with self.subTest(i=i, f=f):
+        self.assertEqual(coch_rms.size, np.size(freqs))
+        self.assertEqual(i, np.argmax(coch_rms))
