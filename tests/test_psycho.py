@@ -171,15 +171,16 @@ class TestTF(unittest.TestCase):
       psycho.cochleagram(self.x, fs=self.fs)
 
   def test_cochleagram_rms_peak(self,
-                                n_filters: int = 16,
+                                n_filters: int = 40,
                                 size: float = 1 / 16):
     """Test cochleagram RMS peak"""
     size = int(size * self.fs)
     filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
-                                                    freqs=(35, 2000),
+                                                    freqs=(20, 20000),
                                                     size=size,
-                                                    fs=self.fs)
-    t = np.arange(int(self.fs * 4)) / self.fs
+                                                    fs=self.fs,
+                                                    a_norm=True)
+    t = np.arange(int(self.fs * 0.125)) / self.fs
     x = np.empty_like(t)
     for i, f in enumerate(freqs):
       np.multiply(2 * np.pi * f, t, out=x)
