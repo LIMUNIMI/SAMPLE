@@ -491,6 +491,7 @@ def gammatone_filter(
     b: Union[float, Callable[[float], float]] = erb,
     t_c: Union[float, Callable[[int, float], float]] = gammatone_leadtime,
     phi: Union[float, Callable[[float, float], float]] = gammatone_phase,
+    a_norm: bool = False,
 ):
   """Compute a gammatone filter IR
 
@@ -510,6 +511,7 @@ def gammatone_filter(
     phi (float): Phase for the filter tone. If callable, it is a function of
       the center frequency and the leading time.
       Default is :func:`gammatone_phase`
+    a_norm (bool): If :data:`True`, then normalize IR square norm to :data:`a`
 
   Returns:
     array: Gammatone filter IR"""
@@ -529,22 +531,26 @@ def gammatone_filter(
   np.add(t, t_c, out=t_)
   # u(t + t_c)
   np.greater_equal(t_, 0, out=filt)
-  # u(t + t_c) * a
-  np.multiply(a, filt, out=filt)
-  # u(t + t_c) * a * (t + t_c)^(n-1)
+  # u(t + t_c) * (t + t_c)^(n-1)
   np.power(t_, n - 1, out=tmp)
   np.multiply(tmp, filt, out=filt)
-  # u(t + t_c) * a * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b)
+  # u(t + t_c) * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b)
   np.multiply(-2 * np.pi * b, t_, out=tmp)
   np.exp(tmp, out=tmp)
   np.multiply(tmp, filt, out=filt)
-  # u(t + t_c) * a * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b) *
+  # u(t + t_c) * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b) *
   # * cos(2pi * f * t + phi)
   np.multiply(2 * np.pi * f, t, out=tmp)
   np.add(tmp, phi, out=tmp)
   np.cos(tmp, out=tmp)
   np.multiply(tmp, filt, out=filt)
-
+  # normalize
+  if a_norm:
+    np.square(filt, out=tmp)
+    norm = np.sqrt(np.sum(tmp) / fs)
+    np.true_divide(filt, norm, out=filt)
+  # scale
+  np.multiply(a, filt, out=filt)
   return filt
 
 
