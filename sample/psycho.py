@@ -599,8 +599,24 @@ def gammatone_filterbank(freqs: Sequence[float] = (20, 20000),
       [gammatone_filter(f=f, t=t_, t_c=t_c, **kwargs) for f in freqs]), freqs
 
 
+@utils.numpy_out
+def hwr(a: np.ndarray, th: float = 0, out: Optional[np.ndarray] = None):
+  """Half-wave rectification
+
+  Args:
+    a (array): Input signal
+    th (float): Threshold. Default is :data:`0`
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Half-wave rectified copy of input signal"""
+  return np.maximum(a, th, out=out)
+
+
 def cochleagram(x: Sequence[float],
                 filterbank: Optional[Sequence[Sequence[float]]] = None,
+                nonlinearity: Optional[Callable[[np.ndarray],
+                                                np.ndarray]] = hwr,
                 convolve_kws: Optional[Dict[str, Any]] = None,
                 **kwargs):
   """Compute the cochleagram for the signal
@@ -609,6 +625,8 @@ def cochleagram(x: Sequence[float],
     x (array): Array of audio samples
     filterbank (matrix): Filterbank matrix. If unspecified, it will be
       computed with :func:`gammatone_filterbank`
+    nonlinearity (callable): If not :data:`None`, then apply this nonlinearity
+      to the cochleagram matrix. Default is :func:`hwr`
     convolve_kws: Keyword arguments for :func:`scipy.signal.convolve`
     **kwargs: Keyword arguments for :func:`gammatone_filterbank`
 
@@ -622,8 +640,14 @@ def cochleagram(x: Sequence[float],
     freqs = None
   if convolve_kws is None:
     convolve_kws = {}
-  return np.array(
-      [signal.convolve(x, filt, **convolve_kws) for filt in filterbank]), freqs
+  m = np.array(
+      [signal.convolve(x, filt, **convolve_kws) for filt in filterbank])
+  if nonlinearity is not None:
+    try:
+      nonlinearity(m, out=m)
+    except TypeError:
+      m = nonlinearity(m)
+  return m, freqs
 
 
 def mel_triangular_filterbank(
