@@ -696,33 +696,44 @@ def mel_triangular_filterbank(
     the array of center frequencies"""
   if flim is None:
     flim = freqs[0], freqs[-1]
+  f = bandwidth is None
   if n_filters is None:
-    n_filters = len(flim) - (2 if bandwidth is None else 0)
+    # Use flims as center frequencies
+    n_filters = len(flim)
+    if f:
+      # or as corner frequencies
+      n_filters -= 2
   else:
-    flim = freq_transform[1](np.linspace(
-        freq_transform[0](flim[0]), freq_transform[0](flim[-1]),
-        n_filters + (2 if bandwidth is None else 0)))
+    # Use flims as corner frequencies of the first and last filter
+    # => interpolate center frequencies
+    flim = freq_transform[1](np.linspace(freq_transform[0](flim[0]),
+                                         freq_transform[0](flim[-1]),
+                                         n_filters + 2))
+    if not f:
+      # Center frequencies only
+      flim = flim[1:-1]
   if n_filters <= 0:
     n_freqs = len(flim)
-    b = bandwidth is None
     raise ValueError(
         "Specify either a bandwidth function or at least 3 corner frequencies "
         f"(at least 1 filter). Got: {n_freqs} corner frequencies and "
-        f"""{"no " if b else ""}bandwidth function """
-        f"""{"" if b else f"'{bandwidth} '"}({n_filters} filters)""")
-  if bandwidth is None:
+        f"""{"no " if f else ""}bandwidth function """
+        f"""{"" if f else f"'{bandwidth} '"}({n_filters} filters)""")
+  if f:
+    # 50% overlapping triangular windows
     freqs_l = flim[:-2]
     freqs_c = flim[1:-1]
     freqs_r = flim[2:]
   else:
-    # divide by 4 because:
-    #   - width is double the "radius"
-    #   - -3dB is at half-way of the triangle
-    b = np.true_divide(list(map(bandwidth, flim)), 4)
+    # User-specified bandwidth
+    # Do not divide, because
+    #   - width is double the "radius"        => /2
+    #   - -3dB is at half-way of the triangle => *2
+    b = np.array(list(map(bandwidth, flim)))
     freqs_l = flim - b
     freqs_c = flim
     freqs_r = flim + b
-  filts = np.empty((n_filters, *freqs.shape))
+  filts = np.empty((n_filters, *np.shape(freqs)))
   for i in range(n_filters):
     filts[i, ...] = np.interp(freqs, [freqs_l[i], freqs_c[i], freqs_r[i]],
                               [0, 1, 0])
