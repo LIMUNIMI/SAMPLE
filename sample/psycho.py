@@ -715,10 +715,10 @@ def mel_triangular_filterbank(
     freqs_c = flim[1:-1]
     freqs_r = flim[2:]
   else:
-    # divide by 4 because:
-    #   - width is double the "radius"
-    #   - -3dB is at half-way of the triangle
-    b = np.true_divide(list(map(bandwidth, flim)), 4)
+    # Do not divide, because
+    #   - width is double the "radius"        => /2
+    #   - -3dB is at half-way of the triangle => *2
+    b = np.array(list(map(bandwidth, flim)))
     freqs_l = flim - b
     freqs_c = flim
     freqs_r = flim + b
