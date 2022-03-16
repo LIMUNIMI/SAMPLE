@@ -86,6 +86,13 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                          bak=psycho.a2db,
                          f=np.linspace(-60, 60, 1024))
 
+  def test_db_list(self):
+    """Test coherence of conversion for dB using
+    a list instead of a ndarray"""
+    self._t3st_coherence(fwd=psycho.db2a,
+                         bak=psycho.a2db,
+                         f=np.linspace(-60, 60, 1024).tolist())
+
   def test_complex_db(self):
     """Test coherence of conversion for dB from complex"""
     self._t3st_coherence(fwd=lambda *args, **kwargs: psycho.db2a(

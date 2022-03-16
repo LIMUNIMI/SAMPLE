@@ -123,10 +123,10 @@ def _result_type(*args):
   ts = []
   for a in args:
     try:
-      t = np.result_type(a)
+      t = [np.result_type(a)]
     except TypeError:
-      t = np.result_type(a[0])
-    ts.append(t)
+      t = map(np.result_type, a)
+    ts.extend(t)
   return np.result_type(*ts)
 
 
@@ -188,7 +188,7 @@ def numpy_out(func: Optional[Callable] = None,
 @function_with_variants(key="mode", default="peak", this="peak")
 @numpy_out
 def normalize(x: np.ndarray,
-              mode: str = "peak",
+              mode: str = "peak",  # pylint: disable=W0613
               out: Optional[np.ndarray] = None) -> np.ndarray:
   """Normalize the array to have absolute peak at one
 
