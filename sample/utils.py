@@ -187,9 +187,10 @@ def numpy_out(func: Optional[Callable] = None,
 
 @function_with_variants(key="mode", default="peak", this="peak")
 @numpy_out
-def normalize(x: np.ndarray,
-              mode: str = "peak",  # pylint: disable=W0613
-              out: Optional[np.ndarray] = None) -> np.ndarray:
+def normalize(
+    x: np.ndarray,
+    mode: str = "peak",  # pylint: disable=W0613
+    out: Optional[np.ndarray] = None) -> np.ndarray:
   """Normalize the array to have absolute peak at one
 
   Args:

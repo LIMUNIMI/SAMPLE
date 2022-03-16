@@ -6,7 +6,7 @@ from typing import Callable, Container, Iterable, Optional
 
 import numpy as np
 from chromatictools import unittestmixins
-from sample import psycho
+from sample import psycho, plots, utils
 from sample.evaluation import random
 
 
@@ -234,6 +234,20 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
         self.assertEqual(coch_rms.size, np.size(freqs))
         self.assertEqual(i, np.argmax(coch_rms))
 
+  def test_cochleagram_plot(self, n_filters: int = 81, size: float = 1 / 16):
+    """Test plotting cochleagram"""
+    size = int(size * self.fs)
+    coch, freqs = psycho.cochleagram(self.x,
+                                     n_filters=n_filters,
+                                     size=size,
+                                     fs=self.fs,
+                                     convolve_kws=dict(mode="same"))
+    plots.tf_plot(psycho.complex2db(utils.normalize(coch), floor=1e-3),
+                  flim=psycho.hz2cams(freqs[[0, -1]]),
+                  tlim=(0, self.x.size / self.fs),
+                  cmap="afmhot")
+    plots.plt.clf()
+
   def test_mel_spectrogram_shape(self, n_filters: int = 81):
     """Test mel-spectrogram shape"""
     freqs, _, melspec = psycho.mel_spectrogram(self.x,
@@ -286,3 +300,14 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Test cochleagram error when filters are <= 0"""
     with self.assertRaises(ValueError):
       psycho.mel_spectrogram(self.x, stft_kws=self.stft_kws)
+
+  def test_mel_spectrogram_plot(self, n_filters: int = 81):
+    """Test plotting mel-spectrogram"""
+    freqs, times, melspec = psycho.mel_spectrogram(self.x,
+                                                   n_filters=n_filters,
+                                                   stft_kws=self.stft_kws)
+    plots.tf_plot(psycho.complex2db(utils.normalize(melspec), floor=1e-3),
+                  flim=psycho.hz2mel(freqs[[0, -1]]),
+                  tlim=times[[0, -1]],
+                  cmap="afmhot")
+    plots.plt.clf()
