@@ -733,7 +733,7 @@ def mel_triangular_filterbank(
     freqs_l = flim - b
     freqs_c = flim
     freqs_r = flim + b
-  filts = np.empty((n_filters, *freqs.shape))
+  filts = np.empty((n_filters, *np.shape(freqs)))
   for i in range(n_filters):
     filts[i, ...] = np.interp(freqs, [freqs_l[i], freqs_c[i], freqs_r[i]],
                               [0, 1, 0])
