@@ -6,7 +6,8 @@ from typing import Callable, Container, Iterable, Optional
 
 import numpy as np
 from chromatictools import unittestmixins
-from sample import psycho
+from sample import psycho, plots, utils
+from sample.evaluation import random
 
 
 class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
@@ -85,6 +86,20 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
                          bak=psycho.a2db,
                          f=np.linspace(-60, 60, 1024))
 
+  def test_db_list(self):
+    """Test coherence of conversion for dB using
+    a list instead of a ndarray"""
+    self._t3st_coherence(fwd=psycho.db2a,
+                         bak=psycho.a2db,
+                         f=np.linspace(-60, 60, 1024).tolist())
+
+  def test_complex_db(self):
+    """Test coherence of conversion for dB from complex"""
+    self._t3st_coherence(fwd=lambda *args, **kwargs: psycho.db2a(
+        *args, **kwargs).astype(complex),
+                         bak=psycho.complex2db,
+                         f=np.linspace(-60, 60, 1024))
+
   def test_db_floor(self):
     """Test floor for dB conversion"""
     f = -60
@@ -114,3 +129,185 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
       erbs = psycho.erb(f, **kw)
       with self.subTest(degree=deg, buffer=use_buf):
         self.assertTrue(np.greater(np.diff(erbs), 0).all())
+
+
+class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
+  """Test time-frequency representations"""
+
+  def setUp(self):
+    """Setup test audio"""
+    self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
+    self.stft_kws = dict(nperseg=2048,
+                         noverlap=1024,
+                         window="hamming",
+                         fs=self.fs)
+
+  def test_cochleagram_shape(self, n_filters: int = 81, size: float = 1 / 16):
+    """Test cochleagram shape"""
+    size = int(size * self.fs)
+    coch, freqs = psycho.cochleagram(self.x,
+                                     n_filters=n_filters,
+                                     size=size,
+                                     fs=self.fs)
+    with self.subTest(shape="rows"):
+      self.assertEqual(coch.shape[0], np.size(freqs))
+      self.assertEqual(coch.shape[0], n_filters)
+    with self.subTest(shape="cols"):
+      # default is full convolution
+      self.assertEqual(coch.shape[1], self.x.size + size - 1)
+
+  def test_cochleagram_shape_twostep(self,
+                                     n_filters: int = 81,
+                                     size: float = 1 / 16):
+    """Test cochleagram shape by providing filterbank"""
+    size = int(size * self.fs)
+    filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
+                                                    size=size,
+                                                    fs=self.fs)
+    coch, freqs_none = psycho.cochleagram(self.x,
+                                          filterbank=filterbank,
+                                          convolve_kws=dict(mode="same"))
+    with self.subTest(freq=None):
+      self.assertIsNone(freqs_none)
+    with self.subTest(shape="rows"):
+      self.assertEqual(coch.shape[0], freqs.size)
+      self.assertEqual(coch.shape[0], n_filters)
+    with self.subTest(shape="cols"):
+      # same-size convolution
+      self.assertEqual(coch.shape[1], self.x.size)
+
+  def test_cochleagram_error_undef(self):
+    """Test cochleagram error when filter size is undefined"""
+    with self.assertRaises(ValueError):
+      psycho.cochleagram(self.x, fs=self.fs)
+
+  def test_cochleagram_retry_nonlin(self,
+                                    n_filters: int = 81,
+                                    size: float = 1 / 16):
+    """Test that nonlinearity is first tried with a "out" parameter"""
+    size = int(size * self.fs)
+
+    class NonLinearity:
+      """Non-linear dummy function for test"""
+
+      def __init__(self):
+        self.called_out = False
+        self.called_no_out = False
+
+      def __call__(self, a, *args, **kwargs):
+        if "out" in kwargs:
+          self.called_out = True
+          raise TypeError
+        self.called_no_out = True
+        return np.square(a, *args, **kwargs)
+
+    nonlinearity = NonLinearity()
+    with self.assert_doesnt_raise():
+      psycho.cochleagram(self.x,
+                         fs=self.fs,
+                         nonlinearity=nonlinearity,
+                         n_filters=n_filters,
+                         size=size)
+    self.assertTrue(nonlinearity.called_out)
+    self.assertTrue(nonlinearity.called_no_out)
+
+  def test_cochleagram_rms_peak(self,
+                                n_filters: int = 40,
+                                size: float = 1 / 16):
+    """Test cochleagram RMS peak"""
+    size = int(size * self.fs)
+    filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
+                                                    freqs=(20, 20000),
+                                                    size=size,
+                                                    fs=self.fs,
+                                                    a_norm=True)
+    t = np.arange(int(self.fs * 0.125)) / self.fs
+    x = np.empty_like(t)
+    for i, f in enumerate(freqs):
+      np.multiply(2 * np.pi * f, t, out=x)
+      np.sin(x, out=x)
+      coch, _ = psycho.cochleagram(x,
+                                   filterbank=filterbank,
+                                   convolve_kws=dict(mode="same"))
+      coch_rms = np.sqrt(np.mean(np.square(coch), axis=1))
+      with self.subTest(i=i, f=f):
+        self.assertEqual(coch_rms.size, np.size(freqs))
+        self.assertEqual(i, np.argmax(coch_rms))
+
+  def test_cochleagram_plot(self, n_filters: int = 81, size: float = 1 / 16):
+    """Test plotting cochleagram"""
+    size = int(size * self.fs)
+    coch, freqs = psycho.cochleagram(self.x,
+                                     n_filters=n_filters,
+                                     size=size,
+                                     fs=self.fs,
+                                     convolve_kws=dict(mode="same"))
+    plots.tf_plot(psycho.complex2db(utils.normalize(coch), floor=1e-3),
+                  flim=psycho.hz2cams(freqs[[0, -1]]),
+                  tlim=(0, self.x.size / self.fs),
+                  cmap="afmhot")
+    plots.plt.clf()
+
+  def test_mel_spectrogram_shape(self, n_filters: int = 81):
+    """Test mel-spectrogram shape"""
+    freqs, _, melspec = psycho.mel_spectrogram(self.x,
+                                               n_filters=n_filters,
+                                               stft_kws=self.stft_kws)
+    with self.subTest(shape="rows"):
+      self.assertEqual(melspec.shape[0], np.size(freqs))
+      self.assertEqual(melspec.shape[0], n_filters)
+
+  def test_mel_spectrogram_shape_bw(self, n_filters: int = 81):
+    """Test mel-spectrogram shape when using custom bandwidth"""
+    freqs, _, melspec = psycho.mel_spectrogram(self.x,
+                                               n_filters=n_filters,
+                                               stft_kws=self.stft_kws,
+                                               bandwidth=psycho.erb)
+    with self.subTest(shape="rows"):
+      self.assertEqual(melspec.shape[0], np.size(freqs))
+      self.assertEqual(melspec.shape[0], n_filters)
+
+  def test_mel_spectrogram_shape_twostep(self, n_filters: int = 81):
+    """Test mel-spectrogram shape by providing filterbank"""
+    n = self.stft_kws["nperseg"]
+    freqs = np.arange(n // 2 + 1 - n % 2) * self.fs / n
+    fbank, mfreqs = psycho.mel_triangular_filterbank(freqs=freqs,
+                                                     n_filters=n_filters)
+    freqs_none, _, melspec = psycho.mel_spectrogram(self.x,
+                                                    stft_kws=self.stft_kws,
+                                                    filterbank=fbank)
+    with self.subTest(freq=None):
+      self.assertIsNone(freqs_none)
+    with self.subTest(shape="rows"):
+      self.assertEqual(melspec.shape[0], mfreqs.size)
+      self.assertEqual(melspec.shape[0], n_filters)
+
+  def test_mel_spectrogram_flim(self):
+    """Test mel-spectrogram manually provided frequency limits"""
+    flim = np.power(2, np.linspace(np.log2(20), np.log2(20000), 34))
+    freqs, _, melspec = psycho.mel_spectrogram(self.x,
+                                               flim=flim,
+                                               stft_kws=self.stft_kws)
+    with self.subTest(freqs="shape"):
+      self.assertEqual(melspec.shape[0], np.size(freqs))
+      self.assertEqual(melspec.shape[0], flim.size - 2)
+
+    for i, (f, g) in enumerate(zip(flim[1:-1], freqs)):
+      with self.subTest(freq=i):
+        self.assertEqual(f, g)
+
+  def test_mel_spectrogram_error_notenough(self):
+    """Test cochleagram error when filters are <= 0"""
+    with self.assertRaises(ValueError):
+      psycho.mel_spectrogram(self.x, stft_kws=self.stft_kws)
+
+  def test_mel_spectrogram_plot(self, n_filters: int = 81):
+    """Test plotting mel-spectrogram"""
+    freqs, times, melspec = psycho.mel_spectrogram(self.x,
+                                                   n_filters=n_filters,
+                                                   stft_kws=self.stft_kws)
+    plots.tf_plot(psycho.complex2db(utils.normalize(melspec), floor=1e-3),
+                  flim=psycho.hz2mel(freqs[[0, -1]]),
+                  tlim=times[[0, -1]],
+                  cmap="afmhot")
+    plots.plt.clf()
