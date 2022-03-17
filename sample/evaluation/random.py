@@ -5,6 +5,7 @@ from typing import Optional
 import numpy as np
 import sample.sample
 from sample import psycho, utils
+from sample.utils import dsp as dsp_utils
 from scipy import special
 
 
@@ -93,7 +94,7 @@ class BeatsGenerator:
   @property
   def snr_amp(self) -> float:
     """Linear SNR"""
-    return psycho.db2a(self.snr)
+    return dsp_utils.db2a(self.snr)
 
   @property
   def noise_amp(self) -> float:

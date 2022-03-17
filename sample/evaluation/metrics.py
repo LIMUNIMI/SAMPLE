@@ -4,7 +4,7 @@ import multiprocessing as mp
 from typing import Any, Callable, Dict, Iterable, Optional
 
 import numpy as np
-from sample import psycho
+from sample.utils import dsp as dsp_utils
 from scipy import signal
 
 
@@ -80,8 +80,8 @@ def lin_log_spectral_loss(x,
   x_stft = np.abs(x_stft)
   y_stft = np.abs(y_stft)
   loss = lp_distance(x_stft, y_stft, p=norm_p)
-  psycho.a2db(x_stft, out=x_stft, floor=floor_db, floor_db=True)
-  psycho.a2db(y_stft, out=y_stft, floor=floor_db, floor_db=True)
+  dsp_utils.a2db(x_stft, out=x_stft, floor=floor_db, floor_db=True)
+  dsp_utils.a2db(y_stft, out=y_stft, floor=floor_db, floor_db=True)
   loss += alpha * lp_distance(x_stft, y_stft, p=norm_p)
   return loss
 
