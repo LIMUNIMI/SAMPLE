@@ -130,7 +130,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     with self.assert_doesnt_raise():
       psycho.cochleagram(self.x,
                          fs=self.fs,
-                         nonlinearity=nonlinearity,
+                         postprocess=nonlinearity,
                          n_filters=n_filters,
                          size=size)
     self.assertTrue(nonlinearity.called_out)

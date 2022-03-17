@@ -116,7 +116,7 @@ a2db.floored = _a2db_floored
 
 
 @utils.numpy_out(dtype=float, dtype_promote=False)
-def complex2db(c, out=None, **kwargs):
+def complex2db(c, out: Optional[np.ndarray] = None, **kwargs):
   """Convert linear complex values to decibel
 
   Args:

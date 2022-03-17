@@ -530,8 +530,7 @@ def hwr(a: np.ndarray, th: float = 0, out: Optional[np.ndarray] = None):
 
 def cochleagram(x: Sequence[float],
                 filterbank: Optional[Sequence[Sequence[float]]] = None,
-                nonlinearity: Optional[Callable[[np.ndarray],
-                                                np.ndarray]] = hwr,
+                postprocess: Optional[Callable[[np.ndarray], np.ndarray]] = hwr,
                 convolve_kws: Optional[Dict[str, Any]] = None,
                 **kwargs):
   """Compute the cochleagram for the signal
@@ -540,7 +539,7 @@ def cochleagram(x: Sequence[float],
     x (array): Array of audio samples
     filterbank (matrix): Filterbank matrix. If unspecified, it will be
       computed with :func:`gammatone_filterbank`
-    nonlinearity (callable): If not :data:`None`, then apply this nonlinearity
+    postprocess (callable): If not :data:`None`, then apply this function
       to the cochleagram matrix. Default is :func:`hwr`
     convolve_kws: Keyword arguments for :func:`scipy.signal.convolve`
     **kwargs: Keyword arguments for :func:`gammatone_filterbank`
@@ -557,11 +556,11 @@ def cochleagram(x: Sequence[float],
     convolve_kws = {}
   m = np.array(
       [signal.convolve(x, filt, **convolve_kws) for filt in filterbank])
-  if nonlinearity is not None:
+  if postprocess is not None:
     try:
-      nonlinearity(m, out=m)
+      postprocess(m, out=m)
     except TypeError:
-      m = nonlinearity(m)
+      m = postprocess(m)
   return m, freqs
 
 
