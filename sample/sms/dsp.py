@@ -3,7 +3,7 @@ import functools
 from typing import Optional, Tuple
 
 import numpy as np
-from sample import psycho
+from sample.utils import dsp as dsp_utils
 from scipy import fft
 
 
@@ -34,7 +34,7 @@ def dft(
   x_fft = fft.rfft(x_z)
   ax = np.abs(x_fft)
   ax = np.maximum(ax, np.finfo(float).eps, out=ax)  # avoid zeros in log
-  mx = psycho.a2db.floorless(ax)
+  mx = dsp_utils.a2db.floorless(ax)
 
   x_fft[ax < tol] = complex(0)
   px = np.unwrap(np.angle(x_fft))

@@ -8,7 +8,8 @@ import numpy as np
 import sample
 import sample.sample
 from chromatictools import unittestmixins
-from sample import plots, psycho
+from sample import plots
+from sample.utils import dsp as dsp_utils
 
 
 class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
@@ -25,7 +26,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     )
     np.random.seed(42)
     self.noise = np.random.randn(*self.x.shape)
-    self.x += self.noise * psycho.db2a(-60)
+    self.x += self.noise * dsp_utils.db2a(-60)
     self.x /= np.max(np.abs(self.x))
     self.sample = sample.SAMPLE(
         sinusoidal_model__fs=self.fs,

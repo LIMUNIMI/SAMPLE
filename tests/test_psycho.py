@@ -5,10 +5,10 @@ import unittest
 from typing import Callable, Container, Iterable, Optional
 
 import numpy as np
-import sample.utils.dsp  # pylint: disable=W0611
 from chromatictools import unittestmixins
-from sample import plots, psycho, utils
+from sample import plots, psycho
 from sample.evaluation import random
+from sample.utils import dsp as dsp_utils
 
 
 class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
@@ -83,34 +83,34 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
 
   def test_db(self):
     """Test coherence of conversion for dB"""
-    self._t3st_coherence(fwd=psycho.db2a,
-                         bak=psycho.a2db,
+    self._t3st_coherence(fwd=dsp_utils.db2a,
+                         bak=dsp_utils.a2db,
                          f=np.linspace(-60, 60, 1024))
 
   def test_db_list(self):
     """Test coherence of conversion for dB using
     a list instead of a ndarray"""
-    self._t3st_coherence(fwd=psycho.db2a,
-                         bak=psycho.a2db,
+    self._t3st_coherence(fwd=dsp_utils.db2a,
+                         bak=dsp_utils.a2db,
                          f=np.linspace(-60, 60, 1024).tolist())
 
   def test_complex_db(self):
     """Test coherence of conversion for dB from complex"""
-    self._t3st_coherence(fwd=lambda *args, **kwargs: psycho.db2a(
+    self._t3st_coherence(fwd=lambda *args, **kwargs: dsp_utils.db2a(
         *args, **kwargs).astype(complex),
-                         bak=psycho.complex2db,
+                         bak=dsp_utils.complex2db,
                          f=np.linspace(-60, 60, 1024))
 
   def test_db_floor(self):
     """Test floor for dB conversion"""
     f = -60
     a = np.linspace(0, 1, 1024)
-    psycho.a2db(a, floor=f, floor_db=True, out=a)
+    dsp_utils.a2db(a, floor=f, floor_db=True, out=a)
     with self.subTest(check="dB"):
       self.assertTrue(np.greater_equal(a, f).all())
-    psycho.db2a(a, out=a)
+    dsp_utils.db2a(a, out=a)
     with self.subTest(check="a"):
-      self.assertTrue(np.greater_equal(a, psycho.db2a(f)).all())
+      self.assertTrue(np.greater_equal(a, dsp_utils.db2a(f)).all())
 
   def test_cams(self):
     """Test coherence of conversion for ERB-rate scale"""
@@ -243,7 +243,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
                                      size=size,
                                      fs=self.fs,
                                      convolve_kws=dict(mode="same"))
-    plots.tf_plot(psycho.complex2db(utils.dsp.normalize(coch), floor=1e-3),
+    plots.tf_plot(dsp_utils.complex2db(dsp_utils.normalize(coch), floor=1e-3),
                   flim=psycho.hz2cams(freqs[[0, -1]]),
                   tlim=(0, self.x.size / self.fs),
                   cmap="afmhot")
@@ -307,7 +307,8 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     freqs, times, melspec = psycho.mel_spectrogram(self.x,
                                                    n_filters=n_filters,
                                                    stft_kws=self.stft_kws)
-    plots.tf_plot(psycho.complex2db(utils.dsp.normalize(melspec), floor=1e-3),
+    plots.tf_plot(dsp_utils.complex2db(dsp_utils.normalize(melspec),
+                                       floor=1e-3),
                   flim=psycho.hz2mel(freqs[[0, -1]]),
                   tlim=times[[0, -1]],
                   cmap="afmhot")
