@@ -5,8 +5,9 @@ import unittest
 from typing import Callable, Container, Iterable, Optional
 
 import numpy as np
+import sample.utils.dsp  # pylint: disable=W0611
 from chromatictools import unittestmixins
-from sample import psycho, plots, utils
+from sample import plots, psycho, utils
 from sample.evaluation import random
 
 
@@ -242,7 +243,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
                                      size=size,
                                      fs=self.fs,
                                      convolve_kws=dict(mode="same"))
-    plots.tf_plot(psycho.complex2db(utils.normalize(coch), floor=1e-3),
+    plots.tf_plot(psycho.complex2db(utils.dsp.normalize(coch), floor=1e-3),
                   flim=psycho.hz2cams(freqs[[0, -1]]),
                   tlim=(0, self.x.size / self.fs),
                   cmap="afmhot")
@@ -306,7 +307,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     freqs, times, melspec = psycho.mel_spectrogram(self.x,
                                                    n_filters=n_filters,
                                                    stft_kws=self.stft_kws)
-    plots.tf_plot(psycho.complex2db(utils.normalize(melspec), floor=1e-3),
+    plots.tf_plot(psycho.complex2db(utils.dsp.normalize(melspec), floor=1e-3),
                   flim=psycho.hz2mel(freqs[[0, -1]]),
                   tlim=times[[0, -1]],
                   cmap="afmhot")
