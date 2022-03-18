@@ -175,7 +175,7 @@ def numpy_out(func: Optional[Callable] = None,
   @functools.wraps(func)
   def func_(a, *args, **kwargs):
     nd = None
-    if key not in kwargs:
+    if kwargs.get(key, None) is None:
       nd = np.ndim(a)
       kwargs[key] = np.empty(() if nd == 0 else np.shape(a),
                              dtype=_get_dtype((a, *args), kwargs))
