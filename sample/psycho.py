@@ -4,8 +4,10 @@ from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from scipy import signal
+import sklearn.exceptions
 
 from sample import utils
+from sample.utils import dsp as dsp_utils
 
 
 @utils.function_with_variants(key="mode", default="traunmuller")
@@ -388,6 +390,283 @@ def _preprocess_gammatone_time(t=None,
   if size is None:
     raise ValueError("Please, specify either time axis or filter size")
   return np.arange(size) / fs
+
+
+OptionalValueOrFunc = Optional[Union[float, Callable[["GammatoneFilter"],
+                                                     float]]]
+
+
+class GammatoneFilter:
+  """Gammatone filter
+
+  Args:
+    f (float): Center frequency. Default is :data:`1`
+    n (int): Filter order. Default is :data:`4`
+    bandwidth (callable or float): Filter bandwidth in Hz. If callable, it
+      must accept a single argument of type :class:`GammatoneFilter`. If
+      :data:`None` (default), then the ERB (:func:`erb`) is used
+    t_c (callable or float): Leading time in seconds. If callable, it
+      must accept a single argument of type :class:`GammatoneFilter`. If
+      :data:`None` (default), then use the group-delay (non-causal filter)
+    phi (callable or float): Initial phase in radians. If callable, it
+      must accept a single argument of type :class:`GammatoneFilter`. If
+      :data:`None` (default), then use a phase value coherent with the
+      leading time
+    normalize (bool): If :data:`True`, then normalize the IR
+    a (callable or float): Scale parameter. If callable, it
+      must accept a single argument of type :class:`GammatoneFilter`. If
+      :data:`None` (default), then do not rescale IR"""
+
+  def __init__(self,
+               f: float = 1,
+               n: int = 4,
+               bandwidth: OptionalValueOrFunc = None,
+               t_c: OptionalValueOrFunc = None,
+               phi: OptionalValueOrFunc = None,
+               normalize: bool = False,
+               a: OptionalValueOrFunc = None):
+    self._a = a
+    self.f = f
+    self.n = n
+    self._bandwidth = bandwidth
+    self._t_c = t_c
+    self._phi = phi
+    self.normalize = normalize
+
+  @property
+  def bandwidth(self) -> float:
+    """Filter bandwidth in Hz"""
+    if self._bandwidth is None:
+      return erb(self.f)
+    if callable(self._bandwidth):
+      return self._bandwidth(self)
+    return self._bandwidth
+
+  @bandwidth.setter
+  def bandwidth(self, v: OptionalValueOrFunc):
+    self._bandwidth = v
+
+  @property
+  def raw_group_delay(self) -> float:
+    """Raw group delay of the gammatone_filter in seconds
+    (without accounting for the leading time)"""
+    return (self.n - 1) / (2 * np.pi * self.bandwidth)
+
+  @property
+  def group_delay(self) -> float:
+    """Group delay of the gammatone_filter in seconds
+    (accounting for the leading time)"""
+    return self.raw_group_delay - self.t_c
+
+  @group_delay.setter
+  def group_delay(self, v: float):
+    self._t_c = self.raw_group_delay - v
+
+  @property
+  def t_c(self) -> float:
+    """Leading time in seconds"""
+    if self._t_c is None:
+      return self.raw_group_delay
+    if callable(self._t_c):
+      return self._t_c(self)
+    return self._t_c
+
+  @t_c.setter
+  def t_c(self, v: OptionalValueOrFunc):
+    self._t_c = v
+
+  @property
+  def phi(self) -> float:
+    """Initial phase in radians"""
+    if self._phi is None:
+      return -2 * np.pi * self.f * self.t_c
+    if callable(self._phi):
+      return self._phi(self)
+    return self._phi
+
+  @phi.setter
+  def phi(self, v: OptionalValueOrFunc):
+    self._phi = v
+
+  @property
+  def a(self) -> float:
+    """Scale parameter"""
+    if callable(self._a):
+      return self._a(self)
+    return self._a
+
+  @a.setter
+  def a(self, v: OptionalValueOrFunc):
+    self.a = v
+
+  def t60(self,
+          steps: int = 32,
+          n_starts: int = 16,
+          initial_range: Optional[float] = None,
+          floor: float = -60,
+          warn_th: Optional[float] = 1e-3) -> float:
+    """Numerically compute the t60 for the IR envelope, i.e. the time instant
+    at which the IR envelope goes 60 dB below the envelope peak
+
+    Args:
+      steps (int): Dichotomic search steps for t60 computation
+      n_starts (int): Number of restarts for determining the initial search range
+        before raising an exception
+      initial_range (float): Width of the initial search range. In case the
+        t60 is not in the range, the width is doubled :data:`n_starts` times
+      floor (float): Threshold for the t60 in decibel. Default is :data:`-60`
+      warn_th (float): If not :data:`None`, then raise an exception if the
+        amplitude at the found t60 value is not within :data:`warn_th` dB from
+        the target value (:data:`floor`)
+
+    Returns:
+      float: The t60 value"""
+    hi = self.group_delay
+    p = dsp_utils.db2a(floor) * self.envelope(hi)
+    e = None
+    if initial_range is None:
+      initial_range = 2 * (hi + self.t_c)
+
+    def _foo(t):
+      return self.envelope(t) - p
+
+    for _ in range(n_starts):
+      try:
+        t = dsp_utils.dychotomic_zero_crossing(_foo,
+                                               lo=hi + initial_range,
+                                               hi=hi,
+                                               steps=steps)
+      except ValueError as ex:
+        hi = hi + initial_range
+        initial_range = initial_range * 2
+        e = ex
+      else:
+        break
+    else:
+      raise ValueError(
+          f"Could not find a suitable starting range in {n_starts} iterations"
+      ) from e
+    if warn_th is not None:
+      f_t = dsp_utils.a2db(self.envelope(t) / self.envelope(self.group_delay))
+      if abs(f_t - floor) > warn_th:
+        raise sklearn.exceptions.ConvergenceWarning(
+            f"Amplitude at t60 is not within {warn_th} dB from target "
+            f"({floor} dB) after {steps} steps (a({t}) = {f_t}). "
+            "Consider increasing the search steps")
+    return t
+
+  def ir_size(self, fs: float = 1, **kwargs) -> int:
+    """Suggested IR size in samples, based on the t60
+
+    Args:
+      fs (float): Sample frequency
+      **kwargs: Keyword arguments for :func:`t60`
+
+    Returns:
+      int: Suggested IR size"""
+    return int((self.t60(**kwargs) + self.t_c) * fs)
+
+  @staticmethod
+  @utils.numpy_out(dtype=float)
+  def _envelope(t: float,
+                n: int,
+                t_c: float,
+                b: float,
+                out: Optional[float] = None) -> np.ndarray:
+    """Envelope function for the IR
+
+    Args:
+      t (array): Time axis
+      n (int): Filter order
+      t_c (float): Leading time
+      b (float): FIlter bandwidth
+      out (array): Optional. Array to use for storing results
+
+    Returns:
+      array: The IR envelope function evaluated at :data:`t`"""
+    tmp = np.empty_like(t)
+    # t + t_c
+    t_ = np.empty_like(t)
+    np.add(t, t_c, out=t_)
+    # u(t + t_c)
+    np.greater_equal(t_, 0, out=out)
+    # u(t + t_c) * (t + t_c)^(n-1)
+    np.power(t_, n - 1, out=tmp)
+    np.multiply(tmp, out, out=out)
+    # u(t + t_c) * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b)
+    np.multiply(-2 * np.pi * b, t_, out=tmp)
+    np.exp(tmp, out=tmp)
+    np.multiply(tmp, out, out=out)
+    return out
+
+  def envelope(self, t: np.ndarray, out: Optional[float] = None) -> np.ndarray:
+    """Envelope function for the IR
+
+    Args:
+      t (array): Time axis
+      out (array): Optional. Array to use for storing results
+
+    Returns:
+      array: The IR envelope function evaluated at :data:`t`"""
+    return self._envelope(t, n=self.n, t_c=self.t_c, b=self.bandwidth, out=out)
+
+  def wavefun(self, t: float, out: Optional[float] = None) -> np.ndarray:
+    """Filter wave function for the IR (non-scaled)
+
+    Args:
+      t (array): Time axis
+      out (array): Optional. Array to use for storing results
+
+    Returns:
+      array: The wave function evaluated at :data:`t`"""
+    """Wave function for the IR (non-rescaled)"""
+    out = self.envelope(t, out=out)
+    tmp = np.empty_like(out)
+    # cos(2pi * f * t + phi)
+    np.multiply(2 * np.pi * self.f, t, out=tmp)
+    np.add(tmp, self.phi, out=tmp)
+    np.cos(tmp, out=tmp)
+    np.multiply(out, tmp, out=out)
+    return out
+
+  def ir(self,
+         t: Optional[float] = None,
+         fs: Optional[float] = None,
+         out: Optional[float] = None,
+         **kwargs) -> np.ndarray:
+    """Filter IR (scaled)
+
+    Args:
+      t (array): Time axis
+      fs (float): Sample frequency
+      out (array): Optional. Array to use for storing results
+      **kwargs: Keyword arguments for :func:`ir_size`
+
+    Returns:
+      array: The wave function evaluated at :data:`t`"""
+    if t is None:
+      if fs is None:
+        raise ValueError(
+            "Please, specify either the time axis or a sample frequency")
+      t = np.arange(self.ir_size(fs=fs, **kwargs)) / fs - self.t_c
+    out = self.wavefun(t, out=out)
+    # scale
+    a = self.a
+    # normalize
+    if self.normalize:
+      if a is None:
+        a = 1
+      norm2 = np.sum(np.square(out))
+      try:
+        dt = t[1] - t[0]
+      except TypeError:
+        pass
+      else:
+        norm2 *= dt
+      a /= np.sqrt(norm2)
+    if a is not None:
+      np.multiply(a, out, out=out)
+    return out
 
 
 def gammatone_filter(
