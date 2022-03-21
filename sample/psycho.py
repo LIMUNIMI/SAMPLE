@@ -1,10 +1,11 @@
 """Classes and functions related to psychoacoustic models"""
 import functools
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import (Any, Callable, Dict, Iterable, Optional, Sequence, Tuple,
+                    Union)
 
 import numpy as np
-from scipy import signal
 import sklearn.exceptions
+from scipy import signal
 
 from sample import utils
 from sample.utils import dsp as dsp_utils
@@ -666,6 +667,172 @@ class GammatoneFilter:
       a /= np.sqrt(norm2)
     if a is not None:
       np.multiply(a, out, out=out)
+    return out
+
+
+class GammatoneFilterbank:
+  """Bank of gammatone filters
+
+  Args:
+    filters (iterable of GammatoneFilter): Filters that make up the bank.
+      If :data:`None` (default), then build filters using other arguments
+    freqs: The center frequencies of the gammatone filters. If :data:`None`
+      (default), then decide frequencies using other arguments
+    n_filters (int): Number of gammatone filters. If :data:`None`
+      (default), then decide number of filters using other arguments
+    flim (float, float): Limits for the frequency response of the
+      gammatone filters
+    freq_transform: Couple of callables that implement transformations
+      from and to Hertz, respectively. The center frequencies of the
+      gammatone filters will be chosen linearly between :data:`flim[0]`
+      and :data:`flim[1]` in the transformed space. Default is
+      :func:`hz2cams`, :func:`cams2hz` for linear spacing on the ERB-rate scale
+    **kwargs: Keyword arguments for :class:`GammatoneFilter`"""
+
+  def __init__(self,
+               filters: Optional[Iterable[GammatoneFilter]] = None,
+               freqs: Optional[Sequence[float]] = None,
+               n_filters: Optional[int] = None,
+               flim: Tuple[float, float] = (20, 20000),
+               freq_transform: Tuple[Callable[[float], float],
+                                     Callable[[float],
+                                              float]] = (hz2cams, cams2hz),
+               **kwargs) -> "GammatoneFilterbank":
+    if filters is None:
+      if freqs is None:
+        flim_t = freq_transform[0]((flim[0], flim[-1]))
+        if n_filters is None:
+          n_filters = np.ceil(2 * (flim_t[-1] - flim_t[0]) - 1).astype(int)
+        freqs = freq_transform[1]((np.arange(n_filters, dtype=float) + 0.5) *
+                                  (flim_t[-1] - flim_t[0]) / (n_filters + 1) +
+                                  flim_t[0])
+      filters = (GammatoneFilter(f=f, **kwargs) for f in freqs)
+    self._filters = tuple(filters)
+
+  def __iter__(self) -> Iterable[GammatoneFilter]:
+    """Iterate through filters"""
+    return iter(self._filters)
+
+  def __getitem__(self, i: int) -> GammatoneFilter:
+    """Get the i-th filter"""
+    return self._filters[i]
+
+  def __len__(self) -> int:
+    """Number of filters"""
+    return len(self._filters)
+
+  def __getattr__(self, key: str):
+    """If attribute is not found, try getting a tuple of attributes,
+    one from each filter"""
+    try:
+      return tuple(getattr(f, key) for f in self)
+    except AttributeError:
+      pass
+    super().__getattr__(key)
+
+  class PrecomputedIRBank:
+    """Precomputed IR bank for a :class:`GammatoneFilterbank`
+
+    Args:
+      parent (GammatoneFilterbank): Gammatone filterbank to render
+      fs (float): Sample frequency
+      analytical (bool): If :data:`True`, then compute the analytical signal
+        of the IRs. Convolving the analytical IRs is faster than convolving
+        the real IRs and then computing the Hilbert transform of the
+        cochleagram. The resulting cochleagram will be complex. The real
+        part will be the ordinary cochleagram. The absolute value will be
+        the AM envelope of the cochleagram"""
+
+    def __init__(self,
+                 parent: "GammatoneFilterbank",
+                 fs: float,
+                 analytical: bool = False,
+                 **kwargs):
+      # Initially offsets are the leading times in samples
+      self.offsets = np.ceil(np.multiply(parent.t_c, fs)).astype(int)
+
+      # Time axes start accordindly to the leading times
+      time_axes = ((np.arange(f.ir_size(fs=fs) + 1, dtype=float) - off) / fs
+                   for off, f, in zip(self.offsets, parent))
+      irs = (f.ir(t=t, **kwargs) for t, f in zip(time_axes, parent))
+      if analytical:
+        irs = map(signal.hilbert, irs)
+      self.irs = tuple(irs)
+
+      # Offsets now are the delays in samples to apply to each IR
+      # for them to be correctly aligned
+      self.offsets = self.offsets.max() - self.offsets
+      self._ir_size = max(
+          ir.size + off for ir, off in zip(self.irs, self.offsets))
+
+    def __len__(self) -> int:
+      """Number of IRs"""
+      return len(self.irs)
+
+    def convolve(self, x: np.ndarray, method: str = "auto"):
+      """Convolve the IRs and organize the outputs in an aligned matrix
+
+      Args:
+        x (array): Input signal
+        method (str): Convolution method (either :data:`"auto"`,
+          :data:`"fft"`, or :data:`"direct"`)
+
+      Returns:
+        matrix: Cochleagram, will be complex if the IRs are analytical"""
+      out = np.zeros((len(self), x.size + self._ir_size - 1),
+                     dtype=np.result_type(x, *self.irs))
+      for i, (ir, off) in enumerate(zip(self.irs, self.offsets)):
+        y = signal.convolve(x, ir, mode="full", method=method)
+        # Delay is LTI, so we shift the result instead of zero-padding
+        # the start of the IR in order to save computation time
+        out[i, off:(off + y.size)] = y
+      return out
+
+  def precompute(self,
+                 fs: float,
+                 analytical: bool = False) -> PrecomputedIRBank:
+    """Precompute IRs for this filterbank
+
+    Args:
+      fs (float): Sample frequency
+      analytical (bool): If :data:`True`, compute a complex IR bank
+
+    Returns:
+      PrecomputedIRBank: Precomputed IR bank"""
+    return GammatoneFilterbank.PrecomputedIRBank(parent=self,
+                                                 fs=fs,
+                                                 analytical=analytical)
+
+  def convolve(self,
+               x: np.ndarray,
+               fs: float,
+               analytical: Optional[str] = None,
+               method: str = "auto"):
+    """Filter the input with the filterbank and produce a cochleagram
+
+    Args:
+      x (array): Input signal
+      fs (float): Sample frequency
+      analytical (str): Compute the analytical signal of the cochleagram:
+        
+        - if :data:`"input"`, then compute the analytical signal
+          of the input (suggested)
+        - if :data:`"ir"`, then compute the analytical signal
+          of the IRs (slightly faster, less accurate)
+        - if :data:`"output"`, then compute the analytical signal
+          of the output (slower, not much more accurate)
+      method (str): Convolution method (either :data:`"auto"`,
+        :data:`"fft"`, or :data:`"direct"`)
+
+    Returns:
+      matrix: Cochleagram"""
+    if analytical == "input":
+      x = signal.hilbert(x)
+    out = self.precompute(fs=fs,
+                          analytical=analytical == "ir").convolve(x,
+                                                                  method=method)
+    if analytical == "output":
+      out = signal.hilbert(out)
     return out
 
 
