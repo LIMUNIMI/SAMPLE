@@ -748,6 +748,8 @@ class GammatoneFilterbank:
                  fs: float,
                  analytical: bool = False,
                  **kwargs):
+      self.freqs = parent.f
+      self.analytical = analytical
       # Initially offsets are the leading times in samples
       self.offsets = np.ceil(np.multiply(parent.t_c, fs)).astype(int)
 
@@ -807,7 +809,8 @@ class GammatoneFilterbank:
                x: np.ndarray,
                fs: float,
                analytical: Optional[str] = None,
-               method: str = "auto"):
+               method: str = "auto",
+               **kwargs):
     """Filter the input with the filterbank and produce a cochleagram
 
     Args:
@@ -818,146 +821,23 @@ class GammatoneFilterbank:
         - if :data:`"input"`, then compute the analytical signal
           of the input (suggested)
         - if :data:`"ir"`, then compute the analytical signal
-          of the IRs (slightly faster, less accurate)
+          of the IRs (faster for long inputs, less accurate)
         - if :data:`"output"`, then compute the analytical signal
           of the output (slower, not much more accurate)
+      postprocess (callable): If not :data:`None`, then apply this function
+        to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
+        is real, otherwise it is :data:`None`
       method (str): Convolution method (either :data:`"auto"`,
         :data:`"fft"`, or :data:`"direct"`)
 
     Returns:
       matrix: Cochleagram"""
-    if analytical == "input":
-      x = signal.hilbert(x)
-    out = self.precompute(fs=fs,
-                          analytical=analytical == "ir").convolve(x,
-                                                                  method=method)
-    if analytical == "output":
-      out = signal.hilbert(out)
-    return out
-
-
-def gammatone_filter(
-    f: float,
-    t=None,
-    size: Optional[int] = None,
-    fs: float = 1,
-    n: int = 4,
-    a: float = 1,
-    b: Union[float, Callable[[float], float]] = erb,
-    t_c: Union[float, Callable[[int, float], float]] = gammatone_leadtime,
-    phi: Union[float, Callable[[float, float], float]] = gammatone_phase,
-    a_norm: bool = False,
-):
-  """Compute a gammatone filter IR
-
-  Args:
-    f (float): Center frequency
-    t (array): Time axis. If provided, arguments :data:`size` and :data:`fs`
-      will be ignored
-    size (int): Number of samples in the filter
-    fs (float): Sample frequency
-    n (int): Filter order
-    a (float): IR amplitude
-    b (float): Filter bandwidth. If callable, it is a function of the center
-      frequency. Default is :func:`erb`
-    t_c (float): Leading time for alignment. If callable, it is a function of
-      the filter order and the bandwidth.
-      Default is :func:`gammatone_leadtime`
-    phi (float): Phase for the filter tone. If callable, it is a function of
-      the center frequency and the leading time.
-      Default is :func:`gammatone_phase`
-    a_norm (bool): If :data:`True`, then normalize IR square norm to :data:`a`
-
-  Returns:
-    array: Gammatone filter IR"""
-  t = _preprocess_gammatone_time(t=t, size=size, fs=fs)
-
-  if callable(b):
-    b = b(f)
-  if callable(t_c):
-    t_c = t_c(n, b)
-  if callable(phi):
-    phi = phi(f, t_c)
-
-  tmp = np.empty_like(t)
-  filt = np.empty_like(t)
-  # t + t_c
-  t_ = np.empty_like(t)
-  np.add(t, t_c, out=t_)
-  # u(t + t_c)
-  np.greater_equal(t_, 0, out=filt)
-  # u(t + t_c) * (t + t_c)^(n-1)
-  np.power(t_, n - 1, out=tmp)
-  np.multiply(tmp, filt, out=filt)
-  # u(t + t_c) * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b)
-  np.multiply(-2 * np.pi * b, t_, out=tmp)
-  np.exp(tmp, out=tmp)
-  np.multiply(tmp, filt, out=filt)
-  # u(t + t_c) * (t + t_c)^(n-1) * exp(-2pi * (t + t_c) * b) *
-  # * cos(2pi * f * t + phi)
-  np.multiply(2 * np.pi * f, t, out=tmp)
-  np.add(tmp, phi, out=tmp)
-  np.cos(tmp, out=tmp)
-  np.multiply(tmp, filt, out=filt)
-  # normalize
-  if a_norm:
-    np.square(filt, out=tmp)
-    norm = np.sqrt(np.sum(tmp) / fs)
-    np.true_divide(filt, norm, out=filt)
-  # scale
-  np.multiply(a, filt, out=filt)
-  return filt
-
-
-def gammatone_filterbank(freqs: Sequence[float] = (20, 20000),
-                         n_filters: Optional[int] = None,
-                         freq_transform: Tuple[Callable[[float], float],
-                                               Callable[[float],
-                                                        float]] = (hz2cams,
-                                                                   cams2hz),
-                         t=None,
-                         size: Optional[int] = None,
-                         fs: float = 1,
-                         n: int = 4,
-                         t_c: Union[float,
-                                    Callable[[int, float],
-                                             float]] = gammatone_leadtime,
-                         **kwargs):
-  """Compute the IRs of a gamatone filter-bank
-
-  Args:
-    freqs: If :data:`n_filters` is :data:`None`, the center
-      frequencies of the gammatone filters. Otherwise,
-      the center frequencies of the first and the last gammatone filters
-    n_filters (int): Number of gammatone filters
-    freq_transform: Couple of callables that implement transformations
-      from and to Hertz, respectively. If :data:`n_filters` is not
-      :data:`None`, the center frequencies of the gammatone filters will be
-      chosen linearly between :data:`freqs[0]` and :data:`freqs[1]` in the
-      transformed space. Default is :func:`hz2cams`, :func:`cams2hz` for
-      linear spacing on the ERB-rate scale
-    t (array): Time axis. If provided, arguments :data:`size` and :data:`fs`
-      will be ignored
-    size (int): Number of samples in the filters
-    fs (float): Sample frequency
-    n (int): Filter order
-    t_c (float): Leading time for alignment. If callable, it is a function of
-      the filter order and the bandwidth.
-      Default is :func:`gammatone_leadtime`
-    **kwargs: Keyword arguments for :func:`gammatone_filter`
-
-  Returns:
-    matrix, array: The gammatone filterbank matrix (filter x time) and the
-    array of center frequencies"""
-  if n_filters is not None:
-    freqs = freq_transform[1](np.linspace(freq_transform[0](freqs[0]),
-                                          freq_transform[0](freqs[-1]),
-                                          n_filters))
-  t_ = _preprocess_gammatone_time(t=t, size=size, fs=fs)
-  if t is None:
-    t_ -= max(map(functools.partial(t_c, n), freqs)) if callable(t_c) else t_c
-  return np.array(
-      [gammatone_filter(f=f, t=t_, t_c=t_c, **kwargs) for f in freqs]), freqs
+    return cochleagram(x=x,
+                       fs=fs,
+                       filterbank=self,
+                       analytical=analytical,
+                       method=method,
+                       **kwargs)[0]
 
 
 @utils.numpy_out
@@ -974,40 +854,62 @@ def hwr(a: np.ndarray, th: float = 0, out: Optional[np.ndarray] = None):
   return np.maximum(a, th, out=out)
 
 
-def cochleagram(x: Sequence[float],
-                filterbank: Optional[Sequence[Sequence[float]]] = None,
-                postprocess: Optional[Callable[[np.ndarray], np.ndarray]] = hwr,
-                convolve_kws: Optional[Dict[str, Any]] = None,
-                **kwargs):
+def cochleagram(
+    x: Sequence[float],
+    fs: Optional[float] = None,
+    filterbank: Optional[Union[GammatoneFilterbank,
+                               GammatoneFilterbank.PrecomputedIRBank]] = None,
+    analytical: Optional[str] = None,
+    method: str = "auto",
+    **kwargs):
   """Compute the cochleagram for the signal
 
   Args:
     x (array): Array of audio samples
-    filterbank (matrix): Filterbank matrix. If unspecified, it will be
-      computed with :func:`gammatone_filterbank`
+    fs (float): Sampling frequency
+    filterbank (GammatoneFilterbank): Filterbank object, or precomputed IRs.
+      If unspecified, it will be specified using :data:`**kwargs`
     postprocess (callable): If not :data:`None`, then apply this function
-      to the cochleagram matrix. Default is :func:`hwr`
-    convolve_kws: Keyword arguments for :func:`scipy.signal.convolve`
-    **kwargs: Keyword arguments for :func:`gammatone_filterbank`
+      to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
+      is real, otherwise it is :data:`None`
+    analytical (str): Compute the analytical signal of the cochleagram:
+      
+      - if :data:`"input"`, then compute the analytical signal
+        of the input (suggested)
+      - if :data:`"ir"`, then compute the analytical signal
+        of the IRs (faster for long inputs, less accurate)
+      - if :data:`"output"`, then compute the analytical signal
+        of the output (slower, not much more accurate)
+    method (str): Convolution method (either :data:`"auto"`,
+      :data:`"fft"`, or :data:`"direct"`)
+    **kwargs: Keyword arguments for :class:`GammatoneFilterbank`
 
   Returns:
     matrix, array: Cochleagram matrix (filter x time) and the array of center
-    frequencies (only if :data:`filterbank` is unspecified, otherwise
-    :data:`None`)"""
+    frequencies"""
+  if isinstance(
+      filterbank,
+      GammatoneFilterbank.PrecomputedIRBank) and filterbank.analytical:
+    if analytical not in (None, "ir"):
+      raise ValueError("When IR bank is analytical, only None and 'ir' are "
+                       "supported as options for argument 'analytical'. "
+                       f"Got: '{analytical}'")
+    analytical = "ir"
+  postprocessing = kwargs.pop("postprocessing",
+                              hwr if analytical is None else None)
   if filterbank is None:
-    filterbank, freqs = gammatone_filterbank(**kwargs)
-  else:
-    freqs = None
-  if convolve_kws is None:
-    convolve_kws = {}
-  m = np.array(
-      [signal.convolve(x, filt, **convolve_kws) for filt in filterbank])
-  if postprocess is not None:
-    try:
-      postprocess(m, out=m)
-    except TypeError:
-      m = postprocess(m)
-  return m, freqs
+    filterbank = GammatoneFilterbank(**kwargs)
+  if not isinstance(filterbank, GammatoneFilterbank.PrecomputedIRBank):
+    if fs is None:
+      raise TypeError("cochleagram() missing required argument "
+                      "'fs' for non-precomputed filterbank")
+    filterbank = filterbank.precompute(fs=fs, analytical=analytical == "ir")
+  if analytical == "input":
+    x = signal.hilbert(x)
+  out = filterbank.convolve(x, method=method)
+  if analytical == "output":
+    out = signal.hilbert(out)
+  return out, np.array(filterbank.freqs)
 
 
 def mel_triangular_filterbank(
