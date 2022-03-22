@@ -565,7 +565,8 @@ class GammatoneFilter:
 
     Returns:
       int: Suggested IR size"""
-    return int((self.t60(**kwargs) + self.t_c) * fs)
+    n_periods = np.ceil((self.t60(**kwargs) + self.t_c) * self.f)
+    return np.floor(n_periods * fs / self.f).astype(int)
 
   @staticmethod
   @utils.numpy_out(dtype=float)
