@@ -924,8 +924,12 @@ def cochleagram(
                        "supported as options for argument 'analytical'. "
                        f"Got: '{analytical}'")
     analytical = "ir"
-  postprocessing = kwargs.pop("postprocessing",
-                              hwr if analytical is None else None)
+  if "postprocessing" in kwargs:
+    postprocessing = kwargs.pop("postprocessing")
+  elif analytical is None:
+    postprocessing = hwr
+  else:
+    postprocessing = None
   if filterbank is None:
     filterbank = GammatoneFilterbank(**kwargs)
   if not isinstance(filterbank, GammatoneFilterbank.PrecomputedIRBank):
@@ -938,6 +942,8 @@ def cochleagram(
   out = filterbank.convolve(x, method=method)
   if analytical == "output":
     out = signal.hilbert(out)
+  if postprocessing is not None:
+    out = postprocessing(out)
   return out, np.array(filterbank.freqs)
 
 
