@@ -501,7 +501,7 @@ class GammatoneFilter:
 
   @a.setter
   def a(self, v: OptionalValueOrFunc):
-    self.a = v
+    self._a = v
 
   def t60(self,
           steps: int = 32,
