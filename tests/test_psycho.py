@@ -3,6 +3,7 @@ import itertools
 import unittest
 
 import numpy as np
+import sklearn.exceptions
 from chromatictools import unittestmixins
 from sample import plots, psycho
 from sample.evaluation import random
@@ -67,107 +68,197 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
                          window="hamming",
                          fs=self.fs)
 
-  def test_cochleagram_shape(self, n_filters: int = 81, size: float = 1 / 16):
+  def test_cochleagram_shape(self):
     """Test cochleagram shape"""
-    size = int(size * self.fs)
-    coch, freqs = psycho.cochleagram(self.x,
-                                     n_filters=n_filters,
-                                     size=size,
-                                     fs=self.fs)
+    coch, freqs = psycho.cochleagram(self.x, fs=self.fs, normalize=True)
     with self.subTest(shape="rows"):
       self.assertEqual(coch.shape[0], np.size(freqs))
-      self.assertEqual(coch.shape[0], n_filters)
     with self.subTest(shape="cols"):
-      # default is full convolution
-      self.assertEqual(coch.shape[1], self.x.size + size - 1)
+      self.assertGreater(coch.shape[1], self.x.size)
 
-  def test_cochleagram_shape_twostep(self,
-                                     n_filters: int = 81,
-                                     size: float = 1 / 16):
-    """Test cochleagram shape by providing filterbank"""
-    size = int(size * self.fs)
-    filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
-                                                    size=size,
-                                                    fs=self.fs)
-    coch, freqs_none = psycho.cochleagram(self.x,
-                                          filterbank=filterbank,
-                                          convolve_kws=dict(mode="same"))
-    with self.subTest(freq=None):
-      self.assertIsNone(freqs_none)
+  def test_cochleagram_twostep_shape(self):
+    """Test cochleagram shape from :func:`GammatoneFilterbank.convolve`"""
+    gtfb = psycho.GammatoneFilterbank(normalize=True)
+    coch = gtfb.convolve(self.x, fs=self.fs)
     with self.subTest(shape="rows"):
-      self.assertEqual(coch.shape[0], freqs.size)
-      self.assertEqual(coch.shape[0], n_filters)
+      self.assertEqual(coch.shape[0], len(gtfb))
     with self.subTest(shape="cols"):
-      # same-size convolution
-      self.assertEqual(coch.shape[1], self.x.size)
+      self.assertGreater(coch.shape[1], self.x.size)
 
-  def test_cochleagram_error_undef(self):
-    """Test cochleagram error when filter size is undefined"""
+  def test_error_complex_irs(self):
+    """Test raising exception when IRs are analytical"""
+    for a in (False, True):
+      irs = psycho.GammatoneFilterbank().precompute(fs=self.fs, analytical=a)
+      for arg in (None, "ir", "input", "output"):
+        with self.subTest(ir_analytical=a, arg=arg):
+          if a and arg in ("input", "output"):
+            with self.assertRaises(ValueError):
+              psycho.cochleagram(self.x, filterbank=irs, analytical=arg)
+          else:
+            with self.assert_doesnt_raise():
+              psycho.cochleagram(self.x, filterbank=irs, analytical=arg)
+
+    gtfb = psycho.GammatoneFilterbank(normalize=True)
+    coch = gtfb.convolve(self.x, fs=self.fs)
+    with self.subTest(shape="rows"):
+      self.assertEqual(coch.shape[0], len(gtfb))
+    with self.subTest(shape="cols"):
+      self.assertGreater(coch.shape[1], self.x.size)
+
+  def test_cochleagram_sorted(self):
+    """Test cochleagram frequencies are sorted"""
+    gtfb = psycho.GammatoneFilterbank()
+    for i in range(len(gtfb) - 1):
+      with self.subTest(f"{i}/{len(gtfb)} < {i+1}/{len(gtfb)}"):
+        self.assertLess(gtfb[i].f, gtfb.f[i + 1])
+
+  def test_cochleagram_bandwidth_fn(self):
+    """Test cochleagram bandwidth function"""
+    gtfb = psycho.GammatoneFilterbank(bandwidth=lambda _: 1)
+    for gtf in gtfb:
+      with self.subTest(f_c=gtf.f):
+        self.assertEqual(gtf.bandwidth, 1)
+
+  def test_cochleagram_bandwidth_c(self):
+    """Test cochleagram bandwidth constant"""
+    gtfb = psycho.GammatoneFilterbank(bandwidth=1)
+    for gtf in gtfb:
+      with self.subTest(f_c=gtf.f, bandwidth="init"):
+        self.assertEqual(gtf.bandwidth, 1)
+    for gtf in gtfb:
+      gtf.bandwidth = 10
+      with self.subTest(f_c=gtf.f, bandwidth="set"):
+        self.assertEqual(gtf.bandwidth, 10)
+
+  def test_cochleagram_bandwidth_t_c_vs_delay(self):
+    """Test cochleagram setting leading time vs group delay"""
+    gtfb = psycho.GammatoneFilterbank()
+    for gtf in gtfb:
+      gtf.t_c = 0
+      with self.subTest(f_c=gtf.f, t_c=0):
+        self.assertGreater(gtf.group_delay, 0)
+        self.assertEqual(gtf.t_c, 0)
+      d = gtf.group_delay
+      gtf.t_c = lambda _: 0
+      with self.subTest(f_c=gtf.f, t_c="function() = 0"):
+        self.assertEqual(gtf.group_delay, d)
+        self.assertEqual(gtf.t_c, 0)
+      d = gtf.group_delay
+      gtf.group_delay = 0
+      with self.subTest(f_c=gtf.f, group_delay=0):
+        self.assertEqual(gtf.group_delay, 0)
+        self.assertEqual(gtf.t_c, d)
+
+  def test_cochleagram_phi_c(self):
+    """Test cochleagram gammatone phase"""
+    gtfb = psycho.GammatoneFilterbank(phi=0)
+    for gtf in gtfb:
+      with self.subTest(phase="constant"):
+        self.assertEqual(gtf.phi, 0)
+      gtf.phi = lambda _: 0
+      with self.subTest(phase="function"):
+        self.assertEqual(gtf.phi, 0)
+
+  def test_cochleagram_a_weighting(self):
+    """Test cochleagram A-weighting"""
+    gtfb = psycho.GammatoneFilterbank(
+        a=lambda gtf: dsp_utils.db2a(psycho.a_weighting(gtf.f)))
+    for gtf in gtfb:
+      with self.subTest(f_c=gtf.f):
+        self.assertAlmostEqual(dsp_utils.a2db(gtf.a), psycho.a_weighting(gtf.f))
+
+  def test_cochleagram_a_c(self):
+    """Test cochleagram constant amplitude"""
+    gtfb = psycho.GammatoneFilterbank()
+    for gtf in gtfb:
+      gtf.a = 1
+      with self.subTest(f_c=gtf.f):
+        self.assertEqual(gtf.a, 1)
+
+  def test_gammatone_t60_error_false_start(self):
+    """Test that gammatone filter raises error on bad start"""
+    gtf = psycho.GammatoneFilter(n=100)
     with self.assertRaises(ValueError):
-      psycho.cochleagram(self.x, fs=self.fs)
+      gtf.t60(initial_range=1e-6)
 
-  def test_cochleagram_retry_nonlin(self,
-                                    n_filters: int = 81,
-                                    size: float = 1 / 16):
-    """Test that nonlinearity is first tried with a "out" parameter"""
-    size = int(size * self.fs)
+  def test_gammatone_t60_error_convergence(self):
+    """Test that gammatone filter raises error on bad convergence"""
+    gtf = psycho.GammatoneFilter(n=100)
+    with self.assertRaises(sklearn.exceptions.ConvergenceWarning):
+      gtf.t60(initial_range=1e-3, steps=4)
 
-    class NonLinearity:
-      """Non-linear dummy function for test"""
-
-      def __init__(self):
-        self.called_out = False
-        self.called_no_out = False
-
-      def __call__(self, a, *args, **kwargs):
-        if "out" in kwargs:
-          self.called_out = True
-          raise TypeError
-        self.called_no_out = True
-        return np.square(a, *args, **kwargs)
-
-    nonlinearity = NonLinearity()
-    with self.assert_doesnt_raise():
-      psycho.cochleagram(self.x,
-                         fs=self.fs,
-                         postprocess=nonlinearity,
-                         n_filters=n_filters,
-                         size=size)
-    self.assertTrue(nonlinearity.called_out)
-    self.assertTrue(nonlinearity.called_no_out)
-
-  def test_cochleagram_rms_peak(self,
-                                n_filters: int = 40,
-                                size: float = 1 / 16):
+  def test_cochleagram_rms_peak(self):
     """Test cochleagram RMS peak"""
-    size = int(size * self.fs)
-    filterbank, freqs = psycho.gammatone_filterbank(n_filters=n_filters,
-                                                    freqs=(20, 20000),
-                                                    size=size,
-                                                    fs=self.fs,
-                                                    a_norm=True)
+    irs = psycho.GammatoneFilterbank(normalize=True).precompute(fs=self.fs)
     t = np.arange(int(self.fs * 0.125)) / self.fs
     x = np.empty_like(t)
-    for i, f in enumerate(freqs):
+    for i, f in enumerate(irs.freqs):
       np.multiply(2 * np.pi * f, t, out=x)
       np.sin(x, out=x)
-      coch, _ = psycho.cochleagram(x,
-                                   filterbank=filterbank,
-                                   convolve_kws=dict(mode="same"))
+      coch, _ = psycho.cochleagram(x, filterbank=irs)
       coch_rms = np.sqrt(np.mean(np.square(coch), axis=1))
       with self.subTest(i=i, f=f):
-        self.assertEqual(coch_rms.size, np.size(freqs))
+        self.assertEqual(coch_rms.size, len(irs))
         self.assertEqual(i, np.argmax(coch_rms))
 
-  def test_cochleagram_plot(self, n_filters: int = 81, size: float = 1 / 16):
+  def test_cochleagram_rms_peak_analytical(self):
+    """Test complex cochleagram RMS peak"""
+    irs = psycho.GammatoneFilterbank(normalize=True).precompute(fs=self.fs,
+                                                                analytical=True)
+    t = np.arange(int(self.fs * 0.125)) / self.fs
+    x = np.empty_like(t)
+    for i, f in enumerate(irs.freqs):
+      np.multiply(2 * np.pi * f, t, out=x)
+      np.sin(x, out=x)
+      coch, _ = psycho.cochleagram(x, filterbank=irs)
+      coch_rms = np.sqrt(np.mean(np.square(np.abs(coch)), axis=1))
+      with self.subTest(i=i, f=f):
+        self.assertEqual(coch_rms.size, len(irs))
+        self.assertEqual(i, np.argmax(coch_rms))
+
+  def test_ir_error_no_fs(self):
+    """Test that exception is raised if no fs is specified"""
+    with self.assertRaises(ValueError):
+      psycho.GammatoneFilter(f=200).ir()
+
+  def test_cochleagram_error_no_fs(self):
+    """Test that exception is raised if no fs is specified"""
+    with self.assertRaises(TypeError):
+      psycho.cochleagram(self.x)
+
+  def test_ir_no_error_time(self):
+    """Test that no exception is raised if only one time-step"""
+    with self.assert_doesnt_raise():
+      psycho.GammatoneFilter(f=200, normalize=True).ir(t=[0.0])
+
+  def test_gtfb_error_getattr(self):
+    """Test that exception is raised if accessing wrong attributes"""
+    with self.assertRaises(AttributeError):
+      psycho.GammatoneFilterbank().invalid_attribute
+
+  def test_ir_size(self):
+    """Test that ir size is coherent"""
+    gtfb = psycho.GammatoneFilterbank()
+    for f in gtfb:
+      with self.subTest(f_c=f.f):
+        self.assertEqual(f.ir_size(fs=self.fs), f.ir(fs=self.fs).size)
+
+  def test_ir_normalized(self):
+    """Test that IR normalization is coherent"""
+    gtfb = psycho.GammatoneFilterbank(normalize=True)
+    for f in gtfb:
+      with self.subTest(f_c=f.f):
+        self.assertAlmostEqual(np.sum(np.square(f.ir(fs=self.fs))), self.fs)
+
+  def test_cochleagram_plot(self):
     """Test plotting cochleagram"""
-    size = int(size * self.fs)
-    coch, freqs = psycho.cochleagram(self.x,
-                                     n_filters=n_filters,
-                                     size=size,
-                                     fs=self.fs,
-                                     convolve_kws=dict(mode="same"))
-    plots.tf_plot(dsp_utils.complex2db(dsp_utils.normalize(coch), floor=1e-3),
+    coch, freqs = psycho.cochleagram(
+        self.x,
+        fs=self.fs,
+        postprocessing=lambda c: dsp_utils.complex2db(dsp_utils.normalize(c),
+                                                      floor=1e-3))
+
+    plots.tf_plot(coch,
                   flim=psycho.hz2cams(freqs[[0, -1]]),
                   tlim=(0, self.x.size / self.fs),
                   cmap="afmhot")
