@@ -846,13 +846,14 @@ class GammatoneFilterbank:
       x (array): Input signal
       fs (float): Sample frequency
       analytical (str): Compute the analytical signal of the cochleagram:
-        
-        - if :data:`"input"`, then compute the analytical signal
-          of the input (suggested)
-        - if :data:`"ir"`, then compute the analytical signal
-          of the IRs (faster for long inputs, less accurate)
-        - if :data:`"output"`, then compute the analytical signal
-          of the output (slower, not much more accurate)
+      
+      - if :data:`"input"` (suggested), then compute the analytical signal
+        of the input (fast, accurate in the middle, bad boundary conditions)
+      - if :data:`"ir"`, then compute the analytical signal
+        of the IRs (fast, tends to underestimate amplitude,
+        good boundary conditions)
+      - if :data:`"output"`, then compute the analytical signal
+        of the output (slowest, most accurate)
       postprocess (callable): If not :data:`None`, then apply this function
         to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
         is real, otherwise it is :data:`None`
@@ -903,12 +904,13 @@ def cochleagram(
       is real, otherwise it is :data:`None`
     analytical (str): Compute the analytical signal of the cochleagram:
       
-      - if :data:`"input"`, then compute the analytical signal
-        of the input (suggested)
+      - if :data:`"input"` (suggested), then compute the analytical signal
+        of the input (fast, accurate in the middle, bad boundary conditions)
       - if :data:`"ir"`, then compute the analytical signal
-        of the IRs (faster for long inputs, less accurate)
+        of the IRs (fast, tends to underestimate amplitude,
+        good boundary conditions)
       - if :data:`"output"`, then compute the analytical signal
-        of the output (slower, not much more accurate)
+        of the output (slowest, most accurate)
     method (str): Convolution method (either :data:`"auto"`,
       :data:`"fft"`, or :data:`"direct"`)
     **kwargs: Keyword arguments for :class:`GammatoneFilterbank`
