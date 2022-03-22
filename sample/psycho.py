@@ -359,40 +359,6 @@ def _cams2hz_linear(c: float, out: Optional[np.ndarray] = None) -> float:
   return np.true_divide(out, 0.00437, out=out)
 
 
-def gammatone_leadtime(n: int, b: float) -> float:
-  """Default leading time for gammatone fiters
-
-  Args:
-    n (int): Filter order
-    b (float): Filter bandwidth
-
-  Returns:
-    float: Leading time"""
-  return (n - 1) / (2 * np.pi * b)
-
-
-def gammatone_phase(f: float, t_c: float) -> float:
-  """Default phase for gammatone fiters
-
-  Args:
-    f (float): Center frequency
-    t_c (float): Leading time
-
-  Returns:
-    float: Phase"""
-  return -2 * np.pi * f * t_c
-
-
-def _preprocess_gammatone_time(t=None,
-                               size: Optional[int] = None,
-                               fs: float = 1):
-  if t is not None:
-    return t
-  if size is None:
-    raise ValueError("Please, specify either time axis or filter size")
-  return np.arange(size) / fs
-
-
 OptionalValueOrFunc = Optional[Union[float, Callable[["GammatoneFilter"],
                                                      float]]]
 
