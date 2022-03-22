@@ -1,5 +1,4 @@
 """Classes and functions related to psychoacoustic models"""
-import functools
 from typing import (Any, Callable, Dict, Iterable, Optional, Sequence, Tuple,
                     Union)
 
@@ -514,8 +513,8 @@ class GammatoneFilter:
 
     Args:
       steps (int): Dichotomic search steps for t60 computation
-      n_starts (int): Number of restarts for determining the initial search range
-        before raising an exception
+      n_starts (int): Number of restarts for determining the initial search
+        range before raising an exception
       initial_range (float): Width of the initial search range. In case the
         t60 is not in the range, the width is doubled :data:`n_starts` times
       floor (float): Threshold for the t60 in decibel. Default is :data:`-60`
@@ -638,7 +637,6 @@ class GammatoneFilter:
 
     Returns:
       array: The wave function evaluated at :data:`t`"""
-    """Wave function for the IR (non-rescaled)"""
     out = self.envelope(t,
                         out=out,
                         **({
@@ -843,6 +841,7 @@ class GammatoneFilterbank:
                analytical: Optional[str] = None,
                method: str = "auto",
                **kwargs):
+    # pylint: disable=C0303
     """Filter the input with the filterbank and produce a cochleagram
 
     Args:
@@ -895,6 +894,7 @@ def cochleagram(
     analytical: Optional[str] = None,
     method: str = "auto",
     **kwargs):
+  # pylint: disable=C0303
   """Compute the cochleagram for the signal
 
   Args:

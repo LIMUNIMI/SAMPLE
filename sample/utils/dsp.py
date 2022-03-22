@@ -150,9 +150,7 @@ def dychotomic_zero_crossing(func: Callable[[float], float],
     raise ValueError("Function has the same sign at both boundaries: "
                      f"f({lo}) = {f_lo},  f({hi}) = {f_hi}")
   if f_lo > f_hi:
-    tmp = lo
-    lo = hi
-    hi = tmp
+    f_lo, f_hi = f_hi, f_lo
   a = (lo + hi) / 2
   for _ in range(steps):
     f_a = func(a)
