@@ -601,46 +601,71 @@ class GammatoneFilter:
     np.multiply(tmp, out, out=out)
     return out
 
-  def envelope(self, t: np.ndarray, out: Optional[float] = None) -> np.ndarray:
+  def envelope(self,
+               t: np.ndarray,
+               out: Optional[float] = None,
+               **kwargs) -> np.ndarray:
     """Envelope function for the IR
 
     Args:
       t (array): Time axis
       out (array): Optional. Array to use for storing results
+      **kwargs: Keyword arguments for :func:`_envelope`
 
     Returns:
       array: The IR envelope function evaluated at :data:`t`"""
-    return self._envelope(t, n=self.n, t_c=self.t_c, b=self.bandwidth, out=out)
+    return self._envelope(t,
+                          n=self.n,
+                          t_c=self.t_c,
+                          b=self.bandwidth,
+                          out=out,
+                          **kwargs)
 
-  def wavefun(self, t: float, out: Optional[float] = None) -> np.ndarray:
+  def wavefun(self,
+              t: float,
+              analytical: bool = False,
+              out: Optional[np.ndarray] = None) -> np.ndarray:
     """Filter wave function for the IR (non-scaled)
 
     Args:
       t (array): Time axis
+      analytical (bool): If :data:`True`, use a complex exponential as
+        oscillator, instead of a cosine
       out (array): Optional. Array to use for storing results
 
     Returns:
       array: The wave function evaluated at :data:`t`"""
     """Wave function for the IR (non-rescaled)"""
-    out = self.envelope(t, out=out)
+    out = self.envelope(t,
+                        out=out,
+                        **({
+                            "dtype": complex
+                        } if analytical and out is None else {}))
     tmp = np.empty_like(out)
     # cos(2pi * f * t + phi)
     np.multiply(2 * np.pi * self.f, t, out=tmp)
     np.add(tmp, self.phi, out=tmp)
-    np.cos(tmp, out=tmp)
+    if analytical:
+      np.multiply(1j, tmp, out=tmp)
+      np.exp(tmp, out=tmp)
+    else:
+      np.cos(tmp, out=tmp)
     np.multiply(out, tmp, out=out)
     return out
 
   def ir(self,
          t: Optional[float] = None,
          fs: Optional[float] = None,
-         out: Optional[float] = None,
+         analytical: bool = False,
+         out: Optional[np.ndarray] = None,
          **kwargs) -> np.ndarray:
     """Filter IR (scaled)
 
     Args:
       t (array): Time axis
       fs (float): Sample frequency
+      analytical (bool): If :data:`True`, use a complex exponential as
+        oscillator, instead of a cosine
       out (array): Optional. Array to use for storing results
       **kwargs: Keyword arguments for :func:`ir_size`
 
@@ -651,20 +676,24 @@ class GammatoneFilter:
         raise ValueError(
             "Please, specify either the time axis or a sample frequency")
       t = np.arange(self.ir_size(fs=fs, **kwargs)) / fs - self.t_c
-    out = self.wavefun(t, out=out)
+    out = self.wavefun(t, analytical=analytical, out=out)
     # scale
     a = self.a
     # normalize
     if self.normalize:
       if a is None:
         a = 1
-      norm2 = np.sum(np.square(out))
-      try:
-        dt = t[1] - t[0]
-      except TypeError:
-        pass
+      # Can be complex
+      tmp = np.conjugate(out)
+      np.multiply(out, tmp, out=tmp)
+      norm2 = np.real(np.sum(tmp))
+      if fs is None:
+        try:
+          norm2 *= t[1] - t[0]
+        except TypeError:
+          pass
       else:
-        norm2 *= dt
+        norm2 /= fs
       a /= np.sqrt(norm2)
     if a is not None:
       np.multiply(a, out, out=out)
@@ -737,9 +766,9 @@ class GammatoneFilterbank:
     Args:
       parent (GammatoneFilterbank): Gammatone filterbank to render
       fs (float): Sample frequency
-      analytical (bool): If :data:`True`, then compute the analytical signal
-        of the IRs. Convolving the analytical IRs is faster than convolving
-        the real IRs and then computing the Hilbert transform of the
+      analytical (bool): If :data:`True`, then the IRs are complex-valued.
+        Convolving the complex IRs is faster than convolving
+        the real IRs and then computing the analytical signal of the
         cochleagram. The resulting cochleagram will be complex. The real
         part will be the ordinary cochleagram. The absolute value will be
         the AM envelope of the cochleagram"""
@@ -757,9 +786,8 @@ class GammatoneFilterbank:
       # Time axes start accordindly to the leading times
       time_axes = ((np.arange(f.ir_size(fs=fs) + 1, dtype=float) - off) / fs
                    for off, f, in zip(self.offsets, parent))
-      irs = (f.ir(t=t, **kwargs) for t, f in zip(time_axes, parent))
-      if analytical:
-        irs = map(signal.hilbert, irs)
+      irs = (f.ir(t=t, analytical=analytical, **kwargs)
+             for t, f in zip(time_axes, parent))
       self.irs = tuple(irs)
 
       # Offsets now are the delays in samples to apply to each IR
