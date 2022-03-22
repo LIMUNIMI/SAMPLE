@@ -359,6 +359,43 @@ def _cams2hz_linear(c: float, out: Optional[np.ndarray] = None) -> float:
   return np.true_divide(out, 0.00437, out=out)
 
 
+@utils.numpy_out(dtype=float)
+def a_weighting(f: float,
+                db: bool = True,
+                out: Optional[np.ndarray] = None) -> float:
+  """A-Weighting weights for input frequencies, as of "Electroacoustics - Sound
+  level meters - Part 1: Specifications" (2013)
+
+  Args:
+    f (array): Frequency values in Hertz
+    db (bool): If :data:`True` (default), return the gain to apply in dB
+      with reference at 1kHz (:data:`a_weighting(1000) = 0`)
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: A-weights"""
+  if db:
+    return dsp_utils.a2db(a_weighting(f, db=False, out=out)) - _a_weight_1kHz_db
+  f2 = np.empty_like(out)
+  np.square(f, out=f2)
+  # f^2 + 107.7^2
+  np.add(f2, 11599.29, out=out)
+  # (f^2 + 107.7^2) (f^2 + 737.9^2)
+  tmp = np.empty_like(out)
+  np.multiply(out, np.add(f2, 544496.41, out=tmp), out=out)
+  # sqrt((f^2 + 107.7^2) (f^2 + 737.9^2))
+  np.sqrt(out, out=out)
+  # (f^2 + 20.6^2) sqrt((f^2 + 107.7^2) (f^2 + 737.9^2)) (f^2 + 12194^2)
+  np.multiply(out, np.add(f2, 424.36, out=tmp), out=out)
+  np.multiply(out, np.add(f2, 148693636, out=tmp), out=out)
+  # 12194^2 f^4 / (...)
+  np.multiply(148693636, np.square(f2, out=f2), out=tmp)
+  np.true_divide(tmp, out, out=out)
+  return out
+
+
+_a_weight_1kHz_db: float = dsp_utils.a2db(a_weighting(1e3, db=False))
+
 OptionalValueOrFunc = Optional[Union[float, Callable[["GammatoneFilter"],
                                                      float]]]
 
