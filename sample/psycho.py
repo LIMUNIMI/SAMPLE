@@ -697,7 +697,7 @@ class GammatoneFilter:
       if fs is None:
         try:
           norm2 *= t[1] - t[0]
-        except TypeError:
+        except (TypeError, IndexError):
           pass
       else:
         norm2 /= fs
