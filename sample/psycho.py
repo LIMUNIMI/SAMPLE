@@ -855,9 +855,9 @@ class GammatoneFilterbank:
       fs (float): Sample frequency
       analytical (str): Compute the analytical signal of the cochleagram:
       
-      - if :data:`"input"` (suggested), then compute the analytical signal
+      - if :data:`"input"`, then compute the analytical signal
         of the input (fast, accurate in the middle, bad boundary conditions)
-      - if :data:`"ir"`, then compute the analytical signal
+      - if :data:`"ir"` (suggested), then compute the analytical signal
         of the IRs (fast, tends to underestimate amplitude,
         good boundary conditions)
       - if :data:`"output"`, then compute the analytical signal
@@ -913,9 +913,9 @@ def cochleagram(
       is real, otherwise it is :data:`None`
     analytical (str): Compute the analytical signal of the cochleagram:
       
-      - if :data:`"input"` (suggested), then compute the analytical signal
+      - if :data:`"input"`, then compute the analytical signal
         of the input (fast, accurate in the middle, bad boundary conditions)
-      - if :data:`"ir"`, then compute the analytical signal
+      - if :data:`"ir"` (suggested), then compute the analytical signal
         of the IRs (fast, tends to underestimate amplitude,
         good boundary conditions)
       - if :data:`"output"`, then compute the analytical signal
