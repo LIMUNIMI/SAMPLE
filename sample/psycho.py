@@ -411,7 +411,7 @@ class GammatoneFilter:
     t_c (callable or float): Leading time in seconds. If callable, it
       must accept a single argument of type :class:`GammatoneFilter`. If
       :data:`None` (default), then use the group-delay (non-causal filter)
-    phi (callable or float): Initial phase in radians. If callable, it
+    phi (callable or float): Phase in radians at time t=0. If callable, it
       must accept a single argument of type :class:`GammatoneFilter`. If
       :data:`None` (default), then use a phase value coherent with the
       leading time
@@ -567,8 +567,14 @@ class GammatoneFilter:
 
     Returns:
       int: Suggested IR size"""
-    n_periods = np.ceil((self.t60(**kwargs) + self.t_c) * self.f)
-    return np.floor(n_periods * fs / self.f).astype(int)
+    w = 2 * np.pi * self.f
+    # phase at t60
+    phase60 = self.phi + w * self.t60(**kwargs)
+    # quantize at next multiple of pi/2 => either zero-value or zero-derivative
+    phase60 = np.ceil(phase60 * 2 / np.pi) * np.pi / 2
+    # quantized t60
+    t60 = (phase60 - self.phi) / w
+    return np.floor((t60 + self.t_c) * fs).astype(int)
 
   @staticmethod
   @utils.numpy_out(dtype=float)
@@ -785,7 +791,7 @@ class GammatoneFilterbank:
       self.offsets = np.ceil(np.multiply(parent.t_c, fs)).astype(int)
 
       # Time axes start accordindly to the leading times
-      time_axes = ((np.arange(f.ir_size(fs=fs) + 1, dtype=float) - off) / fs
+      time_axes = ((np.arange(f.ir_size(fs=fs), dtype=float) - off) / fs
                    for off, f, in zip(self.offsets, parent))
       irs = (f.ir(t=t, analytical=analytical, **kwargs)
              for t, f in zip(time_axes, parent))
