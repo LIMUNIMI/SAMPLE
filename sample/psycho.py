@@ -765,7 +765,7 @@ class GammatoneFilterbank:
       return tuple(getattr(f, key) for f in self)
     except AttributeError:
       pass
-    super().__getattr__(key)
+    return super().__getattr__(key)
 
   class PrecomputedIRBank:
     """Precomputed IR bank for a :class:`GammatoneFilterbank`
