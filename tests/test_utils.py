@@ -71,3 +71,12 @@ class TestDSP(unittestmixins.RMSEAssertMixin,
     dsp_utils.db2a(a, out=a)
     with self.subTest(check="a"):
       self.assertTrue(np.greater_equal(a, dsp_utils.db2a(f)).all())
+
+  def test_zero_reach(self):
+    """Test reaching zero in :func:`dsp_utils.dychotomic_zero_crossing`"""
+    def func(a: float):
+      if abs(a) > 1:
+        return a
+      return 0
+    a0 = dsp_utils.dychotomic_zero_crossing(func, 2, -2)
+    self.assertEqual(func(a0), 0)

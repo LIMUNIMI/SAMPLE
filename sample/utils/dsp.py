@@ -1,5 +1,5 @@
 """DSP utilities"""
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 from sample import utils
@@ -128,3 +128,37 @@ def complex2db(c, out: Optional[np.ndarray] = None, **kwargs):
     array: Decibel values"""
   np.abs(c, out=out)
   return a2db(out, out=out, **kwargs)
+
+
+def dychotomic_zero_crossing(func: Callable[[float], float],
+                             lo: float,
+                             hi: float,
+                             steps: int = 16):
+  """Dichotomicly search for a zero crossing
+
+  Args:
+    func (callable): Function to evaluate
+    lo (float): Lower boundary for dichotomic search
+    hi (float): Higher boundary for dichotomic search
+    steps (int): Number of steps for the search
+
+  Returns:
+    float: Argument for which the function is close to zero"""
+  f_lo = func(lo)
+  f_hi = func(hi)
+  if f_lo * f_hi > 0:
+    raise ValueError("Function has the same sign at both boundaries: "
+                     f"f({lo}) = {f_lo},  f({hi}) = {f_hi}")
+  if f_lo > f_hi:
+    f_lo, f_hi = f_hi, f_lo
+  a = (lo + hi) / 2
+  for _ in range(steps):
+    f_a = func(a)
+    if f_a < 0:
+      lo = a
+    elif f_a > 0:
+      hi = a
+    else:
+      break
+    a = (lo + hi) / 2
+  return a
