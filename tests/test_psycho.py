@@ -70,11 +70,15 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_cochleagram_shape(self):
     """Test cochleagram shape"""
-    coch, freqs = psycho.cochleagram(self.x, fs=self.fs, normalize=True)
-    with self.subTest(shape="rows"):
-      self.assertEqual(coch.shape[0], np.size(freqs))
-    with self.subTest(shape="cols"):
-      self.assertGreater(coch.shape[1], self.x.size)
+    for method in ("auto", "fft", "direct", "overlap-add"):
+      coch, freqs = psycho.cochleagram(self.x,
+                                       fs=self.fs,
+                                       normalize=True,
+                                       method=method)
+      with self.subTest(shape="rows", method=method):
+        self.assertEqual(coch.shape[0], np.size(freqs))
+      with self.subTest(shape="cols", method=method):
+        self.assertGreater(coch.shape[1], self.x.size)
 
   def test_cochleagram_twostep_shape(self):
     """Test cochleagram shape from :func:`GammatoneFilterbank.convolve`"""

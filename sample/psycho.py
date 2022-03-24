@@ -1,4 +1,5 @@
 """Classes and functions related to psychoacoustic models"""
+import functools
 from typing import (Any, Callable, Dict, Iterable, Optional, Sequence, Tuple,
                     Union)
 
@@ -807,20 +808,24 @@ class GammatoneFilterbank:
       """Number of IRs"""
       return len(self.irs)
 
-    def convolve(self, x: np.ndarray, method: str = "auto"):
+    def convolve(self, x: np.ndarray, method: str = "overlap-add"):
       """Convolve the IRs and organize the outputs in an aligned matrix
 
       Args:
         x (array): Input signal
         method (str): Convolution method (either :data:`"auto"`,
-          :data:`"fft"`, or :data:`"direct"`)
+          :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
 
       Returns:
         matrix: Cochleagram, will be complex if the IRs are analytical"""
       out = np.zeros((len(self), x.size + self._ir_size - 1),
                      dtype=np.result_type(x, *self.irs))
+      if method == "overlap-add":
+        convolve = signal.oaconvolve
+      else:
+        convolve = functools.partial(signal.convolve, method=method)
       for i, (ir, off) in enumerate(zip(self.irs, self.offsets)):
-        y = signal.convolve(x, ir, mode="full", method=method)
+        y = convolve(x, ir, mode="full")
         # Delay is LTI, so we shift the result instead of zero-padding
         # the start of the IR in order to save computation time
         out[i, off:(off + y.size)] = y
@@ -845,7 +850,7 @@ class GammatoneFilterbank:
                x: np.ndarray,
                fs: float,
                analytical: Optional[str] = None,
-               method: str = "auto",
+               method: str = "overlap-add",
                **kwargs):
     # pylint: disable=C0303
     """Filter the input with the filterbank and produce a cochleagram
@@ -855,18 +860,18 @@ class GammatoneFilterbank:
       fs (float): Sample frequency
       analytical (str): Compute the analytical signal of the cochleagram:
       
-      - if :data:`"input"`, then compute the analytical signal
-        of the input (fast, accurate in the middle, bad boundary conditions)
-      - if :data:`"ir"` (suggested), then compute the analytical signal
-        of the IRs (fast, tends to underestimate amplitude,
-        good boundary conditions)
-      - if :data:`"output"`, then compute the analytical signal
-        of the output (slowest, most accurate)
+        - if :data:`"input"`, then compute the analytical signal
+          of the input (fast, accurate in the middle, bad boundary conditions)
+        - if :data:`"ir"` (suggested), then compute the analytical signal
+          of the IRs (fast, tends to underestimate amplitude,
+          good boundary conditions)
+        - if :data:`"output"`, then compute the analytical signal
+          of the output (slowest, most accurate)
       postprocess (callable): If not :data:`None`, then apply this function
         to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
         is real, otherwise it is :data:`None`
-      method (str): Convolution method (either :data:`"auto"`,
-        :data:`"fft"`, or :data:`"direct"`)
+        method (str): Convolution method (either :data:`"auto"`,
+          :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
 
     Returns:
       matrix: Cochleagram"""
@@ -898,7 +903,7 @@ def cochleagram(
     filterbank: Optional[Union[GammatoneFilterbank,
                                GammatoneFilterbank.PrecomputedIRBank]] = None,
     analytical: Optional[str] = None,
-    method: str = "auto",
+    method: str = "overlap-add",
     **kwargs):
   # pylint: disable=C0303
   """Compute the cochleagram for the signal
@@ -921,7 +926,7 @@ def cochleagram(
       - if :data:`"output"`, then compute the analytical signal
         of the output (slowest, most accurate)
     method (str): Convolution method (either :data:`"auto"`,
-      :data:`"fft"`, or :data:`"direct"`)
+      :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
     **kwargs: Keyword arguments for :class:`GammatoneFilterbank`
 
   Returns:

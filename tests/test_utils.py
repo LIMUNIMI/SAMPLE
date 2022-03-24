@@ -74,9 +74,11 @@ class TestDSP(unittestmixins.RMSEAssertMixin,
 
   def test_zero_reach(self):
     """Test reaching zero in :func:`dsp_utils.dychotomic_zero_crossing`"""
+
     def func(a: float):
       if abs(a) > 1:
         return a
       return 0
+
     a0 = dsp_utils.dychotomic_zero_crossing(func, 2, -2)
     self.assertEqual(func(a0), 0)
