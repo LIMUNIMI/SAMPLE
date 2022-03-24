@@ -66,8 +66,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_dur_too_short(self):
     """Test that errors occur for too short sine durations"""
     s = copy.deepcopy(self.sample).set_params(
-        sinusoidal_model__min_sine_dur=1e-6,
-    )
+        sinusoidal_model__min_sine_dur=1e-6,)
     with self.assertRaises(ValueError):
       s.fit(self.noise)
 
