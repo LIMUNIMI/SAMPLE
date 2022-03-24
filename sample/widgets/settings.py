@@ -17,11 +17,13 @@ def try_func(func: Callable,
              exc: Union[Type[Exception], Tuple[Type[Exception], ...]],
              default: Optional = None):
   """Function wrapper for returning a default value on fail
+
   Args:
     func (callable): Function to wrap
     exc (exception): Exception class to catch (or tuple of classes). Default
       is :class:`Exception`
     default: Value returned on exception. Default is :data:`None`
+
   Returns:
     callable: Wrapped function"""
 
