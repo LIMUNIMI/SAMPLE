@@ -399,7 +399,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.bind("<Button-1>", self.apply_cbk)
     self.button.grid()
 
-    self.sample_object = sample.SAMPLE()
+    self.sample_object = sample.SAMPLE4GUI()
     self.apply_cbk(from_file=True)
 
   def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613
