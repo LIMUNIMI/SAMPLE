@@ -238,7 +238,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_gtfb_error_getattr(self):
     """Test that exception is raised if accessing wrong attributes"""
     with self.assertRaises(AttributeError):
-      psycho.GammatoneFilterbank().invalid_attribute
+      psycho.GammatoneFilterbank().invalid_attribute  # pylint: disable=W0106
 
   def test_ir_size(self):
     """Test that ir size is coherent"""
