@@ -17,11 +17,13 @@ def try_func(func: Callable,
              exc: Union[Type[Exception], Tuple[Type[Exception], ...]],
              default: Optional = None):
   """Function wrapper for returning a default value on fail
+
   Args:
     func (callable): Function to wrap
     exc (exception): Exception class to catch (or tuple of classes). Default
       is :class:`Exception`
     default: Value returned on exception. Default is :data:`None`
+
   Returns:
     callable: Wrapped function"""
 
@@ -397,7 +399,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.bind("<Button-1>", self.apply_cbk)
     self.button.grid()
 
-    self.sample_object = sample.SAMPLE()
+    self.sample_object = sample.SAMPLE4GUI()
     self.apply_cbk(from_file=True)
 
   def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613

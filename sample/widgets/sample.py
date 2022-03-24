@@ -9,11 +9,11 @@ from sample import sample, regression
 from sample.sms import mm
 
 
-class SAMPLE(sample.SAMPLE):
+class SAMPLE4GUI(sample.SAMPLE):
   """SAMPLE model for use in the GUI. For a full list of arguments see
   :class:`sample.sample.SAMPLE`"""
 
-  class SinusoidalModel(mm.ModalModel):
+  class SinusoidalModel4GUI(mm.ModalModel):
     """Sinusoidal tracker for use in the GUI. For a full list of
     arguments see :class:`sample.sms.mm.ModalModel`
 
@@ -111,7 +111,7 @@ class SAMPLE(sample.SAMPLE):
         yield f
 
   def __init__(self,
-               sinusoidal_model=SinusoidalModel(),
+               sinusoidal_model=SinusoidalModel4GUI(),
                regressor=regression.HingeRegression(),
                regressor_k: str = "k_",
                regressor_q: str = "q_",
