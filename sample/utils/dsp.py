@@ -151,6 +151,7 @@ def dychotomic_zero_crossing(func: Callable[[float], float],
                      f"f({lo}) = {f_lo},  f({hi}) = {f_hi}")
   if f_lo > f_hi:
     f_lo, f_hi = f_hi, f_lo
+    lo, hi = hi, lo
   a = (lo + hi) / 2
   for _ in range(steps):
     f_a = func(a)
