@@ -132,6 +132,7 @@ def _result_type(*args):
 
 
 def numpy_out(func: Optional[Callable] = None,
+              method: bool = False,
               key: str = "out",
               dtype_key: str = "dtype",
               dtype: Optional[np.dtype] = None,
@@ -141,6 +142,7 @@ def numpy_out(func: Optional[Callable] = None,
 
   Args:
     func (callable): Numpy-like function
+    method (bool): Set this to :data:`True` when wrapping a method
     key (str): Argument name
     dtype_key (str): Argument name for dtype. Default is :data:`"dtype"`
     dtype (dtype): Default dtype of output
@@ -152,6 +154,7 @@ def numpy_out(func: Optional[Callable] = None,
     callable: Decorated function"""
   if func is None:
     return functools.partial(numpy_out,
+                             method=method,
                              key=key,
                              dtype_key=dtype_key,
                              dtype=dtype,
@@ -173,14 +176,24 @@ def numpy_out(func: Optional[Callable] = None,
     return kwargs.pop(dtype_key) if dtype_key in kwargs else _get_dtype_inner(
         args)
 
+  if method:
+
+    def _get_args(args):
+      return args[:1], args[1], args[2:]
+  else:
+
+    def _get_args(args):
+      return (), args[0], args[1:]
+
   @functools.wraps(func)
-  def func_(a, *args, **kwargs):
+  def func_(*args, **kwargs):
     nd = None
+    s, a, args = _get_args(args)
     if kwargs.get(key, None) is None:
       nd = np.ndim(a)
       kwargs[key] = np.empty(() if nd == 0 else np.shape(a),
                              dtype=_get_dtype((a, *args), kwargs))
-    out = func(a, *args, **kwargs)
+    out = func(*s, a, *args, **kwargs)
     return out if nd is None or nd != 0 else out[()]
 
   return func_
