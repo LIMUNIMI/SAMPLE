@@ -148,3 +148,61 @@ class Beat:
     else:
       raise AttributeError(
           f"'{type(self).__name__}' object has no attribute '{key}'")
+
+
+class ExponentialDecay:
+  r"""Exponentially decaying function
+  :math:`f(t) = a\cdot e^{-\frac{2}{d}t}`
+
+  Args:
+    a (float): Amplitude at time :math:`t=0`
+    d (float): Decay in seconds"""
+
+  def __init__(self, a: float, d: float):
+    self._a = a
+    self._k = -2 / d
+
+  @utils.numpy_out(method=True, dtype=float)
+  def __call__(self, t: np.ndarray, out: Optional[np.ndarray] = None):
+    """Compute function at time :data:`t`
+
+    Args:
+      t (array): Time-steps at which to evaluate the function
+      out (array): Optional. Array to use for storing results
+
+    Returns:
+      array: Function evaluated at time :data:`t`"""
+    np.multiply(self._k, t, out=out)
+    np.exp(out, out=out)
+    np.multiply(self._a, out, out=out)
+    return out
+
+
+class ModalBeat(Beat):
+  """Model for beating exponentially-decaying partials
+
+  Args:
+    a0 (float): Amplitude of first partial
+    a1 (float): Amplitude of second partial
+    f0 (float): Frequency of first partial
+    f1 (float): Frequency of second partial
+    d0 (float): Decay of the first partial
+    d1 (float): Decay of the second partial
+    p0 (float): Phase of first partial
+    p1 (float): Phase of second partial"""
+
+  def __init__(self,
+               a0: float = 1,
+               a1: float = 1,
+               f0: float = 0.95,
+               f1: float = 1.05,
+               d0: float = 1,
+               d1: float = 1,
+               p0: float = 0,
+               p1: float = 0):
+    super().__init__(f0=f0,
+                     f1=f1,
+                     p0=p0,
+                     p1=p1,
+                     a0=ExponentialDecay(a=a0, d=d0),
+                     a1=ExponentialDecay(a=a1, d=d1))
