@@ -239,6 +239,7 @@ def additive_synth(x,
                    decays: Sequence[float],
                    amps: Sequence[float],
                    phases: Optional[Union[Sequence[float], str]] = None,
+                   analytical: bool = False,
                    **kwargs) -> np.array:
   """Additively synthesize audio
 
@@ -248,6 +249,8 @@ def additive_synth(x,
       decays (array): Modal decays
       amps (array): Modal amplitudes
       phases (array): Starting phase for every mode, optional
+      analytical (bool): If :data:`True`, use a complex
+        exponential as an oscillator
       **kwargs: Keyword arguments for random phase generator
 
     Returns:
@@ -266,7 +269,7 @@ def additive_synth(x,
             f"Supported options are: {utils.comma_join_quote(_phases_funcs)}"
         ) from e
     np.add(osc, row(phases), out=osc)
-  np.sin(osc, out=osc)
+  osc = (dsp_utils.expi if analytical else np.cos)(osc)
   dec = col(x) @ (-2 / row(decays))
   np.exp(dec, out=dec)
   amp = col(amps)

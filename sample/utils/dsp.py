@@ -163,3 +163,18 @@ def dychotomic_zero_crossing(func: Callable[[float], float],
       break
     a = (lo + hi) / 2
   return a
+
+
+@utils.numpy_out(dtype=np.complex64)
+def expi(x: np.ndarray, out: Optional[np.ndarray] = None):
+  r"""Exponential of imaginary input
+
+  Args:
+    x (array): Input array, to be multiplied by :math:`i`
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: :math:`e^{ix}`"""
+  np.multiply(1j, x, out=out)
+  np.exp(out, out=out)
+  return out
