@@ -7,7 +7,7 @@ import numpy as np
 from sklearn import base
 
 from sample import utils
-from sample.regression import HingeRegression
+from sample import hinge
 from sample.sms import mm
 from sample.utils import dsp as dsp_utils
 
@@ -19,7 +19,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     sinusoidal_model: Sinusoidal model. Default is an instance of
       :class:`sample.sms.mm.ModalModel`
     regressor: Regressor. Default is an instance of
-      :class:`sample.regression.HingeRegression`
+      :class:`sample.hinge.HingeRegression`
     regressor_k (str): Attribute name for the estimated slope
       coefficient of :data:`regressor`
     regressor_q (str): Attribute name for the estimated intercept
@@ -36,7 +36,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   def __init__(
       self,
       sinusoidal_model=mm.ModalModel(),
-      regressor=HingeRegression(),
+      regressor=hinge.HingeRegression(),
       regressor_k: str = "k_",
       regressor_q: str = "q_",
       freq_reduce: Callable[[np.ndarray], float] = np.mean,

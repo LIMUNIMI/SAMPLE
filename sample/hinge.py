@@ -1,10 +1,11 @@
-"""Regression models"""
+"""Hinge functions and regression models"""
 import copy
 from typing import Callable, Optional, Tuple
 
 import numpy as np
 from scipy import optimize
 from sklearn import base, linear_model
+
 from sample import utils
 
 
