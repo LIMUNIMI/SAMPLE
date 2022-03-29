@@ -8,32 +8,39 @@ from sklearn import base, linear_model
 from sample import utils
 
 
-def hinge_function(x: np.ndarray, a: float, k: float, q: float) -> np.ndarray:
-  """Hinge function
+@utils.numpy_out
+def hinge_function(x: np.ndarray,
+                   a: float,
+                   k: float,
+                   q: float,
+                   out: Optional[np.ndarray] = None) -> np.ndarray:
+  r"""Hinge function
 
   Args:
     x (array): Independent variable
     a (float): Knee point
     k (float): Slope
     q (float): Intercept
+    out (array): Optional. Array to use for storing results
 
   Returns:
-    array: :math:`h(x) = k * min(x, a) + q`"""
-  return k * np.minimum(x, a) + q
+    array: :math:`h(x) = k \cdot min(x, a) + q`"""
+  np.minimum(x, a, out=out)
+  np.multiply(k, out, out=out)
+  np.add(q, out, out=out)
+  return out
 
 
-coeff_init_type: type = Callable[[np.ndarray, np.ndarray, float, float],
-                                 Tuple[float, float, float]]
-
-bounds_fun_type: type = Callable[[np.ndarray, np.ndarray, float, float],
-                                 Tuple[Tuple[float, float, float],
-                                       Tuple[float, float, float]]]
+HingeCoeffs = Tuple[float, float, float]
+HingeCoeffsInit = Callable[[np.ndarray, np.ndarray, float, float], HingeCoeffs]
+HingeBoundsFunc = Callable[[np.ndarray, np.ndarray, float, float],
+                           Tuple[HingeCoeffs, HingeCoeffs]]
 
 
 class HingeRegression(base.RegressorMixin, base.BaseEstimator):
-  """Regressor for fitting to a hinge function
+  r"""Regressor for fitting to a hinge function
 
-  :math:`h(x) = k * min(x, a) + q`
+  :math:`h(x) = k \cdot min(x, a) + q`
 
   Args:
     linear_regressor (sklearn.base.BaseEstimator): Linear regression model
@@ -69,8 +76,8 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       linear_regressor_k: str = "coef_",
       linear_regressor_q: str = "intercept_",
       method: str = "dogbox",
-      coeffs_init: Optional[coeff_init_type] = None,
-      bounds: Optional[bounds_fun_type] = None,
+      coeffs_init: Optional[HingeCoeffsInit] = None,
+      bounds: Optional[HingeBoundsFunc] = None,
   ):
     self.linear_regressor = linear_regressor
     self.linear_regressor_k = linear_regressor_k
@@ -92,7 +99,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       x: np.ndarray,
       y: np.ndarray,  # pylint: disable=W0613
       k: float,
-      q: float) -> Tuple[float, float, float]:
+      q: float) -> HingeCoeffs:
     """Default coefficient initializer
 
     Args:
@@ -108,7 +115,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     return a, k, q
 
   @property
-  def _coeffs_init(self) -> coeff_init_type:
+  def _coeffs_init(self) -> HingeCoeffsInit:
     """Coefficient initializer
 
     Returns:
@@ -124,7 +131,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       y: np.ndarray,
       k: float,
       q: float  # pylint: disable=W0613
-  ) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+  ) -> Tuple[HingeCoeffs, HingeCoeffs]:
     """Default boundaries
 
     Args:
@@ -163,7 +170,7 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     return ((a_min, k_min, q_min), (a_max, k_max, q_max))
 
   @property
-  def _bounds(self) -> bounds_fun_type:
+  def _bounds(self) -> HingeBoundsFunc:
     """Boundary function
 
     Returns:
@@ -259,6 +266,7 @@ def double_hinge_function(x: np.ndarray,
     b (float): Left knee point
     k (float): Slope
     q (float): Intercept
+    out (array): Optional. Array to use for storing results
 
   Returns:
     array: :math:`h(x) = k \cdot max(min(x, a), b) + q`"""
