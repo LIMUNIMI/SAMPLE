@@ -1,8 +1,10 @@
 """DSP utilities"""
+import functools
 from typing import Callable, Optional
 
 import numpy as np
 from sample import utils
+from sklearn import base, linear_model
 
 
 @utils.function_with_variants(key="mode", default="peak", this="peak")
@@ -178,3 +180,34 @@ def expi(x: np.ndarray, out: Optional[np.ndarray] = None):
   np.multiply(1j, x, out=out)
   np.exp(out, out=out)
   return out
+
+
+column = functools.partial(np.reshape, newshape=(-1, 1))
+
+
+def detrend(y: np.ndarray,
+            x: Optional[np.ndarray] = None,
+            model: Optional[base.BaseEstimator] = None) -> np.ndarray:
+  """Remove trends from a signal
+
+  Args:
+    y (array): Array of signal samples. Must be monodimensional
+    x (array): Optional. Time-steps for the signal. If unspecified
+      :data:`y` is assumed to be uniformly sampled
+    model (Estimator): Sklearn-like estimator to estimate signal trend.
+      If :data:`None`, then construct a new instance of
+      :class:`sklearn.linear_model.LinearRegression`
+
+  Returns:
+    array: The model prediction residuals"""
+  if np.ndim(y) != 1:
+    raise ValueError(
+        f"detrend(): input arry must be 1d, but shape is {np.shape(y)}")
+  if model is None:
+    model = linear_model.LinearRegression()
+  if x is None:
+    x = np.arange(np.size(y))
+  y = column(y)
+  x = column(x)
+  model.fit(x, y)
+  return np.squeeze(y - model.predict(x))
