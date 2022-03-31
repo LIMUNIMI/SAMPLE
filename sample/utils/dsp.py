@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 import numpy as np
 from sample import utils
+from scipy import signal
 from sklearn import base, linear_model
 
 
@@ -184,7 +185,7 @@ def dychotomic_zero_crossing(func: Callable[[float], float],
 
 
 @utils.numpy_out(dtype=np.complex64)
-def expi(x: np.ndarray, out: Optional[np.ndarray] = None):
+def expi(x: np.ndarray, out: Optional[np.ndarray] = None) -> np.ndarray:
   r"""Exponential of imaginary input
 
   Args:
@@ -227,3 +228,87 @@ def detrend(y: np.ndarray,
   x = column(x)
   model.fit(x, y)
   return np.squeeze(y - model.predict(x))
+
+
+def f2bin(f: np.ndarray, nfft: int, fs: float = 1) -> np.ndarray:
+  """Convert frequency values to FFT bin indices
+
+  Args:
+    f (array): Frequency values in Hz
+    nfft (int): FFT size
+    fs (float): Sample frequency
+
+  Returns:
+    array: Bin indices"""
+  out = np.multiply(f, nfft / fs)
+  out = np.ceil(out, out=out)
+  return out.astype(int)
+
+
+@utils.numpy_out(dtype=float)
+def bin2f(b: np.ndarray,
+          nfft: int,
+          fs: float = 1,
+          out: Optional[np.ndarray] = None) -> np.ndarray:
+  """Convert FFT bin indices to frequency values
+
+  Args:
+    b (array): Bin indices
+    nfft (int): FFT size
+    fs (float): Sample frequency
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Frequency values in Hz"""
+  return np.multiply(b, fs / nfft, out=out)
+
+
+def lombscargle_as_fft(t: np.ndarray,
+                       x: np.ndarray,
+                       nfft: int,
+                       fs: float = 1,
+                       sqrt: bool = False,
+                       hpf: Optional[float] = None,
+                       lpf: Optional[float] = None,
+                       **kwargs):
+  """Compute a Lomb-Scargle periodogram for the same frequencies as a FFT
+
+  Args:
+    t (array): Sample times
+    x (array): Signal
+    nfft (int): FFT size
+    fs (float): Sample frequency for the analogous uniformly-sampled signal
+    sqrt (bool): If :data:`True`, compute the square root of the periodogram,
+      otherwise keep the power
+    hpf (float): If specified, cut off frequencies below this value (in Hz)
+    lpf (float): If specified, cut off frequencies abow this value (in Hz)
+    **kwargs: Keyword arguments for :func:`scipy.signal.lombscargle`
+
+  Returns:
+    array, array: The Lomb-Scargle periodogram and the frequencies
+    at which it is evaluated"""
+  n = nfft // 2 + 1
+  ls = np.zeros(n)
+
+  # FFT angular velocities
+  w = np.arange(n, dtype=float)
+  bin2f(w, nfft=nfft, fs=fs, out=w)
+  np.multiply(2 * np.pi, w, out=w)
+
+  # Band-pass corner bins
+  i, j = f2bin((0 if hpf is None else hpf, fs if lpf is None else lpf),
+               nfft=nfft,
+               fs=fs)
+  i_ = max(i, 1)
+  j = min(j, n)
+
+  # Compute
+  ls[i_:j] = signal.lombscargle(x=t, y=x, freqs=w[i_:j], **kwargs)
+  if i < 1:
+    ls[0] = np.square(np.mean(x))
+  if sqrt:
+    np.sqrt(ls, out=ls)
+
+  # Angular velocity to frequency
+  np.true_divide(w, 2 * np.pi, out=w)
+  return ls, w
