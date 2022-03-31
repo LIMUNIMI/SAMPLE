@@ -312,3 +312,68 @@ def lombscargle_as_fft(t: np.ndarray,
   # Angular velocity to frequency
   np.true_divide(w, 2 * np.pi, out=w)
   return ls, w
+
+
+def fft2autocorrelogram(a: np.ndarray,
+                        real: bool = True,
+                        n: int = None,
+                        nfft: int = None,
+                        power: bool = False) -> np.ndarray:
+  """Compute the autocorrelogram from the FFT of a signal
+
+  Args:
+    a (array): FFT
+    real (bool): Wheter the FFT is one-sided (sufficient for real signals,
+      default) or two-sided (output will be complex)
+    n (int): Signal length in samples. Default is the size of :data:`a` for
+      a two-sided FFT (:data:`real=False`) or twice as much for a one-sided
+      FFT (:data:`real=True`)
+    nfft (int): FFT size. Default is :data:`n`
+    power (bool): If :data:`True`, the input :data:`a` is interpreted as the
+      power spectrum, instead of the FFT or the magnitude
+
+  Returns:
+   array: The autocorrelogram of the signal"""
+  if n is None:
+    n = np.size(a)
+    if real:
+      n *= 2
+  if nfft is None:
+    nfft = n
+  if not power:
+    if np.iscomplex(a).any():
+      a = np.multiply(a, np.conjugate(a)).real
+    else:
+      a = np.square(a)
+  return (np.fft.irfft if real else np.fft.ifft)(a, n=nfft)[:n]
+
+
+def lombscargle_autocorrelogram(
+    t: np.ndarray,
+    x: np.ndarray,
+    n: Optional[int] = None,
+    nfft: Optional[int] = None,
+    fs: float = 1,
+    sqrt: bool = False,
+    **kwargs
+) -> np.ndarray:
+  """Compute the autocorrelogram of an unevenly sampled signal
+  using the Lomb-Scargle periodogram
+
+  Args:
+    t (array): Sample times
+    x (array): Signal
+    n (int): Autocorrelogram size
+    nfft (int): FFT size
+    fs (float): Sample frequency for the analogous uniformly-sampled signal
+    **kwargs: Keyword arguments for :func:`lombscargle_as_fft`
+
+  Returns:
+    array: Autocorrelogram"""
+  if n is None:
+    n = np.ceil(np.max(t) * fs).astype(int)
+  if nfft is None:
+    nfft = n
+
+  ls, _ = lombscargle_as_fft(t=t, x=x, nfft=nfft, fs=fs, sqrt=sqrt, **kwargs)
+  return fft2autocorrelogram(ls, real=True, n=n, nfft=nfft, power=not sqrt)
