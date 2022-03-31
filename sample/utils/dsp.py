@@ -17,7 +17,7 @@ def normalize(
 
   Args:
     x (array): Array to normalize
-    mode (str): Type of normalization (peak, rms)
+    mode (str): Type of normalization (peak, rms, range)
     out (array): Optional. Array to use for storing results
 
   Returns:
@@ -39,6 +39,22 @@ def _normalize_rms(x: np.ndarray,
     array: Normalized array"""
   np.subtract(x, np.mean(x), out=out)
   return np.true_divide(out, np.std(x) or 1, out=out)
+
+
+@utils.function_variant(normalize, "range")
+@utils.numpy_out
+def _normalize_range(x: np.ndarray,
+                     out: Optional[np.ndarray] = None) -> np.ndarray:
+  """Normalize the array to have values betwen zero and one
+
+  Args:
+    x (array): Array to normalize
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Normalized array"""
+  np.subtract(x, np.min(x), out=out)
+  return np.true_divide(out, np.max(out), out=out)
 
 
 @utils.numpy_out(dtype=float)
