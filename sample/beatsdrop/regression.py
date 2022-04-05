@@ -1,260 +1,231 @@
 """Regression models for beats"""
-# import copy
-# from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 import numpy as np
-# from scipy import optimize
-from sklearn import base
+from sample import beatsdrop
+from sample.utils import dsp as dsp_utils
+from sample.sms import dsp as sms_dsp
+from scipy import optimize
+from sklearn import base, linear_model
 
-# coeff_init_type: type = Callable[[np.ndarray, np.ndarray, float, float],
-#                                  Tuple[float, float, float]]
+BeatModelParams = Tuple[float, float, float, float, float, float, float, float]
+BeatParamsInit = Callable[
+    [np.ndarray, np.ndarray, np.ndarray, "BeatRegression"], BeatModelParams]
+BeatBoundsFunc = Callable[
+    [np.ndarray, np.ndarray, np.ndarray, BeatModelParams, "BeatRegression"],
+    Tuple[BeatModelParams, BeatModelParams]]
 
-# bounds_fun_type: type = Callable[[np.ndarray, np.ndarray, float, float],
-#                                  Tuple[Tuple[float, float, float],
-#                                        Tuple[float, float, float]]]
 
 class BeatRegression(base.RegressorMixin, base.BaseEstimator):
-  """Regressor for fitting to a beat pattern"""
-  def __init__(self):
-    super().__init__()
+  """Regressor for fitting to a beat pattern
 
-  def fit(self, t: np.ndarray, a: np.ndarray, **kwargs):
+  Args:
+    fs (float): Sampling frequency for beat model integration
+    lpf (float): Corner frequency for LPF of spectrum in autocorrelation
+      computation
+    linear_regressor (sklearn.base.BaseEstimator): Linear regression model
+      instance. Must be sklearn-compatible
+    linear_regressor_k (str): Attribute name for the estimated slope
+      coefficient of the linear regression
+    linear_regressor_q(str): Attribute name for the estimated intercept
+      coefficient of the linear regression
+    params_init (callable): Initializer for beat model parameters.
+      Signature should be
+      :data:`f(t, a, f, model) -> a0, a1, f0, f1, d0, d1, p0, p1`.
+      It should return initial parameters for nonlinear least squares using
+      input data :data:`t`, :data:`a`, and :data:`f`, and the
+      :class:`BeatRegression` instance :data:`model`. If :data:`None`,
+      use default
+    bounds (callable): Callable for computing beat model coefficient
+      boundaries. Signature should be
+      :data:`bounds(t, a, f, p, model) -> (bounds_min, bounds_max)`.
+      It should return lower and upper boundaries for all eight parameters
+      using input data :data:`t`, :data:`a`, and :data:`f`, initial parameter
+      estimates :data:`p`, and the :class:`BeatRegression` instance
+      :data:`model`. If :data:`None`, use default"""
+
+  def __init__(
+      self,
+      fs: float = 44100,
+      lpf: float = 12,
+      linear_regressor=None,
+      linear_regressor_k: str = "coef_",
+      linear_regressor_q: str = "intercept_",
+      params_init: Optional[BeatParamsInit] = None,
+      bounds: Optional[BeatBoundsFunc] = None,
+  ):
+    super().__init__()
+    self.fs = fs
+    self.lpf = lpf
+    self.linear_regressor = linear_regressor
+    self.linear_regressor_k = linear_regressor_k
+    self.linear_regressor_q = linear_regressor_q
+    self.params_init = params_init
+    self.bounds = bounds
+
+  def _residual_fn(self, t: np.ndarray, a: np.ndarray,
+                   f: np.ndarray) -> Callable:  # pylint: disable=W0613
+    """Residual function for the provided data
+
+    Args:
+      t (array): Time. Must be a column vector (shape like (-1, 1))
+      a (array): Amplitude at time :data:`t`
+      f (array): Frequency at time :data:`t`
+
+    Returns:
+      callable: Residual function"""
+    # Time axis for model integration
+    t_min = np.min(t)
+    t_max = np.max(t)
+    u = np.arange(np.ceil((t_max - t_min) * self.fs).astype(int), dtype=float)
+    np.true_divide(u, self.fs, out=u)
+    a_lin = dsp_utils.db2a(a)
+
+    def _residual_fn_(beat_args: BeatModelParams) -> np.ndarray:
+      a_est = np.interp(t, u, beatsdrop.ModalBeat(*beat_args).am(u))
+      return np.reshape(np.subtract(a_lin, a_est), newshape=(-1,))
+
+    return _residual_fn_
+
+  @property
+  def k_(self) -> float:
+    """Linear regression slope"""
+    return np.squeeze(getattr(self.linear_regressor, self.linear_regressor_k))
+
+  @property
+  def q_(self) -> float:
+    """Linear regression intercept"""
+    return np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q))
+
+  @staticmethod
+  def _default_params_init(t: np.ndarray, a: np.ndarray, f: np.ndarray,
+                           model: "BeatRegression") -> BeatModelParams:
+    """Default parameter initializer
+
+    Args:
+      t (array): Time. Must be a column vector (shape like (-1, 1))
+      a (array): Amplitude at time :data:`t` (in dB)
+      f (array): Frequency at time :data:`t`
+      model (BeatRegression): Regression model
+
+    Returns:
+      (float, float, float, float, float, float, float, float): Starting
+      values for nonlinear least squares for a0, a1, f0, f1, d0, d1, p0,
+      and p1"""
+    a_dt = dsp_utils.db2a(dsp_utils.detrend(a, t, model=model.linear_regressor))
+    corr = dsp_utils.lombscargle_autocorrelogram(t,
+                                                 a_dt,
+                                                 fs=model.fs,
+                                                 lpf=model.lpf)
+
+    # Amplitudes
+    a0 = a1 = dsp_utils.db2a(model.q_) * 2
+    # Frequencies
+    carrier_freq = np.mean(f)
+    am_freq, _ = sms_dsp.peak_detect_interp(corr)
+    am_freq = model.fs / (2 * am_freq[0])
+    f0 = carrier_freq + am_freq
+    f1 = carrier_freq - am_freq
+    # Decays
+    d0 = d1 = -40 * np.log10(np.e) / model.k_
+    # Phases
+    # without loss of generality, consider p0 = 0
+    p_hat = np.mod(
+        np.angle(
+            np.dot(dsp_utils.db2a(a), dsp_utils.expi(-4 * np.pi * am_freq * t)))
+        / 2, np.pi)
+
+    return a0, a1, f0, f1, d0, d1, 0.0, -2 * p_hat
+
+  @property
+  def _params_init(self) -> BeatParamsInit:
+    """Parameters initializer
+
+    Returns:
+      User-provided function if given, otherwise
+        :meth:`_default_params_init`"""
+    if self.params_init is None:
+      return self._default_params_init
+    return self.params_init
+
+  @staticmethod
+  def _default_bounds(
+      t: np.ndarray, a: np.ndarray, f: np.ndarray, p: BeatModelParams,
+      model: "BeatRegression"
+  ) -> Tuple[BeatModelParams, BeatModelParams]:  # pylint: disable=W0613
+    """Default boundaries
+
+    Args:
+      t (array): Time. Must be a column vector (shape like (-1, 1))
+      a (array): Amplitude at time :data:`t` (in dB)
+      f (array): Frequency at time :data:`t`
+      p (tuple): Initial parameters
+      model (BeatRegression): Regression model
+
+    Returns:
+      (tuple, tuple): Minimum and maximum bounds for a0, a1, f0, f1, d0, d1,
+      p0, and p1"""
+    if len(t) <= 1:
+      raise ValueError(f"Got a track of length={len(t)}. "
+                       "Consider increasing the minimum sine length")
+    # Amplitude bounds
+    a_lin = dsp_utils.db2a(a)
+    a_min = np.min(a_lin)
+    a_max = np.max(a_lin)
+    if a_min == a_max:
+      a_min = 0.0
+      if a_min == a_max:
+        a_max = 1.0
+    else:
+      a_d = a_max - a_min
+      a_max += a_d
+      a_min = max(0.0, a_min - a_d)
+
+    # Frequency bounds
+    f_min = np.min(f)
+    f_max = np.max(f)
+
+    eps = np.finfo(float).eps
+
+    bounds_min = (a_min, a_min, f_min, f_min, eps, eps, -np.pi, p[-1] - np.pi)
+    bounds_max = (a_max, a_max, f_max, f_max, 100., 100., np.pi, p[-1] + np.pi)
+    return bounds_min, bounds_max
+
+  @property
+  def _bounds(self) -> BeatBoundsFunc:
+    """Boundary function
+
+    Returns:
+      User-provided function if given, otherwise
+        :meth:`_default_bounds`"""
+    if self.bounds is None:
+      return self._default_bounds
+    return self.bounds
+
+  def fit(self,
+          t: np.ndarray,
+          a: np.ndarray,
+          f: np.ndarray,
+          method: str = "dogbox",
+          **kwargs):
     """Fit beat pattern
 
     Args:
       t (array): Time. Must be a column vector (shape like (-1, 1))
-      a (array): Amplitude a time :data:`t`
+      a (array): Amplitude at time :data:`t` (in dB)
+      f (array): Frequency at time :data:`t`
       **kwargs: Keyword arguments for :func:`scipy.optimize.least_squares`
 
     Returns:
-      HingeRegression: self"""
-    self.linear_regressor.fit(x, y)
-    self.coeffs_ = self._coeffs_init(  # pylint: disable=E1102 (false positive)
-        x,
-        y,
-        np.squeeze(getattr(self.linear_regressor, self.linear_regressor_k)),
-        np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q)),
-    )
-
-    self.result_ = optimize.least_squares(
-        fun=self._residual(x, y),
-        x0=self.coeffs_,
-        bounds=self._bounds(x, y, *self.coeffs_[1:]),  # pylint: disable=E1102 (false positive)
-        method=self.method,
-        **kwargs)
-    self.coeffs_ = self.result_.x
-
+      BeatRegression: self"""
+    if self.linear_regressor is None:
+      self.linear_regressor = linear_model.LinearRegression()
+    self.initial_params_ = self._params_init(t, a, f, self)  # pylint: disable=E1102
+    self.bounds_ = self._bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
+    self.result_ = optimize.least_squares(fun=self._residual_fn(t, a, f),
+                                          x0=self.initial_params_,
+                                          bounds=self.bounds_,
+                                          method=method,
+                                          **kwargs)
+    self.params_ = np.concatenate((self.result_.x[:2] * 2, self.result_.x[2:]))
     return self
-#   """Regressor for fitting to a hinge function
-
-#   :math:`h(x) = k * min(x, a) + q`
-
-#   Args:
-#     linear_regressor (sklearn.base.BaseEstimator): Linear regression model
-#       instance. Must be sklearn-compatible
-#     linear_regressor_k (str): Attribute name for the estimated slope
-#       coefficient of the linear regression
-#     linear_regressor_q(str): Attribute name for the estimated intercept
-#       coefficient of the linear regression
-#     method (str): Nonlinear least squares method
-#       See :func:`scipy.optimize.least_squares` for options and detailed
-#       explanation. Defaults to "dogbox"
-#     coeffs_init (callable): Initializer for hinge function coefficients.
-#       Signature should be :data:`coeffs_init(x, y, k, q) -> a, k, q`. It
-#       should return initial parameters for the nonlinear least squares using
-#       input data :data:`x` and :data:`y`, and linearly estimated
-#       coefficients :data:`k` and :data:`q`. If None, use default
-#     bounds (callable): Callable for computing hinge function coefficient
-#       boundaries. Signature should be :data:`bounds(x, y, k, q) ->
-#       ((a_min, k_min, q_min), (a_max, k_max, q_max))`.
-#       It should return lower and upper boundaries for all three parameters
-#       using input data :data:`x` and :data:`y`, and linearly estimated
-#       coefficients :data:`k` and :data:`q`. If None, use default
-
-#   Attributes:
-#     coeffs_ (array): Learned parameters (a, k, q). They are also accessible
-#       via their individual properties
-#     result_ (OptimizeResult): Optimization result of the nonlinear least
-#       squares procedure"""
-
-#   def __init__(
-#       self,
-#       linear_regressor=linear_model.LinearRegression(),
-#       linear_regressor_k: str = "coef_",
-#       linear_regressor_q: str = "intercept_",
-#       method: str = "dogbox",
-#       coeffs_init: Optional[coeff_init_type] = None,
-#       bounds: Optional[bounds_fun_type] = None,
-#   ):
-#     self.linear_regressor = linear_regressor
-#     self.linear_regressor_k = linear_regressor_k
-#     self.linear_regressor_q = linear_regressor_q
-#     self.method = method
-#     self.coeffs_init = coeffs_init
-#     self.bounds = bounds
-
-#   @property
-#   def linear_regressor(self):
-#     return self._linear_regressor
-
-#   @linear_regressor.setter
-#   def linear_regressor(self, model):
-#     self._linear_regressor = copy.deepcopy(model)
-
-#   @staticmethod
-#   def _default_coeffs_init(
-#       x: np.ndarray,
-#       y: np.ndarray,  # pylint: disable=W0613
-#       k: float,
-#       q: float) -> Tuple[float, float, float]:
-#     """Default coefficient initializer
-
-#     Args:
-#       x (array): Input independent variable array
-#       y (array): Input dependent variable array
-#       k (float): Linearly estimated slope
-#       q (float): Linearly estimated intercept
-
-#     Returns:
-#       (float, float, float): Starting values for nonlinear least squares
-#         for a, k and q"""
-#     a = (np.min(x) + np.max(x)) / 2
-#     return a, k, q
-
-#   @property
-#   def _coeffs_init(self) -> coeff_init_type:
-#     """Coefficient initializer
-
-#     Returns:
-#       User-provided function if given, otherwise
-#         :meth:`_default_coeffs_init`"""
-#     if self.coeffs_init is None:
-#       return self._default_coeffs_init
-#     return self.coeffs_init
-
-#   def _default_bounds(
-#       self,
-#       x: np.ndarray,
-#       y: np.ndarray,
-#       k: float,
-#       q: float  # pylint: disable=W0613
-#   ) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
-#     """Default boundaries
-
-#     Args:
-#       x (array): Input independent variable array
-#       y (array): Input dependent variable array
-#       k (float): Linearly estimated slope
-#       q (float): Linearly estimated intercept
-
-#     Returns:
-#       ((float, float, float), (float, float, float)): Minimum and maximum bounds
-#         for a, k and q"""
-#     # Knee point bounds
-#     if len(x) <= 1:
-#       raise ValueError(f"Got a track of length={len(x)}. "
-#                        "Consider increasing the minimum sine length")
-#     else:
-#       a_min = np.min(x)
-#       a_max = np.max(x)
-#     if a_min == a_max:
-#       a_min -= 1
-#       a_max += 1
-
-#     # Intercept bounds
-#     dq = np.max(np.abs(y - q)) or 1
-#     q_min = q - dq
-#     q_max = q + dq
-
-#     # Slope bounds
-#     if k == 0:
-#       k_min = -1
-#       k_max = 1
-#     else:
-#       k_min = 8 * k if k < 0 else k
-#       k_max = k if k < 0 else 8 * k
-
-#     return ((a_min, k_min, q_min), (a_max, k_max, q_max))
-
-#   @property
-#   def _bounds(self) -> bounds_fun_type:
-#     """Boundary function
-
-#     Returns:
-#       User-provided function if given, otherwise
-#         :meth:`_default_bounds`"""
-#     if self.bounds is None:
-#       return self._default_bounds
-#     return self.bounds
-
-#   def predict(self, x: np.ndarray):
-#     """Evaluate learned hinge function
-
-#     Args:
-#       x (array): Input independent variable array
-
-#     Returns:
-#       array: :data:`h(x)`"""
-#     return hinge_function(x, *self.coeffs_)
-
-#   @staticmethod
-#   def _residual(x: np.ndarray, y: np.ndarray) -> Callable[..., np.ndarray]:
-#     """Function for residual computation
-
-#     Args:
-#       x (array): Input independent variable array
-#       y (array): Input dependent variable array
-
-#     Returns:
-#       Residuals as function of the parameter array"""
-#     x_ = np.squeeze(x)
-#     y_ = np.squeeze(y)
-
-#     def residual(p, *args, **kwargs):  # pylint: disable=W0613
-#       return hinge_function(x_, *p) - y_
-
-#     return residual
-
-#   @property
-#   def a_(self) -> float:
-#     """Learned knee point"""
-#     return self.coeffs_[0]
-
-#   @property
-#   def k_(self) -> float:
-#     """Learned slope"""
-#     return self.coeffs_[1]
-
-#   @property
-#   def q_(self) -> float:
-#     """Learned intercept"""
-#     return self.coeffs_[2]
-
-#   def fit(self, x: np.ndarray, y: np.ndarray, **kwargs):
-#     """Fit hinge function
-
-#     Args:
-#       x (array): Independent variable. Must be a column vector
-#       (shape like (-1, 1))
-#       y (array): Dependent variable
-#       **kwargs: Keyword arguments for :func:`scipy.optimize.least_squares`
-
-#     Returns:
-#       HingeRegression: self"""
-#     self.linear_regressor.fit(x, y)
-#     self.coeffs_ = self._coeffs_init(  # pylint: disable=E1102 (false positive)
-#         x,
-#         y,
-#         np.squeeze(getattr(self.linear_regressor, self.linear_regressor_k)),
-#         np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q)),
-#     )
-
-#     self.result_ = optimize.least_squares(
-#         fun=self._residual(x, y),
-#         x0=self.coeffs_,
-#         bounds=self._bounds(x, y, *self.coeffs_[1:]),  # pylint: disable=E1102 (false positive)
-#         method=self.method,
-#         **kwargs)
-#     self.coeffs_ = self.result_.x
-
-#     return self
