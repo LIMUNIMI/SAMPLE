@@ -348,15 +348,13 @@ def fft2autocorrelogram(a: np.ndarray,
   return (np.fft.irfft if real else np.fft.ifft)(a, n=nfft)[:n]
 
 
-def lombscargle_autocorrelogram(
-    t: np.ndarray,
-    x: np.ndarray,
-    n: Optional[int] = None,
-    nfft: Optional[int] = None,
-    fs: float = 1,
-    sqrt: bool = False,
-    **kwargs
-) -> np.ndarray:
+def lombscargle_autocorrelogram(t: np.ndarray,
+                                x: np.ndarray,
+                                n: Optional[int] = None,
+                                nfft: Optional[int] = None,
+                                fs: float = 1,
+                                sqrt: bool = False,
+                                **kwargs) -> np.ndarray:
   """Compute the autocorrelogram of an unevenly sampled signal
   using the Lomb-Scargle periodogram
 
@@ -373,7 +371,7 @@ def lombscargle_autocorrelogram(
   if n is None:
     n = np.ceil(np.max(t) * fs).astype(int)
   if nfft is None:
-    nfft = n
+    nfft = 2 * n
 
   ls, _ = lombscargle_as_fft(t=t, x=x, nfft=nfft, fs=fs, sqrt=sqrt, **kwargs)
   return fft2autocorrelogram(ls, real=True, n=n, nfft=nfft, power=not sqrt)
