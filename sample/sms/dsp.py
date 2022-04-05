@@ -60,14 +60,16 @@ def peak_detect(x: np.ndarray, t: Optional[float] = None) -> np.ndarray:
       np.logical_and, conditions)) + 1  # compensate for skipping first sample
 
 
-def peak_refine(mx: np.ndarray, px: np.ndarray,
-                ploc: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def peak_refine(ploc: np.ndarray,
+                mx: np.ndarray,
+                px: Optional[np.ndarray] = None
+               ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
   """Refine detected peaks with parabolic approximation
 
   Arguments:
+    ploc (array): Peak locations
     mx (array): Magnitude spectrum in dB
     px (array): Phase spectrum
-    ploc (array): Peak locations
 
   Returns:
     (array, array, array): Interpolated peak locations, magnitudes and phases"""
@@ -79,6 +81,8 @@ def peak_refine(mx: np.ndarray, px: np.ndarray,
   ploc_d = .5 * dmx / (mx_l - 2 * mx_c + mx_r)
   ploc_i = ploc + ploc_d  # x-coordinate of vertex
   pmag_i = mx_c - .25 * dmx * ploc_d  # y-coordinate of vertex
+  if px is None:
+    return ploc_i, pmag_i
   pph_i = np.interp(  # linear interpolation for phase
       ploc_i, np.arange(0, px.size), px)
   return ploc_i, pmag_i, pph_i
@@ -86,7 +90,7 @@ def peak_refine(mx: np.ndarray, px: np.ndarray,
 
 def peak_detect_interp(
     mx: np.ndarray,
-    px: np.ndarray,
+    px: Optional[np.ndarray] = None,
     t: Optional[float] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
   """Detect peaks (local maxima) in a signal, refining the value with
   parabolic interpolation
@@ -98,4 +102,4 @@ def peak_detect_interp(
 
   Returns:
     (array, array, array): Interpolated peak locations, magnitudes and phases"""
-  return peak_refine(mx, px, peak_detect(mx, t=t))
+  return peak_refine(peak_detect(mx, t=t), mx, px)
