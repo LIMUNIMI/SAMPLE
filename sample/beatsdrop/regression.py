@@ -1,10 +1,11 @@
 """Regression models for beats"""
-from typing import Callable, Optional, Tuple, List
+import functools
+from typing import Any, Callable, List, Optional, Tuple
 
 import numpy as np
-from sample import beatsdrop
-from sample.utils import dsp as dsp_utils
+from sample import beatsdrop, psycho, utils
 from sample.sms import dsp as sms_dsp
+from sample.utils import dsp as dsp_utils
 from scipy import optimize
 from sklearn import base, linear_model
 
@@ -14,6 +15,28 @@ BeatParamsInit = Callable[
 BeatBoundsFunc = Callable[
     [np.ndarray, np.ndarray, np.ndarray, BeatModelParams, "BeatRegression"],
     Tuple[BeatModelParams, BeatModelParams]]
+BeatResidualFunc = Callable[[BeatModelParams], np.ndarray]
+
+
+def _get_notnone_attr(obj: Any, *args) -> Any:
+  """Return the first attribute amongst the ones provided that the object has
+  and that is not :data:`None`
+
+  Args:
+    obj (object): Object
+    *args: Names of the attributes to inspect. The first one that exists and
+      is not :data:`None` is returned. Arguments coming after are not evaluated
+
+  Returns:
+    object: The first valid argument"""
+  for k in args:
+    if hasattr(obj, k):
+      v = getattr(obj, k)
+      if v is not None:
+        return v
+  raise AttributeError(
+      "No valid values found for attributes of object of "
+      f"class '{type(obj).__name__}': {utils.comma_join_quote(args)}")
 
 
 class BeatRegression(base.RegressorMixin, base.BaseEstimator):
@@ -31,11 +54,11 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
       coefficient of the linear regression
     params_init (callable): Initializer for beat model parameters.
       Signature should be
-      :data:`f(t, a, f, model) -> a0, a1, f0, f1, d0, d1, p0, p1`.
+      :data:`f(t, a, f, res_fn, model) -> a0, a1, f0, f1, d0, d1, p0, p1`.
       It should return initial parameters for nonlinear least squares using
-      input data :data:`t`, :data:`a`, and :data:`f`, and the
-      :class:`BeatRegression` instance :data:`model`. If :data:`None`,
-      use default
+      input data :data:`t`, :data:`a`, and :data:`f`, the residual function
+      :data:`res_fn`, and the :class:`BeatRegression` instance :data:`model`.
+      If :data:`None`, use default
     bounds (callable): Callable for computing beat model coefficient
       boundaries. Signature should be
       :data:`bounds(t, a, f, p, model) -> (bounds_min, bounds_max)`.
@@ -64,7 +87,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     self.bounds = bounds
 
   def _residual_fn(self, t: np.ndarray, a: np.ndarray,
-                   f: np.ndarray) -> Callable:  # pylint: disable=W0613
+                   f: np.ndarray) -> BeatResidualFunc:  # pylint: disable=W0613
     """Residual function for the provided data
 
     Args:
@@ -75,9 +98,8 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     Returns:
       callable: Residual function"""
     # Time axis for model integration
-    t_min = np.min(t)
     t_max = np.max(t)
-    u = np.arange(np.ceil((t_max - t_min) * self.fs).astype(int), dtype=float)
+    u = np.arange(np.ceil(t_max * self.fs).astype(int), dtype=float)
     np.true_divide(u, self.fs, out=u)
     a_lin = dsp_utils.db2a(a)
 
@@ -98,14 +120,19 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     return np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q))
 
   @staticmethod
-  def _default_params_init(t: np.ndarray, a: np.ndarray, f: np.ndarray,
-                           model: "BeatRegression") -> BeatModelParams:
+  def _default_params_init(
+      t: np.ndarray,
+      a: np.ndarray,
+      f: np.ndarray,
+      res_fn: BeatResidualFunc,  # pylint: disable=W0613
+      model: "BeatRegression") -> BeatModelParams:
     """Default parameter initializer
 
     Args:
       t (array): Time. Must be a column vector (shape like (-1, 1))
       a (array): Amplitude at time :data:`t` (in dB)
       f (array): Frequency at time :data:`t`
+      res_fn (callable): Residual function
       model (BeatRegression): Regression model
 
     Returns:
@@ -119,7 +146,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
                                                  lpf=model.lpf)
 
     # Amplitudes
-    a0 = a1 = dsp_utils.db2a(model.q_) * 2
+    a0 = a1 = dsp_utils.db2a(model.q_) / 2
     # Frequencies
     carrier_freq = np.mean(f)
     am_freq, _ = sms_dsp.peak_detect_interp(corr)
@@ -144,9 +171,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     Returns:
       User-provided function if given, otherwise
         :meth:`_default_params_init`"""
-    if self.params_init is None:
-      return self._default_params_init
-    return self.params_init
+    return _get_notnone_attr(self, "params_init", "_default_params_init")
 
   @staticmethod
   def _default_bounds(
@@ -201,9 +226,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     Returns:
       User-provided function if given, otherwise
         :meth:`_default_bounds`"""
-    if self.bounds is None:
-      return self._default_bounds
-    return self.bounds
+    return _get_notnone_attr(self, "bounds", "_default_bounds")
 
   def fit(self,
           t: np.ndarray,
@@ -223,14 +246,15 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
       BeatRegression: self"""
     if self.linear_regressor is None:
       self.linear_regressor = linear_model.LinearRegression()
-    self.initial_params_ = self._params_init(t, a, f, self)  # pylint: disable=E1102
+    res_fn = self._residual_fn(t, a, f)
+    self.initial_params_ = self._params_init(t, a, f, res_fn, self)  # pylint: disable=E1102
     self.bounds_ = self._bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
-    self.result_ = optimize.least_squares(fun=self._residual_fn(t, a, f),
+    self.result_ = optimize.least_squares(fun=res_fn,
                                           x0=self.initial_params_,
                                           bounds=self.bounds_,
                                           method=method,
                                           **kwargs)
-    self.params_ = np.concatenate((self.result_.x[:2] * 2, self.result_.x[2:]))
+    self.params_ = self.result_.x
     self.beat_ = beatsdrop.ModalBeat(*self.params_)
     return self
 
@@ -248,3 +272,141 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     if len(args) == 0:
       args = ("x",)
     return self.beat_.compute(np.squeeze(t), output=args)
+
+
+BeatLossFunction = Callable[[np.ndarray, np.ndarray], np.ndarray]
+
+
+class DualBeatRegression(BeatRegression):
+  """Regressor for fitting to a beat pattern, using information
+  from both the amplitude modulation and the frequency modulation
+
+  Args:
+    fs (float): Sampling frequency for beat model integration
+    lpf (float): Corner frequency for LPF of spectrum in autocorrelation
+      computation
+    linear_regressor (sklearn.base.BaseEstimator): Linear regression model
+      instance. Must be sklearn-compatible
+    linear_regressor_k (str): Attribute name for the estimated slope
+      coefficient of the linear regression
+    linear_regressor_q(str): Attribute name for the estimated intercept
+      coefficient of the linear regression
+    params_init (callable): Initializer for beat model parameters.
+      Signature should be
+      :data:`f(t, a, f, res_fn, model) -> a0, a1, f0, f1, d0, d1, p0, p1`.
+      It should return initial parameters for nonlinear least squares using
+      input data :data:`t`, :data:`a`, and :data:`f`, the residual function
+      :data:`res_fn`, and the :class:`DualBeatRegression` instance
+      :data:`model`. If :data:`None`, use default
+    bounds (callable): Callable for computing beat model coefficient
+      boundaries. Signature should be
+      :data:`bounds(t, a, f, p, model) -> (bounds_min, bounds_max)`.
+      It should return lower and upper boundaries for all eight parameters
+      using input data :data:`t`, :data:`a`, and :data:`f`, initial parameter
+      estimates :data:`p`, and the :class:`DualBeatRegression` instance
+      :data:`model`. If :data:`None`, use default
+    freq_loss (callable): Loss function for frequencies. Signature should be
+      :data:`freq_loss(f_true, f_est) -> f_loss`. If :data:`None`, use default
+    amp_loss (callable): Loss function for amplitudes. Signature should be
+      :data:`amp_loss(a_true, a_est) -> a_loss`. If :data:`None`, use default
+    freq_w (float): Weighting coefficient for the frequency loss function"""
+
+  def __init__(
+      self,
+      fs: float = 44100,
+      lpf: float = 12,
+      linear_regressor=None,
+      linear_regressor_k: str = "coef_",
+      linear_regressor_q: str = "intercept_",
+      params_init: Optional[BeatParamsInit] = None,
+      bounds: Optional[BeatBoundsFunc] = None,
+      freq_loss: Optional[BeatLossFunction] = None,
+      amp_loss: Optional[BeatLossFunction] = None,
+      freq_w: float = 1 / 3800,
+  ):
+    super().__init__(
+        fs=fs,
+        lpf=lpf,
+        linear_regressor=linear_regressor,
+        linear_regressor_k=linear_regressor_k,
+        linear_regressor_q=linear_regressor_q,
+        params_init=params_init,
+        bounds=bounds,
+    )
+    self.freq_loss = freq_loss
+    self.amp_loss = amp_loss
+    self.freq_w = freq_w
+
+  @staticmethod
+  def _default_freq_loss(f_true: np.ndarray, f_est: np.ndarray) -> np.ndarray:
+    """Default frequency loss function (Mel difference)
+
+    Args:
+      f_true (array): True frequency values
+      f_est (array): Estimated frequency values
+
+    Returns:
+      array: Frequency differences on the Mel scale"""
+    return np.subtract(*list(map(psycho.hz2mel, (f_true, f_est))))
+
+  @property
+  def _freq_loss(self) -> BeatLossFunction:
+    """Frequency loss function
+
+    Returns:
+      User-provided function if given, otherwise
+        :meth:`_default_freq_loss`"""
+    return _get_notnone_attr(self, "freq_loss", "_default_freq_loss")
+
+  @staticmethod
+  def _default_amp_loss(a_true: np.ndarray, a_est: np.ndarray) -> np.ndarray:
+    """Default amplitude loss function (difference)
+
+    Args:
+      a_true (array): True amplitude values
+      a_est (array): Estimated amplitude values
+
+    Returns:
+      array: Amplitude differences"""
+    return np.subtract(a_true, a_est)
+
+  @property
+  def _amp_loss(self) -> BeatLossFunction:
+    """Amplitude loss function
+
+    Returns:
+      User-provided function if given, otherwise
+        :meth:`_default_amp_loss`"""
+    return _get_notnone_attr(self, "amp_loss", "_default_amp_loss")
+
+  def _residual_fn(self, t: np.ndarray, a: np.ndarray,
+                   f: np.ndarray) -> BeatResidualFunc:
+    """Residual function for the provided data
+
+    Args:
+      t (array): Time. Must be a column vector (shape like (-1, 1))
+      a (array): Amplitude at time :data:`t`
+      f (array): Frequency at time :data:`t`
+
+    Returns:
+      callable: Residual function"""
+    # Time axis for model integration
+    t_max = np.max(t)
+    u = np.arange(np.ceil(t_max * self.fs).astype(int), dtype=float)
+    np.true_divide(u, self.fs, out=u)
+    a_lin = dsp_utils.db2a(a)
+    interp_tu = functools.partial(np.interp, t, u)
+    f_abs = np.abs(f)
+
+    def _residual_fn_(beat_args: BeatModelParams) -> np.ndarray:
+      a_est, f_est = tuple(
+          map(interp_tu,
+              beatsdrop.ModalBeat(*beat_args).compute(u, ("am", "fm"))))
+      a_loss = self._amp_loss(a_lin, a_est)
+      np.true_divide(f_est, 2 * np.pi, out=f_est)
+      np.abs(f_est, out=f_est)
+      f_loss = self._freq_loss(f_abs, f_est)
+      np.multiply(self.freq_w, f_loss, out=f_loss)
+      return np.reshape([a_loss, f_loss], newshape=(-1,))
+
+    return _residual_fn_
