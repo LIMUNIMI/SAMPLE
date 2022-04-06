@@ -232,6 +232,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
           t: np.ndarray,
           a: np.ndarray,
           f: np.ndarray,
+          tr_solver: Optional[str] = "lsmr",
           method: str = "dogbox",
           **kwargs):
     """Fit beat pattern
@@ -252,6 +253,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     self.result_ = optimize.least_squares(fun=res_fn,
                                           x0=self.initial_params_,
                                           bounds=self.bounds_,
+                                          tr_solver=tr_solver,
                                           method=method,
                                           **kwargs)
     self.params_ = self.result_.x
