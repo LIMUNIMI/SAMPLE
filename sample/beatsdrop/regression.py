@@ -1,5 +1,5 @@
 """Regression models for beats"""
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, List
 
 import numpy as np
 from sample import beatsdrop
@@ -150,9 +150,12 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
 
   @staticmethod
   def _default_bounds(
-      t: np.ndarray, a: np.ndarray, f: np.ndarray, p: BeatModelParams,
-      model: "BeatRegression"
-  ) -> Tuple[BeatModelParams, BeatModelParams]:  # pylint: disable=W0613
+      t: np.ndarray,
+      a: np.ndarray,
+      f: np.ndarray,
+      p: BeatModelParams,
+      model: "BeatRegression"  # pylint: disable=W0613
+  ) -> Tuple[BeatModelParams, BeatModelParams]:
     """Default boundaries
 
     Args:
@@ -228,4 +231,20 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
                                           method=method,
                                           **kwargs)
     self.params_ = np.concatenate((self.result_.x[:2] * 2, self.result_.x[2:]))
+    self.beat_ = beatsdrop.ModalBeat(*self.params_)
     return self
+
+  def predict(self, t: np.ndarray, *args) -> List[np.ndarray]:
+    """Predict beat pattern
+
+    Args:
+      t (array): Time
+      args: The names of the outputs to predict. If none is specified,
+        then the audio signal (:data:`"x"`) is predicted. For a list of
+        available output names, see :data:`BeatRegression.beat_.variables`
+
+    Returns:
+      list of arrays: One array per output"""
+    if len(args) == 0:
+      args = ("x",)
+    return self.beat_.compute(np.squeeze(t), output=args)
