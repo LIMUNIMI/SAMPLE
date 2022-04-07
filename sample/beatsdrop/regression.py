@@ -317,7 +317,7 @@ class DualBeatRegression(BeatRegression):
 
   def __init__(
       self,
-      fs: float = 44100,
+      fs: float = 4410,
       lpf: float = 12,
       linear_regressor=None,
       linear_regressor_k: str = "coef_",
