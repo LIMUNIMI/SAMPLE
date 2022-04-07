@@ -4,12 +4,14 @@ import unittest
 
 import numpy as np
 from chromatictools import unittestmixins
+from sample.sms import dsp as sms_dsp
 from sample.utils import dsp as dsp_utils
 
 from tests import utils as test_utils
 
 
-class TestDSP(unittestmixins.RMSEAssertMixin,
+class TestDSP(unittestmixins.SignificantPlacesAssertMixin,
+              unittestmixins.RMSEAssertMixin,
               unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   """Tests for dsp utility functions"""
 
@@ -54,6 +56,44 @@ class TestDSP(unittestmixins.RMSEAssertMixin,
     a = np.random.randn(1024) * 1e-3
     np.add(np.arange(a.size), a, out=a)
     self.assert_almost_equal_rmse(dsp_utils.detrend(a), 0, places=2)
+
+  def test_rfft_autocorrelogram(self):
+    """Test autocorrelogram from real FFT"""
+    fs = 44100
+    t = np.arange(fs) / fs
+    np.random.seed(42)
+    noise = np.random.randn(*t.shape)
+    np.multiply(dsp_utils.db2a(-60), noise, out=noise)
+    for f in (10, 1000, 10000):
+      with self.subTest(f=f):
+        x = np.multiply(2 * np.pi * f, t)
+        np.cos(x, out=x)
+        np.add(x, noise, out=x)
+        x_fft = np.fft.rfft(x)
+        x_corr = dsp_utils.fft2autocorrelogram(x_fft)
+        self.assertEqual(x.size, x_corr.size)
+        max_lag = sms_dsp.peak_detect_interp(x_corr)[0][0]
+        max_f = fs / max_lag
+        self.assert_almost_equal_significant(f, max_f, places=1)
+
+  def test_fft_autocorrelogram(self):
+    """Test autocorrelogram from FFT"""
+    fs = 44100
+    t = np.arange(fs) / fs
+    np.random.seed(42)
+    noise = np.random.randn(*t.shape)
+    np.multiply(dsp_utils.db2a(-60), noise, out=noise)
+    for f in (10, 1000, 10000):
+      with self.subTest(f=f):
+        x = np.multiply(2 * np.pi * f, t)
+        np.cos(x, out=x)
+        np.add(x, noise, out=x)
+        x_fft = np.fft.fft(x)
+        x_corr = dsp_utils.fft2autocorrelogram(x_fft, real=False)
+        self.assertEqual(x.size, x_corr.size)
+        max_lag = sms_dsp.peak_detect_interp(x_corr)[0][0]
+        max_f = fs / max_lag
+        self.assert_almost_equal_significant(f, max_f, places=1)
 
   def test_detrend_shape_error(self):
     """Test shape error in detrend"""
