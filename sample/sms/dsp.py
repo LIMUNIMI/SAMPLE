@@ -1,6 +1,6 @@
 """Signal processing functions for SMS"""
 import functools
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from sample.utils import dsp as dsp_utils
@@ -60,10 +60,12 @@ def peak_detect(x: np.ndarray, t: Optional[float] = None) -> np.ndarray:
       np.logical_and, conditions)) + 1  # compensate for skipping first sample
 
 
-def peak_refine(ploc: np.ndarray,
-                mx: np.ndarray,
-                px: Optional[np.ndarray] = None
-               ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def peak_refine(
+    ploc: np.ndarray,
+    mx: np.ndarray,
+    px: Optional[np.ndarray] = None
+) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray,
+                                                np.ndarray]]:
   """Refine detected peaks with parabolic approximation
 
   Arguments:
@@ -91,7 +93,9 @@ def peak_refine(ploc: np.ndarray,
 def peak_detect_interp(
     mx: np.ndarray,
     px: Optional[np.ndarray] = None,
-    t: Optional[float] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    t: Optional[float] = None
+) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray,
+                                                np.ndarray]]:
   """Detect peaks (local maxima) in a signal, refining the value with
   parabolic interpolation
 
