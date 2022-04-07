@@ -267,7 +267,6 @@ def lombscargle_as_fft(t: np.ndarray,
                        x: np.ndarray,
                        nfft: int,
                        fs: float = 1,
-                       sqrt: bool = False,
                        hpf: Optional[float] = None,
                        lpf: Optional[float] = None,
                        **kwargs):
@@ -278,8 +277,6 @@ def lombscargle_as_fft(t: np.ndarray,
     x (array): Signal
     nfft (int): FFT size
     fs (float): Sample frequency for the analogous uniformly-sampled signal
-    sqrt (bool): If :data:`True`, compute the square root of the periodogram,
-      otherwise keep the power
     hpf (float): If specified, cut off frequencies below this value (in Hz)
     lpf (float): If specified, cut off frequencies abow this value (in Hz)
     **kwargs: Keyword arguments for :func:`scipy.signal.lombscargle`
@@ -306,8 +303,6 @@ def lombscargle_as_fft(t: np.ndarray,
   ls[i_:j] = signal.lombscargle(x=t, y=x, freqs=w[i_:j], **kwargs)
   if i < 1:
     ls[0] = np.square(np.mean(x))
-  if sqrt:
-    np.sqrt(ls, out=ls)
 
   # Angular velocity to frequency
   np.true_divide(w, 2 * np.pi, out=w)
@@ -337,14 +332,11 @@ def fft2autocorrelogram(a: np.ndarray,
   if n is None:
     n = np.size(a)
     if real:
-      n *= 2
+      n = 2 * (n - 1)
   if nfft is None:
     nfft = n
   if not power:
-    if np.iscomplex(a).any():
-      a = np.multiply(a, np.conjugate(a)).real
-    else:
-      a = np.square(a)
+    a = np.multiply(a, np.conjugate(a)).real
   return (np.fft.irfft if real else np.fft.ifft)(a, n=nfft)[:n]
 
 
@@ -353,7 +345,6 @@ def lombscargle_autocorrelogram(t: np.ndarray,
                                 n: Optional[int] = None,
                                 nfft: Optional[int] = None,
                                 fs: float = 1,
-                                sqrt: bool = False,
                                 **kwargs) -> np.ndarray:
   """Compute the autocorrelogram of an unevenly sampled signal
   using the Lomb-Scargle periodogram
@@ -373,5 +364,5 @@ def lombscargle_autocorrelogram(t: np.ndarray,
   if nfft is None:
     nfft = 2 * n
 
-  ls, _ = lombscargle_as_fft(t=t, x=x, nfft=nfft, fs=fs, sqrt=sqrt, **kwargs)
-  return fft2autocorrelogram(ls, real=True, n=n, nfft=nfft, power=not sqrt)
+  ls, _ = lombscargle_as_fft(t=t, x=x, nfft=nfft, fs=fs, **kwargs)
+  return fft2autocorrelogram(ls, real=True, n=n, nfft=nfft, power=True)
