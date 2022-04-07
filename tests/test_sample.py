@@ -42,7 +42,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     s = copy.deepcopy(self.sample)
     with self.assert_doesnt_raise():
       s.fit(self.x)
-      y = s.predict(np.arange(self.x.size) / self.fs, phases=np.pi / 2)
+      y = s.predict(np.arange(self.x.size) / self.fs)
     self.assertAlmostEqual(np.abs(y).max(), s.amps_.sum())
 
   def test_no_exceptions_reverse(self):
@@ -50,7 +50,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)
-      y = s.predict(np.arange(self.x.size) / self.fs, phases=np.pi / 2)
+      y = s.predict(np.arange(self.x.size) / self.fs)
     self.assertAlmostEqual(np.abs(y).max(), s.amps_.sum())
 
   def test_no_exceptions_random_phase(self):

@@ -1,9 +1,10 @@
 """Utility functions"""
 import functools
 import inspect
-from typing import Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Optional, Tuple
 
 import numpy as np
+import paragraph as pg
 
 
 def comma_join_quote(it: Iterable) -> str:
@@ -131,6 +132,7 @@ def _result_type(*args):
 
 
 def numpy_out(func: Optional[Callable] = None,
+              method: bool = False,
               key: str = "out",
               dtype_key: str = "dtype",
               dtype: Optional[np.dtype] = None,
@@ -140,6 +142,7 @@ def numpy_out(func: Optional[Callable] = None,
 
   Args:
     func (callable): Numpy-like function
+    method (bool): Set this to :data:`True` when wrapping a method
     key (str): Argument name
     dtype_key (str): Argument name for dtype. Default is :data:`"dtype"`
     dtype (dtype): Default dtype of output
@@ -151,6 +154,7 @@ def numpy_out(func: Optional[Callable] = None,
     callable: Decorated function"""
   if func is None:
     return functools.partial(numpy_out,
+                             method=method,
                              key=key,
                              dtype_key=dtype_key,
                              dtype=dtype,
@@ -172,14 +176,115 @@ def numpy_out(func: Optional[Callable] = None,
     return kwargs.pop(dtype_key) if dtype_key in kwargs else _get_dtype_inner(
         args)
 
+  if method:
+
+    def _get_args(args):
+      return args[:1], args[1], args[2:]
+  else:
+
+    def _get_args(args):
+      return (), args[0], args[1:]
+
   @functools.wraps(func)
-  def func_(a, *args, **kwargs):
+  def func_(*args, **kwargs):
     nd = None
+    s, a, args = _get_args(args)
     if kwargs.get(key, None) is None:
       nd = np.ndim(a)
       kwargs[key] = np.empty(() if nd == 0 else np.shape(a),
                              dtype=_get_dtype((a, *args), kwargs))
-    out = func(a, *args, **kwargs)
+    out = func(*s, a, *args, **kwargs)
     return out if nd is None or nd != 0 else out[()]
 
   return func_
+
+
+class NamedObjectMeta(type):
+  """Metaclass for named objects"""
+
+  def __call__(cls, obj, *args, **kwargs) -> type:
+    """Initialize named object"""
+    f = NamedCallable if callable(obj) and cls is NamedObject else cls
+    self = f.__new__(f, obj, *args, **kwargs)
+    self.__init__(obj, *args, **kwargs)
+    return self
+
+
+class NamedObject(metaclass=NamedObjectMeta):
+  """Wrap an object and give it a name
+
+  Args:
+    obj (Any): Object to wrap
+    name (str): Name for object"""
+
+  def __init__(self, obj: Any, name: Optional[str] = None):
+    self.obj = obj
+    if name is not None:
+      self.__name__ = name
+
+  # def __getattr__(self, key: str):
+  #   """Get attribute from inner object"""
+  #   return getattr(self.obj, key)
+
+
+class NamedCallable(NamedObject):
+  """Wrap a callable and give it a name"""
+
+  def __call__(self, *args, **kwargs):
+    """Call inner callable"""
+    return self.obj(*args, **kwargs)
+
+
+class Numpy2Paragraph:
+  """Class for converting numpy functions to paragraph operators"""
+
+  def __init__(self):
+    self._d = {}
+
+  @staticmethod
+  @numpy_out(dtype=float)
+  def _semisum(x: np.ndarray,
+               y: np.ndarray,
+               out: Optional[np.ndarray] = None,
+               **kwargs):
+    """Half of the sum
+
+    Args:
+      x (array): First input
+      y (array): Second input
+      out (array): Optional. Array to use for storing results
+
+    Returns:
+      array: Half of the sum of the inputs"""
+    out = np.add(x, y, out=out, **kwargs)
+    return np.true_divide(out, 2, out=out, **kwargs)
+
+  @staticmethod
+  @numpy_out(dtype=float)
+  def _semidiff(x: np.ndarray,
+                y: np.ndarray,
+                out: Optional[np.ndarray] = None,
+                **kwargs):
+    """Half of the difference
+
+    Args:
+      x (array): First input
+      y (array): Second input
+      out (array): Optional. Array to use for storing results
+
+    Returns:
+      array: Half of the difference of the inputs"""
+    out = np.subtract(x, y, out=out, **kwargs)
+    return np.true_divide(out, 2, out=out, **kwargs)
+
+  semisum = pg.op(NamedObject(_semisum, name="semisum"))
+  semidiff = pg.op(NamedObject(_semidiff, name="semidiff"))
+
+  def __getattr__(self, key: str) -> pg.op:
+    """Make an operator out of a numpy function"""
+    if key not in self._d:
+      self._d[key] = pg.op(getattr(np, key))
+    return self._d[key]
+
+
+np2pg = Numpy2Paragraph()

@@ -3,11 +3,12 @@ wheel
 
 # Run
 chromatictools
-tqdm
 numpy
-scipy
+paragraph
 scikit-learn
 scikit-optimize
+scipy
+tqdm
 
 # Test
 cython

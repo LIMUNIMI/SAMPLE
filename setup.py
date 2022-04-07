@@ -24,11 +24,12 @@ setuptools.setup(
     ],
     install_requires=[
         "chromatictools",
-        "tqdm",
         "numpy",
-        "scipy",
+        "paragraph",
         "scikit-learn",
         "scikit-optimize",
+        "scipy",
+        "tqdm",
     ],
     extras_require={
         "gui": [

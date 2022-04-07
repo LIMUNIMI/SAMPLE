@@ -870,8 +870,8 @@ class GammatoneFilterbank:
       postprocess (callable): If not :data:`None`, then apply this function
         to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
         is real, otherwise it is :data:`None`
-        method (str): Convolution method (either :data:`"auto"`,
-          :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
+      method (str): Convolution method (either :data:`"auto"`,
+        :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
 
     Returns:
       matrix: Cochleagram"""

@@ -73,7 +73,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
 
     for i, (mx, px) in enumerate(self.sm.dft_frames(self.x)):
       ploc = sample_dsp.peak_detect(mx, self.sm.t)
-      ploc_i, pmag_i, pph_i = sample_dsp.peak_refine(mx, px, ploc)
+      ploc_i, pmag_i, pph_i = sample_dsp.peak_refine(ploc, mx, px)  # pylint: disable=W0632
       ploc_i_sms, pmag_i_sms, pph_i_sms = utilFunctions.peakInterp(mx, px, ploc)
       with self.subTest(frame=i, value="location"):
         self.assert_almost_equal_rmse(ploc_i, ploc_i_sms)
@@ -98,13 +98,13 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
 
     def get_time(func: str,):
       return timeit.timeit(
-          f"{func}(mx, px, ploc)",
+          func,
           number=256,
           globals=g,
       )
 
-    t = get_time("sample_dsp.peak_refine")
-    t_sms = get_time("utilFunctions.peakInterp")
+    t = get_time("sample_dsp.peak_refine(ploc, mx, px)")
+    t_sms = get_time("utilFunctions.peakInterp(mx, px, ploc)")
     self.assertLessEqual(t, t_sms)
     print("\n" + f"  {t} <= {t_sms}")
 
