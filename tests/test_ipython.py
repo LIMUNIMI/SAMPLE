@@ -14,3 +14,9 @@ class TestIPython(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     with self.assert_doesnt_raise():
       x, fs, _ = random.BeatsGenerator(seed=1234).audio()
       ipython.WebAudio(x=x, rate=fs)
+
+  def test_time_this(self):
+    """Test ipython timer"""
+    with self.assert_doesnt_raise():
+      with ipython.time_this(title="<h1>Test</h1>"):
+        pass
