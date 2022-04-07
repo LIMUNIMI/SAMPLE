@@ -247,10 +247,10 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
       BeatRegression: self"""
     if self.linear_regressor is None:
       self.linear_regressor = linear_model.LinearRegression()
-    res_fn = self._residual_fn(t, a, f)
-    self.initial_params_ = self._params_init(t, a, f, res_fn, self)  # pylint: disable=E1102
+    self.res_fn_ = self._residual_fn(t, a, f)
+    self.initial_params_ = self._params_init(t, a, f, self.res_fn_, self)  # pylint: disable=E1102
     self.bounds_ = self._bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
-    self.result_ = optimize.least_squares(fun=res_fn,
+    self.result_ = optimize.least_squares(fun=self.res_fn_,
                                           x0=self.initial_params_,
                                           bounds=self.bounds_,
                                           tr_solver=tr_solver,
@@ -311,7 +311,9 @@ class DualBeatRegression(BeatRegression):
       :data:`freq_loss(f_true, f_est) -> f_loss`. If :data:`None`, use default
     amp_loss (callable): Loss function for amplitudes. Signature should be
       :data:`amp_loss(a_true, a_est) -> a_loss`. If :data:`None`, use default
-    freq_w (float): Weighting coefficient for the frequency loss function"""
+    freq_w (float): Weighting coefficient for the frequency loss function
+    disambiguate (bool): If :data:`True` (default), then disambiguate
+      association between frequencies and amplitudes"""
 
   def __init__(
       self,
@@ -325,6 +327,7 @@ class DualBeatRegression(BeatRegression):
       freq_loss: Optional[BeatLossFunction] = None,
       amp_loss: Optional[BeatLossFunction] = None,
       freq_w: float = 1 / 3800,
+      disambiguate: bool = True,
   ):
     super().__init__(
         fs=fs,
@@ -338,6 +341,7 @@ class DualBeatRegression(BeatRegression):
     self.freq_loss = freq_loss
     self.amp_loss = amp_loss
     self.freq_w = freq_w
+    self.disambiguate = disambiguate
 
   @staticmethod
   def _default_freq_loss(f_true: np.ndarray, f_est: np.ndarray) -> np.ndarray:
@@ -412,3 +416,43 @@ class DualBeatRegression(BeatRegression):
       return np.reshape([a_loss, f_loss], newshape=(-1,))
 
     return _residual_fn_
+
+  def fit(self, t: np.ndarray, a: np.ndarray, f: np.ndarray, **kwargs):
+    """Fit beat pattern
+
+    Args:
+      t (array): Time. Must be a column vector (shape like (-1, 1))
+      a (array): Amplitude at time :data:`t` (in dB)
+      f (array): Frequency at time :data:`t`
+      **kwargs: Keyword arguments for :func:`scipy.optimize.least_squares`
+
+    Returns:
+      DualBeatRegression: self"""
+    super().fit(t, a, f, **kwargs)
+    if self.disambiguate:
+      hypoteses = (
+          self.params_,
+          (
+              *self.params_[:2],  #     a0 a1
+              *self.params_[3:1:-1],  # f1 f0
+              *self.params_[4:6],  #    d0 d1
+              *self.params_[7:5:-1],  # p1 p0
+          ),
+      )
+
+      def _ssr(p: BeatModelParams) -> float:
+        """Sum of squared residuals
+        for current residual function
+
+        Args:
+          p: Beat model parameters
+
+        Returns:
+          float: The SSR"""
+        res = self.res_fn_(p)
+        np.square(res, out=res)
+        return np.sum(res)
+
+      self.params_ = min(hypoteses, key=_ssr)
+      self.beat_ = beatsdrop.ModalBeat(*self.params_)
+    return self
