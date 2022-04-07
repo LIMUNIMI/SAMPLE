@@ -219,15 +219,12 @@ class NamedObject(metaclass=NamedObjectMeta):
 
   def __init__(self, obj: Any, name: Optional[str] = None):
     self.obj = obj
-    self.__name__ = obj.__name__ if name is None else name
+    if name is not None:
+      self.__name__ = name
 
-  def __getattr__(self, key: str):
-    """Get attribute from inner object"""
-    return getattr(self.obj, key)
-
-  def __str__(self) -> str:
-    """Print name and inner object"""
-    return f"{type(self).__name__}<{self.__name__}>({self.obj})"
+  # def __getattr__(self, key: str):
+  #   """Get attribute from inner object"""
+  #   return getattr(self.obj, key)
 
 
 class NamedCallable(NamedObject):
