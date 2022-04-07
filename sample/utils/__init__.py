@@ -245,7 +245,7 @@ class Numpy2Paragraph:
     self._d = {}
 
   @staticmethod
-  @numpy_out
+  @numpy_out(dtype=float)
   def _semisum(x: np.ndarray,
                y: np.ndarray,
                out: Optional[np.ndarray] = None,
@@ -263,7 +263,7 @@ class Numpy2Paragraph:
     return np.true_divide(out, 2, out=out, **kwargs)
 
   @staticmethod
-  @numpy_out
+  @numpy_out(dtype=float)
   def _semidiff(x: np.ndarray,
                 y: np.ndarray,
                 out: Optional[np.ndarray] = None,
