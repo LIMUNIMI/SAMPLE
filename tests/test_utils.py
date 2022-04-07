@@ -38,6 +38,30 @@ class TestDSP(unittestmixins.RMSEAssertMixin,
     with self.subTest(test="std is one"):
       self.assertAlmostEqual(np.std(b), 1)
 
+  def test_normalize_range(self):
+    """Test range normalization"""
+    np.random.seed(42)
+    a = np.random.randn(1024)
+    dsp_utils.normalize(a, mode="range", out=a)
+    with self.subTest(test="minimum is zero"):
+      self.assertAlmostEqual(a.min(), 0)
+    with self.subTest(test="maximum is one"):
+      self.assertAlmostEqual(a.max(), 1)
+
+  def test_detrend(self):
+    """Test linear detrend"""
+    np.random.seed(42)
+    a = np.random.randn(1024) * 1e-3
+    np.add(np.arange(a.size), a, out=a)
+    self.assert_almost_equal_rmse(dsp_utils.detrend(a), 0, places=2)
+
+  def test_detrend_shape_error(self):
+    """Test shape error in detrend"""
+    for a in (np.empty(()), np.empty((2, 2))):
+      with self.subTest(shape=a.shape):
+        with self.assertRaises(ValueError):
+          dsp_utils.detrend(a)
+
   @test_utils.coherence_check_method(fwd=dsp_utils.db2a,
                                      bak=dsp_utils.a2db,
                                      f=np.linspace(-60, 60, 1024))
