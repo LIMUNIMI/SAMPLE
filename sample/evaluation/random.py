@@ -42,8 +42,8 @@ class BeatsGenerator:
     decay (float): Expected value for exponential distribution of decays
     onlybeat (bool): If :data:`True`, then set the amplitude of the
       non-beating partial to zero
-    beat_min (float): Minimum beat frequency difference in Bark
-    beat_max (float): Maximum beat frequency difference in Bark
+    beat_min (float): Minimum beat frequency difference in Hz
+    beat_max (float): Maximum beat frequency difference in Hz
     beat_a (float): Alpha coefficient for beta distribution of
       beat frequency differences
     beat_b (float): Beta coefficient for beta distribution of
@@ -61,14 +61,14 @@ class BeatsGenerator:
     seed (int): Random number generator seed"""
 
   def __init__(self,
-               f_min: float = 80,
-               f_max: float = 12000,
+               f_min: float = 200,
+               f_max: float = 2000,
                f_a: float = 2,
                f_b: float = 2,
                decay: float = 1,
                onlybeat: bool = False,
-               beat_min: float = 0.05,
-               beat_max: float = 0.5,
+               beat_min: float = 2,
+               beat_max: float = 20,
                beat_a: float = 2,
                beat_b: float = 4,
                delta_min: float = 1.5,
@@ -148,22 +148,25 @@ class BeatsGenerator:
 
     Returns:
       Random frequency values"""
-    beat = self.beta_twosides(a=self.beat_a,
-                              b=self.beat_b,
-                              left=self.beat_min,
-                              right=self.beat_max)
-    delta = self.beta_twosides(a=self.delta_a,
-                               b=self.delta_b,
-                               left=self.delta_min,
-                               right=self.delta_max)
-    bark = self.beta_twosides(a=self.f_a,
-                              b=self.f_b,
-                              left=psycho.hz2bark(self.f_min) - min(
-                                  (beat, delta, 0)),
-                              right=psycho.hz2bark(self.f_max) - max(
-                                  (beat, delta, 0)),
-                              positive=1)
-    return psycho.bark2hz(np.array((bark, bark + beat, bark + delta)))
+    beat_hz = 1 / self.beta_twosides(a=self.beat_a,
+                                     b=self.beat_b,
+                                     left=1 / self.beat_max,
+                                     right=1 / self.beat_min)
+    delta_bark = self.beta_twosides(a=self.delta_a,
+                                    b=self.delta_b,
+                                    left=self.delta_min,
+                                    right=self.delta_max)
+    b = self.beta_twosides(
+        a=self.f_a,
+        b=self.f_b,
+        left=psycho.hz2bark(self.f_min) - min(
+            (psycho.hz2bark(self.f_min) - psycho.hz2bark(self.f_min - beat_hz),
+             delta_bark, 0)),
+        right=psycho.hz2bark(self.f_max) - max(
+            (psycho.hz2bark(self.f_max) - psycho.hz2bark(self.f_max - beat_hz),
+             delta_bark, 0)),
+        positive=1)
+    return psycho.bark2hz((b, b, b + delta_bark)) + (0, beat_hz, 0)
 
   @_repeated_samples
   def decays(self):
@@ -186,7 +189,7 @@ class BeatsGenerator:
 
     Returns:
       Random amplitude values"""
-    a = self.rng.uniform(0, 1, size=3)
+    a = self.rng.uniform(0, 1, size=3) + 0.25
     if self.onlybeat:
       a[-1] = -np.inf
     return special.softmax(a) * self.sine_amp
