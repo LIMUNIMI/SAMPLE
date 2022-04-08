@@ -100,12 +100,15 @@ class ArgParser(argparse.ArgumentParser):
     return args
 
 
-BeatsDROPEvalResult_fields = ("seed", "a0", "a1", "f0", "f1", "d0", "d1", "p0",
-                              "p1")
+beat_param_names = ("a0", "a1", "f0", "f1", "d0", "d1", "p0", "p1")
+br_param_names = tuple(map("br_".__add__, beat_param_names))
+dbr_param_names = tuple(map("dbr_".__add__, beat_param_names))
+beatsdrop_eval_result_fields = ("seed", *beat_param_names, *br_param_names,
+                                *dbr_param_names)
 BeatsDROPEvalResult = namedtuple(typename="BeatsDROPEvalResult",
-                                 field_names=BeatsDROPEvalResult_fields,
+                                 field_names=beatsdrop_eval_result_fields,
                                  defaults=itertools.repeat(
-                                     None, len(BeatsDROPEvalResult_fields)))
+                                     None, len(beatsdrop_eval_result_fields)))
 
 
 def test_case(seed: int, wav_path: Optional[str] = None) -> BeatsDROPEvalResult:
@@ -117,8 +120,6 @@ def test_case(seed: int, wav_path: Optional[str] = None) -> BeatsDROPEvalResult:
   # Generate ground truth
   bg = random.BeatsGenerator(onlybeat=True, seed=seed)
   x, fs, ((f0, f1, _), (d0, d1, _), (a0, a1, _), (p0, p1, _)) = bg.audio()
-  a0, a1, f0, f1, d0, d1, p0, p1 = beatsdrop.regression.sort_params(
-      (a0, a1, f0, f1, d0, d1, p0, p1))
   if wav_path is not None:
     wavfile.write(filename=wav_path.format(seed), rate=fs, data=x)
   # Apply SAMPLE
@@ -145,14 +146,14 @@ def test_case(seed: int, wav_path: Optional[str] = None) -> BeatsDROPEvalResult:
 
   return BeatsDROPEvalResult(
       seed=seed,
-      a0=a0,
-      a1=a1,
-      f0=f0,
-      f1=f1,
-      d0=d0,
-      d1=d1,
-      p0=p0,
-      p1=p1,
+      **dict(
+          zip(
+              beat_param_names,
+              beatsdrop.regression.sort_params(
+                  (a0, a1, f0, f1, d0, d1, p0, p1)))),
+      **dict(zip(br_param_names, beatsdrop.regression.sort_params(br.params_))),
+      **dict(zip(dbr_param_names,
+                 beatsdrop.regression.sort_params(dbr.params_))),
   )
 
 
@@ -164,9 +165,9 @@ def list2df(results: List[BeatsDROPEvalResult]) -> pd.DataFrame:
 
   Returns:
     DataFrame: DataFrame of results"""
-  data = dict(map(lambda k: (k, []), BeatsDROPEvalResult_fields))
+  data = dict(map(lambda k: (k, []), beatsdrop_eval_result_fields))
   for r in filter(lambda r: r.seed is not None, results):
-    for k in BeatsDROPEvalResult_fields:
+    for k in beatsdrop_eval_result_fields:
       data[k].append(getattr(r, k))
   return pd.DataFrame(data=data)
 
@@ -206,7 +207,7 @@ def main(*argv):
       last_file = args.output
   if args.resume and last_file is not None:
     for _, r in pd.read_csv(last_file).iterrows():
-      d = {k: r[k] for k in BeatsDROPEvalResult_fields}
+      d = {k: r[k] for k in beatsdrop_eval_result_fields}
       d["seed"] = int(d["seed"])
       results[d["seed"]] = BeatsDROPEvalResult(**d)
 
