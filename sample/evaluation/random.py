@@ -40,6 +40,8 @@ class BeatsGenerator:
     f_a (float): Alpha coefficient for beta distribution of frequencies
     f_b (float): Beta coefficient for beta distribution of frequencies
     decay (float): Expected value for exponential distribution of decays
+    onlybeat (bool): If :data:`True`, then set the amplitude of the
+      non-beating partial to zero
     beat_min (float): Minimum beat frequency difference in Bark
     beat_max (float): Maximum beat frequency difference in Bark
     beat_a (float): Alpha coefficient for beta distribution of
@@ -64,6 +66,7 @@ class BeatsGenerator:
                f_a: float = 2,
                f_b: float = 2,
                decay: float = 1,
+               onlybeat: bool = False,
                beat_min: float = 0.05,
                beat_max: float = 0.5,
                beat_a: float = 2,
@@ -80,6 +83,7 @@ class BeatsGenerator:
     self.f_a = f_a
     self.f_b = f_b
     self.decay = decay
+    self.onlybeat = onlybeat
     self.beat_min = beat_min
     self.beat_max = beat_max
     self.beat_a = beat_a
@@ -182,7 +186,10 @@ class BeatsGenerator:
 
     Returns:
       Random amplitude values"""
-    return special.softmax(self.rng.uniform(0, 1, size=3)) * self.sine_amp
+    a = self.rng.uniform(0, 1, size=3)
+    if self.onlybeat:
+      a[-1] = -np.inf
+    return special.softmax(a) * self.sine_amp
 
   @_repeated_samples
   def noise(self, nsamples: int):
