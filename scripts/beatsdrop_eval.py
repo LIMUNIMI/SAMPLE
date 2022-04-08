@@ -61,6 +61,11 @@ class ArgParser(argparse.ArgumentParser):
     self.add_argument("--tqdm",
                       action="store_true",
                       help="Use tqdm progressbar")
+    self.add_argument("--no-resume",
+                      dest="resume",
+                      action="store_false",
+                      help="Do not load previous results, "
+                      "but recompute everything")
     self.add_argument("--wav",
                       metavar="PATH",
                       default=None,
@@ -124,8 +129,6 @@ def test_case(seed: int, wav_path: Optional[str] = None) -> BeatsDROPEvalResult:
 def main(*argv):
   """Script runner function"""
   args = ArgParser().custom_parse_args(argv)
-  # Load results
-  results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
   # Make WAV folder
   if args.wav is None:
     wav_path = None
@@ -133,14 +136,40 @@ def main(*argv):
     os.makedirs(args.wav, exist_ok=True)
     ndigits = np.ceil(np.log10(1 + args.n_cases)).astype(int)
     wav_path = os.path.join(args.wav, f"{{:0{ndigits}.0f}}.wav")
+  # Load results
+  results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
+  seeds = range(args.n_cases)
+  if args.resume and args.output is not None and os.path.exists(args.output):
+    for _, r in pd.read_csv(args.output).iterrows():
+      d = {k: r[k] for k in BeatsDROPEvalResult_fields}
+      d["seed"] = int(d["seed"])
+      results[d["seed"]] = BeatsDROPEvalResult(**d)
+
+    def _f(i: int) -> bool:
+      """Check that result is not yet computed"""
+      return results[i].seed is None
+
+    if wav_path is None:
+      f = _f
+    else:
+
+      def f(i: int) -> bool:
+        """Also check is WAV file does not exists"""
+        return _f(i) or not os.path.exists(wav_path.format(i))
+
+    seeds = filter(f, seeds)
+  seeds = list(seeds)
   # Perform tests
-  with mp.Pool(processes=args.n_jobs) as pool:
-    it = pool.imap_unordered(functools.partial(test_case, wav_path=wav_path),
-                             range(args.n_cases))
-    if args.tqdm:
-      it = tqdm.tqdm(it, total=args.n_cases)
-    for r in it:
-      results[r.seed] = r
+  if len(seeds) > 0:
+    with mp.Pool(processes=args.n_jobs) as pool:
+      it = pool.imap_unordered(functools.partial(test_case, wav_path=wav_path),
+                              seeds)
+      if args.tqdm:
+        it = tqdm.tqdm(it, total=len(seeds))
+      for r in it:
+        results[r.seed] = r
+  else:
+    logger.info("No tests to do")
   # Build dataframe
   data = dict(map(lambda k: (k, []), BeatsDROPEvalResult_fields))
   for r in results:
