@@ -181,7 +181,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     # Frequencies
     carrier_freq = np.mean(f)
     am_freq, _ = sms_dsp.peak_detect_interp(corr)
-    am_freq = model.fs / (2 * am_freq[0])
+    am_freq = 0 if len(am_freq) == 0 else model.fs / (2 * am_freq[0])
     f0 = carrier_freq + am_freq
     f1 = carrier_freq - am_freq
     # Decays
@@ -243,6 +243,9 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     # Frequency bounds
     f_min = np.min(f)
     f_max = np.max(f)
+    df = f_max - f_min
+    f_max = max(*p[2:4], f_max + df)
+    f_min = min(*p[2:4], f_min - df)
 
     eps = np.finfo(float).eps
 
