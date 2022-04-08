@@ -21,6 +21,7 @@ docs/source/*.rst
 
 # Outputs
 *.csv
+*.wav
 
 # Test files
 sms
