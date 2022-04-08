@@ -1,8 +1,8 @@
 """Regression models for beats"""
-import functools
 from typing import Any, Callable, List, Optional, Tuple
 
 import numpy as np
+import sample.sample
 from sample import beatsdrop, psycho, utils
 from sample.sms import dsp as sms_dsp
 from sample.utils import dsp as dsp_utils
@@ -37,6 +37,37 @@ def _get_notnone_attr(obj: Any, *args) -> Any:
   raise AttributeError(
       "No valid values found for attributes of object of "
       f"class '{type(obj).__name__}': {utils.comma_join_quote(args)}")
+
+
+def _param_energies(p: BeatModelParams) -> Tuple[float, float]:
+  """Compute the energies from the parameters
+
+  Args:
+    p (tuple): Beat model parameters
+
+  Returns:
+    float, float: The enrgies of the two partials"""
+  return sample.sample.modal_energy(p[:2], p[4:6])
+
+
+def sort_params(p: BeatModelParams,
+                key: Callable[[BeatModelParams],
+                              Tuple[float, float]] = _param_energies,
+                descending: bool = False) -> BeatModelParams:
+  """Sort beat model parameters
+
+  Args:
+    p (tuple): Beat model parameters
+    key (callable): Function with respect to which to sort.
+      Defaults to modal energy
+    descending (bool): If :data:`True`, then sort in descending order
+
+  Returns:
+    tuple: Sorted beat model parameters (maintaining association)"""
+  is_descending: bool = np.argmin(key(p)).astype(bool)
+  if descending ^ is_descending:
+    p = (p[1], p[0], p[3], p[2], p[5], p[4], p[7], p[6])
+  return p
 
 
 class BeatRegression(base.RegressorMixin, base.BaseEstimator):

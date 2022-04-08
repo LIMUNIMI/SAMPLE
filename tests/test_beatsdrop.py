@@ -107,6 +107,10 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
     self.p0, self.p1 = np.random.rand(2) * 2 * np.pi
     self.fs = 44100
     self.t = np.arange(int(self.fs * 3)) / self.fs
+    self.a0, self.a1, self.f0, self.f1, \
+    self.d0, self.d1, self.p0, self.p1 = beatsdrop.regression.sort_params(
+        (self.a0, self.a1, self.f0, self.f1,
+         self.d0, self.d1, self.p0, self.p1))
     self.beat = beatsdrop.ModalBeat(
         a0=self.a0,
         a1=self.a1,
@@ -170,7 +174,8 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
     am_true = self.beat.am(self.track_t)
     am_est, = br.predict(self.track_t, "am")
     self.assert_almost_equal_rmse(am_est, am_true, places=1)
-    for k, v_est in zip(("a0", "a1", "f0", "f1", "d0", "d1"), br.params_):
+    for k, v_est in zip(("a0", "a1", "f0", "f1", "d0", "d1"),
+                        beatsdrop.regression.sort_params(br.params_)):
       v_true = getattr(self, k)
       with self.subTest(k=k, true=v_true, est=v_est):
         self.assert_almost_equal_significant(v_true, v_est, places=0)
