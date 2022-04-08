@@ -12,6 +12,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+import sample
 import sample.beatsdrop.regression  # pylint: disable=W0611
 import tqdm
 from chromatictools import cli
@@ -113,12 +114,34 @@ def test_case(seed: int, wav_path: Optional[str] = None) -> BeatsDROPEvalResult:
   Args:
     seed (int): RNG seed
     wav_path (str): Path for writing WAV file"""
+  # Generate ground truth
   bg = random.BeatsGenerator(onlybeat=True, seed=seed)
   x, fs, ((f0, f1, _), (d0, d1, _), (a0, a1, _), (p0, p1, _)) = bg.audio()
   a0, a1, f0, f1, d0, d1, p0, p1 = beatsdrop.regression.sort_params(
       (a0, a1, f0, f1, d0, d1, p0, p1))
   if wav_path is not None:
     wavfile.write(filename=wav_path.format(seed), rate=fs, data=x)
+  # Apply SAMPLE
+  s = sample.SAMPLE(
+      sinusoidal_model__max_n_sines=32,
+      sinusoidal_model__reverse=True,
+      sinusoidal_model__t=-90,
+      sinusoidal_model__save_intermediate=True,
+      sinusoidal_model__peak_threshold=-45,
+  ).fit(x, sinusoidal_model__fs=fs)
+  track = s.sinusoidal_model.tracks_[np.argmax(s.energies_)]
+  track_t = np.arange(len(
+      track["mag"])) * s.sinusoidal_model.h / s.sinusoidal_model.fs
+  track_a = np.flip(track["mag"]) + 6
+  track_f = np.flip(track["freq"])
+  # Apply BeatRegression
+  br = beatsdrop.regression.BeatRegression().fit(t=track_t,
+                                                 a=track_a,
+                                                 f=track_f)
+  # Apply DualBeatRegression
+  dbr = beatsdrop.regression.DualBeatRegression().fit(t=track_t,
+                                                      a=track_a,
+                                                      f=track_f)
 
   return BeatsDROPEvalResult(
       seed=seed,
