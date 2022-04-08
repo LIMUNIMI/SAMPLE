@@ -1,16 +1,18 @@
 """Evaluation script for BeatsDROP"""
 import argparse
 import functools
+import glob
 import itertools
 import logging
 import multiprocessing as mp
 import os
 import sys
 from collections import namedtuple
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+import sample.beatsdrop.regression  # pylint: disable=W0611
 import tqdm
 from chromatictools import cli
 from sample import beatsdrop
@@ -66,6 +68,12 @@ class ArgParser(argparse.ArgumentParser):
                       action="store_false",
                       help="Do not load previous results, "
                       "but recompute everything")
+    self.add_argument("--checkpoint",
+                      metavar="PERIOD",
+                      default=None,
+                      type=int,
+                      help="Period for saving checkpoints (the number of "
+                      "tests to do before saving another checkpoint)")
     self.add_argument("--wav",
                       metavar="PATH",
                       default=None,
@@ -125,6 +133,21 @@ def test_case(seed: int, wav_path: Optional[str] = None) -> BeatsDROPEvalResult:
   )
 
 
+def list2df(results: List[BeatsDROPEvalResult]) -> pd.DataFrame:
+  """Convert a list of results to a pandas dataframe
+
+  Args:
+    results (list of BeatsDROPEvalResult): List of results
+
+  Returns:
+    DataFrame: DataFrame of results"""
+  data = dict(map(lambda k: (k, []), BeatsDROPEvalResult_fields))
+  for r in filter(lambda r: r.seed is not None, results):
+    for k in BeatsDROPEvalResult_fields:
+      data[k].append(getattr(r, k))
+  return pd.DataFrame(data=data)
+
+
 @cli.main(__name__, *sys.argv[1:])
 def main(*argv):
   """Script runner function"""
@@ -139,8 +162,21 @@ def main(*argv):
   # Load results
   results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
   seeds = range(args.n_cases)
-  if args.resume and args.output is not None and os.path.exists(args.output):
-    for _, r in pd.read_csv(args.output).iterrows():
+  ckpt_path = None
+  last_file = None
+  last_checkpoint = -1
+  if args.resume and args.output is not None:
+    # Find most recent checkpoint
+    ckpt_path = ".".join((args.output, "ckpt-{}")).format
+    checkpoints = glob.glob(ckpt_path("*"))  # pylint: disable=W1310
+    if len(checkpoints) > 0:
+      last_checkpoint = max(
+          map(lambda s: int(s.rsplit("-", 1)[-1]), checkpoints))
+      last_file = ckpt_path(last_checkpoint)
+    if os.path.exists(args.output):
+      last_file = args.output
+  if args.resume and last_file is not None:
+    for _, r in pd.read_csv(last_file).iterrows():
       d = {k: r[k] for k in BeatsDROPEvalResult_fields}
       d["seed"] = int(d["seed"])
       results[d["seed"]] = BeatsDROPEvalResult(**d)
@@ -160,23 +196,28 @@ def main(*argv):
     seeds = filter(f, seeds)
   seeds = list(seeds)
   # Perform tests
-  if len(seeds) > 0:
+  if len(seeds) == 0:
+    logger.info("No tests to do")
+  else:
     with mp.Pool(processes=args.n_jobs) as pool:
       it = pool.imap_unordered(functools.partial(test_case, wav_path=wav_path),
-                              seeds)
+                               seeds)
       if args.tqdm:
         it = tqdm.tqdm(it, total=len(seeds))
-      for r in it:
+      for i, r in enumerate(it):
         results[r.seed] = r
-  else:
-    logger.info("No tests to do")
-  # Build dataframe
-  data = dict(map(lambda k: (k, []), BeatsDROPEvalResult_fields))
-  for r in results:
-    for k in BeatsDROPEvalResult_fields:
-      data[k].append(getattr(r, k))
-  df = pd.DataFrame(data=data)
+        # Save checkpoint
+        if args.checkpoint is not None and (i + 1) % args.checkpoint == 0:
+          last_checkpoint += 1
+          last_file = ckpt_path(last_checkpoint)
+          logger.info("Writing checkpoint: '%s'", last_file)
+          list2df(results).to_csv(last_file)
   # Save dataframe
   if args.output is not None:
     logger.info("Writing CSV file: '%s'", args.output)
-    df.to_csv(args.output)
+    list2df(results).to_csv(args.output)
+    # Clean checkpoints
+    if args.checkpoint is not None:
+      for f in glob.glob(ckpt_path("*")):
+        logger.info("Deleting checkpoint: '%s'", f)
+        os.remove(f)
