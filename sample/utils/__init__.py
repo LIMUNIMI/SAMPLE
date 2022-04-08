@@ -277,8 +277,8 @@ class Numpy2Paragraph:
     out = np.subtract(x, y, out=out, **kwargs)
     return np.true_divide(out, 2, out=out, **kwargs)
 
-  semisum = pg.op(NamedObject(_semisum, name="semisum"))
-  semidiff = pg.op(NamedObject(_semidiff, name="semidiff"))
+  semisum = pg.op(NamedObject(_semisum.__get__(object), name="semisum"))  # pylint: disable=E1120
+  semidiff = pg.op(NamedObject(_semidiff.__get__(object), name="semidiff"))  # pylint: disable=E1120
 
   def __getattr__(self, key: str) -> pg.op:
     """Make an operator out of a numpy function"""

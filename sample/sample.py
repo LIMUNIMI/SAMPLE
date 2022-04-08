@@ -12,6 +12,26 @@ from sample.sms import mm
 from sample.utils import dsp as dsp_utils
 
 
+@utils.numpy_out(dtype=float)
+def modal_energy(a: np.ndarray,
+                 d: np.ndarray,
+                 out: Optional[np.ndarray] = None) -> np.ndarray:
+  """Compute the integrals of the modal amplitude envelopes
+
+  Args:
+    a (array): Amplitudes
+    d (array): Decays
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Energies"""
+  # 4 * a^2 / d
+  np.square(a, out=out)
+  np.multiply(4, out, out=out)
+  np.true_divide(out, d, out=out)
+  return out
+
+
 class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   """SAMPLE (Spectral Analysis for Modal Parameter Linear Estimate) model
 
@@ -130,7 +150,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   @property
   def energies_(self) -> np.ndarray:
     """Learned modal energies"""
-    return 4 * self.amps_**2 / self.decays_
+    return modal_energy(self.amps_, self.decays_)
 
   def mode_argsort_(self,
                     order: str = "energies",

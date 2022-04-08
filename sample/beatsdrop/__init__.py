@@ -10,6 +10,11 @@ from sample import utils
 from sample.utils import np2pg
 from scipy import integrate
 
+if not hasattr(integrate, "cumulative_trapezoid"):
+  # Available Scipy versions for old Python versions (e.g. Python 3.6.x)
+  # don't have the name "cumulative_trapezoid"
+  integrate.cumulative_trapezoid = integrate.cumtrapz  # pragma: no cover
+
 FloatOrCallable = Union[float, Callable[[np.ndarray], np.ndarray]]
 
 
@@ -73,8 +78,8 @@ class Beat:
     # --- Define computational graph ------------------------------------------
     self._graph = {"t": pg.Variable("t")}
     self._define_base_graph()._define_am()._define_fm()
-    self._graph["x"] = np2pg.multiply(self._graph["am"],
-                                      np2pg.cos(self._graph["pm"]))
+    self._graph["x"] = np2pg.multiply.op(self._graph["am"],
+                                         np2pg.cos.op(self._graph["pm"]))
     # -------------------------------------------------------------------------
 
   def _define_base_graph(self):
@@ -83,45 +88,48 @@ class Beat:
       self._graph[f"{k}{i}"] = pg.op(
           utils.NamedObject(
               functools.partial(_float_or_call, getattr(self, f"_{k}{i}")),
-              f"{k}{i}"))(self._graph["t"])
+              f"{k}{i}")).op(self._graph["t"])
     for k in ("a", "f", "p"):
-      self._graph[f"{k}_oln"] = np2pg.semisum(self._graph[f"{k}0"],
-                                              self._graph[f"{k}1"])
-      self._graph[f"{k}_hat"] = np2pg.semidiff(self._graph[f"{k}0"],
-                                               self._graph[f"{k}1"])
-    self._graph["w_hat"] = np2pg.multiply(2 * np.pi, self._graph["f_hat"])
-    self._graph["w_oln"] = np2pg.multiply(2 * np.pi, self._graph["f_oln"])
+      self._graph[f"{k}_oln"] = np2pg.semisum.op(self._graph[f"{k}0"],
+                                                 self._graph[f"{k}1"])
+      self._graph[f"{k}_hat"] = np2pg.semidiff.op(self._graph[f"{k}0"],
+                                                  self._graph[f"{k}1"])
+    self._graph["w_hat"] = np2pg.multiply.op(2 * np.pi, self._graph["f_hat"])
+    self._graph["w_oln"] = np2pg.multiply.op(2 * np.pi, self._graph["f_oln"])
     return self
 
   def _define_am(self):
     """Define Amplitude Modulation variables"""
-    self._graph["a_oln2"] = np2pg.square(self._graph["a_oln"])
-    self._graph["a_hat2"] = np2pg.square(self._graph["a_hat"])
+    self._graph["a_oln2"] = np2pg.square.op(self._graph["a_oln"])
+    self._graph["a_hat2"] = np2pg.square.op(self._graph["a_hat"])
 
-    phase = np2pg.multiply(self._graph["w_hat"], self._graph["t"])
-    phase = np2pg.add(phase, self._graph["p_hat"])
-    modulant = np2pg.square(np2pg.cos(phase))
-    am_range = np2pg.subtract(self._graph["a_oln2"], self._graph["a_hat2"])
-    self._graph["alpha2"] = np2pg.add(np2pg.multiply(am_range, modulant),
-                                      self._graph["a_hat2"])
-    self._graph["am"] = np2pg.multiply(np2pg.sqrt(self._graph["alpha2"]), 2)
+    phase = np2pg.multiply.op(self._graph["w_hat"], self._graph["t"])
+    phase = np2pg.add.op(phase, self._graph["p_hat"])
+    modulant = np2pg.square.op(np2pg.cos.op(phase))
+    am_range = np2pg.subtract.op(self._graph["a_oln2"], self._graph["a_hat2"])
+    self._graph["alpha2"] = np2pg.add.op(np2pg.multiply.op(am_range, modulant),
+                                         self._graph["a_hat2"])
+    self._graph["am"] = np2pg.multiply.op(np2pg.sqrt.op(self._graph["alpha2"]),
+                                          2)
     return self
 
   def _define_fm(self):
     """Define Frequency Modulation variables"""
     # Instantaneous frequency
-    f = np2pg.multiply(self._graph["a_oln"], self._graph["a_hat"])
-    f = np2pg.multiply(f, self._graph["w_hat"])
-    f = np2pg.true_divide(f, self._graph["alpha2"])
-    f = np2pg.add(f, self._graph["w_oln"])
+    f = np2pg.multiply.op(self._graph["a_oln"], self._graph["a_hat"])
+    f = np2pg.multiply.op(f, self._graph["w_hat"])
+    f = np2pg.true_divide.op(f, self._graph["alpha2"])
+    f = np2pg.add.op(f, self._graph["w_oln"])
     self._graph["fm"] = f
     # Initial phase
-    y0 = np2pg.multiply(self._graph["a_hat"], np2pg.sin(self._graph["p_hat"]))
-    x0 = np2pg.multiply(self._graph["a_oln"], np2pg.cos(self._graph["p_hat"]))
-    p0 = np2pg.add(self._graph["p_oln"], np2pg.arctan2(y0, x0))
+    y0 = np2pg.multiply.op(self._graph["a_hat"],
+                           np2pg.sin.op(self._graph["p_hat"]))
+    x0 = np2pg.multiply.op(self._graph["a_oln"],
+                           np2pg.cos.op(self._graph["p_hat"]))
+    p0 = np2pg.add.op(self._graph["p_oln"], np2pg.arctan2.op(y0, x0))
     # Instantenous Phase
-    p = pg.op(integrate.cumulative_trapezoid)(f, self._graph["t"], initial=0)
-    p = np2pg.add(p, p0)
+    p = pg.op(integrate.cumulative_trapezoid).op(f, self._graph["t"], initial=0)
+    p = np2pg.add.op(p, p0)
     self._graph["pm"] = p
     return self
 
