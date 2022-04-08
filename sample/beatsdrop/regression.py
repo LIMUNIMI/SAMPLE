@@ -43,7 +43,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
   """Regressor for fitting to a beat pattern
 
   Args:
-    fs (float): Sampling frequency for beat model integration
+    fs (float): Sampling frequency for autocorrelogram computation
     lpf (float): Corner frequency for LPF of spectrum in autocorrelation
       computation
     linear_regressor (sklearn.base.BaseEstimator): Linear regression model
@@ -69,7 +69,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
 
   def __init__(
       self,
-      fs: float = 44100,
+      fs: float = 100,
       lpf: float = 12,
       linear_regressor=None,
       linear_regressor_k: str = "coef_",
@@ -284,7 +284,7 @@ class DualBeatRegression(BeatRegression):
   from both the amplitude modulation and the frequency modulation
 
   Args:
-    fs (float): Sampling frequency for beat model integration
+    fs (float): Sampling frequency for autocorrelogram computation
     lpf (float): Corner frequency for LPF of spectrum in autocorrelation
       computation
     linear_regressor (sklearn.base.BaseEstimator): Linear regression model
@@ -317,7 +317,7 @@ class DualBeatRegression(BeatRegression):
 
   def __init__(
       self,
-      fs: float = 4410,
+      fs: float = 100,
       lpf: float = 12,
       linear_regressor=None,
       linear_regressor_k: str = "coef_",
@@ -397,17 +397,11 @@ class DualBeatRegression(BeatRegression):
     Returns:
       callable: Residual function"""
     # Time axis for model integration
-    t_max = np.max(t)
-    u = np.arange(np.ceil(t_max * self.fs).astype(int), dtype=float)
-    np.true_divide(u, self.fs, out=u)
     a_lin = dsp_utils.db2a(a)
-    interp_tu = functools.partial(np.interp, t, u)
     f_abs = np.abs(f)
 
     def _residual_fn_(beat_args: BeatModelParams) -> np.ndarray:
-      a_est, f_est = tuple(
-          map(interp_tu,
-              beatsdrop.ModalBeat(*beat_args).compute(u, ("am", "fm"))))
+      a_est, f_est = beatsdrop.ModalBeat(*beat_args).compute(t, ("am", "fm"))
       a_loss = self._amp_loss(a_lin, a_est)
       np.true_divide(f_est, 2 * np.pi, out=f_est)
       np.abs(f_est, out=f_est)
