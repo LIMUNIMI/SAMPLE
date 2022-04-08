@@ -211,16 +211,18 @@ class BeatsGenerator:
 
     Return:
       Audio array, sample rate, and the tuple of frequency,
-      decay, and amplitude parameters"""
+      decay, amplitude, and phase parameters"""
     if dur is None:
       dur = self.decay * 3
     freqs = self.freqs()
     decays = self.decays()
     amps = self.amps()
+    phases = self.rng.uniform(0, 2 * np.pi, size=3)
     n = int(dur * fs)
     x = sample.sample.additive_synth(np.arange(n) / fs,
                                      freqs=freqs,
                                      decays=decays,
-                                     amps=amps)
+                                     amps=amps,
+                                     phases=phases)
     x += self.noise(nsamples=n)
-    return x, fs, (freqs, decays, amps)
+    return x, fs, (freqs, decays, amps, phases)
