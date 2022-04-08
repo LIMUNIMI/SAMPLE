@@ -13,7 +13,7 @@ from scipy import integrate
 if not hasattr(integrate, "cumulative_trapezoid"):
   # Available Scipy versions for old Python versions (e.g. Python 3.6.x)
   # don't have the name "cumulative_trapezoid"
-  integrate.cumulative_trapezoid = integrate.cumtrapz
+  integrate.cumulative_trapezoid = integrate.cumtrapz  # pragma: no cover
 
 FloatOrCallable = Union[float, Callable[[np.ndarray], np.ndarray]]
 
