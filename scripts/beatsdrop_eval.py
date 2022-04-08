@@ -168,7 +168,13 @@ def main(*argv):
   if args.resume and args.output is not None:
     # Find most recent checkpoint
     ckpt_path = ".".join((args.output, "ckpt-{}")).format
-    checkpoints = glob.glob(ckpt_path("*"))  # pylint: disable=W1310
+    checkpoints = []
+    for fn in glob.glob(ckpt_path("*")):  # pylint: disable=W1310
+      try:
+        pd.read_csv(fn)
+      except Exception:  # pylint: disable=W0703
+        continue
+      checkpoints.append(fn)
     if len(checkpoints) > 0:
       last_checkpoint = max(
           map(lambda s: int(s.rsplit("-", 1)[-1]), checkpoints))
@@ -218,6 +224,6 @@ def main(*argv):
     list2df(results).to_csv(args.output)
     # Clean checkpoints
     if args.checkpoint is not None:
-      for f in glob.glob(ckpt_path("*")):
-        logger.info("Deleting checkpoint: '%s'", f)
-        os.remove(f)
+      for fn in glob.glob(ckpt_path("*")):
+        logger.info("Deleting checkpoint: '%s'", fn)
+        os.remove(fn)
