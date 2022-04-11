@@ -277,7 +277,7 @@ if __name__ == "__main__":
       last_checkpoint = max(
           map(lambda s: int(s.rsplit("-", 1)[-1]), checkpoints))
       last_file = ckpt_path(last_checkpoint)
-    if os.path.exists(args.output):
+    elif os.path.exists(args.output):
       last_file = args.output
   if args.resume and last_file is not None:
     for _, r in pd.read_csv(last_file).iterrows():
