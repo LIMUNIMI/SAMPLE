@@ -21,12 +21,11 @@ try:
   import sample
   import sample.beatsdrop.regression  # pylint: disable=W0611
   import tqdm
-  from chromatictools import cli
   from sample import beatsdrop
   from sample.evaluation import random
   from scipy.io import wavfile
-except ImportError as e:
-  import_error = e
+except ImportError as _import_error:
+  import_error = _import_error
 
 logger = logging.getLogger("BeatsDROP-Eval")
 
@@ -130,15 +129,18 @@ def install_dependencies(*args):
   Args:
     *args: Extra dependencies to install"""
   logger.info("Updating pip")
-  subprocess.run([sys.executable, "-m", "pip", "install", "-U", "pip"])
+  subprocess.run([sys.executable, "-m", "pip", "install", "-U", "pip"],
+                 check=True)
   sample_dir = os.path.join(os.path.dirname(__file__), "..")
   logger.info("Installing module 'sample' and dependencies from folder: %s",
               sample_dir)
   subprocess.run(
-      [sys.executable, "-m", "pip", "install", "-U", f"{sample_dir}[plots]"])
+      [sys.executable, "-m", "pip", "install", "-U", f"{sample_dir}[plots]"],
+      check=True)
   if len(args) > 0:
     logger.info("Installing extra modules: %s", args)
-    subprocess.run([sys.executable, "-m", "pip", "install", "-U", *args])
+    subprocess.run([sys.executable, "-m", "pip", "install", "-U", *args],
+                   check=True)
 
 
 beat_param_names = ("a0", "a1", "f0", "f1", "d0", "d1", "p0", "p1")
@@ -241,11 +243,12 @@ def list2df(results: List[BeatsDROPEvalResult]) -> "pd.DataFrame":
   return pd.DataFrame(data=data)
 
 
-if __name__ == "__main__":
-  args = ArgParser(description=__doc__).custom_parse_args(sys.argv[1:])
+def main(*argv):
+  """Script runner"""
+  args = ArgParser(description=__doc__).custom_parse_args(argv)
   if args.install:
     install_dependencies("autorank")
-    sys.exit()
+    return 0
   elif import_error is not None:
     raise import_error
   # Make WAV folder
@@ -330,3 +333,7 @@ if __name__ == "__main__":
     for fn in glob.glob(ckpt_path("*")):
       logger.info("Deleting checkpoint: '%s'", fn)
       os.remove(fn)
+
+
+if __name__ == "__main__":
+  main(*sys.argv[1:])
