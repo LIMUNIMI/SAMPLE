@@ -243,6 +243,133 @@ def list2df(results: List[BeatsDROPEvalResult]) -> "pd.DataFrame":
   return pd.DataFrame(data=data)
 
 
+def prepare_folders(args: argparse.Namespace):
+  """Prepare folders for WAV and log files
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace: CLI arguments, augmented"""
+  # Make WAV folder
+  if args.wav is None:
+    args.wav_path = None
+  else:
+    os.makedirs(args.wav, exist_ok=True)
+    args.wav_path = os.path.join(args.wav, "{:.0f}.wav")
+  # Logs folder
+  args.log_path = None if args.log_exception is None else os.path.join(
+      args.log_exception, "{:.0f}.log")
+  return args
+
+
+def load_results(args: argparse.Namespace):
+  """Load results from files
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace, list: CLI arguments, augmented"""
+  args.results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
+  seeds = range(args.n_cases)
+  args.ckpt_path = None
+  args.last_file = None
+  args.last_checkpoint = -1
+  args.checkpoints = []
+  if args.output is not None:
+    args.ckpt_path = ".".join((args.output, "ckpt-{}")).format
+    if args.resume:
+      # Find most recent checkpoint
+      for fn in glob.glob(args.ckpt_path("*")):  # pylint: disable=W1310
+        try:
+          pd.read_csv(fn)
+        except Exception:  # pylint: disable=W0703
+          continue
+        args.checkpoints.append(fn)
+      if len(args.checkpoints) > 0:
+        args.last_checkpoint = max(
+            map(lambda s: int(s.rsplit("-", 1)[-1]), args.checkpoints))
+        args.last_file = args.ckpt_path(args.last_checkpoint)
+      elif os.path.exists(args.output):
+        args.last_file = args.output
+    if args.resume and args.last_file is not None:
+      logger.info("Loading '%s'", args.last_file)
+      for _, r in pd.read_csv(args.last_file).iterrows():
+        d = {k: r[k] for k in beatsdrop_eval_result_fields}
+        d["seed"] = int(d["seed"])
+        if d["seed"] < len(args.results):
+          args.results[d["seed"]] = BeatsDROPEvalResult(**d)
+
+      def _f(i: int) -> bool:
+        """Check that result is not yet computed"""
+        return args.results[i].seed is None
+
+      if args.wav_path is None:
+        f = _f
+      else:
+
+        def f(i: int) -> bool:
+          """Also check is WAV file does not exists"""
+          return _f(i) or not os.path.exists(args.wav_path.format(i))
+
+      seeds = filter(f, seeds)
+  args.seeds = list(seeds)
+  return args
+
+
+def run_tests(args: argparse.Namespace):
+  """Run tests
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace, list: CLI arguments, augmented"""
+  if len(args.seeds) == 0:
+    logger.info("No tests to do")
+  else:
+    with mp.Pool(processes=args.n_jobs) as pool:
+      it = pool.imap_unordered(
+          functools.partial(test_case,
+                            log_level=args.log_level,
+                            log_path=args.log_path,
+                            wav_path=args.wav_path), args.seeds)
+      if args.tqdm:
+        it = tqdm.tqdm(it, total=len(args.seeds))
+      for i, r in enumerate(it):
+        if r is not None:
+          args.results[r.seed] = r
+        # Save checkpoint
+        if args.checkpoint is not None and (i + 1) % args.checkpoint == 0:
+          args.last_checkpoint += 1
+          args.last_file = args.ckpt_path(args.last_checkpoint)
+          logger.info("Writing checkpoint: '%s'", args.last_file)
+          list2df(args.results).to_csv(args.last_file)
+  return args
+
+
+def save_dataframe(args: argparse.Namespace):
+  """Save dataframe
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace, list: CLI arguments, augmented"""
+  args.df = list2df(args.results)
+  if args.output is not None and (args.output != args.last_file or
+                                  not args.resume):
+    logger.info("Writing CSV file: '%s'", args.output)
+    args.df.to_csv(args.output)
+  # Clean checkpoints
+  if args.ckpt_path is not None:
+    for fn in glob.glob(args.ckpt_path("*")):
+      logger.info("Deleting checkpoint: '%s'", fn)
+      os.remove(fn)
+  return args
+
+
 def main(*argv):
   """Script runner"""
   args = ArgParser(description=__doc__).custom_parse_args(argv)
@@ -251,88 +378,14 @@ def main(*argv):
     return 0
   elif import_error is not None:
     raise import_error
-  # Make WAV folder
-  if args.wav is None:
-    wav_path = None
-  else:
-    os.makedirs(args.wav, exist_ok=True)
-    wav_path = os.path.join(args.wav, "{:.0f}.wav")
-  # Logs folder
-  log_path = None if args.log_exception is None else os.path.join(
-      args.log_exception, "{:.0f}.log")
-  # Load results
-  results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
-  seeds = range(args.n_cases)
-  ckpt_path = None
-  last_file = None
-  last_checkpoint = -1
-  if args.resume and args.output is not None:
-    # Find most recent checkpoint
-    ckpt_path = ".".join((args.output, "ckpt-{}")).format
-    checkpoints = []
-    for fn in glob.glob(ckpt_path("*")):  # pylint: disable=W1310
-      try:
-        pd.read_csv(fn)
-      except Exception:  # pylint: disable=W0703
-        continue
-      checkpoints.append(fn)
-    if len(checkpoints) > 0:
-      last_checkpoint = max(
-          map(lambda s: int(s.rsplit("-", 1)[-1]), checkpoints))
-      last_file = ckpt_path(last_checkpoint)
-    elif os.path.exists(args.output):
-      last_file = args.output
-  if args.resume and last_file is not None:
-    for _, r in pd.read_csv(last_file).iterrows():
-      d = {k: r[k] for k in beatsdrop_eval_result_fields}
-      d["seed"] = int(d["seed"])
-      if d["seed"] < len(results):
-        results[d["seed"]] = BeatsDROPEvalResult(**d)
-
-    def _f(i: int) -> bool:
-      """Check that result is not yet computed"""
-      return results[i].seed is None
-
-    if wav_path is None:
-      f = _f
-    else:
-
-      def f(i: int) -> bool:
-        """Also check is WAV file does not exists"""
-        return _f(i) or not os.path.exists(wav_path.format(i))
-
-    seeds = filter(f, seeds)
-  seeds = list(seeds)
-  # Perform tests
-  if len(seeds) == 0:
-    logger.info("No tests to do")
-  else:
-    with mp.Pool(processes=args.n_jobs) as pool:
-      it = pool.imap_unordered(
-          functools.partial(test_case,
-                            log_level=args.log_level,
-                            log_path=log_path,
-                            wav_path=wav_path), seeds)
-      if args.tqdm:
-        it = tqdm.tqdm(it, total=len(seeds))
-      for i, r in enumerate(it):
-        if r is not None:
-          results[r.seed] = r
-        # Save checkpoint
-        if args.checkpoint is not None and (i + 1) % args.checkpoint == 0:
-          last_checkpoint += 1
-          last_file = ckpt_path(last_checkpoint)
-          logger.info("Writing checkpoint: '%s'", last_file)
-          list2df(results).to_csv(last_file)
-  # Save dataframe
-  if args.output is not None and (args.output != last_file):
-    logger.info("Writing CSV file: '%s'", args.output)
-    list2df(results).to_csv(args.output)
-  # Clean checkpoints
-  if args.checkpoint is not None:
-    for fn in glob.glob(ckpt_path("*")):
-      logger.info("Deleting checkpoint: '%s'", fn)
-      os.remove(fn)
+  logger.debug("Preparing folders. Args: %s", args)
+  prepare_folders(args)
+  logger.debug("Loading results. Args: %s", args)
+  load_results(args)
+  logger.debug("Running tests. Args: %s", args)
+  run_tests(args)
+  logger.debug("Saving dataframe. Args: %s", args)
+  save_dataframe(args)
 
 
 if __name__ == "__main__":
