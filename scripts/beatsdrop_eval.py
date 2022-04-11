@@ -375,7 +375,7 @@ def main(*argv):
   args = ArgParser(description=__doc__).custom_parse_args(argv)
   if args.install:
     install_dependencies("autorank")
-    return 0
+    return
   elif import_error is not None:
     raise import_error
   logger.debug("Preparing folders. Args: %s", args)
@@ -389,4 +389,4 @@ def main(*argv):
 
 
 if __name__ == "__main__":
-  main(*sys.argv[1:])
+  sys.exit(main(*sys.argv[1:]) or 0)
