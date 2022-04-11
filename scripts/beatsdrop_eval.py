@@ -248,16 +248,15 @@ if __name__ == "__main__":
     sys.exit()
   elif import_error is not None:
     raise import_error
-  ndigits = np.ceil(np.log10(1 + args.n_cases)).astype(int)
   # Make WAV folder
   if args.wav is None:
     wav_path = None
   else:
     os.makedirs(args.wav, exist_ok=True)
-    wav_path = os.path.join(args.wav, f"{{:0{ndigits}.0f}}.wav")
+    wav_path = os.path.join(args.wav, "{:.0f}.wav")
   # Logs folder
   log_path = None if args.log_exception is None else os.path.join(
-      args.log_exception, f"{{:0{ndigits}.0f}}.log")
+      args.log_exception, "{:.0f}.log")
   # Load results
   results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
   seeds = range(args.n_cases)
@@ -284,7 +283,8 @@ if __name__ == "__main__":
     for _, r in pd.read_csv(last_file).iterrows():
       d = {k: r[k] for k in beatsdrop_eval_result_fields}
       d["seed"] = int(d["seed"])
-      results[d["seed"]] = BeatsDROPEvalResult(**d)
+      if d["seed"] < len(results):
+        results[d["seed"]] = BeatsDROPEvalResult(**d)
 
     def _f(i: int) -> bool:
       """Check that result is not yet computed"""
@@ -322,11 +322,11 @@ if __name__ == "__main__":
           logger.info("Writing checkpoint: '%s'", last_file)
           list2df(results).to_csv(last_file)
   # Save dataframe
-  if args.output is not None:
+  if args.output is not None and (args.output != last_file):
     logger.info("Writing CSV file: '%s'", args.output)
     list2df(results).to_csv(args.output)
-    # Clean checkpoints
-    if args.checkpoint is not None:
-      for fn in glob.glob(ckpt_path("*")):
-        logger.info("Deleting checkpoint: '%s'", fn)
-        os.remove(fn)
+  # Clean checkpoints
+  if args.checkpoint is not None:
+    for fn in glob.glob(ckpt_path("*")):
+      logger.info("Deleting checkpoint: '%s'", fn)
+      os.remove(fn)
