@@ -1,5 +1,6 @@
 """Evaluation script for BeatsDROP"""
 import argparse
+import collections
 import contextlib
 import functools
 import glob
@@ -11,7 +12,6 @@ import os
 import subprocess
 import sys
 import traceback
-import collections
 from typing import List, Optional, Tuple
 
 import_error = None
@@ -26,7 +26,7 @@ try:
   from sample import beatsdrop, psycho
   from sample.evaluation import random
   from scipy.io import wavfile
-except ImportError as _import_error:
+except (ImportError, ModuleNotFoundError) as _import_error:
   import_error = _import_error
 
 logger = logging.getLogger("BeatsDROP-Eval")
