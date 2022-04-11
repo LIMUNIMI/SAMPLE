@@ -23,6 +23,7 @@ docs/source/*.rst
 *.csv
 *.wav
 *.log
+*.dat
 
 # Test files
 sms
