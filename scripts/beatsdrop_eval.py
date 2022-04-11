@@ -1,5 +1,6 @@
 """Evaluation script for BeatsDROP"""
 import argparse
+import contextlib
 import functools
 import glob
 import itertools
@@ -10,7 +11,7 @@ import os
 import subprocess
 import sys
 import traceback
-from collections import namedtuple
+import collections
 from typing import List, Optional, Tuple
 
 import_error = None
@@ -21,7 +22,8 @@ try:
   import sample
   import sample.beatsdrop.regression  # pylint: disable=W0611
   import tqdm
-  from sample import beatsdrop
+  from chromatictools import pickle
+  from sample import beatsdrop, psycho
   from sample.evaluation import random
   from scipy.io import wavfile
 except ImportError as _import_error:
@@ -43,7 +45,7 @@ class ArgParser(argparse.ArgumentParser):
         "--output",
         metavar="PATH",
         default=None,
-        help="Output path for evaluation CSV file",
+        help="Output base path for results",
     )
     self.add_argument(
         "-l",
@@ -68,6 +70,14 @@ class ArgParser(argparse.ArgumentParser):
                       default=1024,
                       type=int,
                       help="The number of tests to perform")
+    self.add_argument("--alpha",
+                      metavar="P",
+                      default=0.05,
+                      type=float,
+                      help="The threshold for statistical significance")
+    self.add_argument("--frequentist",
+                      action="store_true",
+                      help="Perform frequentist tests (instead of Bayesian)")
     self.add_argument("--tqdm",
                       action="store_true",
                       help="Use tqdm progressbar")
@@ -148,10 +158,10 @@ br_param_names = tuple(map("br_".__add__, beat_param_names))
 dbr_param_names = tuple(map("dbr_".__add__, beat_param_names))
 beatsdrop_eval_result_fields = ("seed", *beat_param_names, *br_param_names,
                                 *dbr_param_names)
-BeatsDROPEvalResult = namedtuple(typename="BeatsDROPEvalResult",
-                                 field_names=beatsdrop_eval_result_fields,
-                                 defaults=itertools.repeat(
-                                     None, len(beatsdrop_eval_result_fields)))
+BeatsDROPEvalResult = collections.namedtuple(
+    typename="BeatsDROPEvalResult",
+    field_names=beatsdrop_eval_result_fields,
+    defaults=itertools.repeat(None, len(beatsdrop_eval_result_fields)))
 
 
 def test_case(seed: int,
@@ -273,12 +283,14 @@ def load_results(args: argparse.Namespace):
     Namespace, list: CLI arguments, augmented"""
   args.results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
   seeds = range(args.n_cases)
+  args.csv_path = None
   args.ckpt_path = None
   args.last_file = None
   args.last_checkpoint = -1
   args.checkpoints = []
   if args.output is not None:
-    args.ckpt_path = ".".join((args.output, "ckpt-{}")).format
+    args.csv_path = f"{args.output}.csv"
+    args.ckpt_path = f"{args.output}.ckpt-{{}}".format
     if args.resume:
       # Find most recent checkpoint
       for fn in glob.glob(args.ckpt_path("*")):  # pylint: disable=W1310
@@ -291,8 +303,8 @@ def load_results(args: argparse.Namespace):
         args.last_checkpoint = max(
             map(lambda s: int(s.rsplit("-", 1)[-1]), args.checkpoints))
         args.last_file = args.ckpt_path(args.last_checkpoint)
-      elif os.path.exists(args.output):
-        args.last_file = args.output
+      elif os.path.exists(args.csv_path):
+        args.last_file = args.csv_path
     if args.resume and args.last_file is not None:
       logger.info("Loading '%s'", args.last_file)
       for _, r in pd.read_csv(args.last_file).iterrows():
@@ -329,6 +341,7 @@ def run_tests(args: argparse.Namespace):
   if len(args.seeds) == 0:
     logger.info("No tests to do")
   else:
+    logger.info("Running tests")
     with mp.Pool(processes=args.n_jobs) as pool:
       it = pool.imap_unordered(
           functools.partial(test_case,
@@ -344,7 +357,10 @@ def run_tests(args: argparse.Namespace):
         if args.checkpoint is not None and (i + 1) % args.checkpoint == 0:
           args.last_checkpoint += 1
           args.last_file = args.ckpt_path(args.last_checkpoint)
-          logger.info("Writing checkpoint: '%s'", args.last_file)
+          if args.tqdm:
+            it.set_description(f"Checkpoint: '{args.last_file}'")
+          else:
+            logger.info("Writing checkpoint: '%s'", args.last_file)
           list2df(args.results).to_csv(args.last_file)
   return args
 
@@ -358,16 +374,97 @@ def save_dataframe(args: argparse.Namespace):
   Returns:
     Namespace, list: CLI arguments, augmented"""
   args.df = list2df(args.results)
-  if args.output is not None and (args.output != args.last_file or
-                                  not args.resume):
-    logger.info("Writing CSV file: '%s'", args.output)
-    args.df.to_csv(args.output)
+  if args.csv_path is not None and (args.csv_path != args.last_file or
+                                    not args.resume):
+    logger.info("Writing CSV file: '%s'", args.csv_path)
+    args.df.to_csv(args.csv_path)
   # Clean checkpoints
   if args.ckpt_path is not None:
     for fn in glob.glob(args.ckpt_path("*")):
       logger.info("Deleting checkpoint: '%s'", fn)
       os.remove(fn)
   return args
+
+
+def statistical_tests(args: argparse.Namespace):
+  """Perform statistical tests on the results
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace, list: CLI arguments, augmented"""
+  residual_premap = {"f": psycho.hz2mel}
+  models = {
+      "br": "BeatRegression",
+      "dbr": "DualBeatRegression",
+  }
+  variables_to_test = tuple(
+      f"{k}{i}" for k, i in itertools.product("fad", range(2)))
+  # Load precomputed results
+  args.rr_path = None
+  if args.output is not None:
+    args.rr_path = f"{args.output}_{{}}.dat".format
+  args.rank_results = {}
+  rr_files = {}
+  pops = {}
+  for k in variables_to_test:
+    pops[k] = {}
+    for m, mk in models.items():
+      x = args.df[k]
+      y = args.df[f"{m}_{k}"]
+      if k in residual_premap:
+        x = residual_premap[k](x)
+        y = residual_premap[k](y)
+      c = np.abs(np.subtract(x, y))
+      args.df[f"{k}_{m}_ar"] = c
+      pops[k][mk] = c
+    rr_files[k] = None if args.rr_path is None else args.rr_path(k)
+    if args.resume and rr_files[k] is not None and os.path.exists(rr_files[k]):
+      logger.info("Loading '%s'", rr_files[k])
+      args.rank_results[k] = pickle.read_pickled(rr_files[k])
+  # Compute missing results
+  non_precomputed = list(
+      filter(lambda k: k not in args.rank_results, variables_to_test))
+  if len(non_precomputed) > 0:
+    it = non_precomputed
+    if args.tqdm:
+      it = tqdm.tqdm(it)
+    with mp.Pool(processes=args.n_jobs) as pool:
+      async_results = {}
+      for k in non_precomputed:
+        async_results[k] = pool.apply_async(
+            autorank.autorank,
+            kwds=dict(
+                data=pd.DataFrame(pops[k]),
+                alpha=args.alpha / len(variables_to_test),
+                verbose=False,
+                order="ascending",
+                approach="frequentist" if args.frequentist else "bayesian"))
+      for k in it:
+        msg = f"Waiting for result '{rr_files[k] or k}'"
+        (it.set_description if args.tqdm else logger.info)(msg)
+        args.rank_results[k] = async_results[k].get()
+        # Save to file
+        if rr_files[k] is not None:
+          msg = f"Saving result '{rr_files[k]}'"
+          (it.set_description if args.tqdm else logger.info)(msg)
+          pickle.save_pickled(args.rank_results[k], rr_files[k])
+  # Write global report
+  def print_report():
+    for k in variables_to_test:
+      print("#", k)
+      autorank.create_report(args.rank_results[k])
+      print()
+
+  if args.output is None:
+    print_report()
+  else:
+    args.report_file = f"{args.output}_report.txt"
+    logger.info("Writing report file: '%s'", args.report_file)
+    with open(args.report_file, mode="w", encoding="utf-8") as f:
+      with contextlib.redirect_stdout(f):
+        print_report()
 
 
 def main(*argv):
@@ -386,6 +483,8 @@ def main(*argv):
   run_tests(args)
   logger.debug("Saving dataframe. Args: %s", args)
   save_dataframe(args)
+  logger.debug("Statistical comparison. Args: %s", args)
+  statistical_tests(args)
 
 
 if __name__ == "__main__":
