@@ -158,6 +158,11 @@ def test_case(seed: int,
         track["mag"])) * s.sinusoidal_model.h / s.sinusoidal_model.fs
     track_a = np.flip(track["mag"]) + 6
     track_f = np.flip(track["freq"])
+
+    iok = np.isfinite(track_a)
+    track_t = track_t[iok]
+    track_a = track_a[iok]
+    track_f = track_f[iok]
     # Apply BeatRegression
     br = beatsdrop.regression.BeatRegression().fit(t=track_t,
                                                    a=track_a,
