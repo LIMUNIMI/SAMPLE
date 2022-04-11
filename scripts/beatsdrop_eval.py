@@ -7,20 +7,26 @@ import json
 import logging
 import multiprocessing as mp
 import os
+import subprocess
 import sys
 import traceback
 from collections import namedtuple
 from typing import List, Optional, Tuple
 
-import numpy as np
-import pandas as pd
-import sample
-import sample.beatsdrop.regression  # pylint: disable=W0611
-import tqdm
-from chromatictools import cli
-from sample import beatsdrop
-from sample.evaluation import random
-from scipy.io import wavfile
+import_error = None
+try:
+  import autorank
+  import numpy as np
+  import pandas as pd
+  import sample
+  import sample.beatsdrop.regression  # pylint: disable=W0611
+  import tqdm
+  from chromatictools import cli
+  from sample import beatsdrop
+  from sample.evaluation import random
+  from scipy.io import wavfile
+except ImportError as e:
+  import_error = e
 
 logger = logging.getLogger("BeatsDROP-Eval")
 
@@ -31,8 +37,8 @@ class ArgParser(argparse.ArgumentParser):
   Args:
     **kwargs: Keyword arguments for :class:`argparse.ArgumentParser`"""
 
-  def __init__(self, description: str = __doc__, **kwargs):
-    super().__init__(description=description, **kwargs)
+  def __init__(self, **kwargs):
+    super().__init__(**kwargs)
     self.add_argument(
         "-O",
         "--output",
@@ -86,6 +92,9 @@ class ArgParser(argparse.ArgumentParser):
                       default=None,
                       help="Folder for writing logs for test failure, "
                       "instead of raising an exception")
+    self.add_argument("--install",
+                      action="store_true",
+                      help="Install dependencies (no experiment will be run)")
 
   def custom_parse_args(self, argv: Tuple[str]) -> argparse.Namespace:
     """Customized argument parsing for the BeatsDROP evaluation script
@@ -113,6 +122,23 @@ def setup_logging(log_level):
   )
   logging.captureWarnings(True)
   logger.setLevel(log_level)
+
+
+def install_dependencies(*args):
+  """Install script dependencies
+
+  Args:
+    *args: Extra dependencies to install"""
+  logger.info("Updating pip")
+  subprocess.run([sys.executable, "-m", "pip", "install", "-U", "pip"])
+  sample_dir = os.path.join(os.path.dirname(__file__), "..")
+  logger.info("Installing module 'sample' and dependencies from folder: %s",
+              sample_dir)
+  subprocess.run(
+      [sys.executable, "-m", "pip", "install", "-U", f"{sample_dir}[plots]"])
+  if len(args) > 0:
+    logger.info("Installing extra modules: %s", args)
+    subprocess.run([sys.executable, "-m", "pip", "install", "-U", *args])
 
 
 beat_param_names = ("a0", "a1", "f0", "f1", "d0", "d1", "p0", "p1")
@@ -200,7 +226,7 @@ def test_case(seed: int,
         f.write(traceback.format_exc())
 
 
-def list2df(results: List[BeatsDROPEvalResult]) -> pd.DataFrame:
+def list2df(results: List[BeatsDROPEvalResult]) -> "pd.DataFrame":
   """Convert a list of results to a pandas dataframe
 
   Args:
@@ -215,10 +241,13 @@ def list2df(results: List[BeatsDROPEvalResult]) -> pd.DataFrame:
   return pd.DataFrame(data=data)
 
 
-@cli.main(__name__, *sys.argv[1:])
-def main(*argv):
-  """Script runner function"""
-  args = ArgParser().custom_parse_args(argv)
+if __name__ == "__main__":
+  args = ArgParser(description=__doc__).custom_parse_args(sys.argv[1:])
+  if args.install:
+    install_dependencies("autorank")
+    sys.exit()
+  elif import_error is not None:
+    raise import_error
   ndigits = np.ceil(np.log10(1 + args.n_cases)).astype(int)
   # Make WAV folder
   if args.wav is None:
