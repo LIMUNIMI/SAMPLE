@@ -39,6 +39,9 @@ class BeatsGenerator:
     f_max (float): Maximum frequency in Hertz
     f_a (float): Alpha coefficient for beta distribution of frequencies
     f_b (float): Beta coefficient for beta distribution of frequencies
+    amp_baseline (float): Minimum amplitude value (before softmax)
+    amp_gain (float): Amplitude value multiplier (before softmax)
+    decay_min (float): Minimum value for exponential distribution of decays
     decay (float): Expected value for exponential distribution of decays
     onlybeat (bool): If :data:`True`, then set the amplitude of the
       non-beating partial to zero
@@ -65,10 +68,13 @@ class BeatsGenerator:
                f_max: float = 2000,
                f_a: float = 2,
                f_b: float = 2,
+               amp_baseline: float = 0.1,
+               amp_gain: float = 0.5,
+               decay_min: float = 0.5,
                decay: float = 1,
                onlybeat: bool = False,
-               beat_min: float = 2,
-               beat_max: float = 20,
+               beat_min: float = 1.8,
+               beat_max: float = 18,
                beat_a: float = 2,
                beat_b: float = 4,
                delta_min: float = 1.5,
@@ -82,6 +88,9 @@ class BeatsGenerator:
     self.f_max = f_max
     self.f_a = f_a
     self.f_b = f_b
+    self.amp_baseline = amp_baseline
+    self.amp_gain = amp_gain
+    self.decay_min = decay_min
     self.decay = decay
     self.onlybeat = onlybeat
     self.beat_min = beat_min
@@ -177,11 +186,13 @@ class BeatsGenerator:
 
     Returns:
       Random decay values"""
-    return self.rng.exponential(scale=self.decay, size=3)
+    d = self.rng.exponential(scale=self.decay - self.decay_min, size=3)
+    np.add(d, self.decay_min, out=d)
+    return d
 
   @_repeated_samples
   def amps(self):
-    """Sample 3 modal amplitude values from an uniform distribution
+    """Sample 3 modal amplitude values from a uniform distribution
     and correct the sum with a softmax function
 
     Args:
@@ -189,10 +200,14 @@ class BeatsGenerator:
 
     Returns:
       Random amplitude values"""
-    a = self.rng.uniform(0, 1, size=3) + 0.25
+    a = self.rng.uniform(0, 1, size=3)
+    np.multiply(a, self.amp_gain, out=a)
+    np.add(a, self.amp_baseline, out=a)
     if self.onlybeat:
       a[-1] = -np.inf
-    return special.softmax(a) * self.sine_amp
+    a = special.softmax(a)
+    np.multiply(a, self.sine_amp, out=a)
+    return a
 
   @_repeated_samples
   def noise(self, nsamples: int):
