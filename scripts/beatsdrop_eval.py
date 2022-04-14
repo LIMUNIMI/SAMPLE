@@ -5,6 +5,7 @@ import contextlib
 import functools
 import glob
 import itertools
+import io
 import json
 import logging
 import multiprocessing as mp
@@ -12,6 +13,7 @@ import os
 import subprocess
 import sys
 import traceback
+import warnings
 from typing import List, Optional, Tuple
 
 import_error = None
@@ -452,15 +454,23 @@ def statistical_tests(args: argparse.Namespace):
           pickle.save_pickled(args.rank_results[k], rr_files[k])
   # Write global report
   def print_report():
+    bs = "\\"
     for k in variables_to_test:
-      print("#", k)
-      autorank.create_report(args.rank_results[k])
+      print(f"{bs}section{{{k}}}")
+      print(f"{bs}label{{sec:results:{k}}}")
+      with io.StringIO() as s:
+        with contextlib.redirect_stdout(s):
+          autorank.latex_report(args.rank_results[k], complete_document=False)
+        print("".join(s.getvalue().splitlines(keepends=True)[2:]))
+      with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        autorank.latex_table(args.rank_results[k], label=f"tab:{k}")
       print()
 
   if args.output is None:
     print_report()
   else:
-    args.report_file = f"{args.output}_report.txt"
+    args.report_file = f"{args.output}_report.tex"
     logger.info("Writing report file: '%s'", args.report_file)
     with open(args.report_file, mode="w", encoding="utf-8") as f:
       with contextlib.redirect_stdout(f):
