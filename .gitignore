@@ -25,6 +25,8 @@ docs/source/*.rst
 *.log
 *.dat
 *.txt
+*.tex
+*.zip
 
 # Test files
 sms
