@@ -4,8 +4,8 @@ import collections
 import contextlib
 import functools
 import glob
-import itertools
 import io
+import itertools
 import json
 import logging
 import multiprocessing as mp
@@ -256,13 +256,16 @@ def list2df(results: List[BeatsDROPEvalResult]) -> "pd.DataFrame":
 
 
 def prepare_folders(args: argparse.Namespace):
-  """Prepare folders for WAV and log files
+  """Prepare folders for output, WAV and log files
 
   Args:
     args (Namespace): CLI arguments
 
   Returns:
     Namespace: CLI arguments, augmented"""
+  # Make output file folder
+  if args.output is not None:
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
   # Make WAV folder
   if args.wav is None:
     args.wav_path = None
