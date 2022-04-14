@@ -25,10 +25,10 @@ def modal_energy(a: np.ndarray,
 
   Returns:
     array: Energies"""
-  # 4 * a^2 / d
+  # d * a^2 / 4
   np.square(a, out=out)
-  np.multiply(4, out, out=out)
-  np.true_divide(out, d, out=out)
+  np.multiply(out, d, out=out)
+  np.true_divide(out, 4, out=out)
   return out
 
 

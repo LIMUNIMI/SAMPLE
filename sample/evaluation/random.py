@@ -39,9 +39,14 @@ class BeatsGenerator:
     f_max (float): Maximum frequency in Hertz
     f_a (float): Alpha coefficient for beta distribution of frequencies
     f_b (float): Beta coefficient for beta distribution of frequencies
+    amp_baseline (float): Minimum amplitude value (before softmax)
+    amp_gain (float): Amplitude value multiplier (before softmax)
+    decay_min (float): Minimum value for exponential distribution of decays
     decay (float): Expected value for exponential distribution of decays
-    beat_min (float): Minimum beat frequency difference in Bark
-    beat_max (float): Maximum beat frequency difference in Bark
+    onlybeat (bool): If :data:`True`, then set the amplitude of the
+      non-beating partial to zero
+    beat_min (float): Minimum beat frequency difference in Hz
+    beat_max (float): Maximum beat frequency difference in Hz
     beat_a (float): Alpha coefficient for beta distribution of
       beat frequency differences
     beat_b (float): Beta coefficient for beta distribution of
@@ -59,13 +64,17 @@ class BeatsGenerator:
     seed (int): Random number generator seed"""
 
   def __init__(self,
-               f_min: float = 80,
-               f_max: float = 12000,
+               f_min: float = 200,
+               f_max: float = 2000,
                f_a: float = 2,
                f_b: float = 2,
+               amp_baseline: float = 0.1,
+               amp_gain: float = 0.5,
+               decay_min: float = 0.5,
                decay: float = 1,
-               beat_min: float = 0.05,
-               beat_max: float = 0.5,
+               onlybeat: bool = False,
+               beat_min: float = 1.8,
+               beat_max: float = 18,
                beat_a: float = 2,
                beat_b: float = 4,
                delta_min: float = 1.5,
@@ -79,7 +88,11 @@ class BeatsGenerator:
     self.f_max = f_max
     self.f_a = f_a
     self.f_b = f_b
+    self.amp_baseline = amp_baseline
+    self.amp_gain = amp_gain
+    self.decay_min = decay_min
     self.decay = decay
+    self.onlybeat = onlybeat
     self.beat_min = beat_min
     self.beat_max = beat_max
     self.beat_a = beat_a
@@ -144,22 +157,25 @@ class BeatsGenerator:
 
     Returns:
       Random frequency values"""
-    beat = self.beta_twosides(a=self.beat_a,
-                              b=self.beat_b,
-                              left=self.beat_min,
-                              right=self.beat_max)
-    delta = self.beta_twosides(a=self.delta_a,
-                               b=self.delta_b,
-                               left=self.delta_min,
-                               right=self.delta_max)
-    bark = self.beta_twosides(a=self.f_a,
-                              b=self.f_b,
-                              left=psycho.hz2bark(self.f_min) - min(
-                                  (beat, delta, 0)),
-                              right=psycho.hz2bark(self.f_max) - max(
-                                  (beat, delta, 0)),
-                              positive=1)
-    return psycho.bark2hz(np.array((bark, bark + beat, bark + delta)))
+    beat_hz = 1 / self.beta_twosides(a=self.beat_a,
+                                     b=self.beat_b,
+                                     left=1 / self.beat_max,
+                                     right=1 / self.beat_min)
+    delta_bark = self.beta_twosides(a=self.delta_a,
+                                    b=self.delta_b,
+                                    left=self.delta_min,
+                                    right=self.delta_max)
+    b = self.beta_twosides(
+        a=self.f_a,
+        b=self.f_b,
+        left=psycho.hz2bark(self.f_min) - min(
+            (psycho.hz2bark(self.f_min) - psycho.hz2bark(self.f_min - beat_hz),
+             delta_bark, 0)),
+        right=psycho.hz2bark(self.f_max) - max(
+            (psycho.hz2bark(self.f_max) - psycho.hz2bark(self.f_max - beat_hz),
+             delta_bark, 0)),
+        positive=1)
+    return psycho.bark2hz((b, b, b + delta_bark)) + (0, beat_hz, 0)
 
   @_repeated_samples
   def decays(self):
@@ -170,11 +186,13 @@ class BeatsGenerator:
 
     Returns:
       Random decay values"""
-    return self.rng.exponential(scale=self.decay, size=3)
+    d = self.rng.exponential(scale=self.decay - self.decay_min, size=3)
+    np.add(d, self.decay_min, out=d)
+    return d
 
   @_repeated_samples
   def amps(self):
-    """Sample 3 modal amplitude values from an uniform distribution
+    """Sample 3 modal amplitude values from a uniform distribution
     and correct the sum with a softmax function
 
     Args:
@@ -182,7 +200,14 @@ class BeatsGenerator:
 
     Returns:
       Random amplitude values"""
-    return special.softmax(self.rng.uniform(0, 1, size=3)) * self.sine_amp
+    a = self.rng.uniform(0, 1, size=3)
+    np.multiply(a, self.amp_gain, out=a)
+    np.add(a, self.amp_baseline, out=a)
+    if self.onlybeat:
+      a[-1] = -np.inf
+    a = special.softmax(a)
+    np.multiply(a, self.sine_amp, out=a)
+    return a
 
   @_repeated_samples
   def noise(self, nsamples: int):
@@ -204,16 +229,18 @@ class BeatsGenerator:
 
     Return:
       Audio array, sample rate, and the tuple of frequency,
-      decay, and amplitude parameters"""
+      decay, amplitude, and phase parameters"""
     if dur is None:
       dur = self.decay * 3
     freqs = self.freqs()
     decays = self.decays()
     amps = self.amps()
+    phases = self.rng.uniform(0, 2 * np.pi, size=3)
     n = int(dur * fs)
     x = sample.sample.additive_synth(np.arange(n) / fs,
                                      freqs=freqs,
                                      decays=decays,
-                                     amps=amps)
+                                     amps=amps,
+                                     phases=phases)
     x += self.noise(nsamples=n)
-    return x, fs, (freqs, decays, amps)
+    return x, fs, (freqs, decays, amps, phases)
