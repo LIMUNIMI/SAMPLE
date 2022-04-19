@@ -268,6 +268,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
           f: np.ndarray,
           tr_solver: Optional[str] = "lsmr",
           method: str = "dogbox",
+          loss: str = "cauchy",
           **kwargs):
     """Fit beat pattern
 
@@ -289,6 +290,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
                                           bounds=self.bounds_,
                                           tr_solver=tr_solver,
                                           method=method,
+                                          loss=loss,
                                           **kwargs)
     self.params_ = self.result_.x
     self.beat_ = beatsdrop.ModalBeat(*self.params_)
