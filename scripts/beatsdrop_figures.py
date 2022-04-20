@@ -171,7 +171,7 @@ def plot_beat(args, **kwargs):
               zorder=10,
               label=r"$2\overline{A}$")
 
-  axs[1].plot(t, fm, c=args.colors(2), label=r"$\omega(t)$", zorder=12)
+  axs[1].plot(t, fm, c=args.colors(0), label=r"$\omega(t)$", zorder=12)
   axs[1].plot(t,
               np.full_like(t, 2 * np.pi * b.f0(0)),
               "--",
@@ -231,7 +231,7 @@ def plot_regression(args, **kwargs):
                             decays=[d0, d1],
                             phases=[p0, p1],
                             analytical=True)
-  hw = np.diff(np.unwrap(np.angle(x))) / np.diff(t)
+  hf = np.diff(np.unwrap(np.angle(x))) / (2 * np.pi * np.diff(t))
 
   sample_model = sample.SAMPLE(
       sinusoidal_model__max_n_sines=32,
@@ -261,12 +261,13 @@ def plot_regression(args, **kwargs):
 
   for i, b in enumerate((dbr, br)):
     am_, a0_, a1_, fm_ = b.predict(t, "am", "a0", "a1", "fm")
+    np.true_divide(fm_, 2 * np.pi, out=fm_)
 
     # --- AM ------------------------------------------------------------------
     for a, kw in (
         (np.abs(x), dict(c=args.colors(0), label="Ground Truth", zorder=102)),
         (am_,
-         dict(linestyle="--", c=args.colors(1), label="Estimate", zorder=102)),
+         dict(linestyle="--", c=args.colors(1), label="Prediction", zorder=102)),
         (a0_, dict(c=args.colors(3), label="$A_1$", zorder=101)),
         (a1_, dict(c=args.colors(4), label="$A_2$", zorder=101)),
     ):
@@ -288,24 +289,24 @@ def plot_regression(args, **kwargs):
     axs[0][i].set_ylim(-p, p)
     axs[1][i].set_ylim(-65, 5)
     axs[0][0].set_title("BeatsDROP")
-    axs[0][1].set_title("BeatsDROP\n(no dual beat)")
+    axs[0][1].set_title("(no dual beat)")
     # -------------------------------------------------------------------------
 
     # --- FM ------------------------------------------------------------------
-    axs[2][i].plot(t[1:], hw, c=args.colors(0), zorder=3, label="Ground Truth")
-    axs[2][i].plot(t, fm_, "--", c=args.colors(1), zorder=5, label="Estimate")
+    axs[2][i].plot(t[1:], hf, c=args.colors(0), zorder=3, label="Ground Truth")
+    axs[2][i].plot(t, fm_, "--", c=args.colors(1), zorder=5, label="Prediction")
     axs[2][i].plot(t,
-                   np.full_like(t, b.params_[2] * 2 * np.pi),
+                   np.full_like(t, b.params_[2]),
                    c=args.colors(3),
-                   label=r"$\omega_1$",
+                   label=r"$\nu_1$",
                    zorder=4)
     axs[2][i].plot(t,
-                   np.full_like(t, b.params_[3] * 2 * np.pi),
+                   np.full_like(t, b.params_[3]),
                    c=args.colors(4),
-                   label=r"$\omega_2$",
+                   label=r"$\nu_2$",
                    zorder=4)
     if i == 0:
-      axs[2][i].set_ylabel("angular velocity (rad/s)")
+      axs[2][i].set_ylabel("frequency (Hz)")
     # -------------------------------------------------------------------------
 
   for ax in itertools.chain.from_iterable(axs):
