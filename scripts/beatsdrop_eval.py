@@ -80,6 +80,12 @@ class ArgParser(argparse.ArgumentParser):
     self.add_argument("--frequentist",
                       action="store_true",
                       help="Perform frequentist tests (instead of Bayesian)")
+    self.add_argument(
+        "--n-samples",
+        default=1024,  # 50000
+        type=int,
+        help="Number of samples used to estimate the posterior "
+        "probabilities with the Bayesian signed rank test")
     self.add_argument("--tqdm",
                       action="store_true",
                       help="Use tqdm progressbar")
@@ -400,75 +406,63 @@ def statistical_tests(args: argparse.Namespace):
   Returns:
     Namespace, list: CLI arguments, augmented"""
   residual_premap = {"f": psycho.hz2mel}
-  models = {
-      "br": "BeatRegression",
-      "dbr": "DualBeatRegression",
-  }
+  models = (
+      "br",
+      "dbr",
+  )
   variables_to_test = tuple(
       f"{k}{i}" for k, i in itertools.product("fad", range(2)))
   # Load precomputed results
   args.rr_path = None
   if args.output is not None:
-    args.rr_path = f"{args.output}_{{}}.dat".format
-  args.rank_results = {}
-  rr_files = {}
+    args.rr_path = f"{args.output}_rankresult.dat"
   pops = {}
   for k in variables_to_test:
-    pops[k] = {}
-    for m, mk in models.items():
+    for m in models:
       x = args.df[k]
       y = args.df[f"{m}_{k}"]
       if k in residual_premap:
         x = residual_premap[k](x)
         y = residual_premap[k](y)
       c = np.abs(np.subtract(x, y))
-      args.df[f"{k}_{m}_ar"] = c
-      pops[k][mk] = c
-    rr_files[k] = None if args.rr_path is None else args.rr_path(k)
-    if args.resume and rr_files[k] is not None and os.path.exists(rr_files[k]):
-      logger.info("Loading '%s'", rr_files[k])
-      args.rank_results[k] = pickle.read_pickled(rr_files[k])
-  # Compute missing results
-  non_precomputed = list(
-      filter(lambda k: k not in args.rank_results, variables_to_test))
-  if len(non_precomputed) > 0:
-    it = non_precomputed
-    if args.tqdm:
-      it = tqdm.tqdm(it)
-    with mp.Pool(processes=args.n_jobs) as pool:
-      async_results = {}
-      for k in non_precomputed:
-        async_results[k] = pool.apply_async(
-            autorank.autorank,
-            kwds=dict(
-                data=pd.DataFrame(pops[k]),
-                alpha=args.alpha / len(variables_to_test),
-                verbose=False,
-                order="ascending",
-                approach="frequentist" if args.frequentist else "bayesian"))
-      for k in it:
-        msg = f"Waiting for result '{rr_files[k] or k}'"
-        (it.set_description if args.tqdm else logger.info)(msg)
-        args.rank_results[k] = async_results[k].get()
-        # Save to file
-        if rr_files[k] is not None:
-          msg = f"Saving result '{rr_files[k]}'"
-          (it.set_description if args.tqdm else logger.info)(msg)
-          pickle.save_pickled(args.rank_results[k], rr_files[k])
-  # Write global report
+      kmk = f"{k}_{m}_ar"
+      args.df[kmk] = c
+      pops[kmk] = c
+  if args.rr_path is None or not os.path.exists(args.rr_path):
+    logger.info("Running statistical tests")
+    kws = dict(data=pd.DataFrame(pops),
+               alpha=args.alpha,
+               verbose=False,
+               order="ascending",
+               approach="frequentist" if args.frequentist else "bayesian")
+    if not args.frequentist:
+      kws["nsamples"] = args.n_samples
+    args.rank_result = autorank.autorank(**kws)
+  else:
+    logger.info("Reading test results: %s", args.rr_path)
+    args.rank_result = pickle.read_pickled(args.rr_path)
+  if args.rr_path is not None and not os.path.exists(args.rr_path):
+    logger.info("Saving test results: %s", args.rr_path)
+    pickle.save_pickled(args.rank_result, args.rr_path)
+
   def print_report():
-    bs = "\\"
+    with io.StringIO() as s:
+      with contextlib.redirect_stdout(s):
+        with warnings.catch_warnings():
+          warnings.simplefilter("ignore")
+          autorank.latex_report(args.rank_result,
+                                complete_document=True,
+                                generate_plots=False)
+      s = s.getvalue().splitlines(keepends=True)
+    print("".join(s[:-1]))
+    print("Comparing only the same parameter amongst the two models:")
+    print(r"\begin{itemize}")
     for k in variables_to_test:
-      print(f"{bs}section{{{k}}}")
-      print(f"{bs}label{{sec:results:{k}}}")
-      with io.StringIO() as s:
-        with contextlib.redirect_stdout(s):
-          autorank.latex_report(args.rank_results[k], complete_document=False)
-        print("".join(s.getvalue().splitlines(keepends=True)[2:]))
-      with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        autorank.latex_table(args.rank_results[k], label=f"tab:{k}")
-      print()
+      print(r"\item{", k, "} median error of br is",
+            args.rank_result.decision_matrix[f"{k}_br_ar"][f"{k}_dbr_ar"],
+            "wrt dbr")
+    print(r"\end{itemize}")
+    print(s[-1])
 
   if args.output is None:
     print_report()
@@ -498,6 +492,7 @@ def main(*argv):
   save_dataframe(args)
   logger.debug("Statistical comparison. Args: %s", args)
   statistical_tests(args)
+  logger.info("Done.")
 
 
 if __name__ == "__main__":
