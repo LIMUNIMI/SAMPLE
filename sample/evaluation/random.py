@@ -39,8 +39,7 @@ class BeatsGenerator:
     f_max (float): Maximum frequency in Hertz
     f_a (float): Alpha coefficient for beta distribution of frequencies
     f_b (float): Beta coefficient for beta distribution of frequencies
-    amp_baseline (float): Minimum amplitude value (before softmax)
-    amp_gain (float): Amplitude value multiplier (before softmax)
+    amp_min (float): Minimum amplitude value before normalization in dB
     decay_min (float): Minimum value for exponential distribution of decays
     decay (float): Expected value for exponential distribution of decays
     onlybeat (bool): If :data:`True`, then set the amplitude of the
@@ -68,8 +67,7 @@ class BeatsGenerator:
                f_max: float = 2000,
                f_a: float = 2,
                f_b: float = 2,
-               amp_baseline: float = 0.1,
-               amp_gain: float = 0.5,
+               amp_min: float = -10,
                decay_min: float = 0.5,
                decay: float = 1,
                onlybeat: bool = False,
@@ -88,8 +86,7 @@ class BeatsGenerator:
     self.f_max = f_max
     self.f_a = f_a
     self.f_b = f_b
-    self.amp_baseline = amp_baseline
-    self.amp_gain = amp_gain
+    self.amp_min = amp_min
     self.decay_min = decay_min
     self.decay = decay
     self.onlybeat = onlybeat
@@ -200,13 +197,11 @@ class BeatsGenerator:
 
     Returns:
       Random amplitude values"""
-    a = self.rng.uniform(0, 1, size=3)
-    np.multiply(a, self.amp_gain, out=a)
-    np.add(a, self.amp_baseline, out=a)
+    a = self.rng.uniform(self.amp_min, 0, size=3)
+    dsp_utils.db2a(a, out=a)
     if self.onlybeat:
-      a[-1] = -np.inf
-    a = special.softmax(a)
-    np.multiply(a, self.sine_amp, out=a)
+      a[-1] = 0
+    np.multiply(a, self.sine_amp / np.sum(a), out=a)
     return a
 
   @_repeated_samples
