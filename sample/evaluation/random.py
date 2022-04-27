@@ -76,7 +76,7 @@ class BeatsGenerator:
                beat_min: float = 1.8,
                beat_max: float = 18,
                beat_a: float = 2,
-               beat_b: float = 4,
+               beat_b: float = 2,
                delta_min: float = 1.5,
                delta_max: float = 4,
                delta_a: float = 2,
