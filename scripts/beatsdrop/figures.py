@@ -289,7 +289,7 @@ def plot_regression(args, **kwargs):
     axs[0][i].set_ylim(-p, p)
     axs[1][i].set_ylim(-65, 5)
     axs[0][0].set_title("BeatsDROP")
-    axs[0][1].set_title("(no dual beat)")
+    axs[0][1].set_title("Baseline")
     # -------------------------------------------------------------------------
 
     # --- FM ------------------------------------------------------------------
