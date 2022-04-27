@@ -459,12 +459,25 @@ def statistical_tests(args: argparse.Namespace):
                                 generate_plots=False)
       s = s.getvalue().splitlines(keepends=True)
     print("".join(s[:-1]))
-    print("Comparing only the same parameter amongst the two models:")
+
+    print("Comparing the two models:")
     print(r"\begin{itemize}")
     for k in variables_to_test:
       print(r"\item{", k, "} median error of br is",
             args.rank_result.decision_matrix[f"{k}_br_ar"][f"{k}_dbr_ar"],
             "wrt dbr")
+    print(r"\end{itemize}")
+
+    print("\nComparing the two partials:")
+    print(r"\begin{itemize}")
+    for k in "fad":
+      print(r"\item{", k, "}")
+      print(r"\begin{itemize}")
+      for m in models:
+        print(r"\item{", m, "} median error on", f"{k}0", "is",
+              args.rank_result.decision_matrix[f"{k}0_{m}_ar"][f"{k}1_{m}_ar"],
+              "wrt", f"{k}1")
+      print(r"\end{itemize}")
     print(r"\end{itemize}")
     print(s[-1])
 
