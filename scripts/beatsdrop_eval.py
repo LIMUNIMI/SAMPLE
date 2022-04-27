@@ -27,6 +27,7 @@ try:
   from chromatictools import pickle
   from sample import beatsdrop, psycho
   from sample.evaluation import random
+  from sample.utils import dsp as dsp_utils
   from scipy.io import wavfile
 except (ImportError, ModuleNotFoundError) as _import_error:
   import_error = _import_error
@@ -405,7 +406,10 @@ def statistical_tests(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
-  residual_premap = {"f": psycho.hz2mel}
+  residual_premap = {
+      "f": psycho.hz2mel,
+      "a": dsp_utils.a2db,
+  }
   models = (
       "br",
       "dbr",
@@ -421,9 +425,9 @@ def statistical_tests(args: argparse.Namespace):
     for m in models:
       x = args.df[k]
       y = args.df[f"{m}_{k}"]
-      if k in residual_premap:
-        x = residual_premap[k](x)
-        y = residual_premap[k](y)
+      if k[0] in residual_premap:
+        x = residual_premap[k[0]](x)
+        y = residual_premap[k[0]](y)
       c = np.abs(np.subtract(x, y))
       kmk = f"{k}_{m}_ar"
       args.df[kmk] = c
