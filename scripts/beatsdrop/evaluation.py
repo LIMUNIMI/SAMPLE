@@ -399,7 +399,10 @@ def save_dataframe(args: argparse.Namespace):
 
 
 def print_report(rank_result):
-  """Prints report for autorank result"""
+  """Prints report for autorank result
+
+  Args:
+    rank_result (RankResult): Result from :func:`autorank.autorank`"""
   models = (
       ("dbr", "BeatsDROP"),
       ("br", "Baseline"),
@@ -418,6 +421,31 @@ def print_report(rank_result):
   print("".join(s[:-1]))
 
   print(r"\newpage")
+
+  frequentist = rank_result.decision_matrix is None
+  if frequentist:
+    # Frequentist
+    def decision(k1, k2):
+      """Get the answer to the question: 'How is k1 wrt k2?'"""
+      rd = np.squeeze(np.diff(rank_result.rankdf["meanrank"][[k1, k2]]))
+      if abs(rd) < rank_result.cd:
+        return "equal"
+      elif rd > 0:
+        return "smaller"
+      else:
+        return "larger"
+  else:
+    # Bayesian
+    def decision(k1, k2):
+      """Get the answer to the question: 'How is k1 wrt k2?'"""
+      decision = rank_result.decision_matrix[k1][k2]
+      if not isinstance(decision, str) and np.isnan(decision):
+        decision = rank_result.decision_matrix[k2][k1]
+        if decision == "smaller":
+          decision = "larger"
+        elif decision == "larger":
+          decision = "smaller"
+      return decision
 
   # Custom table
   print(r"\begin{table*}[ht]")
@@ -448,7 +476,11 @@ def print_report(rank_result):
       median = rank_result.rankdf["median"][f"{k}_{m}_ar"]
       print(f"{median:.3f}", r"\\" if i == len(variables_to_test) - 1 else "&",
             "%", k)
-    print(r"& $", f"{(1 - rank_result.alpha) * 100:.0f}", r"\%$ CI")
+    if frequentist:
+      cip = ""
+    else:
+      cip = f"${(1 - rank_result.alpha) * 100:.0f}" + r"\%$ "
+    print(f"& {cip}CI &")
     for i, k in enumerate(variables_to_test):
       ci = rank_result.rankdf["CI"][f"{k}_{m}_ar"]
       print(ci, r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
@@ -456,14 +488,9 @@ def print_report(rank_result):
   print(r"& Best &")
   for i, k in enumerate(variables_to_test):
     ks = tuple(f"{k}_{m}_ar" for m, _ in models)
-    decision = rank_result.decision_matrix[ks[0]][ks[1]]
-    decisions = ("smaller", "larger")
-    if not isinstance(decision, str) and np.isnan(decision):
-      decisions = reversed(decisions)
-      decision = rank_result.decision_matrix[ks[1]][ks[0]]
-    best = dict(zip(decisions,
-                    models)).get(decision,
-                                 (decision, r"\textit{" + decision + "}"))[1]
+    best = decision(ks[0], ks[1])
+    best = dict(zip(("smaller", "larger"),
+                    models)).get(best, (best, r"\textit{" + best + "}"))[1]
     print(best, r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
   print(r"\bottomrule\\")
   print(r"\end{tabular}")
@@ -475,7 +502,7 @@ def print_report(rank_result):
   print(r"\begin{itemize}")
   for k in variables_to_test:
     print(r"\item{", k, "} median error of br is",
-          rank_result.decision_matrix[f"{k}_br_ar"][f"{k}_dbr_ar"], "wrt dbr")
+          decision(f"{k}_br_ar", f"{k}_dbr_ar"), "wrt dbr")
   print(r"\end{itemize}")
 
   print("\nComparing the two partials:")
@@ -484,9 +511,8 @@ def print_report(rank_result):
     print(r"\item{", k, "}")
     print(r"\begin{itemize}")
     for m, _ in models:
-      print(r"\item{", m[0], "} median error on", f"{k}0", "is",
-            rank_result.decision_matrix[f"{k}0_{m}_ar"][f"{k}1_{m}_ar"], "wrt",
-            f"{k}1")
+      print(r"\item{", m, "} median error on", f"{k}0", "is",
+            decision(f"{k}0_{m}_ar", f"{k}1_{m}_ar"), "wrt", f"{k}1")
     print(r"\end{itemize}")
   print(r"\end{itemize}")
 
