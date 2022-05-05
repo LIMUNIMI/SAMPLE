@@ -22,7 +22,6 @@ The script [`evaluation.py`](evaluation.py) runs the evaluation protocol for the
 python scripts/beatsdrop/evaluation.py --help
 ```
 
-### Running
 For running, we recommend
  - explicitly setting the number of parallel jobs with the `--n-jobs` option
  - enabling the progressbar with the `--tqdm` switch
@@ -47,3 +46,14 @@ evaluation
 ```
 
 Run time with 10 parallel jobs is less than 15 minutes on an Intel® Core™ i9-9820X CPU at 3.30GHz.
+
+## Figures
+The script [`figures.py`](figures.py) produces the plots for the paper. To print the script options, run
+```
+python scripts/beatsdrop/figures.py --help
+```
+
+To run the script you have to provide the path to an output folderfor the figures (which will be created, if it doesn't exist). E.g.
+```
+python scripts/beatsdrop/figures.py ./beatsdrop-figures
+```

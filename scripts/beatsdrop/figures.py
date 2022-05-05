@@ -267,7 +267,8 @@ def plot_regression(args, **kwargs):
     for a, kw in (
         (np.abs(x), dict(c=args.colors(0), label="Ground Truth", zorder=102)),
         (am_,
-         dict(linestyle="--", c=args.colors(1), label="Prediction", zorder=102)),
+         dict(linestyle="--", c=args.colors(1), label="Prediction",
+              zorder=102)),
         (a0_, dict(c=args.colors(3), label="$A_1$", zorder=101)),
         (a1_, dict(c=args.colors(4), label="$A_2$", zorder=101)),
     ):
