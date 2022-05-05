@@ -10,27 +10,22 @@ import json
 import logging
 import multiprocessing as mp
 import os
-import subprocess
 import sys
 import traceback
 import warnings
 from typing import List, Optional, Tuple
 
-import_error = None
-try:
-  import autorank
-  import numpy as np
-  import pandas as pd
-  import sample
-  import sample.beatsdrop.regression  # pylint: disable=W0611
-  import tqdm
-  from chromatictools import pickle
-  from sample import beatsdrop, psycho
-  from sample.evaluation import random
-  from sample.utils import dsp as dsp_utils
-  from scipy.io import wavfile
-except (ImportError, ModuleNotFoundError) as _import_error:
-  import_error = _import_error
+import autorank
+import numpy as np
+import pandas as pd
+import sample
+import sample.beatsdrop.regression  # pylint: disable=W0611
+import tqdm
+from chromatictools import pickle
+from sample import beatsdrop, psycho
+from sample.evaluation import random
+from sample.utils import dsp as dsp_utils
+from scipy.io import wavfile
 
 logger = logging.getLogger("BeatsDROP-Eval")
 
@@ -110,9 +105,6 @@ class ArgParser(argparse.ArgumentParser):
                       default=None,
                       help="Folder for writing logs for test failure, "
                       "instead of raising an exception")
-    self.add_argument("--install",
-                      action="store_true",
-                      help="Install dependencies (no experiment will be run)")
 
   def custom_parse_args(self, argv: Tuple[str]) -> argparse.Namespace:
     """Customized argument parsing for the BeatsDROP evaluation script
@@ -140,26 +132,6 @@ def setup_logging(log_level):
   )
   logging.captureWarnings(True)
   logger.setLevel(log_level)
-
-
-def install_dependencies(*args):
-  """Install script dependencies
-
-  Args:
-    *args: Extra dependencies to install"""
-  logger.info("Updating pip")
-  subprocess.run([sys.executable, "-m", "pip", "install", "-U", "pip"],
-                 check=True)
-  sample_dir = os.path.join(os.path.dirname(__file__), "..")
-  logger.info("Installing module 'sample' and dependencies from folder: %s",
-              sample_dir)
-  subprocess.run(
-      [sys.executable, "-m", "pip", "install", "-U", f"{sample_dir}[plots]"],
-      check=True)
-  if len(args) > 0:
-    logger.info("Installing extra modules: %s", args)
-    subprocess.run([sys.executable, "-m", "pip", "install", "-U", *args],
-                   check=True)
 
 
 beat_param_names = ("a0", "a1", "f0", "f1", "d0", "d1", "p0", "p1")
@@ -583,11 +555,6 @@ def statistical_tests(args: argparse.Namespace):
 def main(*argv):
   """Script runner"""
   args = ArgParser(description=__doc__).custom_parse_args(argv)
-  if args.install:
-    install_dependencies("autorank")
-    return
-  elif import_error is not None:
-    raise import_error
   logger.debug("Preparing folders. Args: %s", args)
   prepare_folders(args)
   logger.debug("Loading results. Args: %s", args)

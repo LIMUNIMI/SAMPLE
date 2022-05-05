@@ -27,6 +27,11 @@ Pillow
 pygame
 throttle
 
+## Scripts
+# BeatsDROP
+autorank
+pandas
+
 # Style
 pylint
 yapf

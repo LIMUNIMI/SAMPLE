@@ -52,6 +52,11 @@ setuptools.setup(
             "more-itertools",
             "requests",
         ],
+        "scripts-beatsdrop": [
+            "matplotlib",
+            "autorank",
+            "pandas",
+        ],
         "test": [
             "ipython",
             "cython",
