@@ -23,8 +23,6 @@ Available extras are
 If you don't want write code to use SAMPLE,
 you can use the graphical user interface
 
-> Please, note that the GUI is still in its beta release phase
-
 ### Windows
 For Windows, a stand-alone executable is available. You can download the
 latest version from GitHub:
@@ -40,7 +38,7 @@ It is recommended run these commands in a [virtual environment](https://docs.pyt
 order to to keep your system clean
 
 ```
-pip install lim-sample[gui]==1.5.0b2
+pip install lim-sample[gui]
 ```
 
 To run the GUI from the command line, run
