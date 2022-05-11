@@ -1,19 +1,19 @@
 """SAMPLE class for use in GUI"""
 import tkinter as tk
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Callable
 
 import numpy as np
 import throttle
 
-from sample import sample
+from sample import sample, regression
 from sample.sms import mm
 
 
-class SAMPLE(sample.SAMPLE):
+class SAMPLE4GUI(sample.SAMPLE):
   """SAMPLE model for use in the GUI. For a full list of arguments see
   :class:`sample.sample.SAMPLE`"""
 
-  class SinusoidalModel(mm.ModalModel):
+  class SinusoidalModel4GUI(mm.ModalModel):
     """Sinusoidal tracker for use in the GUI. For a full list of
     arguments see :class:`sample.sms.mm.ModalModel`
 
@@ -35,7 +35,8 @@ class SAMPLE(sample.SAMPLE):
         freq_dev_slope: float = 0.01,
         reverse: bool = False,
         sine_tracker_cls: type = mm.ModalTracker,
-        save_intermediate: bool = False,
+        safe_sine_len: Optional[int] = 2,
+        save_intermediate: bool = True,
         frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
         peak_threshold: float = -90,
         merge_strategy: str = "average",
@@ -54,6 +55,7 @@ class SAMPLE(sample.SAMPLE):
           freq_dev_slope=freq_dev_slope,
           reverse=reverse,
           sine_tracker_cls=sine_tracker_cls,
+          safe_sine_len=safe_sine_len,
           save_intermediate=save_intermediate,
           frequency_bounds=frequency_bounds,
           peak_threshold=peak_threshold,
@@ -108,5 +110,18 @@ class SAMPLE(sample.SAMPLE):
       for f in it:
         yield f
 
-  def __init__(self, sinusoidal_model=SinusoidalModel(), **kwargs):
-    super().__init__(sinusoidal_model=sinusoidal_model, **kwargs)
+  def __init__(self,
+               sinusoidal_model=SinusoidalModel4GUI(),
+               regressor=regression.HingeRegression(),
+               regressor_k: str = "k_",
+               regressor_q: str = "q_",
+               freq_reduce: Callable[[np.ndarray], float] = np.mean,
+               max_n_modes: Optional[int] = None,
+               **kwargs):
+    super().__init__(sinusoidal_model=sinusoidal_model,
+                     regressor=regressor,
+                     regressor_k=regressor_k,
+                     regressor_q=regressor_q,
+                     freq_reduce=freq_reduce,
+                     max_n_modes=max_n_modes,
+                     **kwargs)

@@ -17,6 +17,8 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Initialize test audio and SAMPLE model"""
     self.fs = 44100
     self.x = utils.test_audio(fs=self.fs)
+    np.random.seed(42)
+    self.noise = np.random.randn(*self.x.shape)
     self.sample = sample.SAMPLE(
         sinusoidal_model__fs=self.fs,
         sinusoidal_model__max_n_sines=10,
@@ -38,6 +40,16 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     with self.assert_doesnt_raise():
       s.fit(self.x).predict(np.arange(self.x.size) / self.fs)
 
+  def test_no_exceptions_less_modes(self):
+    """Test that no exceptions arise from method
+    using a reduced number of modes"""
+    s = copy.deepcopy(self.sample).set_params(
+        sinusoidal_model__reverse=True,
+        max_n_modes=4,
+    )
+    with self.assert_doesnt_raise():
+      s.fit(self.x).predict(np.arange(self.x.size) / self.fs)
+
   def test_sdt_json_serializable(self):
     """Test that SDT parameters are JSON-serializable"""
     with self.assert_doesnt_raise():
@@ -50,6 +62,22 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_freq_too_low(self):
     """Test track rejection for low frequencies"""
     self.assertFalse(self.st.track_ok(dict(freq=np.zeros(1024),)))
+
+  def test_dur_too_short(self):
+    """Test that errors occur for too short sine durations"""
+    s = copy.deepcopy(self.sample).set_params(
+        sinusoidal_model__min_sine_dur=1e-6,)
+    with self.assertRaises(ValueError):
+      s.fit(self.noise)
+
+  def test_no_exceptions_safe_len(self):
+    """Test no errors occur with safe length parameter"""
+    s = copy.deepcopy(self.sample).set_params(
+        sinusoidal_model__min_sine_dur=1e-6,
+        sinusoidal_model__safe_sine_len=2,
+    )
+    with self.assert_doesnt_raise():
+      s.fit(self.noise)
 
   def test_tracker_reset(self):
     """Test tracker reset"""

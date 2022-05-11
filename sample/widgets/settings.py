@@ -17,11 +17,13 @@ def try_func(func: Callable,
              exc: Union[Type[Exception], Tuple[Type[Exception], ...]],
              default: Optional = None):
   """Function wrapper for returning a default value on fail
+
   Args:
     func (callable): Function to wrap
     exc (exception): Exception class to catch (or tuple of classes). Default
       is :class:`Exception`
     default: Value returned on exception. Default is :data:`None`
+
   Returns:
     callable: Wrapped function"""
 
@@ -83,16 +85,19 @@ def non_negative(x: str) -> float:
   return max(0., x)
 
 
-def custom_positive_int(x: str) -> int:
+def custom_positive_int(x: str, dflt: Optional[int] = 1) -> int:
   """Custom function for parsing positive integers from strings
+
   Args:
     x (str): String to parse
+    dflt (int): Default value to return on parse error
+
   Returns:
     int: Integer value"""
   try:
     x = float(x)
   except ValueError:
-    return 1
+    return dflt
   return int(max(x, 1))
 
 
@@ -181,6 +186,11 @@ def postprocess_guitheme(
 # ----------------------------------------------------------------------------
 
 _settings = (
+    ("max_n_modes",
+     dict(label="n modes",
+          get_fn=functools.partial(custom_positive_int, dflt=None),
+          init_value=None,
+          tooltip="Maximum number of modes to use for resynthesis")),
     ("sinusoidal_model__max_n_sines",
      dict(label="n sines",
           get_fn=custom_positive_int,
@@ -389,7 +399,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.bind("<Button-1>", self.apply_cbk)
     self.button.grid()
 
-    self.sample_object = sample.SAMPLE()
+    self.sample_object = sample.SAMPLE4GUI()
     self.apply_cbk(from_file=True)
 
   def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613

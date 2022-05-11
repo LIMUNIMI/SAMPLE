@@ -188,7 +188,6 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       self.sample_object.fit(
           x,
           sinusoidal_model__fs=self.audio_sr,
-          sinusoidal_model__save_intermediate=True,
           sinusoidal_model__progressbar=self.progressbar,
       )
     except Exception as e:  # pylint: disable=W0703

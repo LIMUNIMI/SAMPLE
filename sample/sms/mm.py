@@ -183,6 +183,11 @@ class ModalModel(sm.SinusoidalModel):
     max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
     min_sine_dur (float): Minimum duration of a track in seconds.
       Defaults to 0.04
+    safe_sine_len (int): Minimum safe length of a track in number of
+      frames. This mainly serves as a check over the :data:`min_sine_dur`
+      parameter. If :data:`None` (default), then, do not
+      check :data:`min_sine_dur`. Set this to :data:`2` to avoid length
+      errors for the regressor
     freq_dev_offset (float): Frequency deviation threshold at 0Hz.
       Defaults to 20
     freq_dev_slope (float): Slope of frequency deviation threshold.
@@ -212,6 +217,7 @@ class ModalModel(sm.SinusoidalModel):
       t: float = -90,
       max_n_sines: int = 100,
       min_sine_dur: float = 0.04,
+      safe_sine_len: Optional[int] = None,
       freq_dev_offset: float = 20,
       freq_dev_slope: float = 0.01,
       reverse: bool = False,
@@ -230,6 +236,7 @@ class ModalModel(sm.SinusoidalModel):
         t=t,
         max_n_sines=max_n_sines,
         min_sine_dur=min_sine_dur,
+        safe_sine_len=safe_sine_len,
         freq_dev_offset=freq_dev_offset,
         freq_dev_slope=freq_dev_slope,
         reverse=reverse,
