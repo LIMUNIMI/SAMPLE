@@ -1,28 +1,28 @@
 {
-  "description": "<p>This version is still in its beta phase</p>\nGUI\n<p>This version introduces a gui intended for a non-developer audience.\nAlso, a stand-alone executable is built for Windows on GitHub</p>\nFixes\n<p>Made default boundary computation more robust to degenerate inputs. Also\nan exception is raised for tracks of length one, advising to raise the\nminimum sine duration</p>", 
-  "license": "MIT", 
-  "title": "SAMPLE", 
-  "notes": "If you use this software in your work, please cite the SMC 2020 paper as below.", 
-  "version": "1.5.0b2", 
-  "upload_type": "software", 
-  "publication_date": "2021-02-26", 
+  "description": "<p>This version is still in its beta phase</p>\nGUI\n<p>This version introduces a gui intended for a non-developer audience.\nAlso, a stand-alone executable is built for Windows on GitHub</p>\nFixes\n<p>Made default boundary computation more robust to degenerate inputs. Also\nan exception is raised for tracks of length one, advising to raise the\nminimum sine duration</p>",
+  "license": "MIT",
+  "title": "SAMPLE",
+  "notes": "If you use this software in your work, please cite the SMC 2020 paper as below.",
+  "version": "1.5.0b2",
+  "upload_type": "software",
+  "publication_date": "2021-02-26",
   "creators": [
-      {
-          "orcid": "0000-0001-5761-4837", 
-          "name": "Tiraboschi, Marco"
-      }
-  ], 
-  "access_right": "open", 
+    {
+      "orcid": "0000-0001-5761-4837",
+      "name": "Tiraboschi, Marco"
+    }
+  ],
+  "access_right": "open",
   "related_identifiers": [
-      {
-          "scheme": "url", 
-          "identifier": "https://github.com/LIMUNIMI/SAMPLE/tree/v1.5.0b2", 
-          "relation": "isSupplementTo"
-      }, 
-      {
-          "scheme": "doi", 
-          "identifier": "10.5281/zenodo.6536419", 
-          "relation": "isVersionOf"
-      }
+    {
+      "scheme": "url",
+      "identifier": "https://github.com/LIMUNIMI/SAMPLE/tree/v1.5.0b2",
+      "relation": "isSupplementTo"
+    },
+    {
+      "scheme": "doi",
+      "identifier": "10.5281/zenodo.6536419",
+      "relation": "isVersionOf"
+    }
   ]
 }
