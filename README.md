@@ -36,7 +36,7 @@ latest version from GitHub:
 
 ### Python
 You can install the GUI from the command line with Python via pip.  
-It is recommended run these commands in a virtual environment in  
+It is recommended run these commands in a [virtual environment](https://docs.python.org/3/library/venv.html) in  
 order to to keep your system clean
 
 ```
