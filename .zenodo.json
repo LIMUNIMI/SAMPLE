@@ -15,8 +15,13 @@
   "access_right": "open",
   "related_identifiers": [
     {
+      "scheme": "doi",
+      "identifier": "10.5281/zenodo.3898795",
+      "relation": "isSupplementTo"
+    },
+    {
       "scheme": "url",
-      "identifier": "https://github.com/LIMUNIMI/SAMPLE/tree/v1.5.0b2",
+      "identifier": "https://github.com/LIMUNIMI/SAMPLE",
       "relation": "isSupplementTo"
     },
     {
