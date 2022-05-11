@@ -62,3 +62,34 @@ https://github.com/limunimi/sample
 ### Notebooks
 For learning to use the package, you can refer to the interactive
 notebooks in the [notebooks](https://github.com/limunimi/sample/tree/master/notebooks) folder
+
+## References
+If you use this software in your research, please, consider referencing the following items
+ - The SMC 2020 paper [_"Spectral Analysis for Modal Parameters Linear Estimate"_](https://doi.org/10.5281/zenodo.3898795)
+```
+@inproceedings{tiraboschi2020spectral,
+  author       = {Tiraboschi, Marco and Avanzini, Federico and Ntalampiras, Stavros},
+  doi          = {10.5281/zenodo.3898795},
+  month        = {6},
+  pages        = {276--283},
+  title        = {{Spectral Analysis for Modal Parameters Linear Estimate}},
+  address      = {Torino, Italy},
+  editor       = {Simone Spagnol and Andrea Valle},
+  organization = {Sound and Music Computing Network},
+  publisher    = {Axea sas/SMC Network},
+  booktitle    = {Proceedings of the 17th Sound and Music Computing Conference},
+  year         = {2020}
+}
+```
+ - The [SAMPLE](https://doi.org/10.5281/zenodo.6536419) package for Python
+```
+@software{tiraboschi2021sample,
+  author       = {Tiraboschi, Marco},
+  title        = {SAMPLE -- Python package},
+  year         = {2021},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.6536419},
+  url          = {https://doi.org/10.5281/zenodo.6536485},
+  organization = {LIM, University of Milan}
+}
+```

@@ -7,7 +7,8 @@ authors:
 title: "SAMPLE"
 version: 1.5.0b2
 date-released: 2021-02-26
-url: "https://github.com/limunimi/sample"
+doi: 10.5281/zenodo.6536419
+url: "https://limunimi.github.io/SAMPLE"
 repository-code: "https://github.com/limunimi/sample"
 license: MIT
 type: software
