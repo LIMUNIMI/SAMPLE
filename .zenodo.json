@@ -2,10 +2,10 @@
   "description": "Python package with tools for spectral analysis and modal parameters estimate",
   "license": "MIT",
   "title": "SAMPLE",
-  "notes": "If you use this software in your work, please cite the SMC 2020 paper 'Spectral analysis for modal parameters linear estimate'",
-  "version": "1.5.0b2",
+  "notes": "If you use this software in your work, please cite the SMC 2020 paper <a href='https://doi.org/10.5281/zenodo.3898795'>'Spectral analysis for modal parameters linear estimate'</a>",
+  "version": "1.5.1",
   "upload_type": "software",
-  "publication_date": "2021-02-26",
+  "publication_date": "2022-05-11",
   "creators": [
     {
       "orcid": "0000-0001-5761-4837",
@@ -17,22 +17,13 @@
     {
       "scheme": "doi",
       "identifier": "10.5281/zenodo.3898795",
-      "relation": "isSupplementTo"
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-article"
     },
     {
-      "scheme": "url",
-      "identifier": "https://github.com/LIMUNIMI/SAMPLE",
-      "relation": "isSupplementTo"
-    },
-    {
-      "scheme": "doi",
-      "identifier": "10.5281/zenodo.6536419",
-      "relation": "isVersionOf"
-    },
-    {
-      "scheme": "url",
-      "identifier": "https://pypi.org/project/lim-sample",
-      "relation": "isVersionOf"
+        "scheme": "url", 
+        "identifier": "https://github.com/limunimi/sample", 
+        "relation": "isSupplementTo"
     }
   ]
 }
