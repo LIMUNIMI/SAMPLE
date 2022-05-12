@@ -1,4 +1,5 @@
 """Tests random audio generation"""
+import itertools
 import unittest
 
 import numpy as np
@@ -57,11 +58,17 @@ class TestRandom(unittest.TestCase):
 
   def test_amps(self, subcases: int = 256):
     """Test amplitude sampling"""
-    for n in self.rng.rng.integers(1, 1024, size=subcases):
-      with self.subTest(n=n):
+    for n, b in itertools.product(self.rng.rng.integers(1, 1024, size=subcases),
+                                  map(bool, range(2))):
+      with self.subTest(n=n, onlybeat=b):
+        self.rng.onlybeat = b
         x = np.array(self.rng.amps(size=n)).flatten()  # pylint: disable=E1123
+        self.rng.onlybeat = True
         with self.subTest(what="size"):
           self.assertEqual(np.size(x), 3 * n)
+        with self.subTest(what="nonzeros"):
+          self.assertEqual(np.sum(np.greater(x,
+                                             np.finfo(float).eps)), (3 - b) * n)
         with self.subTest(what="sum"):
           for i in np.reshape(x, newshape=(n, 3)):
             self.assertAlmostEqual(np.sum(i), self.rng.sine_amp)
