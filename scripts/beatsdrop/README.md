@@ -1,8 +1,7 @@
-# BeatsDROP
+# Acoustic Beats and Where To Find Them: Theory of Uneven Beats and Applications to Modal Parameters Estimate
 Scripts related to the paper _"Acoustic Beats and Where To Find Them: Theory of Uneven Beats and Applications to Modal Parameters Estimate"_.
 
-We recommend installing in a virtual environment. For how to create virtual environments, please, refer to the official Python documentation for [`venv`](https://docs.python.org/3/library/venv.html) or [`conda`](https://docs.conda.io).
-
+We recommend [installing in a virtual environment](../../README.md#install).
 To install the script dependencies, you can either run
 ```
 pip install .[scripts-beatsdrop]

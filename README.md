@@ -8,8 +8,9 @@
 Python package with tools for spectral analysis and modal parameters estimate
 
 ## Install
-You can install the `sample` package from [PyPI](https://pypi.org/project/lim-sample) via pip
+We recommend installing in a virtual environment. For how to create virtual environments, please, refer to the official documentation for [`venv`](https://docs.python.org/3/library/venv.html) or [`conda`](https://docs.conda.io).
 
+You can install the `sample` package from [PyPI](https://pypi.org/project/lim-sample) via pip.
 ```
 pip install lim-sample
 ```
@@ -34,7 +35,7 @@ latest version from GitHub:
 
 ### Python
 You can install the GUI from the command line with Python via pip.  
-We recommend to install in a [virtual environment](https://docs.python.org/3/library/venv.html), in order to to keep your system clean
+We recommend to [install in a virtual environment](#install)
 
 ```
 pip install lim-sample[gui]
@@ -58,12 +59,15 @@ https://github.com/limunimi/sample
 
 ### Notebooks
 For learning to use the package, you can refer to the interactive
-notebooks in the [notebooks](https://github.com/limunimi/sample/tree/master/notebooks) folder
+notebooks in the [notebooks](notebooks) folder
+
+### Scripts
+In the [scripts](scripts) folder, there are Python scripts for the reproducibility of experiments
 
 ## References
 If you use this software in your research, please, consider referencing the following items
  - The SMC 2020 paper [_"Spectral Analysis for Modal Parameters Linear Estimate"_](https://doi.org/10.5281/zenodo.3898795)
-```
+```bibtex
 @inproceedings{tiraboschi2020spectral,
   author       = {Tiraboschi, Marco and Avanzini, Federico and Ntalampiras, Stavros},
   doi          = {10.5281/zenodo.3898795},
@@ -79,7 +83,7 @@ If you use this software in your research, please, consider referencing the foll
 }
 ```
  - The [SAMPLE](https://doi.org/10.5281/zenodo.6536419) package for Python
-```
+```bibtex
 @software{tiraboschi2021sample,
   author       = {Tiraboschi, Marco},
   title        = {SAMPLE -- Python package},

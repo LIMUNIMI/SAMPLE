@@ -1,4 +1,5 @@
-"""Plot figures for the BeatsDROP paper"""
+"""Plot figures for the paper 'Acoustic Beats and Where To Find Them:
+Theory of Uneven Beats and Applications to Modal Parameters Estimate'"""
 import argparse
 import itertools
 import logging
