@@ -7,6 +7,13 @@
 
 Python package with tools for spectral analysis and modal parameters estimate
 
+## Table of Contents
+ - [Install](#install)
+ - [GUI](#gui)
+ - [Documentation](#documentation)
+ - [Source Code](#source-code)
+ - [References](#references)
+
 ## Install
 We recommend installing in a virtual environment. For how to create virtual environments, please, refer to the official documentation for [`venv`](https://docs.python.org/3/library/venv.html) or [`conda`](https://docs.conda.io).
 
@@ -52,7 +59,7 @@ API documentation can be found online here:
 
 https://limunimi.github.io/SAMPLE
 
-## Source code
+## Source Code
 Source code is available on GitHub
 
 https://github.com/limunimi/sample
