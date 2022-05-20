@@ -414,3 +414,26 @@ def overlapping_windows(a: np.ndarray,
                                          strides=np.array(
                                              (hop, 1), dtype=int) * cell_stride,
                                          writeable=writeable)
+
+
+def strided_convolution(x: np.ndarray,
+                        kernel: np.ndarray,
+                        stride: int = 1,
+                        out: Optional[np.ndarray] = None):
+  """Compute a strided convolution as a matrix multiplication between
+  :func:`overlapping_windows` of the signal and the flipped kernel.
+
+  Args:
+    x (array): The input array
+    kernel (array): Convolution kernel
+    stride (int): Output sample period (in number of input samples).
+      Note that for the default :data:`stride=1`, the output
+      is the (non-strided) convolution. In this case, consider using
+      other convolution functions, which will be more efficient
+    out (array): Optional. Array to use for storing results
+
+  Returns:
+    array: Strided convolution"""
+  a = overlapping_windows(x, wsize=np.size(kernel), hop=stride)
+  b = np.reshape(kernel[::-1], newshape=(-1, 1))
+  return np.matmul(a, b, out=out)
