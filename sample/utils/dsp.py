@@ -366,3 +366,51 @@ def lombscargle_autocorrelogram(t: np.ndarray,
 
   ls, _ = lombscargle_as_fft(t=t, x=x, nfft=nfft, fs=fs, **kwargs)
   return fft2autocorrelogram(ls, real=True, n=n, nfft=nfft, power=True)
+
+
+def overlapping_windows(a: np.ndarray,
+                        wsize: int,
+                        hop: Optional[int] = None,
+                        writeable: bool = False):
+  """Return a view on the array as a matrix of overlapping windows.
+  Please note that this function does not alter in any way the input array.
+  If some preprocessing is needed, e.g. zero-padding, it should be done before
+  invoking this function
+
+  Args:
+    a (ndarray): The array. If it is not 1d already, it is linearized
+    wsize (int): Size of the windows
+    hop (int): Distance in samples between consecutive windows.
+      It should be at least :data:`1`, it often is at most :data:`wsize`.
+      If :data:`None`, then use :data:`wsize` (non-overlapping windows)
+    writeable (bool): If :data:`False` (default) the output view is read-only
+
+  Returns:
+    ndarray: Overlapping windows. Shape is :data:`(n_windows, wsize)`
+
+  Example:
+    >>> from sample.utils.dsp import overlapping_windows
+    >>> import numpy as np
+    >>> a = np.arange(64)
+    >>> b = overlapping_windows(a, wsize=16)
+    >>> # Check array shape
+    >>> b.shape
+    (4, 16)
+    >>> from sample.utils import numpy_id
+    >>> # Test that the new array still refers to the same memory
+    >>> numpy_id(a) == numpy_id(b)
+    True
+    >>> # Use view to perform mean filtering
+    >>> np.mean(b, axis=-1)
+    array([ 7.5, 23.5, 39.5, 55.5])"""
+  a_lin = np.reshape(a, newshape=(-1,))
+  if hop is None:
+    hop = wsize
+  # Stride for a single memory cell
+  cell_stride, = a_lin.strides
+  n_windows = 1 + (np.size(a_lin) - wsize) // hop
+  return np.lib.stride_tricks.as_strided(a_lin,
+                                         shape=(n_windows, wsize),
+                                         strides=np.array(
+                                             (hop, 1), dtype=int) * cell_stride,
+                                         writeable=writeable)
