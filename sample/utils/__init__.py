@@ -131,6 +131,17 @@ def _result_type(*args):
   return np.result_type(*ts)
 
 
+def numpy_id(a: np.ndarray) -> int:
+  """Get the ID of the memory location of a numpy array
+
+  Args:
+    a (ndarray): Numpy array to inspect
+
+  Returns:
+    int: The memory location ID"""
+  return a.__array_interface__["data"][0]
+
+
 def numpy_out(func: Optional[Callable] = None,
               method: bool = False,
               key: str = "out",
