@@ -3,11 +3,16 @@ import itertools
 import unittest
 
 import numpy as np
-from chromatictools import unittestmixins
+from chromatictools import unitdoctest, unittestmixins
 from sample.sms import dsp as sms_dsp
 from sample.utils import dsp as dsp_utils
 
 from tests import utils as test_utils
+
+
+class DocTestDSP(metaclass=unitdoctest.DocTestMeta):
+  """Doctests for :mod:`sample.utils.dsp`"""
+  _modules = (dsp_utils,)
 
 
 class TestDSP(unittestmixins.SignificantPlacesAssertMixin,
