@@ -808,27 +808,66 @@ class GammatoneFilterbank:
       """Number of IRs"""
       return len(self.irs)
 
-    def convolve(self, x: np.ndarray, method: str = "overlap-add"):
+    def convolve(self,
+                 x: np.ndarray,
+                 method: Optional[str] = None,
+                 stride: Optional[int] = None):
       """Convolve the IRs and organize the outputs in an aligned matrix
 
       Args:
         x (array): Input signal
         method (str): Convolution method (either :data:`"auto"`,
           :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
+        stride (int): Time-step for output signal.
+          Can't be used in conjunction with :data:`method`
 
       Returns:
         matrix: Cochleagram, will be complex if the IRs are analytical"""
-      out = np.zeros((len(self), x.size + self._ir_size - 1),
-                     dtype=np.result_type(x, *self.irs))
-      if method == "overlap-add":
-        convolve = signal.oaconvolve
+      if stride is None:
+        if method is None or method == "overlap-add":
+          convolve = signal.oaconvolve
+        else:
+          convolve = functools.partial(signal.convolve, method=method)
+        out = np.zeros((len(self), x.size + self._ir_size - 1),
+                       dtype=np.result_type(x, *self.irs))
+        for i, (ir, off) in enumerate(zip(self.irs, self.offsets)):
+          y = convolve(x, ir, mode="full")
+          # Delay is LTI, so we shift the result instead of zero-padding
+          # the start of the IR in order to save computation time
+          out[i, off:(off + y.size)] = y
+      elif method is not None:
+        raise ValueError(
+            f"Cannot specify both stride={stride} and method='{method}'. "
+            "Please leave either one as 'None'")
+      elif np.iscomplexobj(x):
+        raise ValueError(
+            f"Strided convolution unsupported for input of dtype '{x.dtype}'. ",
+            "Must be a real dtype")
       else:
-        convolve = functools.partial(signal.convolve, method=method)
-      for i, (ir, off) in enumerate(zip(self.irs, self.offsets)):
-        y = convolve(x, ir, mode="full")
-        # Delay is LTI, so we shift the result instead of zero-padding
-        # the start of the IR in order to save computation time
-        out[i, off:(off + y.size)] = y
+        # Zero-padding for full-convolution
+        x_pad = np.zeros(x.size + 2 * (self._ir_size - 1), dtype=x.dtype)
+        x_pad[(self._ir_size - 1):-(self._ir_size - 1)] = x
+        max_wins = max(
+            off // stride +
+            dsp_utils.n_windows(x.size + 2 * (ir.size - 1), ir.size, hop=stride)
+            for ir, off in zip(self.irs, self.offsets))
+
+        out = np.zeros((len(self), max_wins),
+                       dtype=np.result_type(x, *self.irs))
+        if self.analytical:
+          convolve = dsp_utils.strided_convolution_complex_kernel
+        else:
+          convolve = dsp_utils.strided_convolution
+        for i, (ir, off) in enumerate(zip(self.irs, self.offsets)):
+          off //= stride
+          target_size = x.size + 2 * (ir.size - 1)
+          x_bgn_i = self._ir_size - ir.size
+          x_pad_i = x_pad[x_bgn_i:(x_bgn_i + target_size)]
+          out_size = dsp_utils.n_windows(x_pad_i.size, ir.size, hop=stride)
+          convolve(x_pad_i,
+                   ir,
+                   stride=stride,
+                   out=out[i:(i + 1), off:(off + out_size)].T)
       return out
 
   def precompute(self,
@@ -850,7 +889,7 @@ class GammatoneFilterbank:
                x: np.ndarray,
                fs: float,
                analytical: Optional[str] = None,
-               method: str = "overlap-add",
+               method: Optional[str] = None,
                **kwargs):
     # pylint: disable=C0303
     """Filter the input with the filterbank and produce a cochleagram
@@ -872,6 +911,8 @@ class GammatoneFilterbank:
         is real, otherwise it is :data:`None`
       method (str): Convolution method (either :data:`"auto"`,
         :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
+      stride (int): Time-step for output signal.
+        Can't be used in conjunction with :data:`mehtod`
 
     Returns:
       matrix: Cochleagram"""
@@ -903,7 +944,8 @@ def cochleagram(
     filterbank: Optional[Union[GammatoneFilterbank,
                                GammatoneFilterbank.PrecomputedIRBank]] = None,
     analytical: Optional[str] = None,
-    method: str = "overlap-add",
+    method: Optional[str] = None,
+    stride: Optional[int] = None,
     **kwargs):
   # pylint: disable=C0303
   """Compute the cochleagram for the signal
@@ -927,6 +969,8 @@ def cochleagram(
         of the output (slowest, most accurate)
     method (str): Convolution method (either :data:`"auto"`,
       :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
+    stride (int): Time-step for output signal.
+      Can't be used in conjunction with :data:`mehtod`
     **kwargs: Keyword arguments for :class:`GammatoneFilterbank`
 
   Returns:
@@ -955,7 +999,7 @@ def cochleagram(
     filterbank = filterbank.precompute(fs=fs, analytical=analytical == "ir")
   if analytical == "input":
     x = signal.hilbert(x)
-  out = filterbank.convolve(x, method=method)
+  out = filterbank.convolve(x, method=method, stride=stride)
   if analytical == "output":
     out = signal.hilbert(out)
   if postprocessing is not None:

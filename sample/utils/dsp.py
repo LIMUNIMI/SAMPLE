@@ -368,6 +368,21 @@ def lombscargle_autocorrelogram(t: np.ndarray,
   return fft2autocorrelogram(ls, real=True, n=n, nfft=nfft, power=True)
 
 
+def n_windows(input_size: int, wsize: int, hop: Optional[int] = None) -> int:
+  """Number of windows for overlapping windows operations
+
+  Args:
+    input_size (int): Size of input array
+    wsize (int): Size of the windows
+    hop (int): Distance in samples between consecutive windows
+
+  Returns:
+    int: Number of windows"""
+  if hop is None:
+    hop = wsize
+  return 1 + (input_size - wsize) // hop
+
+
 def overlapping_windows(a: np.ndarray,
                         wsize: int,
                         hop: Optional[int] = None,
@@ -408,9 +423,10 @@ def overlapping_windows(a: np.ndarray,
     hop = wsize
   # Stride for a single memory cell
   cell_stride, = a_lin.strides
-  n_windows = 1 + (np.size(a_lin) - wsize) // hop
   return np.lib.stride_tricks.as_strided(a_lin,
-                                         shape=(n_windows, wsize),
+                                         shape=(n_windows(a_lin.size,
+                                                          wsize=wsize,
+                                                          hop=hop), wsize),
                                          strides=np.array(
                                              (hop, 1), dtype=int) * cell_stride,
                                          writeable=writeable)
@@ -437,3 +453,37 @@ def strided_convolution(x: np.ndarray,
   a = overlapping_windows(x, wsize=np.size(kernel), hop=stride)
   b = np.reshape(kernel[::-1], newshape=(-1, 1))
   return np.matmul(a, b, out=out)
+
+
+def strided_convolution_complex_kernel(x: np.ndarray,
+                                       kernel: np.ndarray,
+                                       stride: int = 1,
+                                       out: Optional[np.ndarray] = None,
+                                       dtype: Optional[type] = None):
+  """Compute a strided convolution as a matrix multiplication between
+  :func:`overlapping_windows` of the signal and the flipped kernel.
+  Call this function when kernel is complex
+
+  Args:
+    x (array): The input array
+    kernel (array): Convolution kernel
+    stride (int): Output sample period (in number of input samples).
+      Note that for the default :data:`stride=1`, the output
+      is the (non-strided) convolution. In this case, consider using
+      other convolution functions, which will be more efficient
+    out (array): Optional. Array to use for storing results
+    dtype (type): Explicit dtype for output when :data:`out` is unspecified
+
+  Returns:
+    array: Strided convolution"""
+  if out is None:
+    if dtype is None:
+      dtype = np.result_type(x, kernel)
+    out = np.zeros(n_windows(x.size, wsize=kernel.size, hop=stride),
+                   dtype=dtype)
+  for p in (np.real, np.imag):
+    strided_convolution(x=x,
+                        kernel=p(kernel),
+                        stride=stride,
+                        out=np.reshape(p(out), newshape=(-1, 1)))
+  return out
