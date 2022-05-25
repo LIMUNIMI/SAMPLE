@@ -252,7 +252,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     gtfb = psycho.GammatoneFilterbank(normalize=True)
     for f in gtfb:
       with self.subTest(f_c=f.f):
-        self.assertAlmostEqual(np.sum(np.square(f.ir(fs=self.fs))), self.fs)
+        self.assertAlmostEqual(np.sum(np.square(f.ir(fs=self.fs))), 1)
 
   def test_cochleagram_plot(self):
     """Test plotting cochleagram"""
