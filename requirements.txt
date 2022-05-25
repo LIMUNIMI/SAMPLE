@@ -47,4 +47,4 @@ recommonmark
 
 # Packaging
 twine
-pyinstaller
+pyinstaller<5.1

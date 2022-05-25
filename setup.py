@@ -74,7 +74,7 @@ setuptools.setup(
         ],
         "cov": ["coverage",],
         "packaging": ["twine",],
-        "installer": ["pyinstaller",]
+        "installer": ["pyinstaller<5.1",]
     },
     classifiers=[
         "Programming Language :: Python :: 3",
