@@ -57,7 +57,8 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
         self.assertTrue(np.greater(np.diff(erbs), 0).all())
 
 
-class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
+class TestTF(unittestmixins.AssertDoesntRaiseMixin,
+             unittestmixins.RMSEAssertMixin, unittest.TestCase):
   """Test time-frequency representations"""
 
   def setUp(self):
@@ -196,14 +197,36 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     irs = psycho.GammatoneFilterbank(normalize=True).precompute(fs=self.fs)
     t = np.arange(int(self.fs * 0.125)) / self.fs
     x = np.empty_like(t)
-    for i, f in enumerate(irs.freqs):
-      np.multiply(2 * np.pi * f, t, out=x)
-      np.sin(x, out=x)
-      coch, _ = psycho.cochleagram(x, filterbank=irs)
-      coch_rms = np.sqrt(np.mean(np.square(coch), axis=1))
-      with self.subTest(i=i, f=f):
-        self.assertEqual(coch_rms.size, len(irs))
-        self.assertEqual(i, np.argmax(coch_rms))
+    for stride in (None, int(self.fs * 0.001)):
+      for i, f in enumerate(irs.freqs):
+        np.multiply(2 * np.pi * f, t, out=x)
+        np.sin(x, out=x)
+        coch, _ = psycho.cochleagram(x, filterbank=irs, stride=stride)
+        coch_rms = np.sqrt(np.mean(np.square(coch), axis=1))
+        with self.subTest(stride=stride, i=i, f=f):
+          self.assertEqual(coch_rms.size, len(irs))
+          self.assertEqual(i, np.argmax(coch_rms))
+
+  def test_cochleagram_direct_vs_strided(self):
+    """Test stride cochleagram correctness (against direct)"""
+    for analytical in (True, False):
+      coch, _ = psycho.cochleagram(self.x,
+                                   fs=self.fs,
+                                   normalize=True,
+                                   analytical=analytical,
+                                   method="direct")
+      for stride in (0, 0.005, 0.010):
+        stride = max(1, int(stride * self.fs))
+        coch_s, _ = psycho.cochleagram(self.x,
+                                       fs=self.fs,
+                                       normalize=True,
+                                       analytical=analytical,
+                                       stride=stride)
+        coch_d = coch[:, ::stride]
+        with self.subTest(analytical=analytical, stride=stride, what="shape"):
+          self.assertEqual(coch_d.shape, coch_s.shape)
+        with self.subTest(analytical=analytical, stride=stride, what="rmse"):
+          self.assert_almost_equal_rmse(coch_s, coch_d, places=5)
 
   def test_cochleagram_rms_peak_analytical(self):
     """Test complex cochleagram RMS peak"""
@@ -211,14 +234,15 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
                                                                 analytical=True)
     t = np.arange(int(self.fs * 0.125)) / self.fs
     x = np.empty_like(t)
-    for i, f in enumerate(irs.freqs):
-      np.multiply(2 * np.pi * f, t, out=x)
-      np.sin(x, out=x)
-      coch, _ = psycho.cochleagram(x, filterbank=irs)
-      coch_rms = np.sqrt(np.mean(np.square(np.abs(coch)), axis=1))
-      with self.subTest(i=i, f=f):
-        self.assertEqual(coch_rms.size, len(irs))
-        self.assertEqual(i, np.argmax(coch_rms))
+    for stride in (None, int(self.fs * 0.001)):
+      for i, f in enumerate(irs.freqs):
+        np.multiply(2 * np.pi * f, t, out=x)
+        np.sin(x, out=x)
+        coch, _ = psycho.cochleagram(x, filterbank=irs, stride=stride)
+        coch_rms = np.sqrt(np.mean(np.square(np.abs(coch)), axis=1))
+        with self.subTest(stride=stride, i=i, f=f):
+          self.assertEqual(coch_rms.size, len(irs))
+          self.assertEqual(i, np.argmax(coch_rms))
 
   def test_ir_error_no_fs(self):
     """Test that exception is raised if no fs is specified"""
@@ -267,6 +291,24 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
                   tlim=(0, self.x.size / self.fs),
                   cmap="afmhot")
     plots.plt.clf()
+
+  def test_cochleagram_error_method_stride(self):
+    """Test that cochleagram raises an error if
+    both method and stride are specified"""
+    with self.assertRaises(ValueError):
+      psycho.cochleagram(self.x,
+                         fs=self.fs,
+                         method="overlap-add",
+                         stride=int(self.fs * 0.005))
+
+  def test_cochleagram_error_complex_strided(self):
+    """Test that cochleagram raises an error for
+    strided convolution of complex input"""
+    with self.assertRaises(ValueError):
+      psycho.cochleagram(self.x,
+                         fs=self.fs,
+                         analytical="input",
+                         stride=int(self.fs * 0.005))
 
   def test_mel_spectrogram_shape(self, n_filters: int = 81):
     """Test mel-spectrogram shape"""
