@@ -4,6 +4,7 @@ import multiprocessing as mp
 from typing import Any, Callable, Dict, Iterable, Optional
 
 import numpy as np
+from sample import psycho
 from sample.utils import dsp as dsp_utils
 from scipy import signal
 
@@ -154,3 +155,88 @@ def multiscale_spectral_loss(x,
   return MultiScaleSpectralLoss(stfts=stfts,
                                 spectral_loss=spectral_loss)(x, y, *args,
                                                              **kwargs)
+
+
+class CochleagramLoss:
+  """Class for computing losses on cochleagrams (lower is better)
+
+  Args:
+    fs (float): Sample frequency
+    postprocessing (callable): If not :data:`None`, then apply this function
+      to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
+      is real, otherwise it is :func:`numpy.abs`
+    method (str): Convolution method (either :data:`"auto"`,
+      :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
+    stride (int): Time-step for output signal.
+      Can't be used in conjunction with :data:`method`
+    analytical (str): Compute the analytical signal of the cochleagram:
+
+      - if :data:`"input"`, then compute the analytical signal
+        of the input (fast, accurate in the middle, bad boundary conditions)
+      - if :data:`"ir"` (suggested), then compute the analytical signal
+        of the IRs (fast, tends to underestimate amplitude,
+        good boundary conditions)
+      - if :data:`"output"`, then compute the analytical signal
+        of the output (slowest, most accurate)
+    p (float): Exponent for the lp-norm
+    **kwargs: Keyword arguments for
+      :class:`sample.psycho.GammatoneFilterbank`"""
+
+  def __init__(self,
+               fs: float,
+               analytical: Optional[str] = "ir",
+               method: Optional[str] = None,
+               stride: Optional[int] = None,
+               p: float = 1,
+               **kwargs):
+    kpp = "postprocessing"
+    if kpp in kwargs:
+      self.postprocessing = {kpp: kwargs.pop(kpp)}
+    elif analytical is not None:
+      self.postprocessing = {kpp: np.abs}
+    else:
+      self.postprocessing = {}
+    self.filterbank = psycho.GammatoneFilterbank(**kwargs).precompute(
+        fs=fs, analytical=analytical == "ir")
+    self.analytical = analytical
+    self.method = method
+    self.stride = stride
+    self.p = p
+
+  def cochleagram(self, x: np.ndarray) -> np.ndarray:
+    """Compute cochleagram for one input
+
+    Args:
+      x (array): Input signal
+
+    Returns:
+      array: Cochleagram"""
+    return psycho.cochleagram(x,
+                              filterbank=self.filterbank,
+                              analytical=self.analytical,
+                              method=self.method,
+                              stride=self.stride,
+                              **self.postprocessing)[0]
+
+  def lp_distance(self, x: np.ndarray, y: np.ndarray):
+    """Compute the distance between two vectors as
+    the lp-norm of their difference
+
+    Args:
+      x (array): First vector
+      y (array): Second vector
+
+    Returns:
+      float: The distance"""
+    return lp_distance(x=x, y=y, p=self.p)
+
+  def __call__(self, x: np.ndarray, y: np.ndarray) -> float:
+    """Compute cochleagram loss
+
+    Args:
+      x (array): First vector
+      y (array): Second vector
+
+    Returns:
+      float: Loss value"""
+    return self.lp_distance(self.cochleagram(x), self.cochleagram(y))
