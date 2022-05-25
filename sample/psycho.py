@@ -416,7 +416,8 @@ class GammatoneFilter:
       must accept a single argument of type :class:`GammatoneFilter`. If
       :data:`None` (default), then use a phase value coherent with the
       leading time
-    normalize (bool): If :data:`True`, then normalize the IR
+    normalize (bool): If :data:`True`, then
+      normalize the IR so that :math:`|k(t)|^2 = f_s`
     a (callable or float): Scale parameter. If callable, it
       must accept a single argument of type :class:`GammatoneFilter`. If
       :data:`None` (default), then do not rescale IR"""
@@ -685,24 +686,12 @@ class GammatoneFilter:
             "Please, specify either the time axis or a sample frequency")
       t = np.arange(self.ir_size(fs=fs, **kwargs)) / fs - self.t_c
     out = self.wavefun(t, analytical=analytical, out=out)
-    # scale
+    # Scale
     a = self.a
-    # normalize
     if self.normalize:
-      if a is None:
-        a = 1
-      # Can be complex
-      tmp = np.conjugate(out)
-      np.multiply(out, tmp, out=tmp)
-      norm2 = np.real(np.sum(tmp))
-      if fs is None:
-        try:
-          norm2 *= t[1] - t[0]
-        except (TypeError, IndexError):
-          pass
-      else:
-        norm2 /= fs
-      a /= np.sqrt(norm2)
+      # Divide a by the square norm of ir (can be complex)
+      a = (1 if a is None else a) / np.sqrt(
+          np.real(np.dot(out, np.conjugate(out))))
     if a is not None:
       np.multiply(a, out, out=out)
     return out
@@ -847,27 +836,33 @@ class GammatoneFilterbank:
         # Zero-padding for full-convolution
         x_pad = np.zeros(x.size + 2 * (self._ir_size - 1), dtype=x.dtype)
         x_pad[(self._ir_size - 1):-(self._ir_size - 1)] = x
-        max_wins = max(
-            off // stride +
-            dsp_utils.n_windows(x.size + 2 * (ir.size - 1), ir.size, hop=stride)
-            for ir, off in zip(self.irs, self.offsets))
-
-        out = np.zeros((len(self), max_wins),
+        # Output delay (quantized to stride)
+        offsets_s = self.offsets // stride
+        # Input delay (quantization residual)
+        offsets_x = self.offsets - offsets_s * stride
+        # IR lengths
+        ir_sizes = np.array([ir.size for ir in self.irs])
+        # Starting index
+        x_begins = self._ir_size - ir_sizes - offsets_x
+        # Input lengths
+        x_sizes = np.minimum(x_pad.size - x_begins, x.size + 2 * (ir_sizes - 1))
+        # Output lengths
+        n_wins = np.array([
+            dsp_utils.n_windows(x_size, ir_size, hop=stride)
+            for x_size, ir_size in zip(x_sizes, ir_sizes)
+        ])
+        out = np.zeros((len(self), np.max(n_wins + offsets_s)),
                        dtype=np.result_type(x, *self.irs))
         if self.analytical:
           convolve = dsp_utils.strided_convolution_complex_kernel
         else:
           convolve = dsp_utils.strided_convolution
-        for i, (ir, off) in enumerate(zip(self.irs, self.offsets)):
-          off //= stride
-          target_size = x.size + 2 * (ir.size - 1)
-          x_bgn_i = self._ir_size - ir.size
-          x_pad_i = x_pad[x_bgn_i:(x_bgn_i + target_size)]
-          out_size = dsp_utils.n_windows(x_pad_i.size, ir.size, hop=stride)
-          convolve(x_pad_i,
+        for i, ir in enumerate(self.irs):
+          convolve(x_pad[x_begins[i]:(x_begins[i] + x_sizes[i])],
                    ir,
                    stride=stride,
-                   out=out[i:(i + 1), off:(off + out_size)].T)
+                   out=out[i:(i + 1),
+                           offsets_s[i]:(offsets_s[i] + n_wins[i])].T)
       return out
 
   def precompute(self,
@@ -955,7 +950,7 @@ def cochleagram(
     fs (float): Sampling frequency
     filterbank (GammatoneFilterbank): Filterbank object, or precomputed IRs.
       If unspecified, it will be specified using :data:`**kwargs`
-    postprocess (callable): If not :data:`None`, then apply this function
+    postprocessing (callable): If not :data:`None`, then apply this function
       to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
       is real, otherwise it is :data:`None`
     analytical (str): Compute the analytical signal of the cochleagram:
@@ -970,7 +965,7 @@ def cochleagram(
     method (str): Convolution method (either :data:`"auto"`,
       :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
     stride (int): Time-step for output signal.
-      Can't be used in conjunction with :data:`mehtod`
+      Can't be used in conjunction with :data:`method`
     **kwargs: Keyword arguments for :class:`GammatoneFilterbank`
 
   Returns:
