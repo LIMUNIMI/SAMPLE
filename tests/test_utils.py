@@ -6,6 +6,7 @@ import numpy as np
 from chromatictools import unitdoctest, unittestmixins
 from sample.sms import dsp as sms_dsp
 from sample.utils import dsp as dsp_utils
+from scipy import signal
 
 from tests import utils as test_utils
 
@@ -151,3 +152,31 @@ class TestDSP(unittestmixins.SignificantPlacesAssertMixin,
 
     a0 = dsp_utils.dychotomic_zero_crossing(func, 2, -2)
     self.assertEqual(func(a0), 0)
+
+  def test_strided_nwindows(self):
+    """Test coherence of strided convolution output size"""
+    input_sizes = 1 + np.round(np.random.rand(32) * 1023).astype(int)
+    wsize_f = np.random.rand(32)
+    for input_size in input_sizes:
+      for wsize in 1 + np.round(wsize_f * (input_size - 1)).astype(int):
+        output_size = dsp_utils.n_windows(input_size=input_size, wsize=wsize)
+        with self.subTest(input_size=input_size, wsize=wsize):
+          self.assertLessEqual(output_size * wsize, input_size)
+          self.assertGreater((output_size + 1) * wsize, input_size)
+
+  def test_strided_convolution(self, n: int = 8, strides=(4, 8, 32)):
+    """Test strided convolution"""
+    np.random.seed(42)
+    xs = np.random.randn(n, 1024)
+    ks = np.empty((n, 8), dtype=np.complex64)
+    ks.real, ks.imag = np.random.randn(2, *ks.shape)
+
+    for i, (x, k) in enumerate(itertools.product(xs, ks)):
+      x_c = signal.convolve(x, k, mode="valid")
+      for stride in strides:
+        x_cs = x_c[::stride]
+        x_s = dsp_utils.strided_convolution_complex_kernel(x, k, stride=stride)
+        with self.subTest(i=i, what="shape"):
+          self.assertEqual(x_cs.shape, x_s.shape)
+        with self.subTest(i=i, what="value"):
+          self.assert_almost_equal_rmse(x_cs, x_s)
