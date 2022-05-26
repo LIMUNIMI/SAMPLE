@@ -39,29 +39,89 @@ before merging, or use `git flow feature rebase` if you are using `git-flow`
 automated tools.
 
 This is ok, because branches have not been merged yet
-```
-    o---o---o  develop
-        |\
-        | o---o---o---o---o  feature/a
-         \
-          o---o---o---o  feature/b
+```mermaid
+%%{init: {"gitGraph": {"showCommitLabel": false, "mainBranchName": "develop"}, "theme": "neutral"} }%%
+    gitGraph
+      commit
+      commit
+      branch feature/a
+      branch feature/b
+      checkout feature/b
+      commit
+      checkout feature/a
+      commit
+      checkout develop
+      commit
+      checkout feature/a
+      commit
+      checkout feature/b
+      commit
+      checkout feature/a
+      commit
+      checkout feature/b
+      commit
+      checkout feature/a
+      commit
+      commit
+      checkout feature/b
+      commit
 ```
 
 This is not ok, because branches overlap
-```
-    o---o---o---------------o--o  develop
-        |\                 /  /
-        | o---o---o---o---o  / feature/a
-         \                  /
-          o-----o---o------o  feature/b
+```mermaid
+%%{init: {"gitGraph": {"showCommitLabel": false, "mainBranchName": "develop"}, "theme": "neutral"} }%%
+    gitGraph
+      commit
+      commit
+      branch feature/a
+      branch feature/b
+      checkout feature/b
+      commit
+      checkout feature/a
+      commit
+      checkout develop
+      commit
+      checkout feature/a
+      commit
+      checkout feature/b
+      commit
+      checkout feature/a
+      commit
+      checkout feature/b
+      commit
+      checkout feature/a
+      commit
+      commit
+      checkout develop
+      merge feature/a
+      checkout feature/b
+      commit
+      checkout develop
+      merge feature/b
 ```
 
 This is ok, because branches have been correctly rebased
-```
-    o---o---o-------------------o---------------o  develop
-             \                 / \             /
-              o---o---o---o---o   o---o---o---o
-                feature/a           feature/b
+```mermaid
+%%{init: {"gitGraph": {"showCommitLabel": false, "mainBranchName": "develop"}, "theme": "neutral"} }%%
+    gitGraph
+      commit
+      commit
+      commit
+      branch feature/a
+      commit
+      commit
+      commit
+      commit
+      commit
+      checkout develop
+      merge feature/a
+      branch feature/b
+      commit
+      commit
+      commit
+      commit
+      checkout develop
+      merge feature/b
 ```
 
 ### Binary files
