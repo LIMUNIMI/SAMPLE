@@ -52,7 +52,7 @@ The script [`figures.py`](figures.py) produces the plots for the paper. To print
 python scripts/beatsdrop/figures.py --help
 ```
 
-To run the script you have to provide the path to an output folderfor the figures (which will be created, if it doesn't exist). E.g.
+To run the script you have to provide the path to an output folder for the figures (which will be created, if it doesn't exist). E.g.
 ```
 python scripts/beatsdrop/figures.py ./beatsdrop-figures
 ```

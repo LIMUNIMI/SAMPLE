@@ -22,7 +22,7 @@ import pandas as pd
 import sample
 import sample.beatsdrop.regression  # pylint: disable=W0611
 import tqdm
-from chromatictools import pickle
+from chromatictools import cli, pickle
 from sample import beatsdrop, psycho
 from sample.evaluation import random
 from sample.utils import dsp as dsp_utils
@@ -32,7 +32,7 @@ logger = logging.getLogger("BeatsDROP-Eval")
 
 
 class ArgParser(argparse.ArgumentParser):
-  """Argument parser for the BeatsDROP evaluation script
+  """Argument parser for the script
 
   Args:
     **kwargs: Keyword arguments for :class:`argparse.ArgumentParser`"""
@@ -553,6 +553,7 @@ def statistical_tests(args: argparse.Namespace):
         print_report(args.rank_result)
 
 
+@cli.main(__name__, *sys.argv[1:])
 def main(*argv):
   """Script runner"""
   args = ArgParser(description=__doc__).custom_parse_args(argv)
@@ -567,7 +568,3 @@ def main(*argv):
   logger.debug("Statistical comparison. Args: %s", args)
   statistical_tests(args)
   logger.info("Done.")
-
-
-if __name__ == "__main__":
-  sys.exit(main(*sys.argv[1:]) or 0)

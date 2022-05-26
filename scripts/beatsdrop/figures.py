@@ -20,7 +20,10 @@ logger = logging.getLogger("BeatsDROP-Figures")
 
 
 class ArgParser(argparse.ArgumentParser):
-  """Argument parser for the script"""
+  """Argument parser for the script
+
+  Args:
+    **kwargs: Keyword arguments for :class:`argparse.ArgumentParser`"""
 
   def __init__(self, **kwargs):
     super().__init__(**kwargs)
