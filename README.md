@@ -15,7 +15,7 @@ Python package with tools for spectral analysis and modal parameters estimate
  - [References](#references)
 
 ## Install
-We recommend installing in a virtual environment. For how to create virtual environments, please, refer to the official documentation for [`venv`](https://docs.python.org/3/library/venv.html) or [`conda`](https://docs.conda.io).
+We recommend installing in a virtual environment. For how to create virtual environments, please, refer to the official documentation for [venv](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io).
 
 You can install the `sample` package from [PyPI](https://pypi.org/project/lim-sample) via pip.
 ```
@@ -75,5 +75,5 @@ In the [scripts](scripts) folder, there are Python scripts for the reproducibili
 References are available both as a [BibTeX](SAMPLE.bib) and a [CITATION.cff](CITATION.cff) file.
 
 If you use this software in your research, please, consider citing the following items
- - The SMC 2020 paper [_"Spectral Analysis for Modal Parameters Linear Estimate"_](https://doi.org/10.5281/zenodo.3898795)
+ - The SMC 2020 paper ["Spectral Analysis for Modal Parameters Linear Estimate"](https://doi.org/10.5281/zenodo.3898795)
  - The [SAMPLE](https://doi.org/10.5281/zenodo.6536419) package for Python
