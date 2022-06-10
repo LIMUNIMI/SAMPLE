@@ -6,7 +6,6 @@ import numpy as np
 import sample.sample
 from sample import psycho, utils
 from sample.utils import dsp as dsp_utils
-from scipy import special
 
 
 def _repeated_samples(func, key: str = "size"):
@@ -189,8 +188,8 @@ class BeatsGenerator:
 
   @_repeated_samples
   def amps(self):
-    """Sample 3 modal amplitude values from a uniform distribution
-    and correct the sum with a softmax function
+    """Sample 3 modal amplitude values from a uniform
+    distribution and normalize the sum
 
     Args:
       size (int): Number of amplitude triplets to draw
