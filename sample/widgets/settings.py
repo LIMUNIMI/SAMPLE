@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Type, Union
 
 from matplotlib.backends import _backend_tk
 from scipy import signal
+import ttkthemes
 
 from sample.widgets import logging
 from sample.widgets import responsive as tk
@@ -217,6 +218,10 @@ _settings = (
      dict(
          label="window type",
          init_value="blackman",
+         options=sorted(
+             ("boxcar", "triang", "blackman", "hamming", "hann", "bartlett",
+              "flattop", "parzen", "bohman", "blackmanharris", "nuttall",
+              "barthann", "cosine", "exponential", "tukey", "taylor")),
          tooltip="FFT analysis window type",
      )),
     ("sinusoidal_model__freq_dev_offset",
@@ -275,16 +280,17 @@ _settings = (
     ("sinusoidal_model__reverse",
      dict(
          label="reverse",
-         get_fn=custom_bool,
-         set_fn=str,
          init_value=True,
+         boolean=True,
          tooltip="If True, then process audio in reverse order of time",
      )),
-    ("gui_theme", dict(
-        label="gui theme",
-        init_value="",
-        tooltip="GUI theme",
-    )),
+    ("gui_theme",
+     dict(
+         label="gui theme",
+         init_value="",
+         options=ttkthemes.THEMES,
+         tooltip="GUI theme",
+     )),
 )
 
 _postprocess = (
@@ -318,7 +324,9 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       tooltip (str): Parameter popup tool tip
       get_fn (callable): Parse function from entry value
       set_fn (callable): Entry value set function
-      init_value: Initial value"""
+      init_value: Initial value
+      options (list): List of options for a dropdown menu
+      boolean (bool): Set to :data:`True` for a checkbutton"""
 
     def __init__(
         self,
@@ -329,12 +337,25 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
         get_fn: Optional[Callable] = None,
         set_fn: Optional[Callable] = None,
         init_value: Optional = None,
+        options: Optional[Sequence[str]] = None,
+        boolean: bool = False,
     ):
       self.name = name
       self.label = tk.Label(parent, text=label or name)
-      self.var = tk.StringVar(parent)
       self.spacer = tk.Frame(parent, width=32)
-      self.entry = tk.Entry(parent, textvariable=self.var)
+      if boolean:
+        self.var = tk.BooleanVar(parent)
+        self.entry = tk.Checkbutton(parent, variable=self.var)
+        if init_value is not None:
+          self.var.set(init_value)
+      else:
+        self.var = tk.StringVar(parent)
+        if options is None:
+          self.entry = tk.Entry(parent, textvariable=self.var)
+        else:
+          self.entry = tk.OptionMenu(
+              parent, self.var,
+              options[0] if init_value is None else init_value, *options)
       self.get_fn = get_fn
       self.set_fn = set_fn
       if tooltip is None:
