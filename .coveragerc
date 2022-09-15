@@ -5,6 +5,10 @@ source =
 omit =
     sample/widgets/*
     sample/gui.py
+concurrency = multiprocessing
+# remember to call
+#   coverage combine
+# to collect all coverage reports from multiple processes
 
 [json]
 pretty_print = True

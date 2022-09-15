@@ -4,14 +4,18 @@ wheel
 # Run
 chromatictools
 numpy
-scipy
+paragraph
 scikit-learn
+scikit-optimize
+scipy
+tqdm
 
 # Test
 cython
 more-itertools
 
 # Notebooks
+ipython
 jupyter
 matplotlib
 librosa
@@ -22,6 +26,11 @@ ttkthemes
 Pillow
 pygame
 throttle
+
+## Scripts
+# BeatsDROP
+autorank
+pandas
 
 # Style
 pylint
@@ -38,4 +47,4 @@ recommonmark
 
 # Packaging
 twine
-pyinstaller
+pyinstaller<5.1

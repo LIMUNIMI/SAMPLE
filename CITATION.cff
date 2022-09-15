@@ -1,33 +1,89 @@
-cff-version: 1.2.0
-message: "If you use this software in your work, please cite the SMC 2020 paper as below."
+abstract: "Python package with tools for spectral analysis and modal parameters estimate"
 authors:
-- family-names: "Tiraboschi"
+- affiliation: "LIM, Department of Computer Science, University of Milan"
+  alias: "ChromaticIsobar"
+  city: "Milan"
+  country: "IT"
+  email: "marco.tiraboschi@unimi.it"
+  family-names: "Tiraboschi"
   given-names: "Marco"
   orcid: "https://orcid.org/0000-0001-5761-4837"
-title: "SAMPLE"
-version: 1.5.1
-date-released: 2021-02-26
-doi: 10.5281/zenodo.6536419
-url: "https://limunimi.github.io/SAMPLE"
-repository-code: "https://github.com/limunimi/sample"
-license: MIT
-type: software
-preferred-citation:
-  type: proceedings
-  title: "Spectral Analysis for Modal Parameters Linear Estimate"
+cff-version: 1.2.0
+contact:
+- affiliation: "LIM, Department of Computer Science, University of Milan"
+  alias: "ChromaticIsobar"
+  city: "Milan"
+  country: "IT"
+  email: "marco.tiraboschi@unimi.it"
+  family-names: "Tiraboschi"
+  given-names: "Marco"
+  orcid: "https://orcid.org/0000-0001-5761-4837"
+doi: "10.5281/zenodo.6536419"
+keywords:
+- "audio analysis"
+- "parameter estimation"
+- "physical modelling"
+license: "MIT"
+message: "If you use this software in your research, please, cite the appropriate references from this file"
+references:
+- abbreviation: SAMPLE (SMC 2020)
+  abstract: "Modal synthesis is used to generate the sounds associated with the vibration of rigid bodies, according to the characteristics of the force applied onto the object. Towards obtaining sounds of high quality, a great quantity of modes is necessary, the development of which is a long and tedious task for sound designers as they have to manually write the modal parameters. This paper presents a new approach for practical modal parameter estimation based on the spectral analysis of a single audio example. The method is based on modelling the spectrum of the sound with a time-varying sinusoidal model and fitting the modal parameters with linear and semi-linear techniques. We also detail the physical and mathematical principles that motivate the algorithm design choices. A Python implementation of the proposed approach has been developed and tested on a dataset of impact sounds considering objects of different shapes and materials. We assess the performance of the algorithm by evaluating the quality of the resynthesised sounds. Resynthesis is carried out via the Sound Design Toolkit (SDT) modal engine and compared to the sounds resynthesised from parameters extracted by SDT's own estimator. The proposed method was thoroughly evaluated both objectively using perceptually relevant features and subjectively following the MUSHRA protocol."
   authors:
-    - family-names: "Tiraboschi"
-      given-names: "Marco"
-      orcid: "https://orcid.org/0000-0001-5761-4837"
-    - family-names: "Avanzini"
-      given-names: "Federico"
-      orcid: "https://orcid.org/0000-0002-1257-5878"
-    - family-names: "Ntalampiras"
-      given-names: "Stavros"
-      orcid: "https://orcid.org/0000-0003-3482-9215"
+  - affiliation: "LIM, Department of Computer Science, University of Milan"
+    alias: "ChromaticIsobar"
+    city: "Milan"
+    country: "IT"
+    email: "marco.tiraboschi@unimi.it"
+    family-names: "Tiraboschi"
+    given-names: "Marco"
+    orcid: "https://orcid.org/0000-0001-5761-4837"
+  - affiliation: "LIM, Department of Computer Science, University of Milan"
+    city: "Milan"
+    country: "IT"
+    email: "federico.avanzini@unimi.it"
+    family-names: "Avanzini"
+    given-names: "Federico"
+    orcid: "https://orcid.org/0000-0002-1257-5878"
+    website: "http://homes.di.unimi.it/avanzini"
+  - affiliation: "LIM, Department of Computer Science, University of Milan"
+    city: "Milan"
+    country: "IT"
+    email: "stavros.ntalampiras@unimi.it"
+    family-names: "Ntalampiras"
+    given-names: "Stavros"
+    orcid: "https://orcid.org/0000-0003-3482-9215"
+  collection-doi: "10.5281/zenodo.3903573"
+  collection-title: "Proceedings of the 17th Sound and Music Computing Conference"
+  collection-type: "proceedings"
+  conference:
+  - alias: "SMC 2020"
+    city: "Torino"
+    country: "IT"
+    date-end: "2020-06-26"
+    date-start: "2020-06-24"
+    name: "Sound and Music Computing Conference"
+    website: "https://smcnetwork.org"
+  copyright: "©2020 Marco Tiraboschi et al."
+  date-published: "2020-06-17"
   doi: "10.5281/zenodo.3898795"
-  journal: "Proceedings of the 17th Sound and Music Computing Conference"
-  month: 6
-  year: 2020
-  start: 276
+  editors:
+  - family-names: "Spagnol"
+    given-names: "Simone"
+  - family-names: "Valle"
+    given-names: "Andrea"
   end: 283
+  isbn: "978-88-945415-0-2"
+  issn: "2518-3672"
+  license: "CC-BY-3.0"
+  month: 6
+  pages: 8
+  publisher: "Axea sas/SMC Network"
+  repository: "https://gitlab.com/ChromaticIsobar/pyaprsi2"
+  start: 276
+  title: "Spectral Analysis for Modal Parameters Linear Estimate"
+  type: "proceedings"
+  year: 2020
+repository-code: "https://github.com/limunimi/sample"
+title: "SAMPLE"
+type: "software"
+url: "https://limunimi.github.io/SAMPLE"

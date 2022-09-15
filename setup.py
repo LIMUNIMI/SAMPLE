@@ -25,8 +25,11 @@ setuptools.setup(
     install_requires=[
         "chromatictools",
         "numpy",
-        "scipy",
+        "paragraph",
         "scikit-learn",
+        "scikit-optimize",
+        "scipy",
+        "tqdm",
     ],
     extras_require={
         "gui": [
@@ -42,13 +45,20 @@ setuptools.setup(
             "Pillow",
         ],
         "notebooks": [
+            "ipython",
             "jupyter",
             "matplotlib",
             "librosa",
             "more-itertools",
             "requests",
         ],
+        "scripts-beatsdrop": [
+            "matplotlib",
+            "autorank",
+            "pandas",
+        ],
         "test": [
+            "ipython",
             "cython",
             "more-itertools",
         ],
@@ -64,7 +74,7 @@ setuptools.setup(
         ],
         "cov": ["coverage",],
         "packaging": ["twine",],
-        "installer": ["pyinstaller",]
+        "installer": ["pyinstaller<5.1",]
     },
     classifiers=[
         "Programming Language :: Python :: 3",
