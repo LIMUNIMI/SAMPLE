@@ -9,7 +9,6 @@ from typing import Iterable, Tuple
 import librosa
 import PIL
 import PyInstaller.__main__
-import scipy
 from chromatictools import cli
 
 from sample import vid
