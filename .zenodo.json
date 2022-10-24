@@ -3,7 +3,7 @@
   "license": "MIT",
   "title": "SAMPLE",
   "notes": "If you use this software in your work, please cite the SMC 2020 paper <a href='https://doi.org/10.5281/zenodo.3898795'>'Spectral analysis for modal parameters linear estimate'</a>",
-  "version": "2.0.0rc0",
+  "version": "2.0.0rc1",
   "upload_type": "software",
   "publication_date": "2022-05-11",
   "creators": [

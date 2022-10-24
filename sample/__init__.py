@@ -25,7 +25,7 @@ from chromatictools import cli
 
 from sample.sample import SAMPLE
 
-__version__ = "2.0.0rc0"
+__version__ = "2.0.0rc1"
 
 
 @cli.main(__name__)
