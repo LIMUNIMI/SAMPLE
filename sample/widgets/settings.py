@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Type, Union
 
 from matplotlib.backends import _backend_tk
 from scipy import signal
+import ttkthemes
 
 from sample.widgets import logging
 from sample.widgets import responsive as tk
@@ -186,11 +187,14 @@ def postprocess_guitheme(
 # ----------------------------------------------------------------------------
 
 _settings = (
+    ("resynth_group", dict(label="Resynthesis", is_spacer=True)),
     ("max_n_modes",
      dict(label="n modes",
           get_fn=functools.partial(custom_positive_int, dflt=None),
           init_value=None,
           tooltip="Maximum number of modes to use for resynthesis")),
+    ("analysis_space", dict(is_spacer=True, label=" ")),
+    ("analysis_group", dict(label="Analysis", is_spacer=True)),
     ("sinusoidal_model__max_n_sines",
      dict(label="n sines",
           get_fn=custom_positive_int,
@@ -217,6 +221,10 @@ _settings = (
      dict(
          label="window type",
          init_value="blackman",
+         options=sorted(
+             ("boxcar", "triang", "blackman", "hamming", "hann", "bartlett",
+              "flattop", "parzen", "bohman", "blackmanharris", "nuttall",
+              "barthann", "cosine", "exponential", "tukey", "taylor")),
          tooltip="FFT analysis window type",
      )),
     ("sinusoidal_model__freq_dev_offset",
@@ -275,16 +283,19 @@ _settings = (
     ("sinusoidal_model__reverse",
      dict(
          label="reverse",
-         get_fn=custom_bool,
-         set_fn=str,
          init_value=True,
+         boolean=True,
          tooltip="If True, then process audio in reverse order of time",
      )),
-    ("gui_theme", dict(
-        label="gui theme",
-        init_value="",
-        tooltip="GUI theme",
-    )),
+    ("gui_space", dict(is_spacer=True, label=" ")),
+    ("gui_group", dict(label="GUI", is_spacer=True)),
+    ("gui_theme",
+     dict(
+         label="gui theme",
+         init_value="",
+         options=ttkthemes.THEMES,
+         tooltip="GUI theme",
+     )),
 )
 
 _postprocess = (
@@ -315,26 +326,47 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       parent (Widget): Parent widget
       name (str): Parameter keyword
       label (str): Parameter label. If :data:`None`, then use name as label
+      is_spacer (bool): Set to :data:`True` to get only a spacer, not a setting
       tooltip (str): Parameter popup tool tip
       get_fn (callable): Parse function from entry value
       set_fn (callable): Entry value set function
-      init_value: Initial value"""
+      init_value: Initial value
+      options (list): List of options for a dropdown menu
+      boolean (bool): Set to :data:`True` for a checkbutton"""
 
     def __init__(
         self,
         parent: tk.Widget,
         name: str,
         label: Optional[str] = None,
+        is_spacer: bool = False,
         tooltip: Optional[str] = None,
         get_fn: Optional[Callable] = None,
         set_fn: Optional[Callable] = None,
         init_value: Optional = None,
+        options: Optional[Sequence[str]] = None,
+        boolean: bool = False,
     ):
       self.name = name
       self.label = tk.Label(parent, text=label or name)
-      self.var = tk.StringVar(parent)
       self.spacer = tk.Frame(parent, width=32)
-      self.entry = tk.Entry(parent, textvariable=self.var)
+      self.is_spacer = is_spacer
+      if self.is_spacer:
+        self.label.config(font="-weight bold")
+        return
+      if boolean:
+        self.var = tk.BooleanVar(parent)
+        self.entry = tk.Checkbutton(parent, variable=self.var)
+        if init_value is not None:
+          self.var.set(init_value)
+      else:
+        self.var = tk.StringVar(parent)
+        if options is None:
+          self.entry = tk.Entry(parent, textvariable=self.var)
+        else:
+          self.entry = tk.OptionMenu(
+              parent, self.var,
+              options[0] if init_value is None else init_value, *options)
       self.get_fn = get_fn
       self.set_fn = set_fn
       if tooltip is None:
@@ -349,6 +381,8 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
       Returns:
         The value"""
+      if self.is_spacer:
+        return
       v = self.var.get()
       if self.get_fn is not None:
         v = self.get_fn(v)
@@ -362,6 +396,8 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
 
       Returns:
         self"""
+      if self.is_spacer:
+        return
       if self.set_fn is not None:
         value = self.set_fn(value)
       self.var.set(value)
@@ -428,8 +464,9 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
                                             **kwargs)
     if grid:
       v.label.grid(row=i, column=0)
-      v.spacer.grid(row=i, column=1)
-      v.entry.grid(row=i, column=2)
+      v.spacer.grid(row=i, column=1, columnspan=1 + v.is_spacer)
+      if not v.is_spacer:
+        v.entry.grid(row=i, column=2)
     return v
 
   def apply_cbk(self, *args, from_file: bool = False, **kwargs):  # pylint: disable=W0613
@@ -440,7 +477,11 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     if from_file and self.settings_file.is_valid(
     ) and self.settings_file.exists():
       settings = self.settings_file.load_json()
-    settings = {k: settings.get(k, s.get()) for k, s in self._settings.items()}
+    settings = {
+        k: settings.get(k, s.get())
+        for k, s in self._settings.items()
+        if not s.is_spacer
+    }
     params = settings
     for func in self._postprocess:
       keys = inspect.signature(func).parameters.keys()

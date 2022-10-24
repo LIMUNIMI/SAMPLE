@@ -10,6 +10,32 @@ from chromatictools import cli
 import sample
 
 
+class ArgParser(argparse.ArgumentParser):
+  """Argument parser for the script
+
+  Args:
+    **kwargs: Keyword arguments for :class:`argparse.ArgumentParser`"""
+
+  def __init__(self, **kwargs):
+    super().__init__(**kwargs)
+    self.add_argument("--version",
+                      metavar="TAG",
+                      default=sample.__version__,
+                      help="Version tag")
+    self.add_argument(
+        "--dir",
+        metavar="PATH",
+        default="changelog",
+        help="Changelog directory",
+    )
+    self.add_argument(
+        "--output",
+        metavar="PATH",
+        default=None,
+        help="Output file path",
+    )
+
+
 @contextlib.contextmanager
 def open_if_any(filepath, *args, encoding: str = "utf-8", **kwargs):
   """Open file if filepath is not :data:`None`"""
@@ -23,24 +49,7 @@ def open_if_any(filepath, *args, encoding: str = "utf-8", **kwargs):
 @cli.main(__name__, *sys.argv[1:])
 def main(*argv):
   """Run script"""
-  parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument("--version",
-                      metavar="TAG",
-                      default=sample.__version__,
-                      help="Version tag")
-  parser.add_argument(
-      "--dir",
-      metavar="PATH",
-      default="changelog",
-      help="Changelog directory",
-  )
-  parser.add_argument(
-      "--output",
-      metavar="PATH",
-      default=None,
-      help="Output file path",
-  )
-  args, _ = parser.parse_known_args(argv)
+  args, _ = ArgParser(description=__doc__).parse_known_args(argv)
   filename = "".join(
       itertools.takewhile(lambda c: c == "_" or c.isdigit(),
                           args.version.replace(".", "_")))

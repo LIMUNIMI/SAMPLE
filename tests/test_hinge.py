@@ -1,9 +1,10 @@
-"""Tests related to regression"""
+"""Tests related to hinge regression"""
 import unittest
 
 import numpy as np
 from chromatictools import unittestmixins
-from sample import regression
+from sample import hinge
+from sample.utils import dsp as dsp_utils
 from scipy import special
 
 
@@ -28,8 +29,8 @@ def noisy_hinge(
   Returns:
     array: Noisy hinge sample :py:data:`h(x) + N(0, h(x)*n)`"""
   np.random.seed(seed)
-  y = special.exp10(regression.hinge_function(x, a, k, q) / 20)
-  return 20 * np.log10(y + np.random.randn(*y.shape) * y * n)
+  y = special.exp10(hinge.hinge_function(x, a, k, q) / 20)
+  return dsp_utils.a2db(y + np.random.randn(*y.shape) * y * n)
 
 
 class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
@@ -39,7 +40,7 @@ class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Check that non-defult coeffs_init is used"""
     x = object()
     self.assertIs(
-        regression.HingeRegression(  # pylint: disable=W0212
+        hinge.HingeRegression(  # pylint: disable=W0212
             coeffs_init=x)._coeffs_init,
         x)
 
@@ -47,14 +48,14 @@ class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Check that non-defult bounds is used"""
     x = object()
     self.assertIs(
-        regression.HingeRegression(  # pylint: disable=W0212
+        hinge.HingeRegression(  # pylint: disable=W0212
             bounds=x)._bounds,
         x)
 
   def test_bounds_len1(self):
     """Check bounds fail on inputs of length 1"""
     with self.assertRaises(ValueError):
-      regression.HingeRegression()._default_bounds(  # pylint: disable=W0212
+      hinge.HingeRegression()._default_bounds(  # pylint: disable=W0212
           np.ones(1),
           np.ones(1),
           0,
@@ -64,7 +65,7 @@ class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_bounds_notequal(self):
     """Check bounds don't fail on degenerate inputs"""
     with self.assert_doesnt_raise():
-      regression.HingeRegression()._default_bounds(  # pylint: disable=W0212
+      hinge.HingeRegression()._default_bounds(  # pylint: disable=W0212
           np.ones(2),
           np.ones(2),
           0,
@@ -84,7 +85,7 @@ class TestRegression(unittestmixins.SignificantPlacesAssertMixin,
     self.n = .25
     self.x = (np.arange(1024) * 2001 / 44100).reshape((-1, 1))
     self.y = noisy_hinge(self.x, self.a, self.k, self.q, self.n)
-    self.hr = regression.HingeRegression()
+    self.hr = hinge.HingeRegression()
 
   def test_approximately_correct(self):
     """Test that fitted parameters are almost equal to ground truth"""
@@ -99,7 +100,7 @@ class TestRegression(unittestmixins.SignificantPlacesAssertMixin,
     with self.subTest(step="rmse"):
       self.assert_almost_equal_rmse(
           self.hr.predict(self.x),
-          regression.hinge_function(self.x, self.a, self.k, self.q),
+          hinge.hinge_function(self.x, self.a, self.k, self.q),
           rmse=0.274,
           places=3,
       )
@@ -120,7 +121,3 @@ class TestRegression(unittestmixins.SignificantPlacesAssertMixin,
             self.hr.linear_regressor.intercept_),
                                              self.q,
                                              places=1)
-
-
-if __name__ == "__main__":
-  unittest.main()

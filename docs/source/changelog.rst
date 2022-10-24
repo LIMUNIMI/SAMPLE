@@ -1,6 +1,8 @@
 Changelog
 =========
 
+.. mdinclude:: ../../changelog/v2_0_0.md
+.. mdinclude:: ../../changelog/v1_5_1.md
 .. mdinclude:: ../../changelog/v1_5_0.md
 .. mdinclude:: ../../changelog/v1_4_0.md
 .. mdinclude:: ../../changelog/v1_3_0.md

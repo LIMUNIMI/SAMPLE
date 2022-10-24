@@ -4,6 +4,7 @@ import os
 from tkinter import filedialog, messagebox
 
 import numpy as np
+from scipy.io import wavfile
 
 from sample import plots
 from sample.widgets import audio, logging, pyplot
@@ -95,9 +96,14 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     self.play_button_r.bind("<Button-1>", self.play_cbk(False))
 
     # Export button
-    self.export_button = tk.Button(self.bottom_row, text="Export")
+    self.export_button = tk.Button(self.bottom_row, text="Export JSON")
     self.export_button.bind("<Button-1>", self.export_cbk)
     self.export_button.grid(column=3, row=0)
+
+    # Wav export button
+    self.wav_export_button = tk.Button(self.bottom_row, text="Export WAV")
+    self.wav_export_button.bind("<Button-1>", self.wav_export_cbk)
+    self.wav_export_button.grid(column=4, row=0)
 
   def update_plot(self):
     """Update analysis and resynthesis figure"""
@@ -196,34 +202,65 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     self.audio_resynth_x = None
     self.update_plot()
 
+  def _get_audio(self, resynth: bool):
+    """Get audio array"""
+    if not self.audio_loaded:
+      messagebox.showerror("No audio",
+                           "You have to load an audio file before proceeding")
+      return
+    x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
+    if not resynth:
+      return x
+    if self.audio_resynth_x is None:
+      try:
+        self.audio_resynth_x = np.clip(
+            self.sample_object.predict(np.arange(x.size) / self.audio_sr,), -1,
+            +1)
+      except AttributeError:
+        messagebox.showerror(
+            "Not analyzed", "You have to analyse an audio file "
+            "before the resynthesis")
+        self.audio_resynth_x = None
+        return
+    return self.audio_resynth_x
+
   def play_cbk(self, original: bool = True):
     """Audio playback callback constructor"""
 
     def play_cbk_(*args, **kwargs):  # pylint: disable=W0613
       """Audio playback callback"""
-      if not self.audio_loaded:
-        messagebox.showerror(
-            "No audio",
-            "You have to load an audio file before playing anything back")
-        return
-      x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
-      if not original:
-        if self.audio_resynth_x is None:
-          try:
-            self.audio_resynth_x = np.clip(
-                self.sample_object.predict(np.arange(x.size) / self.audio_sr,),
-                -1, +1)
-          except AttributeError:
-            messagebox.showerror(
-                "Not analyzed", "You have to analyse an audio file before "
-                "playing back the resynthesis")
-            self.audio_resynth_x = None
-            return
-        x = self.audio_resynth_x
-      self._tmp_audio = audio.TempAudio(x, self.audio_sr)
-      self._tmp_audio.play()
+      x = self._get_audio(not original)
+      if x is not None:
+        self._tmp_audio = audio.TempAudio(x, self.audio_sr)
+        self._tmp_audio.play()
 
     return play_cbk_
+
+  def wav_export_cbk(self, *args, **kwargs):  # pylint: disable=W0613
+    """Wav export callback"""
+    x = self._get_audio(True)
+    if x is None:
+      return
+    filename = filedialog.asksaveasfilename(
+        title="Save WAV file",
+        initialdir=self.filedialog_dir_save,
+        initialfile=
+        f"{os.path.basename(os.path.splitext(self.filedialog_file)[0])}"
+        "_resynth",
+        defaultextension=".wav",
+        filetypes=[
+            ("WAV", ".wav"),
+        ],
+    )
+    if filename:
+      logging.info("Saving WAV: %s", filename)
+      self.filedialog_dir_save = os.path.dirname(filename)
+      try:
+        wavfile.write(filename=filename, rate=self.audio_sr, data=x)
+      except Exception as e:  # pylint: disable=W0703
+        messagebox.showerror(type(e).__name__, str(e))
+      else:
+        messagebox.showinfo("Saved", f"Saved WAV to file:\n{filename}")
 
   def export_cbk(self, *args, **kwargs):  # pylint: disable=W0613
     """Export callback"""

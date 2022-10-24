@@ -1,0 +1,17 @@
+<!-- Based on https://github.com/microsoft/vscode-jupyter/issues/1012#issuecomment-785410064 -->
+<script>
+  if (!window.audioContext) {{
+    window.audioContext = new AudioContext();
+    window.playAudio = function (audioChannels, sr) {{
+      const buffer = audioContext.createBuffer(audioChannels.length, audioChannels[0].length, sr);
+      for (let [channel, data] of audioChannels.entries()) {{
+        buffer.copyToChannel(Float32Array.from(data), channel);
+      }}
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start();
+    }}
+  }}
+</script>
+<button onclick="playAudio({x}, {rate})">{label}</button>

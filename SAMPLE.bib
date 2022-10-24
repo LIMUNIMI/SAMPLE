@@ -1,0 +1,28 @@
+@inproceedings{tiraboschi2020spectral,
+  author       = {Tiraboschi, Marco and Avanzini, Federico and Ntalampiras, Stavros},
+  title        = {{Spectral Analysis for Modal Parameters Linear Estimate}},
+  booktitle    = {Proceedings of the 17th Sound and Music Computing Conference},
+  year         = {2020},
+  editor       = {Simone Spagnol and Andrea Valle},
+  series       = {SMC},
+  pages        = {276--283},
+  address      = {Torino, Italy},
+  month        = {6},
+  organization = {Sound and Music Computing Network},
+  publisher    = {Axea sas/SMC Network},
+  doi          = {10.5281/zenodo.3898795},
+  abstract     = {Modal synthesis is used to generate the sounds associated with the vibration of rigid bodies, according to the characteristics of the force applied onto the object. Towards obtaining sounds of high quality, a great quantity of modes is necessary, the development of which is a long and tedious task for sound designers as they have to manually write the modal parameters. This paper presents a new approach for practical modal parameter estimation based on the spectral analysis of a single audio example. The method is based on modelling the spectrum of the sound with a time-varying sinusoidal model and fitting the modal parameters with linear and semi-linear techniques. We also detail the physical and mathematical principles that motivate the algorithm design choices. A Python implementation of the proposed approach has been developed and tested on a dataset of impact sounds considering objects of different shapes and materials. We assess the performance of the algorithm by evaluating the quality of the resynthesised sounds. Resynthesis is carried out via the Sound Design Toolkit (SDT) modal engine and compared to the sounds resynthesised from parameters extracted by SDT's own estimator. The proposed method was thoroughly evaluated both objectively using perceptually relevant features and subjectively following the MUSHRA protocol.}
+}
+
+@software{tiraboschi2021sample,
+  author       = {Tiraboschi, Marco},
+  title        = {SAMPLE -- Python package},
+  year         = {2021},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.6536419},
+  license      = {MIT},
+  repository   = {https://github.com/limunimi/sample},
+  organization = {LIM, University of Milan},
+  related      = {tiraboschi2020spectral},
+  abstract     = {Python package with tools for spectral analysis and modal parameters estimate}
+}

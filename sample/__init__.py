@@ -25,9 +25,10 @@ from chromatictools import cli
 
 from sample.sample import SAMPLE
 
-__version__ = "1.5.1"
+__version__ = "2.0.0"
 
 
 @cli.main(__name__)
 def main():
-  print(f"{__doc__}\n\nVersion: {__version__}")
+  nl = "\n"
+  print(f"{__doc__}{nl}{nl}Version: {__version__}")

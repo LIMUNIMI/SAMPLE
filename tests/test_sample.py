@@ -6,8 +6,10 @@ import unittest
 
 import numpy as np
 import sample
+import sample.sample
 from chromatictools import unittestmixins
-from sample import plots, utils
+from sample import plots
+from sample.utils import dsp as dsp_utils
 
 
 class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
@@ -16,9 +18,16 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def setUp(self) -> None:
     """Initialize test audio and SAMPLE model"""
     self.fs = 44100
-    self.x = utils.test_audio(fs=self.fs)
+    self.x = sample.sample.additive_synth(
+        np.arange(int(2 * self.fs)) / self.fs,
+        freqs=np.array([440, 650, 690]),
+        amps=np.array([1, .5, .45]),
+        decays=np.array([.66, .4, .35]),
+    )
     np.random.seed(42)
     self.noise = np.random.randn(*self.x.shape)
+    self.x += self.noise * dsp_utils.db2a(-60)
+    self.x /= np.max(np.abs(self.x))
     self.sample = sample.SAMPLE(
         sinusoidal_model__fs=self.fs,
         sinusoidal_model__max_n_sines=10,
@@ -32,13 +41,33 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Test that no exceptions arise from method"""
     s = copy.deepcopy(self.sample)
     with self.assert_doesnt_raise():
-      s.fit(self.x).predict(np.arange(self.x.size) / self.fs)
+      s.fit(self.x)
+      y = s.predict(np.arange(self.x.size) / self.fs)
+    self.assertAlmostEqual(np.abs(y).max(), s.amps_.sum())
 
   def test_no_exceptions_reverse(self):
     """Test that no exceptions arise from method using reverse mode"""
     s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
     with self.assert_doesnt_raise():
-      s.fit(self.x).predict(np.arange(self.x.size) / self.fs)
+      s.fit(self.x)
+      y = s.predict(np.arange(self.x.size) / self.fs)
+    self.assertAlmostEqual(np.abs(y).max(), s.amps_.sum())
+
+  def test_no_exceptions_random_phase(self):
+    """Test random phase for synthesis"""
+    s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
+    with self.assert_doesnt_raise():
+      s.fit(self.x)
+      y = s.predict(np.arange(self.x.size) / self.fs, phases="random")
+    self.assertLessEqual(np.abs(y).max(), s.amps_.sum())
+
+  def test_unsupported_option_phase(self):
+    """Test exception raising on unsupported option for phase"""
+    s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
+    with self.assert_doesnt_raise():
+      s.fit(self.x)
+    with self.assertRaises(ValueError):
+      s.predict(np.arange(self.x.size) / self.fs, phases="unsupported")
 
   def test_no_exceptions_less_modes(self):
     """Test that no exceptions arise from method

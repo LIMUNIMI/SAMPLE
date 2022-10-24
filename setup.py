@@ -25,8 +25,11 @@ setuptools.setup(
     install_requires=[
         "chromatictools",
         "numpy",
-        "scipy",
+        "paragraph",
         "scikit-learn",
+        "scikit-optimize",
+        "scipy",
+        "tqdm",
     ],
     extras_require={
         "gui": [
@@ -42,13 +45,21 @@ setuptools.setup(
             "Pillow",
         ],
         "notebooks": [
+            "ipython",
             "jupyter",
             "matplotlib",
             "librosa",
             "more-itertools",
             "requests",
         ],
+        "scripts-beatsdrop": [
+            "matplotlib",
+            "autorank",
+            "pandas",
+        ],
+        "scripts-cim22": ["matplotlib",],
         "test": [
+            "ipython",
             "cython",
             "more-itertools",
         ],

@@ -5,7 +5,7 @@ from typing import Optional, Tuple, Callable
 import numpy as np
 import throttle
 
-from sample import sample, regression
+from sample import sample, hinge
 from sample.sms import mm
 
 
@@ -112,7 +112,7 @@ class SAMPLE4GUI(sample.SAMPLE):
 
   def __init__(self,
                sinusoidal_model=SinusoidalModel4GUI(),
-               regressor=regression.HingeRegression(),
+               regressor=hinge.HingeRegression(),
                regressor_k: str = "k_",
                regressor_q: str = "q_",
                freq_reduce: Callable[[np.ndarray], float] = np.mean,

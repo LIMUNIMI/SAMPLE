@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - develop
+      - develop*
     tags:
       - 'v*.*'
   pull_request:
@@ -13,9 +13,18 @@ on:
       - develop
 
 jobs:
+  start:
+    if: ${{ !contains(github.event.head_commit.message, '[CI SKIP]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo "Starting CI graph"
+
   test:
+    needs: [start]
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         pyversion: [
           "3.6",
@@ -26,25 +35,30 @@ jobs:
         ]
     container: python:${{ matrix.pyversion }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Update PIP
-      run: pip install -U pip
+      run: python -m pip install -U pip
     - name: Install
-      run: pip install .[test,plots]
+      run: python -m pip install .[test,plots]
     - name: Test
       run: python -m unittest -v
 
   coverage:
+    needs: [start]
     runs-on: ubuntu-latest
     container: python:3.10
+    strategy:
+      fail-fast: false
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Update PIP
-      run: pip install -U pip
+      run: python -m pip install -U pip
     - name: Install
-      run: pip install .[test,cov,plots]
+      run: python -m pip install .[test,cov,plots]
     - name: Run coverage
       run: coverage run
+    - name: Combine coverage results from multiprocessing
+      run: coverage combine
     - name: Make coverage JSON
       run: coverage json
     - name: Upload coverage JSON
@@ -69,14 +83,17 @@ jobs:
         file_path: badge.svg
 
   lint:
+    needs: [start]
     runs-on: ubuntu-latest
     container: python:3.10
+    strategy:
+      fail-fast: false
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Update PIP
-      run: pip install -U pip
+      run: python -m pip install -U pip
     - name: Install
-      run: pip install .[style]
+      run: python -m pip install .[style]
     - name: Run pylint
       run: pylint -r y --exit-zero --jobs 1 --persistent=n --rcfile=pylintrc sample tests ./*.py > pylint.txt
     - name: Upload lint report
@@ -101,16 +118,19 @@ jobs:
         file_path: badge.svg
 
   sphinx:
+    needs: [start]
     runs-on: ubuntu-latest
     container: sphinxdoc/sphinx
+    strategy:
+      fail-fast: false
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         persist-credentials: false
     - name: Update PIP
-      run: pip install -U pip
+      run: python -m pip install -U pip
     - name: Install
-      run: pip install .[docs,plots]
+      run: python -m pip install .[docs,plots]
     - name: Build HTML
       run: make html
       working-directory: docs
@@ -128,15 +148,15 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.VERSION }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         persist-credentials: false
     - name: Update PIP
-      run: pip install -U pip
+      run: python -m pip install -U pip
     - name: Install
-      run: pip install .
+      run: python -m pip install .
     - name: Extract changelog
-      run: python changelog.py --output change.log
+      run: python scripts/utils/extract_changelog.py --output change.log
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -156,7 +176,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [sphinx, release-create]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         persist-credentials: false
     - name: Download artifacts
@@ -179,7 +199,7 @@ jobs:
     container: python:3.10
     needs: release-create
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build
       run: python setup.py sdist
     - name: Install Twine
@@ -203,14 +223,14 @@ jobs:
     needs: test
     runs-on: ${{ matrix.runner }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.7"
     - name: Update PIP
-      run: pip install --user -U pip
+      run: python -m pip install --user -U pip
     - name: Install
-      run: pip install .[gui,installer]
+      run: python -m pip install .[gui,installer]
     - name: Build
       run: python pyinstaller.py
     - name: Upload executable
@@ -229,7 +249,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [release-create, pyinstaller-build]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         persist-credentials: false
     - name: Download artifacts
@@ -241,9 +261,9 @@ jobs:
       with:
         python-version: "3.10"
     - name: Update PIP
-      run: pip install -U pip
+      run: python -m pip install -U pip
     - name: Install
-      run: pip install .
+      run: python -m pip install .
     - name: Set version name
       run: echo "SAMPLE_VERSION=$(python -c 'import sample; print(sample.__version__)')" >> $GITHUB_ENV
     - name: Zip executable
