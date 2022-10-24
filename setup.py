@@ -57,6 +57,7 @@ setuptools.setup(
             "autorank",
             "pandas",
         ],
+        "scripts-cim22": ["matplotlib",],
         "test": [
             "ipython",
             "cython",

@@ -36,7 +36,7 @@ def dft(
   ax = np.maximum(ax, np.finfo(float).eps, out=ax)  # avoid zeros in log
   mx = dsp_utils.a2db.floorless(ax)
 
-  x_fft[ax < tol] = complex(0)
+  x_fft[ax < tol] = complex(0)  # pylint: disable=E1137
   px = np.unwrap(np.angle(x_fft))
   return mx, px
 
