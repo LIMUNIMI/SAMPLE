@@ -66,13 +66,13 @@ https://github.com/limunimi/sample
 
 ### Notebooks
 For learning to use the package, you can refer to the interactive
-notebooks in the [notebooks](notebooks) folder
+notebooks in the [notebooks](https://github.com/limunimi/sample/blob/main/notebooks) folder
 
 ### Scripts
-In the [scripts](scripts) folder, there are Python scripts for the reproducibility of experiments
+In the [scripts](https://github.com/limunimi/sample/blob/main/scripts) folder, there are Python scripts for the reproducibility of experiments
 
 ## References
-References are available both as a [BibTeX](SAMPLE.bib) and a [CITATION.cff](CITATION.cff) file.
+References are available both as a [BibTeX](https://github.com/limunimi/sample/blob/main/SAMPLE.bib) and a [CITATION.cff](https://github.com/limunimi/sample/blob/main/CITATION.cff) file.
 
 If you use this software in your research, please, consider citing the following items
  - The SMC 2020 paper ["Spectral Analysis for Modal Parameters Linear Estimate"](https://doi.org/10.5281/zenodo.3898795)
