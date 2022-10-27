@@ -76,5 +76,4 @@ def run(*argv):
                                    kwargs=dict(reload_queue=q,))
     root.start()
     root.join()
-  q.close()
   return 0
