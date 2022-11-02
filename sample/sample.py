@@ -1,13 +1,13 @@
 """Module for using the entire SAMPLE method pipeline"""
 import copy
 import functools
-from typing import Callable, Dict, List, Optional, Sequence, Union
+import itertools
+from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from sklearn import base
 
-from sample import utils
-from sample import hinge
+from sample import hinge, utils
 from sample.sms import mm
 from sample.utils import dsp as dsp_utils
 
@@ -87,6 +87,35 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   def regressor(self, model):
     self._regressor = copy.deepcopy(model)
 
+  def _fit_track(self, x: np.ndarray,
+                 t: dict) -> Tuple[Tuple[float, float, float]]:
+    """Fit parameters for one track.
+
+    Args:
+      x (array): Audio input
+      t (dict): Track
+
+    Returns:
+      ((float, float, float),): Frequency, decay, and amplitude"""
+    # Time axis
+    notnans = np.logical_not(np.isnan(t["mag"]))
+    x_ = (t["start_frame"] + np.arange(t["mag"].size)[notnans]) * \
+          self.sinusoidal_model.h / self.sinusoidal_model.fs
+    y_mag = t["mag"][notnans]
+
+    # Reverse time axis
+    if getattr(self.sinusoidal_model, "reverse", False):
+      x_ = np.size(x) / self.sinusoidal_model.fs - x_
+
+    # Hinge regression
+    r = copy.deepcopy(self.regressor)
+    r.fit(np.reshape(x_, (-1, 1)), y_mag)
+
+    f = self.freq_reduce(t["freq"][notnans])
+    d = -40 * np.log10(np.e) / getattr(r, self.regressor_k)
+    a = 2 * dsp_utils.db2a(getattr(r, self.regressor_q))
+    return ((f, d, a),)
+
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
 
@@ -99,20 +128,10 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       SAMPLE: self"""
     self.set_params(**kwargs)
     tracks = self.sinusoidal_model.fit(x, y).tracks_
-    self.param_matrix_ = np.empty((3, len(tracks)))
-    for i, t in enumerate(tracks):
-      notnans = np.logical_not(np.isnan(t["mag"]))
-      self.param_matrix_[0, i] = self.freq_reduce(t["freq"][notnans])
-      x_ = (t["start_frame"] + np.arange(t["mag"].size)[notnans]) * \
-           self.sinusoidal_model.h / self.sinusoidal_model.fs
-      y_ = t["mag"][notnans]
-      if getattr(self.sinusoidal_model, "reverse", False):
-        x_ = np.size(x) / self.sinusoidal_model.fs - x_
-      self.regressor.fit(np.reshape(x_, (-1, 1)), y_)
-      self.param_matrix_[1, i] = \
-        -40 * np.log10(np.e) / getattr(self.regressor, self.regressor_k)
-      self.param_matrix_[2, i] = \
-        2 * dsp_utils.db2a(getattr(self.regressor, self.regressor_q))
+    self.param_matrix_ = np.array(
+        list(
+            itertools.chain.from_iterable(
+                map(functools.partial(self._fit_track, x), tracks)))).T
     self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
 
