@@ -236,6 +236,11 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.sine_tracker_cls = sine_tracker_cls
     self.save_intermediate = save_intermediate
 
+  @property
+  def frame_rate(self) -> float:
+    """Number of DFT frames per seconds"""
+    return self.fs / self.h
+
   def fit(
       self,
       x: np.ndarray,
