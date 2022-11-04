@@ -277,8 +277,8 @@ def beatsdrop_comparison(
   if fs is None:
     fs = model.sinusoidal_model.fs
 
-  track_t, track = model._preprocess_track(  # pylint: disable=W0212
-      x, model.sinusoidal_model.tracks_[track_i])
+  _, track_t, track = model._preprocess_track(  # pylint: disable=W0212
+      None, x, model.sinusoidal_model.tracks_[track_i])
   np.add(track["mag"], dsp_utils.a2db(2), out=track["mag"])
   track_a = dsp_utils.db2a(track["mag"])
 

@@ -87,8 +87,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   def regressor(self, model):
     self._regressor = copy.deepcopy(model)
 
-  def _preprocess_track(self, x: np.ndarray,
-                        t: dict) -> Tuple[np.ndarray, dict]:
+  def _preprocess_track(self, i: int, x: np.ndarray,
+                        t: dict) -> Tuple[int, np.ndarray, dict]:
     """Compute time axis and nan-filter track"""
     notnans = np.logical_not(np.isnan(t["mag"]))
     time_axis = (t["start_frame"] + np.arange(
@@ -99,13 +99,14 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     if getattr(self.sinusoidal_model, "reverse", False):
       # Reverse time axis
       time_axis = np.size(x) / self.sinusoidal_model.fs - time_axis
-    return time_axis, t_filtered
+    return i, time_axis, t_filtered
 
-  def _fit_track(self, tim: np.ndarray,
+  def _fit_track(self, i: int, tim: np.ndarray,  # pylint: disable=W0613
                  t: dict) -> Tuple[Tuple[float, float, float]]:
     """Fit parameters for one track.
 
     Args:
+      i (int): Track index
       tim (array): Time axis
       t (dict): Track
 
@@ -132,7 +133,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       SAMPLE: self"""
     self.set_params(**kwargs)
     tracks = self.sinusoidal_model.fit(x, y).tracks_
-    tracks = map(functools.partial(self._preprocess_track, x), tracks)
+    tracks = itertools.starmap(functools.partial(self._preprocess_track, x),
+                               enumerate(tracks))
     params = itertools.chain.from_iterable(
         itertools.starmap(self._fit_track, tracks))
     self.param_matrix_ = np.array(list(params)).T
