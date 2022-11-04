@@ -238,6 +238,8 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
       if a_min == a_max:
         a_max = 1.0
     else:
+      a_max = max(a_max, *p[:2])
+      a_min = min(a_min, *p[:2])
       a_d = a_max - a_min
       a_max += a_d
       a_min = max(0.0, a_min - a_d)
