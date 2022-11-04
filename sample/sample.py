@@ -87,31 +87,35 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   def regressor(self, model):
     self._regressor = copy.deepcopy(model)
 
-  def _fit_track(self, x: np.ndarray,
+  def _preprocess_track(self, x: np.ndarray,
+                        t: dict) -> Tuple[np.ndarray, dict]:
+    """Compute time axis and nan-filter track"""
+    notnans = np.logical_not(np.isnan(t["mag"]))
+    time_axis = (t["start_frame"] + np.arange(
+        t["mag"].size)[notnans]) / self.sinusoidal_model.frame_rate
+    t_filtered = {
+        k: v if k == "start_frame" else v[notnans] for k, v in t.items()
+    }
+    if getattr(self.sinusoidal_model, "reverse", False):
+      # Reverse time axis
+      time_axis = np.size(x) / self.sinusoidal_model.fs - time_axis
+    return time_axis, t_filtered
+
+  def _fit_track(self, tim: np.ndarray,
                  t: dict) -> Tuple[Tuple[float, float, float]]:
     """Fit parameters for one track.
 
     Args:
-      x (array): Audio input
+      tim (array): Time axis
       t (dict): Track
 
     Returns:
       ((float, float, float),): Frequency, decay, and amplitude"""
-    # Time axis
-    notnans = np.logical_not(np.isnan(t["mag"]))
-    x_ = (t["start_frame"] + np.arange(t["mag"].size)[notnans]) * \
-          self.sinusoidal_model.h / self.sinusoidal_model.fs
-    y_mag = t["mag"][notnans]
-
-    # Reverse time axis
-    if getattr(self.sinusoidal_model, "reverse", False):
-      x_ = np.size(x) / self.sinusoidal_model.fs - x_
-
     # Hinge regression
     r = copy.deepcopy(self.regressor)
-    r.fit(np.reshape(x_, (-1, 1)), y_mag)
+    r.fit(np.reshape(tim, (-1, 1)), t["mag"])
 
-    f = self.freq_reduce(t["freq"][notnans])
+    f = self.freq_reduce(t["freq"])
     d = -40 * np.log10(np.e) / getattr(r, self.regressor_k)
     a = 2 * dsp_utils.db2a(getattr(r, self.regressor_q))
     return ((f, d, a),)
@@ -128,10 +132,10 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       SAMPLE: self"""
     self.set_params(**kwargs)
     tracks = self.sinusoidal_model.fit(x, y).tracks_
-    self.param_matrix_ = np.array(
-        list(
-            itertools.chain.from_iterable(
-                map(functools.partial(self._fit_track, x), tracks)))).T
+    tracks = map(functools.partial(self._preprocess_track, x), tracks)
+    params = itertools.chain.from_iterable(
+        itertools.starmap(self._fit_track, tracks))
+    self.param_matrix_ = np.array(list(params)).T
     self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
 
