@@ -4,11 +4,17 @@ import unittest
 
 import numpy as np
 from chromatictools import unitdoctest, unittestmixins
-from sample.sms import dsp as sms_dsp
-from sample.utils import dsp as dsp_utils
 from scipy import signal
 
+from sample.sms import dsp as sms_dsp
+from sample.utils import dsp as dsp_utils
+from sample.utils import learn as learn_utils
 from tests import utils as test_utils
+
+
+class DocTestLearn(metaclass=unitdoctest.DocTestMeta):
+  """Doctests for :mod:`sample.utils.learn`"""
+  _modules = (learn_utils,)
 
 
 class DocTestDSP(metaclass=unitdoctest.DocTestMeta):
