@@ -1,13 +1,15 @@
 """Regression models for beats"""
+import inspect
 from typing import Any, Callable, List, Optional, Tuple
 
 import numpy as np
+from scipy import optimize
+from sklearn import base, linear_model
+
 import sample.sample
 from sample import beatsdrop, psycho, utils
 from sample.sms import dsp as sms_dsp
 from sample.utils import dsp as dsp_utils
-from scipy import optimize
-from sklearn import base, linear_model
 
 BeatModelParams = Tuple[float, float, float, float, float, float, float, float]
 BeatParamsInit = Callable[
@@ -285,6 +287,18 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     self.res_fn_ = self._residual_fn(t, a, f)
     self.initial_params_ = self._params_init(t, a, f, self.res_fn_, self)  # pylint: disable=E1102
     self.bounds_ = self._bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
+    feasible = np.logical_and(np.less(self.bounds_[0], self.initial_params_),
+                              np.less(self.initial_params_, self.bounds_[1]))
+    if not np.all(feasible):
+      nl = "\n"
+      msg = "Starting value is unfeasible" + "".join(
+          f"{nl}  {k}={x0} not between"
+          f"{nl}   {' ' * len(k)}{lb} and"
+          f"{nl}   {' ' * len(k)}{ub}" for f, k, lb, ub, x0 in zip(
+              feasible,
+              inspect.signature(beatsdrop.ModalBeat).parameters, *self.bounds_,
+              self.initial_params_) if not f)
+      raise ValueError(msg)
     self.result_ = optimize.least_squares(fun=self.res_fn_,
                                           x0=self.initial_params_,
                                           bounds=self.bounds_,
