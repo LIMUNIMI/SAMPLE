@@ -6,6 +6,7 @@ import numpy as np
 from chromatictools import unitdoctest, unittestmixins
 from scipy import signal
 
+import sample.utils
 from sample.sms import dsp as sms_dsp
 from sample.utils import dsp as dsp_utils
 from sample.utils import learn as learn_utils
@@ -20,6 +21,11 @@ class DocTestLearn(metaclass=unitdoctest.DocTestMeta):
 class DocTestDSP(metaclass=unitdoctest.DocTestMeta):
   """Doctests for :mod:`sample.utils.dsp`"""
   _modules = (dsp_utils,)
+
+
+class DocTestUtils(metaclass=unitdoctest.DocTestMeta):
+  """Doctests for :mod:`sample.utils`"""
+  _modules = (sample.utils,)
 
 
 class TestDSP(unittestmixins.SignificantPlacesAssertMixin,

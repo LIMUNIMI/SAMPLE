@@ -1,7 +1,9 @@
 """Utility functions"""
 import functools
 import inspect
-from typing import Any, Callable, Iterable, Optional, Tuple
+import warnings
+from typing import (Any, Callable, Iterable, Optional, ParamSpecArgs,
+                    ParamSpecKwargs, Tuple)
 
 import numpy as np
 import paragraph as pg
@@ -299,3 +301,103 @@ class Numpy2Paragraph:
 
 
 np2pg = Numpy2Paragraph()
+
+
+def deprecated_argument(
+    old_key: str,
+    new_key: Optional[str] = None,
+    convert: Optional[Callable[[ParamSpecArgs, ParamSpecKwargs],
+                               Tuple[str, Any]]] = None,
+    msg: Optional[str] = None,
+    warn: bool = True):
+  """Wrap a function to deprecate an argument.
+
+  Args:
+    old_key (str): Deprecated argument key
+    new_key (str): New argument key. Specify this if the
+      only action to take is to change the argument name
+    convert (callable): Function for converting the provided argument to a new
+      argument key and value. Specify this for more complex scenarios
+    msg (str): Extra indications to append to the deprecation warning
+    warn (bool): If :data:`True` (default), then issue a deprecation warning
+      when the deprecated argument is used
+
+  Example:
+    >>> from sample.utils import deprecated_argument
+    >>> # Let's say that this function used to have a argument 'n',
+    >>> # which was too generic and we decided to change the name to 'size'
+    >>> @deprecated_argument("n", "size")
+    ... def func(x: str, size: int = 1):
+    ...   return x * size
+    >>> # Positional arguments do not trigger warnings
+    >>> func("x", 5)
+    'xxxxx'
+    >>> # The 'size' argument does not trigger warnings
+    >>> func("x", size=5)
+    'xxxxx'
+    >>> # The 'n' argument triggers a warning
+    >>> func("x", n=5)
+    'xxxxx'
+    >>> # Let's say that now we want to use an argument that specifies
+    >>> # the total length of the output string
+    >>> # A message explains the difference in behaviour
+    >>> @deprecated_argument("n", "size")
+    ... @deprecated_argument(
+    ...     "size",
+    ...     convert=lambda x, size: ("length", len(x) * size),
+    ...     msg="The new 'length' argument specifies the desired total length "
+    ...     "of the string and NOT the number of repetitions")
+    ... def func(x: str, length: int = None):
+    ...   if length is None:
+    ...     return x
+    ...   return (x * (length // len(x) + 1))[:length]
+    >>> # This example gives the same output as with the old function
+    >>> func("x", length=5)
+    'xxxxx'
+    >>> # But this shows the new behaviour
+    >>> func("_-", length=5)
+    '_-_-_'
+    >>> # The keyword 'size' issues a warning but preserves the old behaviour
+    >>> func("_-", size=5)
+    '_-_-_-_-_-'
+    >>> # To deprecate an argument, we have to specify either a new key
+    >>> # or a conversion function
+    >>> try:
+    ...   @deprecated_argument("n")
+    ...   def bad(x, m=1):
+    ...     return x * m
+    ... except ValueError as e:
+    ...   print(e)
+    At least one between 'new_key' and 'convert' should not be None"""
+  if new_key is None and convert is None:
+    raise ValueError(
+        "At least one between 'new_key' and 'convert' should not be None")
+  # Turn on deprecation warnings
+  warnings.simplefilter("always", DeprecationWarning)
+
+  def deprecated_argument_(func: Callable):
+
+    @functools.wraps(func)
+    def func_(*args, **kwargs):
+      if old_key in kwargs:
+        if warn:
+          msg_ = [f"The '{old_key}' argument is deprecated", "."]
+        new_key_ = new_key
+        if convert is not None:
+          new_key_, x = convert(*args, **kwargs)
+          kwargs.pop(old_key)
+          kwargs[new_key_] = x
+        elif new_key_ is not None:
+          if warn:
+            msg_.insert(1, f", use '{new_key_}' instead")
+          kwargs[new_key_] = kwargs.pop(old_key)
+        if warn:
+          if msg is not None:
+            msg_.extend([" ", msg])
+          msg_ = "".join(msg_)
+          warnings.warn(msg_, DeprecationWarning, 2)
+      return func(*args, **kwargs)
+
+    return func_
+
+  return deprecated_argument_
