@@ -377,7 +377,25 @@ def deprecated_argument(
     ...     return x * m
     ... except ValueError as e:
     ...   print(e)
-    At least one between 'new_key' and 'convert' should not be None"""
+    At least one between 'new_key' and 'convert' should not be None
+    >>> # We can deprecate all arguments starting with the same prefix
+    >>> @deprecated_argument("array_", "", prefix=True)
+    ... def full(value, size: int = 1):
+    ...   return [value] * size
+    >>> full(3, 5)
+    [3, 3, 3, 3, 3]
+    >>> # The deprecated argument 'array_size' will be mapped to 'size'
+    >>> # and 'array_value' to 'value'
+    >>> full(array_value=3, array_size=5)
+    [3, 3, 3, 3, 3]
+    >>> # Using a prefix requires the 'new_key' argument
+    >>> try:
+    ...   @deprecated_argument("array_", prefix=True)
+    ...   def bad_full(value, size: int = 1):
+    ...     return [value] * size
+    ... except ValueError as e:
+    ...   print(e)
+    prefix=True should be used in conjuction with 'new_key'"""
   if new_key is None:
     if prefix:
       raise ValueError(
