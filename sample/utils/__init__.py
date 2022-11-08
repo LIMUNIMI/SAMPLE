@@ -303,12 +303,18 @@ class Numpy2Paragraph:
 np2pg = Numpy2Paragraph()
 
 
+class SAMPLEDeprecationWarning(DeprecationWarning):
+  """:class:`DeprecationWarning` for the SAMPLE package"""
+  pass
+
+
 def deprecated_argument(
     old_key: str,
     new_key: Optional[str] = None,
     convert: Optional[Callable[[ParamSpecArgs, ParamSpecKwargs],
                                Tuple[str, Any]]] = None,
     msg: Optional[str] = None,
+    prefix: bool = False,
     warn: bool = True):
   """Wrap a function to deprecate an argument.
 
@@ -319,6 +325,9 @@ def deprecated_argument(
     convert (callable): Function for converting the provided argument to a new
       argument key and value. Specify this for more complex scenarios
     msg (str): Extra indications to append to the deprecation warning
+    prefix (bool): If :data:`True`, then interpret :data:`old_key` and
+      :data:`new_key`, not as full names, but as prefixes to be matched.
+      This option can only be used when :data:`new_key` is specified
     warn (bool): If :data:`True` (default), then issue a deprecation warning
       when the deprecated argument is used
 
@@ -369,33 +378,50 @@ def deprecated_argument(
     ... except ValueError as e:
     ...   print(e)
     At least one between 'new_key' and 'convert' should not be None"""
-  if new_key is None and convert is None:
-    raise ValueError(
-        "At least one between 'new_key' and 'convert' should not be None")
+  if new_key is None:
+    if prefix:
+      raise ValueError(
+          "prefix=True should be used in conjuction with 'new_key'")
+    if convert is None:
+      raise ValueError(
+          "At least one between 'new_key' and 'convert' should not be None")
   # Turn on deprecation warnings
-  warnings.simplefilter("always", DeprecationWarning)
+  if warn:
+    warnings.simplefilter("always", SAMPLEDeprecationWarning)
 
   def deprecated_argument_(func: Callable):
 
     @functools.wraps(func)
     def func_(*args, **kwargs):
-      if old_key in kwargs:
-        if warn:
-          msg_ = [f"The '{old_key}' argument is deprecated", "."]
-        new_key_ = new_key
-        if convert is not None:
-          new_key_, x = convert(*args, **kwargs)
-          kwargs.pop(old_key)
-          kwargs[new_key_] = x
-        elif new_key_ is not None:
+      if prefix:
+        key_map_ = {
+            k: f"{new_key}{k[len(old_key):]}"
+            for k in kwargs
+            if k.startswith(old_key)
+        }
+      else:
+        key_map_ = {old_key: new_key}
+
+      for old_key_, new_key_ in key_map_.items():
+        if old_key_ in kwargs:
           if warn:
-            msg_.insert(1, f", use '{new_key_}' instead")
-          kwargs[new_key_] = kwargs.pop(old_key)
-        if warn:
-          if msg is not None:
-            msg_.extend([" ", msg])
-          msg_ = "".join(msg_)
-          warnings.warn(msg_, DeprecationWarning, 2)
+            msg_ = [f"The '{old_key_}' argument is deprecated", "."]
+          new_key__ = new_key_
+          if convert is not None:
+            new_key__, x = convert(*args, **kwargs)
+            kwargs.pop(old_key_)
+            kwargs[new_key__] = x
+          elif new_key__ is not None:
+            kwargs[new_key__] = kwargs.pop(old_key_)
+
+            if warn:
+              msg_.insert(1, f", use '{new_key__}' instead")
+          if warn:
+            warnings.warn(
+                f"The '{old_key_}' argument is deprecated, "
+                f"use '{new_key__}' instead."
+                f"{'' if msg is None else ' '}{'' if msg is None else msg}",
+                SAMPLEDeprecationWarning, 2)
       return func(*args, **kwargs)
 
     return func_
