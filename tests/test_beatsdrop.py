@@ -149,7 +149,7 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
     """Test BeatRegression error on short tracks"""
     br = beatsdrop.regression.BeatRegression()
     with self.assertRaises(ValueError):
-      br._bounds(self.track_t[:1], None, None, None, None)  # pylint: disable=E1102,W0212
+      br.bounds(self.track_t[:1], None, None, None, None)
 
   def test_feasibility_error(self):
     """Test BeatRegression error on unfeasible problems"""
@@ -167,9 +167,8 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
   def test_amp_range_no_error(self):
     """Test that constant tracks don't cause errors"""
     br = beatsdrop.regression.BeatRegression()
-    b = br._bounds(  # pylint: disable=E1102,W0212
-        self.track_t, np.full_like(self.track_a, -np.inf), self.track_f,
-        tuple(range(8)), br)
+    b = br.bounds(self.track_t, np.full_like(self.track_a, -np.inf),
+                  self.track_f, tuple(range(8)), br)
     for (k, v, bk), i in itertools.product(zip(("lower", "upper"), range(2), b),
                                            range(2)):
       with self.subTest(bound=k, partial=i):

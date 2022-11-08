@@ -7,9 +7,13 @@ from scipy import optimize
 from sklearn import base, linear_model
 
 import sample.sample
-from sample import beatsdrop, psycho, utils
+import sample.utils
+import sample.utils.dsp
+import sample.utils.learn
+from sample import beatsdrop, psycho
 from sample.sms import dsp as sms_dsp
-from sample.utils import dsp as dsp_utils
+
+utils = sample.utils
 
 BeatModelParams = Tuple[float, float, float, float, float, float, float, float]
 BeatParamsInit = Callable[
@@ -134,7 +138,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     t_max = np.max(t)
     u = np.arange(np.ceil(t_max * self.fs).astype(int), dtype=float)
     np.true_divide(u, self.fs, out=u)
-    a_lin = dsp_utils.db2a(a)
+    a_lin = utils.dsp.db2a(a)
 
     def _residual_fn_(beat_args: BeatModelParams) -> np.ndarray:
       a_est = np.interp(t, u, beatsdrop.ModalBeat(*beat_args).am(u))
@@ -151,6 +155,14 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
   def q_(self) -> float:
     """Linear regression intercept"""
     return np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q))
+
+  @utils.learn.default_property
+  def params_init(self):
+    return self._default_params_init
+
+  @utils.learn.default_property
+  def bounds(self):
+    return self._default_bounds
 
   @staticmethod
   def _default_params_init(
@@ -172,14 +184,14 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
       (float, float, float, float, float, float, float, float): Starting
       values for nonlinear least squares for a0, a1, f0, f1, d0, d1, p0,
       and p1"""
-    a_dt = dsp_utils.db2a(dsp_utils.detrend(a, t, model=model.linear_regressor))
-    corr = dsp_utils.lombscargle_autocorrelogram(t,
+    a_dt = utils.dsp.db2a(utils.dsp.detrend(a, t, model=model.linear_regressor))
+    corr = utils.dsp.lombscargle_autocorrelogram(t,
                                                  a_dt,
                                                  fs=model.fs,
                                                  lpf=model.lpf)
 
     # Amplitudes
-    a0 = a1 = dsp_utils.db2a(model.q_) / 2
+    a0 = a1 = utils.dsp.db2a(model.q_) / 2
     # Frequencies
     carrier_freq = np.mean(f)
     am_freq, _ = sms_dsp.peak_detect_interp(corr)
@@ -192,19 +204,10 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     # without loss of generality, consider p0 = 0
     p_hat = np.mod(
         np.angle(
-            np.dot(dsp_utils.db2a(a), dsp_utils.expi(-4 * np.pi * am_freq * t)))
+            np.dot(utils.dsp.db2a(a), utils.dsp.expi(-4 * np.pi * am_freq * t)))
         / 2, np.pi)
 
     return a0, a1, f0, f1, d0, d1, 0.0, -2 * p_hat
-
-  @property
-  def _params_init(self) -> BeatParamsInit:
-    """Parameters initializer
-
-    Returns:
-      User-provided function if given, otherwise
-        :meth:`_default_params_init`"""
-    return _get_notnone_attr(self, "params_init", "_default_params_init")
 
   @staticmethod
   def _default_bounds(
@@ -230,7 +233,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
       raise ValueError(f"Got a track of length={len(t)}. "
                        "Consider increasing the minimum sine length")
     # Amplitude bounds
-    a_lin = dsp_utils.db2a(a)
+    a_lin = utils.dsp.db2a(a)
     a_min = np.min(a_lin)
     a_max = np.max(a_lin)
     if a_min == a_max:
@@ -257,15 +260,6 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     bounds_max = (a_max, a_max, f_max, f_max, 100., 100., np.pi, p[-1] + np.pi)
     return bounds_min, bounds_max
 
-  @property
-  def _bounds(self) -> BeatBoundsFunc:
-    """Boundary function
-
-    Returns:
-      User-provided function if given, otherwise
-        :meth:`_default_bounds`"""
-    return _get_notnone_attr(self, "bounds", "_default_bounds")
-
   def fit(self,
           t: np.ndarray,
           a: np.ndarray,
@@ -287,8 +281,8 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     if self.linear_regressor is None:
       self.linear_regressor = linear_model.LinearRegression()
     self.res_fn_ = self._residual_fn(t, a, f)
-    self.initial_params_ = self._params_init(t, a, f, self.res_fn_, self)  # pylint: disable=E1102
-    self.bounds_ = self._bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
+    self.initial_params_ = self.params_init(t, a, f, self.res_fn_, self)  # pylint: disable=E1102
+    self.bounds_ = self.bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
     feasible = np.logical_and(np.less(self.bounds_[0], self.initial_params_),
                               np.less(self.initial_params_, self.bounds_[1]))
     if not np.all(feasible):
@@ -395,6 +389,14 @@ class DualBeatRegression(BeatRegression):
     self.freq_w = freq_w
     self.disambiguate = disambiguate
 
+  @utils.learn.default_property
+  def freq_loss(self):
+    return self._default_freq_loss
+
+  @utils.learn.default_property
+  def amp_loss(self):
+    return self._default_amp_loss
+
   @staticmethod
   def _default_freq_loss(f_true: np.ndarray, f_est: np.ndarray) -> np.ndarray:
     """Default frequency loss function (Mel difference)
@@ -406,15 +408,6 @@ class DualBeatRegression(BeatRegression):
     Returns:
       array: Frequency differences on the Mel scale"""
     return np.subtract(*list(map(psycho.hz2mel, (f_true, f_est))))
-
-  @property
-  def _freq_loss(self) -> BeatLossFunction:
-    """Frequency loss function
-
-    Returns:
-      User-provided function if given, otherwise
-        :meth:`_default_freq_loss`"""
-    return _get_notnone_attr(self, "freq_loss", "_default_freq_loss")
 
   @staticmethod
   def _default_amp_loss(a_true: np.ndarray, a_est: np.ndarray) -> np.ndarray:
@@ -428,15 +421,6 @@ class DualBeatRegression(BeatRegression):
       array: Amplitude differences"""
     return np.subtract(a_true, a_est)
 
-  @property
-  def _amp_loss(self) -> BeatLossFunction:
-    """Amplitude loss function
-
-    Returns:
-      User-provided function if given, otherwise
-        :meth:`_default_amp_loss`"""
-    return _get_notnone_attr(self, "amp_loss", "_default_amp_loss")
-
   def _residual_fn(self, t: np.ndarray, a: np.ndarray,
                    f: np.ndarray) -> BeatResidualFunc:
     """Residual function for the provided data
@@ -449,15 +433,15 @@ class DualBeatRegression(BeatRegression):
     Returns:
       callable: Residual function"""
     # Time axis for model integration
-    a_lin = dsp_utils.db2a(a)
+    a_lin = utils.dsp.db2a(a)
     f_abs = np.abs(f)
 
     def _residual_fn_(beat_args: BeatModelParams) -> np.ndarray:
       a_est, f_est = beatsdrop.ModalBeat(*beat_args).compute(t, ("am", "fm"))
-      a_loss = self._amp_loss(a_lin, a_est)
+      a_loss = self.amp_loss(a_lin, a_est)
       np.true_divide(f_est, 2 * np.pi, out=f_est)
       np.abs(f_est, out=f_est)
-      f_loss = self._freq_loss(f_abs, f_est)
+      f_loss = self.freq_loss(f_abs, f_est)
       np.multiply(self.freq_w, f_loss, out=f_loss)
       return np.reshape([a_loss, f_loss], newshape=(-1,))
 
