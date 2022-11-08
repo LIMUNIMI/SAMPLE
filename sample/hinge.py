@@ -122,12 +122,8 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     return a, k, q
 
   @staticmethod
-  def _default_bounds(
-      x: np.ndarray,
-      y: np.ndarray,
-      k: float,
-      q: float  # pylint: disable=W0613
-  ) -> Tuple[HingeCoeffs, HingeCoeffs]:
+  def _default_bounds(x: np.ndarray, y: np.ndarray, k: float,
+                      q: float) -> Tuple[HingeCoeffs, HingeCoeffs]:
     """Default boundaries
 
     Args:

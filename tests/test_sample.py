@@ -108,7 +108,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Test tracker reset"""
     s = base.clone(self.sample).fit(self.x)
     with self.subTest(step="chek state is non-empty", var="tracks"):
-      self.assertNotEqual(len(s.sinusoidal.tracker.tracks_), 0)  # pylint: disable=W0212
+      self.assertNotEqual(len(s.sinusoidal.tracker.tracks_), 0)
     with self.subTest(step="chek state is non-empty", var="_active_tracks"):
       self.assertNotEqual(
           len(s.sinusoidal.tracker._active_tracks),  # pylint: disable=W0212
@@ -117,7 +117,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
       self.assertNotEqual(s.sinusoidal.tracker._frame, 0)  # pylint: disable=W0212
     s.sinusoidal.tracker.reset()
     with self.subTest(step="chek state is reset", var="tracks"):
-      self.assertEqual(len(s.sinusoidal.tracker.tracks_), 0)  # pylint: disable=W0212
+      self.assertEqual(len(s.sinusoidal.tracker.tracks_), 0)
     with self.subTest(step="chek state is reset", var="_active_tracks"):
       self.assertEqual(len(s.sinusoidal.tracker._active_tracks), 0)  # pylint: disable=W0212
     with self.subTest(step="chek state is reset", var="_frame"):

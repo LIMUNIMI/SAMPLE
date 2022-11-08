@@ -281,8 +281,8 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     if self.linear_regressor is None:
       self.linear_regressor = linear_model.LinearRegression()
     self.res_fn_ = self._residual_fn(t, a, f)
-    self.initial_params_ = self.params_init(t, a, f, self.res_fn_, self)  # pylint: disable=E1102
-    self.bounds_ = self.bounds(t, a, f, self.initial_params_, self)  # pylint: disable=E1102
+    self.initial_params_ = self.params_init(t, a, f, self.res_fn_, self)
+    self.bounds_ = self.bounds(t, a, f, self.initial_params_, self)
     feasible = np.logical_and(np.less(self.bounds_[0], self.initial_params_),
                               np.less(self.initial_params_, self.bounds_[1]))
     if not np.all(feasible):
