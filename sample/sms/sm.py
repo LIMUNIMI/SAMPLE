@@ -51,7 +51,7 @@ class SineTracker(base.BaseEstimator):
 
   def __init__(self,
                max_n_sines: int = 100,
-               min_sine_dur: int = 1,
+               min_sine_dur: int = 2,
                freq_dev_offset: float = 20,
                freq_dev_slope: float = 0.01,
                **kwargs):
