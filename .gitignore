@@ -36,6 +36,7 @@ sms
 
 # Coverage
 .coverage
+.coverage.*
 htmlcov
 
 # Pyinstaller
