@@ -5,9 +5,11 @@ import json
 import unittest
 
 import numpy as np
+from chromatictools import unittestmixins
+from sklearn import base
+
 import sample
 import sample.sample
-from chromatictools import unittestmixins
 from sample import plots
 from sample.utils import dsp as dsp_utils
 
@@ -29,17 +31,15 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     self.x += self.noise * dsp_utils.db2a(-60)
     self.x /= np.max(np.abs(self.x))
     self.sample = sample.SAMPLE(
-        sinusoidal_model__fs=self.fs,
-        sinusoidal_model__max_n_sines=10,
-        sinusoidal_model__peak_threshold=-30,
+        sinusoidal__fs=self.fs,
+        sinusoidal__tracker__max_n_sines=10,
+        sinusoidal__tracker__peak_threshold=-30,
     )
-    # import code
-    # code.interact(local=dict(**locals(), **globals()))
     self.st = self.sample.sinusoidal.tracker
 
   def test_no_exceptions(self):
     """Test that no exceptions arise from method"""
-    s = copy.deepcopy(self.sample)
+    s = base.clone(self.sample)
     with self.assert_doesnt_raise():
       s.fit(self.x)
       y = s.predict(np.arange(self.x.size) / self.fs)
@@ -47,7 +47,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_no_exceptions_reverse(self):
     """Test that no exceptions arise from method using reverse mode"""
-    s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
+    s = base.clone(self.sample).set_params(sinusoidal__tracker__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)
       y = s.predict(np.arange(self.x.size) / self.fs)
@@ -55,7 +55,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_no_exceptions_random_phase(self):
     """Test random phase for synthesis"""
-    s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
+    s = base.clone(self.sample).set_params(sinusoidal__tracker__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)
       y = s.predict(np.arange(self.x.size) / self.fs, phases="random")
@@ -63,7 +63,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_unsupported_option_phase(self):
     """Test exception raising on unsupported option for phase"""
-    s = copy.deepcopy(self.sample).set_params(sinusoidal_model__reverse=True)
+    s = base.clone(self.sample).set_params(sinusoidal__tracker__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)
     with self.assertRaises(ValueError):
@@ -72,8 +72,8 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_no_exceptions_less_modes(self):
     """Test that no exceptions arise from method
     using a reduced number of modes"""
-    s = copy.deepcopy(self.sample).set_params(
-        sinusoidal_model__reverse=True,
+    s = base.clone(self.sample).set_params(
+        sinusoidal__tracker__reverse=True,
         max_n_modes=4,
     )
     with self.assert_doesnt_raise():
@@ -94,23 +94,19 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_dur_too_short(self):
     """Test that errors occur for too short sine durations"""
-    s = copy.deepcopy(self.sample).set_params(
-        sinusoidal_model__min_sine_dur=1e-6,)
+    s = base.clone(self.sample).set_params(sinusoidal__tracker__min_sine_dur=0)
     with self.assertRaises(ValueError):
       s.fit(self.noise)
 
   def test_no_exceptions_safe_len(self):
     """Test no errors occur with safe length parameter"""
-    s = copy.deepcopy(self.sample).set_params(
-        sinusoidal_model__min_sine_dur=1e-6,
-        sinusoidal_model__safe_sine_len=2,
-    )
+    s = base.clone(self.sample).set_params(sinusoidal__tracker__min_sine_dur=2)
     with self.assert_doesnt_raise():
       s.fit(self.noise)
 
   def test_tracker_reset(self):
     """Test tracker reset"""
-    s = copy.deepcopy(self.sample).fit(self.x)
+    s = base.clone(self.sample).fit(self.x)
     with self.subTest(step="chek state is non-empty", var="tracks"):
       self.assertNotEqual(len(s.sinusoidal.tracker.tracks_), 0)  # pylint: disable=W0212
     with self.subTest(step="chek state is non-empty", var="_active_tracks"):
@@ -129,48 +125,50 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_refit_deletes_intermediate(self):
     """Test intermediate results reset"""
-    s = copy.deepcopy(self.sample).set_params(
-        sinusoidal_model__save_intermediate=True).fit(self.x)
+    s = base.clone(
+        self.sample).set_params(sinusoidal__save_intermediate=True).fit(self.x)
     with self.subTest(step="interediate_saved"):
       self.assertTrue(hasattr(s.sinusoidal, "intermediate_"))
-    s.set_params(sinusoidal_model__save_intermediate=False).fit(self.x)
+    s.set_params(sinusoidal__save_intermediate=False).fit(self.x)
     with self.subTest(step="interediate_reset"):
       self.assertFalse(hasattr(s.sinusoidal, "intermediate_"))
 
   def test_merge_strategy_raises(self):
     """Test that an unsupported merging strategy causes an Exception"""
-    s = copy.deepcopy(self.sample)
+    s = base.clone(self.sample)
     s.set_params(
-        sinusoidal_model__merge_strategy="unsupported merging strategy")
+        sinusoidal__tracker__merge_strategy="unsupported merging strategy")
     with self.assertRaises(KeyError):
       s.fit(self.x)
 
   def test_single_merge_strategy(self):
     """Test :data:`"single"` merging strategy"""
-    s = copy.deepcopy(self.sample)
-    s.set_params(sinusoidal_model__merge_strategy="single")
+    s = base.clone(self.sample)
+    s.set_params(sinusoidal__tracker__merge_strategy="single")
     with self.assert_doesnt_raise():
       s.fit(self.x)
 
   def test_strip(self):
     """Test stripping tracks"""
-    s = copy.deepcopy(self.sample)
-    s.set_params(sinusoidal_model__strip_t=0.01)
+    s = base.clone(self.sample)
+    s.set_params(sinusoidal__tracker__strip_n=int(0.01 *
+                                                  s.sinusoidal.frame_rate))
     with self.assert_doesnt_raise():
       s.fit(self.x)
 
   def test_strip_reverse(self):
     """Test stripping tracks in reverse mode"""
-    s = copy.deepcopy(self.sample)
-    s.set_params(sinusoidal_model__strip_t=0.01, sinusoidal_model__reverse=True)
+    s = base.clone(self.sample)
+    s.set_params(sinusoidal__tracker__strip_n=int(0.01 *
+                                                  s.sinusoidal.frame_rate),
+                 sinusoidal__tracker__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)
 
   def test_freqs_modification(self):
     """Test that frequencies can be effectively manipulated post-fit"""
-    s = copy.deepcopy(self.sample)
-    s.fit(self.x)
-    t = copy.deepcopy(s)
+    s = base.clone(self.sample).fit(self.x)
+    t = base.clone(s).fit(self.x)
     k = 1.2
     t.freqs_ *= k
     for i, (f_s, f_t) in enumerate(zip(s.freqs_, t.freqs_)):
@@ -202,8 +200,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_plot_2d(self):
     """Test 2D plot"""
     for r, s in itertools.product(*itertools.tee(map(bool, range(2)), 2)):
-      kw = dict(sinusoidal_model__reverse=r,
-                sinusoidal_model__save_intermediate=s)
+      kw = dict(sinusoidal__tracker__reverse=r, sinusoidal__save_intermediate=s)
       with self.subTest(**kw):
         m = copy.deepcopy(self.sample)
         m.set_params(**kw)
