@@ -44,13 +44,13 @@ def sample_kwargs_remapper(sinusoidal_model__log_n: Optional[int] = None,
   # Window from name and size
   if "sinusoidal_model__w" not in kwargs:
     wsize = int(
-        sample.SAMPLE(**kwargs).get_params()["sinusoidal_model__n"] *
+        sample.SAMPLE(**kwargs).get_params()["sinusoidal__n"] *
         sinusoidal_model__wsize)
     kwargs["sinusoidal_model__w"] = signal.get_window(
         window=sinusoidal_model__wtype, Nx=wsize)
   # Hop-size from overlap and window size
   if "sinusoidal_model__h" not in kwargs:
-    wsize = np.size(sample.SAMPLE(**kwargs).get_params()["sinusoidal_model__w"])
+    wsize = np.size(sample.SAMPLE(**kwargs).get_params()["sinusoidal__w"])
     hopsize = int((1 - sinusoidal_model__overlap) * wsize)
     hopsize = max(min(hopsize, wsize), 1)
     kwargs["sinusoidal_model__h"] = hopsize

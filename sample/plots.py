@@ -3,7 +3,6 @@
 This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
-import copy
 import itertools
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
@@ -13,6 +12,7 @@ from matplotlib import pyplot as plt
 from mpl_toolkits import mplot3d  # pylint: disable=W0611
 from mpl_toolkits.mplot3d import axes3d  # pylint: disable=W0611
 from scipy import signal
+from sklearn import base
 
 from sample.beatsdrop import regression as beatsdrop_regression
 from sample.sample import SAMPLE
@@ -33,15 +33,16 @@ def sine_tracking_2d(m: sm.SinusoidalModel, ax=None):
   if ax is None:
     _, ax = plt.subplots(1, 2, sharex=True)
   tmax = 0
-  if m.reverse:
+  reverse = getattr(m.tracker, "reverse", False)
+  if reverse:
     if m.save_intermediate:
       tmax = len(m.intermediate_["stft"]) * m.h / m.fs
     else:
       tmax = max((track["start_frame"] + track["freq"].size) * m.h / m.fs
-                 for track in m.sine_tracker_.all_tracks_)
-  for track in m.sine_tracker_.all_tracks_:
+                 for track in m.tracker.all_tracks_)
+  for track in m.tracker.all_tracks_:
     t_x = (track["start_frame"] + np.arange(track["freq"].size)) * m.h / m.fs
-    if m.reverse:
+    if reverse:
       t_x = tmax - t_x
     ax[0].plot(t_x, track["freq"])
     ax[1].plot(t_x, track["mag"])
@@ -70,7 +71,7 @@ def sine_tracking_3d(m: sm.SinusoidalModel, ax=None):
     The 3D axis"""
   if ax is None:
     ax = plt.axes(projection="3d")
-  for track in m.sine_tracker_.all_tracks_:
+  for track in m.tracker.all_tracks_:
     t_x = (track["start_frame"] + np.arange(track["freq"].size)) * m.h / m.fs
     ax.plot(t_x, track["freq"], track["mag"])
 
@@ -190,7 +191,7 @@ def resynthesis(x: np.ndarray,
     models = {}
   n_models = len(models)
   if fs is None:
-    fs = max((m.sinusoidal_model.fs for m in models.values()), default=44100)
+    fs = max((m.sinusoidal.fs for m in models.values()), default=44100)
   # Define figure
   if axs is None:
     if fig is None:
@@ -275,16 +276,16 @@ def beatsdrop_comparison(
       fig = axs[0][0].get_figure()
 
   if fs is None:
-    fs = model.sinusoidal_model.fs
+    fs = model.sinusoidal.fs
 
   _, track_t, track = model._preprocess_track(  # pylint: disable=W0212
-      None, x, model.sinusoidal_model.tracks_[track_i])
+      None, x, model.sinusoidal.tracks_[track_i])
   np.add(track["mag"], dsp_utils.a2db(2), out=track["mag"])
   track_a = dsp_utils.db2a(track["mag"])
 
   # Apply both variants of regression
   beatsdrops = {
-      k: copy.deepcopy(v).fit(t=track_t, a=track["mag"], f=track["freq"])
+      k: base.clone(v).fit(t=track_t, a=track["mag"], f=track["freq"])
       for k, v in beatsdrops.items()
   }
   for i, (k, b) in enumerate(beatsdrops.items()):

@@ -1,12 +1,14 @@
 """Hinge functions and regression models"""
-import copy
 from typing import Callable, Optional, Tuple
 
 import numpy as np
 from scipy import optimize
 from sklearn import base, linear_model
 
-from sample import utils
+import sample.utils
+import sample.utils.learn
+
+utils = sample.utils
 
 
 @utils.numpy_out
@@ -73,12 +75,12 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
 
   def __init__(
       self,
-      linear_regressor=linear_model.LinearRegression(),
+      linear_regressor=None,
       linear_regressor_k: str = "coef_",
       linear_regressor_q: str = "intercept_",
       method: str = "dogbox",
-      coeffs_init: Optional[HingeCoeffsInit] = None,
-      bounds: Optional[HingeBoundsFunc] = None,
+      coeffs_init: HingeCoeffsInit = None,
+      bounds: HingeBoundsFunc = None,
   ):
     self.linear_regressor = linear_regressor
     self.linear_regressor_k = linear_regressor_k
@@ -87,13 +89,17 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     self.coeffs_init = coeffs_init
     self.bounds = bounds
 
-  @property
+  @utils.learn.default_property
   def linear_regressor(self):
-    return self._linear_regressor
+    return linear_model.LinearRegression()
 
-  @linear_regressor.setter
-  def linear_regressor(self, model):
-    self._linear_regressor = copy.deepcopy(model)
+  @utils.learn.default_property
+  def coeffs_init(self):
+    return self._default_coeffs_init
+
+  @utils.learn.default_property
+  def bounds(self):
+    return self._default_bounds
 
   @staticmethod
   def _default_coeffs_init(
@@ -115,19 +121,8 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     a = (np.min(x) + np.max(x)) / 2
     return a, k, q
 
-  @property
-  def _coeffs_init(self) -> HingeCoeffsInit:
-    """Coefficient initializer
-
-    Returns:
-      User-provided function if given, otherwise
-        :meth:`_default_coeffs_init`"""
-    if self.coeffs_init is None:
-      return self._default_coeffs_init
-    return self.coeffs_init
-
+  @staticmethod
   def _default_bounds(
-      self,
       x: np.ndarray,
       y: np.ndarray,
       k: float,
@@ -169,17 +164,6 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
       k_max = k if k < 0 else 8 * k
 
     return ((a_min, k_min, q_min), (a_max, k_max, q_max))
-
-  @property
-  def _bounds(self) -> HingeBoundsFunc:
-    """Boundary function
-
-    Returns:
-      User-provided function if given, otherwise
-        :meth:`_default_bounds`"""
-    if self.bounds is None:
-      return self._default_bounds
-    return self.bounds
 
   def predict(self, x: np.ndarray):
     """Evaluate learned hinge function
@@ -238,15 +222,14 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
     self.linear_regressor.fit(x, y)
     lin_k = np.squeeze(getattr(self.linear_regressor, self.linear_regressor_k))
     lin_q = np.squeeze(getattr(self.linear_regressor, self.linear_regressor_q))
-    # pylint: disable=E1102 (false positive)
-    self.coeffs_ = self._coeffs_init(x, y, lin_k, lin_q)
+    self.coeffs_ = self.coeffs_init(x, y, lin_k, lin_q)
 
-    self.result_ = optimize.least_squares(
-        fun=self._residual(x, y),
-        x0=self.coeffs_,
-        bounds=self._bounds(x, y, lin_k, lin_q),  # pylint: disable=E1102 (false positive)
-        method=self.method,
-        **kwargs)
+    self.result_ = optimize.least_squares(fun=self._residual(x, y),
+                                          x0=self.coeffs_,
+                                          bounds=self.bounds(
+                                              x, y, lin_k, lin_q),
+                                          method=self.method,
+                                          **kwargs)
     self.coeffs_ = self.result_.x
 
     return self

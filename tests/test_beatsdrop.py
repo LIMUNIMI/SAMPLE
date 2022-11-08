@@ -129,10 +129,11 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
         sinusoidal_model__t=-90,
         sinusoidal_model__save_intermediate=True,
         sinusoidal_model__peak_threshold=-45,
+        sinusoidal_model__safe_sine_len=2,
     ).fit(self.x, sinusoidal_model__fs=self.fs)
-    track = model.sinusoidal_model.tracks_[0]
+    track = model.sinusoidal.tracks_[0]
     self.track_t = np.arange(len(
-        track["mag"])) * model.sinusoidal_model.h / model.sinusoidal_model.fs
+        track["mag"])) * model.sinusoidal.h / model.sinusoidal.fs
     self.track_a = np.flip(track["mag"]) + 6
     self.track_f = np.flip(track["freq"])
 

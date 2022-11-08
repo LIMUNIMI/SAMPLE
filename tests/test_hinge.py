@@ -34,22 +34,22 @@ def noisy_hinge(
 
 
 class TestClass(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
-  """"Test some regressor class techincal functions"""
+  """"Test some regressor class technical functions"""
 
   def test_coeffs_init(self):
-    """Check that non-defult coeffs_init is used"""
+    """Check that non-default coeffs_init is used"""
     x = object()
     self.assertIs(
         hinge.HingeRegression(  # pylint: disable=W0212
-            coeffs_init=x)._coeffs_init,
+            coeffs_init=x).coeffs_init,
         x)
 
   def test_bounds(self):
-    """Check that non-defult bounds is used"""
+    """Check that non-default bounds is used"""
     x = object()
     self.assertIs(
         hinge.HingeRegression(  # pylint: disable=W0212
-            bounds=x)._bounds,
+            bounds=x).bounds,
         x)
 
   def test_bounds_len1(self):

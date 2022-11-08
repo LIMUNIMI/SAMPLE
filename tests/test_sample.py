@@ -33,9 +33,9 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
         sinusoidal_model__max_n_sines=10,
         sinusoidal_model__peak_threshold=-30,
     )
-    stc = self.sample.get_params()["sinusoidal_model__sine_tracker_cls"]
-    stk = self.sample.sinusoidal_model.sine_tracker_kwargs
-    self.st = stc(**stk)
+    # import code
+    # code.interact(local=dict(**locals(), **globals()))
+    self.st = self.sample.sinusoidal.tracker
 
   def test_no_exceptions(self):
     """Test that no exceptions arise from method"""
@@ -112,30 +112,30 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Test tracker reset"""
     s = copy.deepcopy(self.sample).fit(self.x)
     with self.subTest(step="chek state is non-empty", var="tracks"):
-      self.assertNotEqual(len(s.sinusoidal_model.sine_tracker_.tracks_), 0)  # pylint: disable=W0212
+      self.assertNotEqual(len(s.sinusoidal.tracker.tracks_), 0)  # pylint: disable=W0212
     with self.subTest(step="chek state is non-empty", var="_active_tracks"):
       self.assertNotEqual(
-          len(s.sinusoidal_model.sine_tracker_._active_tracks),  # pylint: disable=W0212
+          len(s.sinusoidal.tracker._active_tracks),  # pylint: disable=W0212
           0)
     with self.subTest(step="chek state is non-empty", var="_frame"):
-      self.assertNotEqual(s.sinusoidal_model.sine_tracker_._frame, 0)  # pylint: disable=W0212
-    s.sinusoidal_model.sine_tracker_.reset()
+      self.assertNotEqual(s.sinusoidal.tracker._frame, 0)  # pylint: disable=W0212
+    s.sinusoidal.tracker.reset()
     with self.subTest(step="chek state is reset", var="tracks"):
-      self.assertEqual(len(s.sinusoidal_model.sine_tracker_.tracks_), 0)  # pylint: disable=W0212
+      self.assertEqual(len(s.sinusoidal.tracker.tracks_), 0)  # pylint: disable=W0212
     with self.subTest(step="chek state is reset", var="_active_tracks"):
-      self.assertEqual(len(s.sinusoidal_model.sine_tracker_._active_tracks), 0)  # pylint: disable=W0212
+      self.assertEqual(len(s.sinusoidal.tracker._active_tracks), 0)  # pylint: disable=W0212
     with self.subTest(step="chek state is reset", var="_frame"):
-      self.assertEqual(s.sinusoidal_model.sine_tracker_._frame, 0)  # pylint: disable=W0212
+      self.assertEqual(s.sinusoidal.tracker._frame, 0)  # pylint: disable=W0212
 
   def test_refit_deletes_intermediate(self):
     """Test intermediate results reset"""
     s = copy.deepcopy(self.sample).set_params(
         sinusoidal_model__save_intermediate=True).fit(self.x)
     with self.subTest(step="interediate_saved"):
-      self.assertTrue(hasattr(s.sinusoidal_model, "intermediate_"))
+      self.assertTrue(hasattr(s.sinusoidal, "intermediate_"))
     s.set_params(sinusoidal_model__save_intermediate=False).fit(self.x)
     with self.subTest(step="interediate_reset"):
-      self.assertFalse(hasattr(s.sinusoidal_model, "intermediate_"))
+      self.assertFalse(hasattr(s.sinusoidal, "intermediate_"))
 
   def test_merge_strategy_raises(self):
     """Test that an unsupported merging strategy causes an Exception"""
@@ -209,11 +209,11 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
         m.set_params(**kw)
         m.fit(self.x)
         with self.assert_doesnt_raise():
-          plots.sine_tracking_2d(m.sinusoidal_model)
+          plots.sine_tracking_2d(m.sinusoidal)
           plots.plt.clf()
 
   def test_plot_3d(self):
     """Test 3D plot"""
     s = copy.deepcopy(self.sample).fit(self.x)
     with self.assert_doesnt_raise():
-      plots.sine_tracking_3d(s.sinusoidal_model)
+      plots.sine_tracking_3d(s.sinusoidal)
