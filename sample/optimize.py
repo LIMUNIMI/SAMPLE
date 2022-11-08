@@ -1,6 +1,7 @@
 """Automatic optimization of SAMPLE hyperparameters"""
 import collections
 import functools
+import warnings
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
@@ -148,12 +149,15 @@ class SAMPLEOptimizer:
       x: np.ndarray,
       fs: float = 44100,
       state: Optional[scipy.optimize.OptimizeResult] = None,
+      ignore_warnings: bool = True,
       **kwargs) -> Tuple[sample.SAMPLE, scipy.optimize.OptimizeResult]:
     """Use :func:`skopt.gp_minimize` to tune the hyperparameters
 
     Args:
       x (array): Audio samples
       fs (float): Sample rate
+      ignore_warnings (bool): If :data:`True` (default), then ignore warnings
+        while optimizing
       **kwargs: Keyword arguments for :func:`skopt.gp_minimize`
 
     Returns:
@@ -161,8 +165,11 @@ class SAMPLEOptimizer:
     if state is not None and "x0" not in kwargs and "y0" not in kwargs:
       kwargs["x0"] = state.x_iters
       kwargs["y0"] = state.func_vals
-    res = skopt.gp_minimize(self.loss(x, fs), self.dimensions.values(),
-                            **kwargs)
+    with warnings.catch_warnings():
+      if ignore_warnings:
+        warnings.simplefilter("ignore")
+      res = skopt.gp_minimize(self.loss(x, fs), self.dimensions.values(),
+                              **kwargs)
     model = self.sample_fn(
         **self._kwargs(*res.x, sinusoidal_model__fs=fs, **self.sample_kw))
     model.fit(x)
