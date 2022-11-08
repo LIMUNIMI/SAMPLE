@@ -151,6 +151,13 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
     with self.assertRaises(ValueError):
       br._bounds(self.track_t[:1], None, None, None, None)  # pylint: disable=E1102,W0212
 
+  def test_feasibility_error(self):
+    """Test BeatRegression error on unfeasible problems"""
+    br = beatsdrop.regression.BeatRegression(bounds=lambda t, a, f, p, m: (
+        (p[0] + 1, p[1] - 2, *p[2:]), (p[0] + 2, p[1] - 1, *p[2:])))
+    with self.assertRaises(ValueError):
+      br.fit(t=self.track_t, a=self.track_a, f=self.track_f)
+
   def test_prediction_length(self):
     """Test BeatRegression prediction array length"""
     br = beatsdrop.regression.BeatRegression()
