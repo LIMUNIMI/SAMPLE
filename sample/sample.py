@@ -101,8 +101,11 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       time_axis = np.size(x) / self.sinusoidal_model.fs - time_axis
     return i, time_axis, t_filtered
 
-  def _fit_track(self, i: int, tim: np.ndarray,  # pylint: disable=W0613
-                 t: dict) -> Tuple[Tuple[float, float, float]]:
+  def _fit_track(
+      self,
+      i: int,
+      tim: np.ndarray,  # pylint: disable=W0613
+      t: dict) -> Tuple[Tuple[float, float, float]]:
     """Fit parameters for one track.
 
     Args:
@@ -133,11 +136,14 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       SAMPLE: self"""
     self.set_params(**kwargs)
     tracks = self.sinusoidal_model.fit(x, y).tracks_
-    tracks = itertools.starmap(functools.partial(self._preprocess_track, x),
-                               enumerate(tracks))
+    tracks = itertools.starmap(
+        self._preprocess_track, map(lambda t: (t[0], x, t[1]),
+                                    enumerate(tracks)))
     params = itertools.chain.from_iterable(
         itertools.starmap(self._fit_track, tracks))
     self.param_matrix_ = np.array(list(params)).T
+    if self.param_matrix_.size == 0:
+      self.param_matrix_ = np.empty((3, 0))
     self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
 
