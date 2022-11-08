@@ -78,6 +78,28 @@ class TestOptimize(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
         sinusoidal__overlap=skopt.space.Real(0, 0.75, name="overlap"),
     )
 
+  def test_no_exceptions_default(self):
+    """Test that no exceptions arise during optimization,
+    with default arguments for the SAMPLE model"""
+    sample_opt = optimize.SAMPLEOptimizer(
+        sinusoidal__log_n=skopt.space.Integer(6, 15, name="log2(n)"),
+        sinusoidal__tracker__max_n_sines=skopt.space.Integer(16,
+                                                             128,
+                                                             name="n sines"),
+        sinusoidal__tracker__peak_threshold=skopt.space.Real(
+            -120, -30, name="peak threshold"),
+        sinusoidal__tracker__min_sine_dur=skopt.space.Integer(
+            2, 42, name="min duration"),
+        sinusoidal__overlap=skopt.space.Real(0, 0.75, name="overlap"),
+    )
+    with self.assert_doesnt_raise():
+      sample_opt.gp_minimize(
+          x=self.x,
+          fs=self.fs,
+          n_calls=8,
+          n_initial_points=4,
+      )
+
   def test_no_exceptions(self):
     """Test that no exceptions arise during optimization"""
     with self.assert_doesnt_raise():
