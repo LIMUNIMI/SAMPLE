@@ -9,10 +9,14 @@ import scipy.optimize
 import skopt
 import tqdm
 from scipy import signal
+from sklearn import base
 
 import sample
-from sample import utils
+import sample.utils
+import sample.utils.learn
 from sample.evaluation import metrics
+
+utils = sample.utils
 
 
 @utils.deprecated_argument("sinusoidal_model__log_n", "sinusoidal__log_n")
@@ -81,9 +85,23 @@ class SAMPLEOptimizer:
     **kwargs: Parameters to optimize. See :func:`skopt.gp_minimize`
       **dimensions** for definition options"""
 
+  @utils.deprecated_argument(
+      "sample_fn",
+      convert=lambda _, **kwargs:
+      ("model", kwargs["sample_fn"]
+       (**kwargs.get("remap", sample_kwargs_remapper)({} if kwargs.get(
+           "sample_kw", None) is None else kwargs.get("sample_kw", None)))),
+      msg="Provide a sample.SAMPLE instance with the desired parameters, "
+      "instead of constructor and arguments")
+  @utils.deprecated_argument(
+      "sample_kw",
+      convert=lambda _, **kwargs:
+      ("model", kwargs.get("model", sample.SAMPLE()).set_params(**kwargs.get(
+          "remap", sample_kwargs_remapper)(**kwargs["sample_kw"]))),
+      msg="Provide a sample.SAMPLE instance with the desired parameters, "
+      "instead of constructor and arguments")
   def __init__(self,
-               sample_fn: Callable[..., sample.SAMPLE] = sample.SAMPLE,
-               sample_kw: Optional[Dict[str, Any]] = None,
+               model: sample.SAMPLE = None,
                loss_fn: Callable[[np.ndarray, np.ndarray],
                                  float] = metrics.multiscale_spectral_loss,
                loss_kw: Optional[Dict[str, Any]] = None,
@@ -92,13 +110,16 @@ class SAMPLEOptimizer:
                                              Any]]] = sample_kwargs_remapper,
                clip: bool = True,
                **kwargs):
+    self.model = model
     self.loss_fn = loss_fn if loss_kw is None else functools.partial(
         loss_fn, **loss_kw)
-    self.sample_fn = sample_fn
-    self.sample_kw = {} if sample_kw is None else sample_kw
     self.dimensions = collections.OrderedDict(kwargs)
     self.remap = remap
     self.clip = clip
+
+  @utils.learn.default_property
+  def model(self):
+    return sample.SAMPLE()
 
   def _kwargs(self, *args, **kwargs) -> Dict[str, Any]:
     """Compose positional and keyword arguments together.
@@ -132,8 +153,9 @@ class SAMPLEOptimizer:
       peak = np.max(np.abs(x))
 
     def loss_(args: Tuple = (), x=x, sinusoidal__fs=fs, **kwargs) -> float:
-      model = self.sample_fn(**self._kwargs(
-          *args, **kwargs, **self.sample_kw, sinusoidal__fs=sinusoidal__fs))
+      model = base.clone(self.model)
+      model.set_params(
+          **self._kwargs(*args, **kwargs, sinusoidal__fs=sinusoidal__fs))
       model.fit(x)
       y = model.predict(np.arange(x.size) / sinusoidal__fs, phases="random")
       if self.clip:
@@ -165,11 +187,11 @@ class SAMPLEOptimizer:
       kwargs["y0"] = state.func_vals
     with warnings.catch_warnings():
       if ignore_warnings:
-        warnings.simplefilter("ignore")
+        warnings.simplefilter("ignore", Warning)
       res = skopt.gp_minimize(self.loss(x, fs), self.dimensions.values(),
                               **kwargs)
-    model = self.sample_fn(
-        **self._kwargs(*res.x, sinusoidal__fs=fs, **self.sample_kw))
+    model = base.clone(self.model)
+    model.set_params(**self._kwargs(*res.x, sinusoidal__fs=fs))
     model.fit(x)
     return model, res
 
