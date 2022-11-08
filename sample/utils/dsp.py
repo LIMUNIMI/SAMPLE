@@ -487,3 +487,6 @@ def strided_convolution_complex_kernel(x: np.ndarray,
                         stride=stride,
                         out=np.reshape(p(out), newshape=(-1, 1)))
   return out
+
+
+DOUBLE_DB: float = a2db(2)

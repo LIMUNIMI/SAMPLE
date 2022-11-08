@@ -99,29 +99,32 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     if getattr(self.sinusoidal_model, "reverse", False):
       # Reverse time axis
       time_axis = np.size(x) / self.sinusoidal_model.fs - time_axis
+    # Compensate for spectral halving
+    t_filtered["mag"] = t_filtered["mag"] + dsp_utils.DOUBLE_DB
     return i, time_axis, t_filtered
+
+  _D2K_CONST: float = -40 * np.log10(np.e)
 
   def _fit_track(
       self,
-      i: int,
-      tim: np.ndarray,  # pylint: disable=W0613
-      t: dict) -> Tuple[Tuple[float, float, float]]:
+      i: int,  # pylint: disable=W0613
+      t: np.ndarray,
+      track: dict) -> Tuple[Tuple[float, float, float]]:
     """Fit parameters for one track.
 
     Args:
       i (int): Track index
       tim (array): Time axis
-      t (dict): Track
+      track (dict): Track
 
     Returns:
       ((float, float, float),): Frequency, decay, and amplitude"""
     # Hinge regression
-    r = copy.deepcopy(self.regressor)
-    r.fit(np.reshape(tim, (-1, 1)), t["mag"])
+    r = copy.deepcopy(self.regressor).fit(np.reshape(t, (-1, 1)), track["mag"])
 
-    f = self.freq_reduce(t["freq"])
-    d = -40 * np.log10(np.e) / getattr(r, self.regressor_k)
-    a = 2 * dsp_utils.db2a(getattr(r, self.regressor_q))
+    f = self.freq_reduce(track["freq"])
+    d = self._D2K_CONST / getattr(r, self.regressor_k)
+    a = dsp_utils.db2a(getattr(r, self.regressor_q))
     return ((f, d, a),)
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
