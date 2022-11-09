@@ -23,19 +23,15 @@ class SinusoidalModel4GUI(mm.ModalModel):
 
   def __init__(self,
                progressbar: Optional[tk.Widget] = None,
-               fs: int = 44100,
                w: Optional[np.ndarray] = None,
                n: int = 2048,
-               h: int = 500,
                t: float = -90,
                tracker: sm.SineTracker = None,
                intermediate: utils.learn.OptionalStorage = None,
                **kwargs):
     self.progressbar = progressbar
-    super().__init__(fs=fs,
-                     w=w,
+    super().__init__(w=w,
                      n=n,
-                     h=h,
                      t=t,
                      tracker=tracker,
                      intermediate=intermediate,

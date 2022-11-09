@@ -437,7 +437,7 @@ def deprecated_argument(old_key: str,
                 f"The '{old_key_}' argument is deprecated, "
                 f"use '{new_key__}' instead."
                 f"{'' if msg is None else ' '}{'' if msg is None else msg}",
-                SAMPLEDeprecationWarning, 2)
+                SAMPLEDeprecationWarning, 1)
       return func(*args, **kwargs)
 
     return func_
