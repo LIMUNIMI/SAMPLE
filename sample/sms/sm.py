@@ -305,7 +305,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     for mx, px in map(functools.partial(self.intermediate, "stft"),
                       self.dft_frames(x)):
-      ploc, pmag, pph = self.intermediate(  # pylint: disable=W0632
+      ploc, pmag, pph = self.intermediate(
           "peaks", sms.dsp.peak_detect_interp(mx, px, self.t))
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
       self.tracker(pfreq, pmag, pph)
