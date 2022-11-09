@@ -32,7 +32,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     self.x += self.noise * dsp_utils.db2a(-60)
     self.x /= np.max(np.abs(self.x))
     self.sample = sample.SAMPLE(
-        sinusoidal__fs=self.fs,
+        sinusoidal__tracker__fs=self.fs,
         sinusoidal__tracker__max_n_sines=10,
         sinusoidal__tracker__peak_threshold=-30,
     )
@@ -147,7 +147,8 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_strip_reverse(self):
     """Test stripping tracks in reverse mode"""
     s = base.clone(self.sample)
-    s.set_params(sinusoidal__strip_t=0.01, sinusoidal__tracker__reverse=True)
+    s.set_params(sinusoidal__tracker__strip_t=0.01,
+                 sinusoidal__tracker__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)
 

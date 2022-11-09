@@ -57,11 +57,11 @@ def sample_kwargs_remapper(sinusoidal__log_n: Optional[int] = None,
     kwargs["sinusoidal__w"] = signal.get_window(window=sinusoidal__wtype,
                                                 Nx=wsize)
   # Hop-size from overlap and window size
-  if "sinusoidal__h" not in kwargs:
+  if "sinusoidal__tracker__h" not in kwargs:
     wsize = np.size(sample.SAMPLE(**kwargs).sinusoidal.w)
     hopsize = int((1 - sinusoidal__overlap) * wsize)
     hopsize = max(min(hopsize, wsize), 1)
-    kwargs["sinusoidal__h"] = hopsize
+    kwargs["sinusoidal__tracker__h"] = hopsize
   return kwargs
 
 
@@ -152,12 +152,14 @@ class SAMPLEOptimizer:
     if self.clip:
       peak = np.max(np.abs(x))
 
-    def loss_(args: Tuple = (), x=x, sinusoidal__fs=fs, **kwargs) -> float:
+    def loss_(args: Tuple = (), x=x, sinusoidal__tracker__fs=fs,
+              **kwargs) -> float:
       model = base.clone(self.model)
-      model.set_params(
-          **self._kwargs(*args, **kwargs, sinusoidal__fs=sinusoidal__fs))
+      model.set_params(**self._kwargs(
+          *args, **kwargs, sinusoidal__tracker__fs=sinusoidal__tracker__fs))
       model.fit(x)
-      y = model.predict(np.arange(x.size) / sinusoidal__fs, phases="random")
+      y = model.predict(np.arange(x.size) / sinusoidal__tracker__fs,
+                        phases="random")
       if self.clip:
         np.clip(y, -peak, peak, out=y)
       return self.loss_fn(x, y)
@@ -191,7 +193,7 @@ class SAMPLEOptimizer:
       res = skopt.gp_minimize(self.loss(x, fs), self.dimensions.values(),
                               **kwargs)
     model = base.clone(self.model)
-    model.set_params(**self._kwargs(*res.x, sinusoidal__fs=fs))
+    model.set_params(**self._kwargs(*res.x, sinusoidal__tracker__fs=fs))
     model.fit(x)
     return model, res
 

@@ -132,7 +132,7 @@ class TestBeatRegression(unittestmixins.AssertDoesntRaiseMixin,
         sinusoidal__t=-90,
         sinusoidal__intermediate__save=True,
         sinusoidal__tracker__peak_threshold=-45,
-    ).fit(self.x, sinusoidal__fs=self.fs)
+    ).fit(self.x, sinusoidal__tracker__fs=self.fs)
     track = self.model.sinusoidal.tracks_[0]
     self.track_t = np.arange(len(
         track["mag"])) * self.model.sinusoidal.h / self.model.sinusoidal.fs
