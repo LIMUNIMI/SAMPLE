@@ -32,7 +32,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     self.x += self.noise * dsp_utils.db2a(-60)
     self.x /= np.max(np.abs(self.x))
     self.sample = sample.SAMPLE(
-        sinusoidal__fs=self.fs,
+        sinusoidal__tracker__fs=self.fs,
         sinusoidal__tracker__max_n_sines=10,
         sinusoidal__tracker__peak_threshold=-30,
     )
@@ -93,18 +93,6 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Test track rejection for low frequencies"""
     self.assertFalse(self.st.track_ok(dict(freq=np.zeros(1024),)))
 
-  def test_dur_too_short(self):
-    """Test that errors occur for too short sine durations"""
-    s = base.clone(self.sample).set_params(sinusoidal__tracker__min_sine_dur=0)
-    with self.assertRaises(ValueError):
-      s.fit(self.noise)
-
-  def test_no_exceptions_safe_len(self):
-    """Test no errors occur with safe length parameter"""
-    s = base.clone(self.sample).set_params(sinusoidal__tracker__min_sine_dur=2)
-    with self.assert_doesnt_raise():
-      s.fit(self.noise)
-
   def test_tracker_reset(self):
     """Test tracker reset"""
     s = base.clone(self.sample).fit(self.x)
@@ -152,16 +140,14 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_strip(self):
     """Test stripping tracks"""
     s = base.clone(self.sample)
-    s.set_params(sinusoidal__tracker__strip_n=int(0.01 *
-                                                  s.sinusoidal.frame_rate))
+    s.set_params(sinusoidal__tracker__strip_t=0.01)
     with self.assert_doesnt_raise():
       s.fit(self.x)
 
   def test_strip_reverse(self):
     """Test stripping tracks in reverse mode"""
     s = base.clone(self.sample)
-    s.set_params(sinusoidal__tracker__strip_n=int(0.01 *
-                                                  s.sinusoidal.frame_rate),
+    s.set_params(sinusoidal__tracker__strip_t=0.01,
                  sinusoidal__tracker__reverse=True)
     with self.assert_doesnt_raise():
       s.fit(self.x)

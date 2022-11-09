@@ -109,11 +109,11 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     """Update analysis and resynthesis figure"""
     for ax in self.ax:
       ax.clear()
-    m = self.sample_object.sinusoidal_model
-    stft = np.array([mx for mx, _ in m.intermediate_["stft"]]).T
-    if m.reverse:
+    m = self.sample_object.sinusoidal
+    stft = np.array([mx for mx, _ in m.intermediate["stft"]]).T
+    if m.tracker.reverse:
       stft = np.fliplr(stft)
-    tmax = len(m.intermediate_["stft"]) * m.h / m.fs
+    tmax = len(m.intermediate["stft"]) * m.h / m.fs
 
     plots.sine_tracking_2d(m, ax=self.ax)
 
@@ -193,8 +193,8 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     try:
       self.sample_object.fit(
           x,
-          sinusoidal_model__fs=self.audio_sr,
-          sinusoidal_model__progressbar=self.progressbar,
+          sinusoidal__tracker__fs=self.audio_sr,
+          sinusoidal__progressbar=self.progressbar,
       )
     except Exception as e:  # pylint: disable=W0703
       messagebox.showerror(type(e).__name__, str(e))
@@ -236,6 +236,12 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
 
     return play_cbk_
 
+  @property
+  def _filedialog_file_safe(self) -> str:
+    if self.filedialog_file is None:
+      return "output.wav"
+    return self.filedialog_file
+
   def wav_export_cbk(self, *args, **kwargs):  # pylint: disable=W0613
     """Wav export callback"""
     x = self._get_audio(True)
@@ -245,7 +251,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
         title="Save WAV file",
         initialdir=self.filedialog_dir_save,
         initialfile=
-        f"{os.path.basename(os.path.splitext(self.filedialog_file)[0])}"
+        f"{os.path.basename(os.path.splitext(self._filedialog_file_safe)[0])}"
         "_resynth",
         defaultextension=".wav",
         filetypes=[
@@ -275,7 +281,8 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     filename = filedialog.asksaveasfilename(
         title="Save JSON file",
         initialdir=self.filedialog_dir_save,
-        initialfile=os.path.basename(os.path.splitext(self.filedialog_file)[0]),
+        initialfile=os.path.basename(
+            os.path.splitext(self._filedialog_file_safe)[0]),
         defaultextension=".json",
         filetypes=[
             ("JSON", ".json"),

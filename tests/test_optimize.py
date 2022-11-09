@@ -19,7 +19,7 @@ class TestRemapper(unittest.TestCase):
     kwargs = dict(
         sinusoidal__n=128,
         sinusoidal__w=list(itertools.repeat(1 / 128, 128)),
-        sinusoidal__h=64,
+        sinusoidal__tracker__h=64,
     )
     self.assertEqual(kwargs, optimize.sample_kwargs_remapper(**kwargs))
 
@@ -52,7 +52,8 @@ class TestRemapper(unittest.TestCase):
       )
       with self.subTest(log_n=log_n, ws=ws, olap=olap):
         self.assertAlmostEqual(
-            olap, 1 - kwargs["sinusoidal__h"] / kwargs["sinusoidal__w"].size)
+            olap,
+            1 - kwargs["sinusoidal__tracker__h"] / kwargs["sinusoidal__w"].size)
 
 
 class TestOptimize(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):

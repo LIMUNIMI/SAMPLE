@@ -50,16 +50,25 @@ class SineTracker(base.BaseEstimator):
     tracks_ (list of dict): Deactivated tracks"""
 
   def __init__(self,
+               fs: int = 44100,
+               h: int = 500,
                max_n_sines: int = 100,
-               min_sine_dur: int = 2,
+               min_sine_dur: int = 0.04,
                freq_dev_offset: float = 20,
                freq_dev_slope: float = 0.01,
                **kwargs):
+    self.fs = fs
+    self.h = h
     self.max_n_sines = max_n_sines
     self.min_sine_dur = min_sine_dur
     self.freq_dev_offset = freq_dev_offset
     self.freq_dev_slope = freq_dev_slope
     self.set_params(**kwargs)
+
+  @property
+  def frame_rate(self) -> float:
+    """Number of DFT frames per seconds"""
+    return self.fs / self.h
 
   def reset(self):
     """Reset tracker state
@@ -74,6 +83,10 @@ class SineTracker(base.BaseEstimator):
   @property
   def n_active_tracks(self) -> int:
     return len(self._active_tracks)
+
+  @property
+  def min_sine_len(self) -> int:
+    return max(2, math.ceil(self.min_sine_dur * self.frame_rate))
 
   @property
   def all_tracks_(self) -> Iterable[dict]:
@@ -112,7 +125,7 @@ class SineTracker(base.BaseEstimator):
 
     Returns:
       bool: Whether the track is ok or not"""
-    return len(track["freq"]) >= self.min_sine_dur
+    return len(track["freq"]) >= self.min_sine_len
 
   def deactivate(self, track_index: int) -> dict:
     """Remove track from list of active tracks and save it in
@@ -183,14 +196,7 @@ class SineTracker(base.BaseEstimator):
 def _decorate_sinusoidal_model(func):
 
   @utils.deprecated_argument("max_n_sines", "tracker__max_n_sines")
-  @utils.deprecated_argument(
-      "min_sine_dur",
-      convert=lambda _, **kwargs:
-      ("tracker__min_sine_dur",
-       math.ceil(kwargs["min_sine_dur"] * kwargs.get("fs", 44100) / kwargs.get(
-           "h", 500))),
-      msg="Important! The 'min_sine_dur' of the sine tracker is expressed in "
-      "frames, while the old 'min_sine_dur' was expressed in seconds")
+  @utils.deprecated_argument("min_sine_dur", "tracker__min_sine_dur")
   @utils.deprecated_argument(
       "safe_sine_len",
       convert=lambda _, **kwargs:
@@ -205,6 +211,8 @@ def _decorate_sinusoidal_model(func):
                              convert=lambda sine_tracker_cls, **kwargs:
                              ("tracker", sine_tracker_cls()))
   @utils.deprecated_argument("save_intermediate", "intermediate__save")
+  @utils.deprecated_argument("fs", "tracker__fs")
+  @utils.deprecated_argument("h", "tracker__h")
   @functools.wraps(func)
   def func_(*args, **kwargs):
     return func(*args, **kwargs)
@@ -247,19 +255,15 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   @_decorate_sinusoidal_model
   def __init__(
       self,
-      fs: int = 44100,
       w: Optional[np.ndarray] = None,
       n: int = 2048,
-      h: int = 500,
       t: float = -90,
       tracker: SineTracker = None,
       intermediate: utils.learn.OptionalStorage = None,
       **kwargs,
   ):
-    self.fs = fs
     self.w = w
     self.n = n
-    self.h = h
     self.t = t
     self.tracker = tracker
     self.intermediate = intermediate
@@ -280,7 +284,15 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   @property
   def frame_rate(self) -> float:
     """Number of DFT frames per seconds"""
-    return self.fs / self.h
+    return self.tracker.frame_rate
+
+  @property
+  def fs(self):
+    return self.tracker.fs
+
+  @property
+  def h(self):
+    return self.tracker.h
 
   def fit(
       self,
@@ -305,7 +317,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     for mx, px in map(functools.partial(self.intermediate, "stft"),
                       self.dft_frames(x)):
-      ploc, pmag, pph = self.intermediate(  # pylint: disable=W0632
+      ploc, pmag, pph = self.intermediate(
           "peaks", sms.dsp.peak_detect_interp(mx, px, self.t))
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
       self.tracker(pfreq, pmag, pph)

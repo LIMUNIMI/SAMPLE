@@ -4,9 +4,9 @@ import inspect
 from tkinter import messagebox
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Type, Union
 
+import ttkthemes
 from matplotlib.backends import _backend_tk
 from scipy import signal
-import ttkthemes
 
 from sample.widgets import logging
 from sample.widgets import responsive as tk
@@ -16,7 +16,7 @@ from sample.widgets import sample, userfiles, utils
 # --- Parsers ----------------------------------------------------------------
 def try_func(func: Callable,
              exc: Union[Type[Exception], Tuple[Type[Exception], ...]],
-             default: Optional = None):
+             default: Optional[Any] = None):
   """Function wrapper for returning a default value on fail
 
   Args:
@@ -134,23 +134,23 @@ def postprocess_fbound(smfb_0: float,
       smfb_0=smfb_0,
       smfb_1=smfb_1,
   )
-  out_kw = dict(sinusoidal_model__frequency_bounds=(smfb_0, smfb_1))
+  out_kw = dict(sinusoidal__tracker__frequency_bounds=(smfb_0, smfb_1))
   return in_kw, out_kw
 
 
-def postprocess_windows(sinusoidal_model__n: int, wsize: int,
+def postprocess_windows(sinusoidal__n: int, wsize: int,
                         wtype: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
   """Postprocess frequency bounds
 
   Args:
-    sinusoidal_model__n (int): FFT size
+    sinusoidal__n (int): FFT size
     wsize (int): FFT window size
     wtype (str): FFT window type
 
   Returns:
     dict, dict: Postprocessed settings and parameters as dictionaries"""
   w = None
-  wsize = min(wsize, sinusoidal_model__n)
+  wsize = min(wsize, sinusoidal__n)
   while True:
     try:
       w = signal.get_window(window=wtype, Nx=wsize)
@@ -162,10 +162,8 @@ def postprocess_windows(sinusoidal_model__n: int, wsize: int,
       continue
     else:
       break
-  in_kw = dict(sinusoidal_model__n=sinusoidal_model__n,
-               wsize=wsize,
-               wtype=wtype)
-  out_kw = dict(sinusoidal_model__n=sinusoidal_model__n, sinusoidal_model__w=w)
+  in_kw = dict(sinusoidal__n=sinusoidal__n, wsize=wsize, wtype=wtype)
+  out_kw = dict(sinusoidal__n=sinusoidal__n, sinusoidal__w=w)
   return in_kw, out_kw
 
 
@@ -195,17 +193,17 @@ _settings = (
           tooltip="Maximum number of modes to use for resynthesis")),
     ("analysis_space", dict(is_spacer=True, label=" ")),
     ("analysis_group", dict(label="Analysis", is_spacer=True)),
-    ("sinusoidal_model__max_n_sines",
+    ("sinusoidal__tracker__max_n_sines",
      dict(label="n sines",
           get_fn=custom_positive_int,
           init_value=64,
           tooltip="Maximum number of sinusoidal tracks per frame")),
-    ("sinusoidal_model__n",
+    ("sinusoidal__n",
      dict(label="fft size",
           get_fn=next_power_of_2,
           init_value=4096,
           tooltip="FFT size (in bins)")),
-    ("sinusoidal_model__h",
+    ("sinusoidal__tracker__h",
      dict(label="hop size",
           get_fn=custom_positive_int,
           init_value=1024,
@@ -227,14 +225,14 @@ _settings = (
               "barthann", "cosine", "exponential", "tukey", "taylor")),
          tooltip="FFT analysis window type",
      )),
-    ("sinusoidal_model__freq_dev_offset",
+    ("sinusoidal__tracker__freq_dev_offset",
      dict(
          label="frequency deviation offset",
          get_fn=try_float,
          init_value=20,
          tooltip="Frequency deviation threshold at 0 Hz (in Hertz)",
      )),
-    ("sinusoidal_model__freq_dev_slope",
+    ("sinusoidal__tracker__freq_dev_slope",
      dict(label="frequency deviation slope",
           get_fn=try_float,
           init_value=.0025,
@@ -253,7 +251,7 @@ _settings = (
          init_value=16000,
          tooltip="Maximum and accepted mean frequency (in Hertz)",
      )),
-    ("sinusoidal_model__peak_threshold",
+    ("sinusoidal__tracker__peak_threshold",
      dict(
          label="onset threshold",
          get_fn=try_float,
@@ -261,17 +259,17 @@ _settings = (
          tooltip="Minimum peak magnitude for modal tracks "
          "(magnitude at time=0, in dB)",
      )),
-    ("sinusoidal_model__t",
+    ("sinusoidal__t",
      dict(label="peak detection threshold",
           get_fn=try_float,
           init_value=-90,
           tooltip="Threshold in dB for the peak detection algorithm")),
-    ("sinusoidal_model__min_sine_dur",
+    ("sinusoidal__tracker__min_sine_dur",
      dict(label="minimum sine duration",
           get_fn=non_negative,
           init_value=0.1,
           tooltip="Minimum duration of a track (in seconds)")),
-    ("sinusoidal_model__strip_t",
+    ("sinusoidal__tracker__strip_t",
      dict(
          label="strip time",
          get_fn=strip_time_parse,
@@ -280,7 +278,7 @@ _settings = (
          "than this time will be omitted from the track "
          "list. If is None, then don't strip",
      )),
-    ("sinusoidal_model__reverse",
+    ("sinusoidal__tracker__reverse",
      dict(
          label="reverse",
          init_value=True,
@@ -343,7 +341,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
         tooltip: Optional[str] = None,
         get_fn: Optional[Callable] = None,
         set_fn: Optional[Callable] = None,
-        init_value: Optional = None,
+        init_value: Optional[Any] = None,
         options: Optional[Sequence[str]] = None,
         boolean: bool = False,
     ):
