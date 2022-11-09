@@ -207,14 +207,14 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
         m.set_params(**kw)
         m.fit(self.x)
         with self.assert_doesnt_raise():
-          plots.sine_tracking_2d(m.sinusoidal)
+          plots.sine_tracking_2d(m)
           plots.plt.clf()
 
   def test_plot_3d(self):
     """Test 3D plot"""
     s = copy.deepcopy(self.sample).fit(self.x)
     with self.assert_doesnt_raise():
-      plots.sine_tracking_3d(s.sinusoidal)
+      plots.sine_tracking_3d(s)
 
   def test_plot_resynthesis(self):
     """Test resynthesis plot"""

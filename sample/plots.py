@@ -4,7 +4,7 @@ This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
 import itertools
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
 
 import matplotlib.figure
 import numpy as np
@@ -20,16 +20,19 @@ from sample.sms import sm
 from sample.utils import dsp as dsp_utils
 
 
-def sine_tracking_2d(m: sm.SinusoidalModel, ax=None):
+def sine_tracking_2d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
   """Plot sinusoidal tracks detected by the model on two axes,
   one for frequency and one for magnitude
 
   Args:
-    m (sample.sms.sm.SinusoidalModel): Trained sinusoidal model
+    m (sample.sms.sm.SinusoidalModel): Trained sinusoidal
+      model (or SAMPLE model)
     ax: Axes list (optional)
 
   Returns:
     The axes list"""
+  if isinstance(m, SAMPLE):
+    m = m.sinusoidal
   if ax is None:
     _, ax = plt.subplots(1, 2, sharex=True)
   tmax = 0
@@ -60,15 +63,18 @@ def sine_tracking_2d(m: sm.SinusoidalModel, ax=None):
   return ax
 
 
-def sine_tracking_3d(m: sm.SinusoidalModel, ax=None):
+def sine_tracking_3d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
   """Plot sinusoidal tracks detected by the model on one 3D axis
 
   Args:
-    m (sample.sms.sm.SinusoidalModel): Trained sinusoidal model
+    m (sample.sms.sm.SinusoidalModel): Trained sinusoidal
+      model (or SAMPLE model)
     ax: 3D axis (optional)
 
   Returns:
     The 3D axis"""
+  if isinstance(m, SAMPLE):
+    m = m.sinusoidal
   if ax is None:
     ax = plt.axes(projection="3d")
   for track in m.tracker.all_tracks_:
