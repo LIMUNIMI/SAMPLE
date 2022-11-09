@@ -20,7 +20,7 @@ import autorank
 import numpy as np
 import pandas as pd
 import sample
-import sample.beatsdrop.regression  # pylint: disable=W0611
+import sample.beatsdrop.regression
 import tqdm
 from chromatictools import cli, pickle
 from sample import beatsdrop, psycho
@@ -278,7 +278,7 @@ def load_results(args: argparse.Namespace):
     args.ckpt_path = f"{args.output}.ckpt-{{}}".format
     if args.resume:
       # Find most recent checkpoint
-      for fn in glob.glob(args.ckpt_path("*")):  # pylint: disable=W1310
+      for fn in glob.glob(args.ckpt_path("*")):
         try:
           pd.read_csv(fn)
         except Exception:  # pylint: disable=W0703

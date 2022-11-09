@@ -1,15 +1,18 @@
 """Module for using the entire SAMPLE method pipeline"""
-import copy
 import functools
-from typing import Callable, Dict, List, Optional, Sequence, Union
+import itertools
+from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from sklearn import base
 
-from sample import utils
+import sample.utils
+import sample.utils.dsp
+import sample.utils.learn
 from sample import hinge
 from sample.sms import mm
-from sample.utils import dsp as dsp_utils
+
+utils = sample.utils
 
 
 @utils.numpy_out(dtype=float)
@@ -30,6 +33,16 @@ def modal_energy(a: np.ndarray,
   np.multiply(out, d, out=out)
   np.true_divide(out, 4, out=out)
   return out
+
+
+def _decorate_sample(func):
+
+  @utils.deprecated_argument("sinusoidal_model", "sinusoidal", prefix=True)
+  @functools.wraps(func)
+  def func_(*args, **kwargs):
+    return func(*args, **kwargs)
+
+  return func_
 
 
 class SAMPLE(base.RegressorMixin, base.BaseEstimator):
@@ -53,17 +66,18 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       :data:`SAMPLE().get_params()`. For an explanation of the parameters,
       please, refer to the documentation of the submodels"""
 
+  @_decorate_sample
   def __init__(
       self,
-      sinusoidal_model=mm.ModalModel(),
-      regressor=hinge.HingeRegression(),
+      sinusoidal=None,
+      regressor=None,
       regressor_k: str = "k_",
       regressor_q: str = "q_",
       freq_reduce: Callable[[np.ndarray], float] = np.mean,
       max_n_modes: Optional[int] = None,
       **kwargs,
   ):
-    self.sinusoidal_model = sinusoidal_model
+    self.sinusoidal = sinusoidal
     self.regressor = regressor
     self.regressor_k = regressor_k
     self.regressor_q = regressor_q
@@ -71,21 +85,57 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     self.max_n_modes = max_n_modes
     self.set_params(**kwargs)
 
-  @property
-  def sinusoidal_model(self):
-    return self._sinusoidal_model
+  @_decorate_sample
+  def set_params(self, **kwargs):
+    return super().set_params(**kwargs)
 
-  @sinusoidal_model.setter
-  def sinusoidal_model(self, model):
-    self._sinusoidal_model = copy.deepcopy(model)
+  @utils.learn.default_property
+  def sinusoidal(self):
+    return mm.ModalModel()
 
-  @property
+  @utils.learn.default_property
   def regressor(self):
-    return self._regressor
+    return hinge.HingeRegression()
 
-  @regressor.setter
-  def regressor(self, model):
-    self._regressor = copy.deepcopy(model)
+  def _preprocess_track(self, i: int, x: np.ndarray,
+                        t: dict) -> Tuple[int, np.ndarray, dict]:
+    """Compute time axis and nan-filter track"""
+    notnans = np.logical_not(np.isnan(t["mag"]))
+    time_axis = (t["start_frame"] +
+                 np.arange(t["mag"].size)[notnans]) / self.sinusoidal.frame_rate
+    t_filtered = {
+        k: v if k == "start_frame" else v[notnans] for k, v in t.items()
+    }
+    if getattr(self.sinusoidal.tracker, "reverse", False):
+      # Reverse time axis
+      time_axis = np.size(x) / self.sinusoidal.fs - time_axis
+    # Compensate for spectral halving
+    t_filtered["mag"] = t_filtered["mag"] + utils.dsp.DOUBLE_DB
+    return i, time_axis, t_filtered
+
+  _D2K_CONST: float = -40 * np.log10(np.e)
+
+  def _fit_track(
+      self,
+      i: int,  # pylint: disable=W0613
+      t: np.ndarray,
+      track: dict) -> Tuple[Tuple[float, float, float]]:
+    """Fit parameters for one track.
+
+    Args:
+      i (int): Track index
+      tim (array): Time axis
+      track (dict): Track
+
+    Returns:
+      ((float, float, float),): Frequency, decay, and amplitude"""
+    # Hinge regression
+    r = base.clone(self.regressor).fit(np.reshape(t, (-1, 1)), track["mag"])
+
+    f = self.freq_reduce(track["freq"])
+    d = self._D2K_CONST / getattr(r, self.regressor_k)
+    a = utils.dsp.db2a(getattr(r, self.regressor_q))
+    return ((f, d, a),)
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
@@ -98,21 +148,15 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     Returns:
       SAMPLE: self"""
     self.set_params(**kwargs)
-    tracks = self.sinusoidal_model.fit(x, y).tracks_
-    self.param_matrix_ = np.empty((3, len(tracks)))
-    for i, t in enumerate(tracks):
-      notnans = np.logical_not(np.isnan(t["mag"]))
-      self.param_matrix_[0, i] = self.freq_reduce(t["freq"][notnans])
-      x_ = (t["start_frame"] + np.arange(t["mag"].size)[notnans]) * \
-           self.sinusoidal_model.h / self.sinusoidal_model.fs
-      y_ = t["mag"][notnans]
-      if getattr(self.sinusoidal_model, "reverse", False):
-        x_ = np.size(x) / self.sinusoidal_model.fs - x_
-      self.regressor.fit(np.reshape(x_, (-1, 1)), y_)
-      self.param_matrix_[1, i] = \
-        -40 * np.log10(np.e) / getattr(self.regressor, self.regressor_k)
-      self.param_matrix_[2, i] = \
-        2 * dsp_utils.db2a(getattr(self.regressor, self.regressor_q))
+    tracks = self.sinusoidal.fit(x, y).tracks_
+    tracks = itertools.starmap(
+        self._preprocess_track, map(lambda t: (t[0], x, t[1]),
+                                    enumerate(tracks)))
+    params = itertools.chain.from_iterable(
+        itertools.starmap(self._fit_track, tracks))
+    self.param_matrix_ = np.array(list(params)).T
+    if self.param_matrix_.size == 0:
+      self.param_matrix_ = np.empty((3, 0))
     self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
 
@@ -289,7 +333,7 @@ def additive_synth(x,
             f"Supported options are: {utils.comma_join_quote(_phases_funcs)}"
         ) from e
     np.add(osc, row(phases), out=osc)
-  osc = (dsp_utils.expi if analytical else np.cos)(osc)
+  osc = (utils.dsp.expi if analytical else np.cos)(osc)
   dec = col(x) @ (-2 / row(decays))
   np.exp(dec, out=dec)
   amp = col(amps)

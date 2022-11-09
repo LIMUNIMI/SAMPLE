@@ -3,10 +3,12 @@ import itertools
 import unittest
 
 import numpy as np
+from chromatictools import unittestmixins
+from matplotlib import pyplot as plt
+
 import sample
 import sample.beatsdrop.regression
-from chromatictools import unittestmixins
-from sample import beatsdrop
+from sample import beatsdrop, plots
 
 
 class TestOther(unittest.TestCase):
@@ -92,7 +94,8 @@ class TestBeat(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
           getattr(b, k)(self.t)
 
 
-class TestBeatRegression(unittestmixins.RMSEAssertMixin,
+class TestBeatRegression(unittestmixins.AssertDoesntRaiseMixin,
+                         unittestmixins.RMSEAssertMixin,
                          unittestmixins.SignificantPlacesAssertMixin,
                          unittest.TestCase):
   """Test beat regression models"""
@@ -123,16 +126,17 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
     )
     self.x, self.am, self.fm = self.beat.compute(self.t, ("x", "am", "fm"))
     self.fm /= 2 * np.pi
-    model = sample.SAMPLE(
-        sinusoidal_model__max_n_sines=32,
-        sinusoidal_model__reverse=True,
-        sinusoidal_model__t=-90,
-        sinusoidal_model__save_intermediate=True,
-        sinusoidal_model__peak_threshold=-45,
-    ).fit(self.x, sinusoidal_model__fs=self.fs)
-    track = model.sinusoidal_model.tracks_[0]
+    self.model = sample.SAMPLE(
+        sinusoidal__tracker__max_n_sines=32,
+        sinusoidal__tracker__reverse=True,
+        sinusoidal__t=-90,
+        sinusoidal__intermediate__save=True,
+        sinusoidal__tracker__peak_threshold=-45,
+        sinusoidal__tracker__min_sine_dur=4,
+    ).fit(self.x, sinusoidal__fs=self.fs)
+    track = self.model.sinusoidal.tracks_[0]
     self.track_t = np.arange(len(
-        track["mag"])) * model.sinusoidal_model.h / model.sinusoidal_model.fs
+        track["mag"])) * self.model.sinusoidal.h / self.model.sinusoidal.fs
     self.track_a = np.flip(track["mag"]) + 6
     self.track_f = np.flip(track["freq"])
 
@@ -148,7 +152,14 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
     """Test BeatRegression error on short tracks"""
     br = beatsdrop.regression.BeatRegression()
     with self.assertRaises(ValueError):
-      br._bounds(self.track_t[:1], None, None, None, None)  # pylint: disable=E1102,W0212
+      br.bounds(self.track_t[:1], None, None, None, None)
+
+  def test_feasibility_error(self):
+    """Test BeatRegression error on unfeasible problems"""
+    br = beatsdrop.regression.BeatRegression(bounds=lambda t, a, f, p, m: (
+        (p[0] + 1, p[1] - 2, *p[2:]), (p[0] + 2, p[1] - 1, *p[2:])))
+    with self.assertRaises(ValueError):
+      br.fit(t=self.track_t, a=self.track_a, f=self.track_f)
 
   def test_prediction_length(self):
     """Test BeatRegression prediction array length"""
@@ -159,9 +170,8 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
   def test_amp_range_no_error(self):
     """Test that constant tracks don't cause errors"""
     br = beatsdrop.regression.BeatRegression()
-    b = br._bounds(  # pylint: disable=E1102,W0212
-        self.track_t, np.full_like(self.track_a, -np.inf), self.track_f,
-        tuple(range(8)), br)
+    b = br.bounds(self.track_t, np.full_like(self.track_a, -np.inf),
+                  self.track_f, tuple(range(8)), br)
     for (k, v, bk), i in itertools.product(zip(("lower", "upper"), range(2), b),
                                            range(2)):
       with self.subTest(bound=k, partial=i):
@@ -179,3 +189,33 @@ class TestBeatRegression(unittestmixins.RMSEAssertMixin,
       v_true = getattr(self, k)
       with self.subTest(k=k, true=v_true, est=v_est):
         self.assert_almost_equal_significant(v_true, v_est, places=0)
+
+  def test_comparison_plot(self):
+    """Test comparison plot"""
+    with self.assert_doesnt_raise():
+      plots.beatsdrop_comparison(
+          self.model, {
+              "BeatsDROP": beatsdrop.regression.DualBeatRegression(),
+              "Baseline": beatsdrop.regression.BeatRegression(),
+          }, self.x)
+
+  def test_comparison_plot_t(self):
+    """Test comparison plot (transposed)"""
+    with self.assert_doesnt_raise():
+      plots.beatsdrop_comparison(self.model, {
+          "BeatsDROP": beatsdrop.regression.DualBeatRegression(),
+          "Baseline": beatsdrop.regression.BeatRegression(),
+      },
+                                 self.x,
+                                 transpose=True)
+
+  def test_comparison_plot_axs(self):
+    """Test comparison plot (specify axs)"""
+    _, axs = plt.subplots(3, 2)
+    with self.assert_doesnt_raise():
+      plots.beatsdrop_comparison(self.model, {
+          "BeatsDROP": beatsdrop.regression.DualBeatRegression(),
+          "Baseline": beatsdrop.regression.BeatRegression(),
+      },
+                                 self.x,
+                                 axs=axs)

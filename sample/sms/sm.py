@@ -1,12 +1,21 @@
 """Sinusoidal model"""
 import functools
 import itertools
+import math
 from typing import (Any, Callable, Dict, Generator, Iterable, List, Optional,
                     Tuple)
 
 import numpy as np
-from sample.sms import dsp
 from sklearn import base
+
+import sample.sms
+import sample.sms.dsp
+import sample.utils
+import sample.utils.dsp
+import sample.utils.learn
+
+utils = sample.utils
+sms = sample.sms
 
 
 def min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
@@ -28,32 +37,29 @@ def min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
   return i_, x_
 
 
-class SineTracker:
+class SineTracker(base.BaseEstimator):
   """Model for keeping track of sinusiods across frames
 
   Args:
     max_n_sines (int): Maximum number of tracks per frame
-    min_sine_dur (float): Minimum duration of a track in number of frames
+    min_sine_dur (int): Minimum duration of a track in number of frames
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
     freq_dev_slope (float): Slope of frequency deviation threshold
 
   Attributes:
     tracks_ (list of dict): Deactivated tracks"""
 
-  def __init__(
-      self,
-      max_n_sines: int,
-      min_sine_dur: float,
-      freq_dev_offset: float,
-      freq_dev_slope: float,
-  ):
+  def __init__(self,
+               max_n_sines: int = 100,
+               min_sine_dur: int = 2,
+               freq_dev_offset: float = 20,
+               freq_dev_slope: float = 0.01,
+               **kwargs):
     self.max_n_sines = max_n_sines
     self.min_sine_dur = min_sine_dur
     self.freq_dev_offset = freq_dev_offset
     self.freq_dev_slope = freq_dev_slope
-    self.tracks_ = []
-    self._active_tracks = []
-    self._frame = 0
+    self.set_params(**kwargs)
 
   def reset(self):
     """Reset tracker state
@@ -174,6 +180,38 @@ class SineTracker:
     return self
 
 
+def _decorate_sinusoidal_model(func):
+
+  @utils.deprecated_argument("max_n_sines", "tracker__max_n_sines")
+  @utils.deprecated_argument(
+      "min_sine_dur",
+      convert=lambda _, **kwargs:
+      ("tracker__min_sine_dur",
+       math.ceil(kwargs["min_sine_dur"] * kwargs.get("fs", 44100) / kwargs.get(
+           "h", 500))),
+      msg="Important! The 'min_sine_dur' of the sine tracker is expressed in "
+      "frames, while the old 'min_sine_dur' was expressed in seconds")
+  @utils.deprecated_argument(
+      "safe_sine_len",
+      convert=lambda _, **kwargs:
+      ("tracker__min_sine_dur",
+       max(-1 if kwargs["safe_sine_len"] is None else kwargs["safe_sine_len"],
+           kwargs.get("tracker__min_sine_dur", 1))),
+      msg="'safe_sine_len' is no longer a parameter, since the "
+      "'min_sine_dur' of the sine tracker is already expressed in frames")
+  @utils.deprecated_argument("freq_dev_offset", "tracker__freq_dev_offset")
+  @utils.deprecated_argument("freq_dev_slope", "tracker__freq_dev_slope")
+  @utils.deprecated_argument("sine_tracker_cls",
+                             convert=lambda sine_tracker_cls, **kwargs:
+                             ("tracker", sine_tracker_cls()))
+  @utils.deprecated_argument("save_intermediate", "intermediate__save")
+  @functools.wraps(func)
+  def func_(*args, **kwargs):
+    return func(*args, **kwargs)
+
+  return func_
+
+
 class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   """Model for sinusoidal tracking
 
@@ -206,6 +244,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     w_ (array): Effective analysis window
     intermediate_ (dict): Dictionary of intermediate data structures"""
 
+  @_decorate_sinusoidal_model
   def __init__(
       self,
       fs: int = 44100,
@@ -213,28 +252,35 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       n: int = 2048,
       h: int = 500,
       t: float = -90,
-      max_n_sines: int = 100,
-      min_sine_dur: float = 0.04,
-      safe_sine_len: Optional[int] = None,
-      freq_dev_offset: float = 20,
-      freq_dev_slope: float = 0.01,
-      reverse: bool = False,
-      sine_tracker_cls: type = SineTracker,
-      save_intermediate: bool = False,
+      tracker: SineTracker = None,
+      intermediate: utils.learn.OptionalStorage = None,
+      **kwargs,
   ):
     self.fs = fs
     self.w = w
     self.n = n
     self.h = h
     self.t = t
-    self.max_n_sines = max_n_sines
-    self.min_sine_dur = min_sine_dur
-    self.safe_sine_len = safe_sine_len
-    self.freq_dev_offset = freq_dev_offset
-    self.freq_dev_slope = freq_dev_slope
-    self.reverse = reverse
-    self.sine_tracker_cls = sine_tracker_cls
-    self.save_intermediate = save_intermediate
+    self.tracker = tracker
+    self.intermediate = intermediate
+    self.set_params(**kwargs)
+
+  @_decorate_sinusoidal_model
+  def set_params(self, **kwargs):
+    return super().set_params(**kwargs)
+
+  @utils.learn.default_property
+  def intermediate(self):
+    return utils.learn.OptionalStorage()
+
+  @utils.learn.default_property
+  def tracker(self):
+    return SineTracker()
+
+  @property
+  def frame_rate(self) -> float:
+    """Number of DFT frames per seconds"""
+    return self.fs / self.h
 
   def fit(
       self,
@@ -249,58 +295,26 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       kwargs: Any parameter, overrides initialization
 
     Returns:
-      SinusoidalModel: self
-    """
-    if hasattr(self, "intermediate_"):
-      del self.intermediate_
+      SinusoidalModel: self"""
+    self.intermediate.reset()
     self.set_params(**kwargs)
+    self.tracker.reset()
     self.w_ = self.normalized_window
-    self.sine_tracker_ = self.sine_tracker_cls(**self.sine_tracker_kwargs)
-    if self.reverse:
+    if getattr(self.tracker, "reverse", False):
       x = np.flip(x)
 
     for mx, px in map(functools.partial(self.intermediate, "stft"),
                       self.dft_frames(x)):
       ploc, pmag, pph = self.intermediate(  # pylint: disable=W0632
-          "peaks", dsp.peak_detect_interp(mx, px, self.t))
+          "peaks", sms.dsp.peak_detect_interp(mx, px, self.t))
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
-      self.sine_tracker_(pfreq, pmag, pph)
+      self.tracker(pfreq, pmag, pph)
     return self
 
   @property
   def tracks_(self) -> List[Dict[str, np.ndarray]]:
     """Tracked sinusoids"""
-    return list(self.sine_tracker_.all_tracks_)
-
-  @property
-  def sine_tracker_kwargs(self) -> dict:
-    """Arguments for sine tracker initialization"""
-    min_sine_len = int(self.min_sine_dur * self.fs / self.h)
-    if self.safe_sine_len is not None:
-      min_sine_len = max(self.safe_sine_len, min_sine_len)
-    return dict(
-        max_n_sines=self.max_n_sines,
-        min_sine_dur=min_sine_len,
-        freq_dev_offset=self.freq_dev_offset,
-        freq_dev_slope=self.freq_dev_slope,
-    )
-
-  def intermediate(self, key: str, value):
-    """Save intermediate results if :data:`save_intermediate` is True
-
-    Arguments:
-      key (str): Data name
-      value: Data
-
-    Returns:
-      object: The input value"""
-    if self.save_intermediate:
-      if not hasattr(self, "intermediate_"):
-        self.intermediate_ = {}
-      if key not in self.intermediate_:
-        self.intermediate_[key] = []
-      self.intermediate_[key].append(value)
-    return value
+    return list(self.tracker.all_tracks_)
 
   @property
   def default_window(self) -> np.ndarray:
@@ -350,5 +364,5 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     Returns:
       iterable: Iterable of overlapping DFT frames (magnitude and phase)
       of the padded input"""
-    return map(functools.partial(dsp.dft, w=self.w_, n=self.n),
+    return map(functools.partial(sms.dsp.dft, w=self.w_, n=self.n),
                self.time_frames(x))
