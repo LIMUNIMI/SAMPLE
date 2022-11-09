@@ -110,7 +110,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
 
   def test_intermediate(self):
     """Check that intermediate results are saved"""
-    self.sm.fit(self.x, save_intermediate=True)
+    self.sm.fit(self.x, intermediate__save=True)
     self.assertTrue(hasattr(self.sm.intermediate, "cache_"))
 
     for k in (

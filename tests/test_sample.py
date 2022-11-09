@@ -127,10 +127,10 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_refit_deletes_intermediate(self):
     """Test intermediate results reset"""
     s = base.clone(
-        self.sample).set_params(sinusoidal__save_intermediate=True).fit(self.x)
+        self.sample).set_params(sinusoidal__intermediate__save=True).fit(self.x)
     with self.subTest(step="interediate_saved"):
       self.assertTrue(hasattr(s.sinusoidal.intermediate, "cache_"))
-    s.set_params(sinusoidal__save_intermediate=False).fit(self.x)
+    s.set_params(sinusoidal__intermediate__save=False).fit(self.x)
     with self.subTest(step="interediate_reset"):
       self.assertFalse(hasattr(s.sinusoidal.intermediate, "cache_"))
 
@@ -201,7 +201,8 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_plot_2d(self):
     """Test 2D plot"""
     for r, s in itertools.product(*itertools.tee(map(bool, range(2)), 2)):
-      kw = dict(sinusoidal__tracker__reverse=r, sinusoidal__save_intermediate=s)
+      kw = dict(sinusoidal__tracker__reverse=r,
+                sinusoidal__intermediate__save=s)
       with self.subTest(**kw):
         m = copy.deepcopy(self.sample)
         m.set_params(**kw)

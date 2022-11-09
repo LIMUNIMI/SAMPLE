@@ -130,7 +130,7 @@ class TestBeatRegression(unittestmixins.AssertDoesntRaiseMixin,
         sinusoidal__tracker__max_n_sines=32,
         sinusoidal__tracker__reverse=True,
         sinusoidal__t=-90,
-        sinusoidal__save_intermediate=True,
+        sinusoidal__intermediate__save=True,
         sinusoidal__tracker__peak_threshold=-45,
         sinusoidal__tracker__min_sine_dur=4,
     ).fit(self.x, sinusoidal__fs=self.fs)
