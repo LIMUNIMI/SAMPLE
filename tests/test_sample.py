@@ -129,10 +129,10 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     s = base.clone(
         self.sample).set_params(sinusoidal__save_intermediate=True).fit(self.x)
     with self.subTest(step="interediate_saved"):
-      self.assertTrue(hasattr(s.sinusoidal, "intermediate_"))
+      self.assertTrue(hasattr(s.sinusoidal.intermediate, "cache_"))
     s.set_params(sinusoidal__save_intermediate=False).fit(self.x)
     with self.subTest(step="interediate_reset"):
-      self.assertFalse(hasattr(s.sinusoidal, "intermediate_"))
+      self.assertFalse(hasattr(s.sinusoidal.intermediate, "cache_"))
 
   def test_merge_strategy_raises(self):
     """Test that an unsupported merging strategy causes an Exception"""

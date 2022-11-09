@@ -253,3 +253,5 @@ class OptionalStorage(base.BaseEstimator):
               itertools.repeat(None, index + 1 - len(self.cache_[key])))
         self.cache_[key][index] = value
     return value
+
+  __call__ = append

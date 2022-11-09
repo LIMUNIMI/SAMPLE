@@ -204,6 +204,7 @@ def _decorate_sinusoidal_model(func):
   @utils.deprecated_argument("sine_tracker_cls",
                              convert=lambda sine_tracker_cls, **kwargs:
                              ("tracker", sine_tracker_cls()))
+  @utils.deprecated_argument("save_intermediate", "intermediate__save")
   @functools.wraps(func)
   def func_(*args, **kwargs):
     return func(*args, **kwargs)
@@ -252,7 +253,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       h: int = 500,
       t: float = -90,
       tracker: SineTracker = None,
-      save_intermediate: bool = False,
+      intermediate: utils.learn.OptionalStorage = None,
       **kwargs,
   ):
     self.fs = fs
@@ -261,12 +262,16 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.h = h
     self.t = t
     self.tracker = tracker
-    self.save_intermediate = save_intermediate
+    self.intermediate = intermediate
     self.set_params(**kwargs)
 
   @_decorate_sinusoidal_model
   def set_params(self, **kwargs):
     return super().set_params(**kwargs)
+
+  @utils.learn.default_property
+  def intermediate(self):
+    return utils.learn.OptionalStorage()
 
   @utils.learn.default_property
   def tracker(self):
@@ -291,8 +296,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       SinusoidalModel: self"""
-    if hasattr(self, "intermediate_"):
-      del self.intermediate_
+    self.intermediate.reset()
     self.set_params(**kwargs)
     self.tracker.reset()
     self.w_ = self.normalized_window
@@ -311,23 +315,6 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   def tracks_(self) -> List[Dict[str, np.ndarray]]:
     """Tracked sinusoids"""
     return list(self.tracker.all_tracks_)
-
-  def intermediate(self, key: str, value):
-    """Save intermediate results if :data:`save_intermediate` is True
-
-    Arguments:
-      key (str): Data name
-      value: Data
-
-    Returns:
-      object: The input value"""
-    if self.save_intermediate:
-      if not hasattr(self, "intermediate_"):
-        self.intermediate_ = {}
-      if key not in self.intermediate_:
-        self.intermediate_[key] = []
-      self.intermediate_[key].append(value)
-    return value
 
   @property
   def default_window(self) -> np.ndarray:

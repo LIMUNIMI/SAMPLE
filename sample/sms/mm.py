@@ -245,16 +245,16 @@ class ModalModel(sm.SinusoidalModel):
                n: int = 2048,
                h: int = 500,
                t: float = -90,
-               save_intermediate: bool = False,
                tracker: sm.SineTracker = None,
+               intermediate: utils.learn.OptionalStorage = None,
                **kwargs):
     super().__init__(fs=fs,
                      w=w,
                      n=n,
                      h=h,
                      t=t,
-                     save_intermediate=save_intermediate,
                      tracker=tracker,
+                     intermediate=intermediate,
                      **kwargs)
 
   @_decorate_modal_model

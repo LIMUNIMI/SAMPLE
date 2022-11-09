@@ -38,8 +38,8 @@ def sine_tracking_2d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
   tmax = 0
   reverse = getattr(m.tracker, "reverse", False)
   if reverse:
-    if m.save_intermediate:
-      tmax = len(m.intermediate_["stft"]) * m.h / m.fs
+    if m.intermediate.save:
+      tmax = len(m.intermediate["stft"]) * m.h / m.fs
     else:
       tmax = max((track["start_frame"] + track["freq"].size) * m.h / m.fs
                  for track in m.tracker.all_tracks_)
