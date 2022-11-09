@@ -1,7 +1,7 @@
 """Machine learning utilities"""
 import functools
 import itertools
-from typing import Any, Callable, Optional, TypeVar, overload
+from typing import Any, Callable, Dict, Optional, TypeVar, overload
 
 from sklearn import base
 
@@ -19,7 +19,22 @@ class _DefaultProperty(property):
     fdef (callable): Defaulter function. See :meth:`defaulter`
     **kwargs: Keyword arguments for :class:`property`"""
 
-  def __init__(self, name: str, default_fn: DefaultFunction, **kwargs) -> None:
+  _FORBIDDEN_NAMES: Dict[Optional[str], str] = {
+      None: "",
+      "<lambda>": " because of possible conflicts with other lambda functions",
+      "_": " because it is conventionally used as a placeholder",
+  }
+
+  def __init__(self,
+               default_fn: DefaultFunction,
+               name: Optional[str] = None,
+               **kwargs) -> None:
+    if name is None:
+      name = getattr(default_fn, "__name__", None)
+    if name in self._FORBIDDEN_NAMES:
+      why = self._FORBIDDEN_NAMES[name]
+      raise ValueError(f"default_property(): name '{name}' is forbidden{why}"
+                       ". Please, specify a different 'name'")
     self._attr_name = f"_default_property_{name}"
     self._default_fn = default_fn
 
@@ -61,22 +76,17 @@ class _DefaultProperty(property):
 
 
 @overload
-def default_property(name, func, **kwargs) -> _DefaultProperty:
-  ...
+def default_property(**kwargs) -> Callable[[DefaultFunction], _DefaultProperty]:
+  ...  # pragma: no cover
 
 
 @overload
-def default_property(func, **kwargs) -> _DefaultProperty:
-  ...
+def default_property(default_fn: DefaultFunction, **kwargs) -> _DefaultProperty:
+  ...  # pragma: no cover
 
 
-@overload
-def default_property(name,
-                     **kwargs) -> Callable[[DefaultFunction], _DefaultProperty]:
-  ...
-
-
-def default_property(*args, **kwargs):
+def default_property(default_fn: Optional[DefaultFunction] = None, **kwargs):
+  # pylint: disable=C0301 (line-too-long unavoidable because of doctest)
   """Default property attribute. Can be used as a decorator.
   It's meant to be used to avoid unexpected sharing of instances between
   different objects when using default argument values.
@@ -100,6 +110,8 @@ def default_property(*args, **kwargs):
     ...     return Member()
     >>> # Instances created with default arguments do not share
     >>> # the same instance of the member object
+    >>> Good().member is not None
+    True
     >>> Good().member is not Good().member
     True
     >>> # Unless we explicitly provide a value
@@ -129,12 +141,27 @@ def default_property(*args, **kwargs):
     True
     >>> # While allowing assignments to get trough for valid inputs
     >>> Good(x).member is x
+    True
+    >>> # Default values can be deactivated using the constant defaulter
+    >>> Good.member.defaulter()
+    >>> Good().member is None
+    True
+    >>> # Default properties can be defined dynamically
+    >>> # Some callables such as lambdas and partials will
+    >>> # require an additional 'name' argument
+    >>> try:
+    ...   Good.member = default_property(lambda _: {})
+    ... except ValueError as e:
+    ...   print(e)
+    default_property(): name '<lambda>' is forbidden because of possible conflicts with other lambda functions. Please, specify a different 'name'
+    >>> Good.member = default_property(name="member")(lambda _: {})
+    >>> isinstance(Good().member, dict) and not Good().member
+    True
+    >>> Good().member is not Good().member
     True"""
-  if len(args) == 1:
-    if isinstance(args[0], str):
-      return functools.partial(_DefaultProperty, *args, **kwargs)
-    args = (args[0].__name__, *args)
-  return _DefaultProperty(*args, **kwargs)
+  if default_fn is None:
+    return functools.partial(_DefaultProperty, **kwargs)
+  return _DefaultProperty(default_fn=default_fn, **kwargs)
 
 
 class OptionalStorage(base.BaseEstimator):
