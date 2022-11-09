@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 from chromatictools import unittestmixins
+from matplotlib import pyplot as plt
 from sklearn import base
 
 import sample
@@ -214,3 +215,20 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     s = copy.deepcopy(self.sample).fit(self.x)
     with self.assert_doesnt_raise():
       plots.sine_tracking_3d(s.sinusoidal)
+
+  def test_plot_resynthesis(self):
+    """Test resynthesis plot"""
+    s = copy.deepcopy(self.sample).fit(self.x)
+    plots.resynthesis(
+        self.x, {"Resynthesis": s},
+        wav_kws=dict(alpha=0.66),
+        tf_kws=dict(cmap="inferno"),
+        foreach=lambda i, k, y:
+        (self.assertIsInstance(i, int), self.assertIsInstance(k, str),
+         self.assertIsInstance(y, np.ndarray)))
+
+  def test_plot_resynthesis_axs(self):
+    """Test resynthesis plot specifying axes"""
+    _, axs = plt.subplots(2, 1)
+    with self.assert_doesnt_raise():
+      plots.resynthesis(self.x, axs=axs)
