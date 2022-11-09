@@ -2,8 +2,7 @@
 import functools
 import inspect
 import warnings
-from typing import (Any, Callable, Iterable, Optional, ParamSpecArgs,
-                    ParamSpecKwargs, Tuple)
+from typing import Any, Callable, Iterable, Optional, Tuple
 
 import numpy as np
 import paragraph as pg
@@ -308,14 +307,13 @@ class SAMPLEDeprecationWarning(DeprecationWarning):
   pass
 
 
-def deprecated_argument(
-    old_key: str,
-    new_key: Optional[str] = None,
-    convert: Optional[Callable[[ParamSpecArgs, ParamSpecKwargs],
-                               Tuple[str, Any]]] = None,
-    msg: Optional[str] = None,
-    prefix: bool = False,
-    warn: bool = True):
+def deprecated_argument(old_key: str,
+                        new_key: Optional[str] = None,
+                        convert: Optional[Callable[[Ellipsis],
+                                                   Tuple[str, Any]]] = None,
+                        msg: Optional[str] = None,
+                        prefix: bool = False,
+                        warn: bool = True):
   """Wrap a function to deprecate an argument.
 
   Args:
