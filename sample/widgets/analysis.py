@@ -109,11 +109,11 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     """Update analysis and resynthesis figure"""
     for ax in self.ax:
       ax.clear()
-    m = self.sample_object.sinusoidal_model
-    stft = np.array([mx for mx, _ in m.intermediate_["stft"]]).T
-    if m.reverse:
+    m = self.sample_object.sinusoidal
+    stft = np.array([mx for mx, _ in m.intermediate["stft"]]).T
+    if m.tracker.reverse:
       stft = np.fliplr(stft)
-    tmax = len(m.intermediate_["stft"]) * m.h / m.fs
+    tmax = len(m.intermediate["stft"]) * m.h / m.fs
 
     plots.sine_tracking_2d(m, ax=self.ax)
 
