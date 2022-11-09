@@ -309,8 +309,8 @@ class SAMPLEDeprecationWarning(DeprecationWarning):
 
 def deprecated_argument(old_key: str,
                         new_key: Optional[str] = None,
-                        convert: Optional[Callable[[Ellipsis],
-                                                   Tuple[str, Any]]] = None,
+                        convert: Optional[Callable[[Any], Tuple[str,
+                                                                Any]]] = None,
                         msg: Optional[str] = None,
                         prefix: bool = False,
                         warn: bool = True):
