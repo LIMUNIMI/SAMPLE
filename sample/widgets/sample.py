@@ -1,13 +1,15 @@
 """SAMPLE class for use in GUI"""
+import time
 import tkinter as tk
-from typing import Optional
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import throttle
 
+import sample.beatsdrop.sample
+import sample.sample
 import sample.utils
 import sample.utils.learn
-from sample import sample
 from sample.sms import mm, sm
 
 utils = sample.utils
@@ -54,20 +56,29 @@ class SinusoidalModel4GUI(mm.ModalModel):
       SinusoidalModel: self"""
     self.set_params(**kwargs)
     self.w_ = self._normalized_window
+    self.progress_start(len(list(self.time_frames(x))))
+    s = super().fit(x=x, y=y)
+    return s
+
+  def progress_start(self,
+                     maximum: int,
+                     value: int = 0,
+                     delay: Optional[float] = None):
+    """Start progressbar and set the maximum"""
     if self.progressbar is not None:
       self.progressbar["maximum"] = -1
-      self.progressbar.config(value=0, maximum=len(list(self.time_frames(x))))
-    s = super().fit(x=x, y=y)
-    if self.progressbar is not None:
-      self.progressbar.config(value=1, maximum=1)
-    return s
+      self.progressbar.config(value=value, maximum=maximum)
+      if delay is not None:
+        time.sleep(delay)
+      self.progressbar.update()
 
   @throttle.wrap(.0125, 1)
   def progressbar_update(self, value: Optional[float] = None):
     """Update the progress bar. This function is throttled"""
-    if value is not None:
-      self.progressbar.config(value=value)
-    self.progressbar.update()
+    if self.progressbar is not None:
+      if value is not None:
+        self.progressbar.config(value=value)
+      self.progressbar.update()
 
   def time_frames(self, x: np.ndarray):
     """Generator of frames for a given input. Also,
@@ -90,11 +101,34 @@ class SinusoidalModel4GUI(mm.ModalModel):
       yield f
 
 
-class SAMPLE4GUI(sample.SAMPLE):
-  """SAMPLE model for use in the GUI. For a full list of arguments see
-  :class:`sample.sample.SAMPLE`"""
+class SAMPLE4GUIMixin:
+  """Mixin class for using a SAMPLE model in the GUI"""
 
   @utils.learn.default_property
   def sinusoidal(self):
     """Sinusoidal analysis model"""
     return SinusoidalModel4GUI()
+
+  def _fit_track(self, i: int, t: np.ndarray,
+                 track: dict) -> Sequence[Tuple[float, float, float, float]]:
+    if i == 0:
+      self.sinusoidal.progress_start(len(self.sinusoidal.tracks_))
+    params = super()._fit_track(i=i, t=t, track=track)
+    self.sinusoidal.progressbar_update(i + 1)
+    return params
+
+  def fit(self, *args, **kwargs):
+    s = super().fit(*args, **kwargs)
+    self.sinusoidal.progress_start(1, 1, delay=0.1)
+    return s
+
+
+class SAMPLE4GUI(SAMPLE4GUIMixin, sample.sample.SAMPLE):
+  """SAMPLE model for use in the GUI. For a full list of arguments
+  see :class:`sample.sample.SAMPLE`"""
+
+
+class SAMPLEBeatsDROP4GUI(SAMPLE4GUIMixin,
+                          sample.beatsdrop.sample.SAMPLEBeatsDROP):
+  """SAMPLE+BeatsDROP model for use in the GUI. For a full list of arguments
+  see :class:`sample.beatsdrop.sample.SAMPLEBeatsDROP`"""
