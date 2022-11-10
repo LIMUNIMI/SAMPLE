@@ -105,12 +105,14 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   def _preprocess_track(self, i: int, x: np.ndarray,
                         t: dict) -> Tuple[int, np.ndarray, dict]:
-    """Compute time axis and nan-filter track"""
+    """Compute time axis, nan-filter track, and double the
+    magnitude (compensate for spectral halving)"""
     notnans = np.logical_not(np.isnan(t["mag"]))
     time_axis = (t["start_frame"] +
                  np.arange(t["mag"].size)[notnans]) / self.sinusoidal.frame_rate
     t_filtered = {
-        k: v if k == "start_frame" else v[notnans] for k, v in t.items()
+        k: v if np.ndim(np.squeeze(v)) != 1 else v[notnans]
+        for k, v in t.items()
     }
     if getattr(self.sinusoidal.tracker, "reverse", False):
       # Reverse time axis
@@ -130,7 +132,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
     Args:
       i (int): Track index
-      tim (array): Time axis
+      t (array): Time axis
       track (dict): Track
 
     Returns:
