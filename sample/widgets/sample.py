@@ -11,6 +11,7 @@ import sample.sample
 import sample.utils
 import sample.utils.learn
 from sample.sms import mm, sm
+from sample.widgets import logging
 
 utils = sample.utils
 
@@ -134,3 +135,18 @@ class SAMPLEBeatsDROP4GUI(SAMPLE4GUIMixin,
                           sample.beatsdrop.sample.SAMPLEBeatsDROP):
   """SAMPLE+BeatsDROP model for use in the GUI. For a full list of arguments
   see :class:`sample.beatsdrop.sample.SAMPLEBeatsDROP`"""
+
+
+def sample_factory(beatsdrop: bool = False, **kwargs):
+  """Factory function for SAMPLE models for the GUI"""
+  cls = SAMPLEBeatsDROP4GUI if beatsdrop else SAMPLE4GUI
+  ok_kwargs = {}
+  for k, v in kwargs.items():
+    try:
+      cls(**{k: v})
+    except ValueError:
+      continue
+    ok_kwargs[k] = v
+  logging.info("Building SAMPLE object of class %s with arguments: %s",
+               cls.__name__, ok_kwargs)
+  return cls(**ok_kwargs)
