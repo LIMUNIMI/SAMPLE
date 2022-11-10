@@ -49,8 +49,10 @@ class ModalTracker(sm.SineTracker):
   - group non-contiguous tracks
 
   Args:
+    fs (int): Sampling frequency
+    h (int): Hop size (in samples)
     max_n_sines (int): Maximum number of tracks per frame
-    min_sine_dur (float): Minimum duration of a track in number of frames
+    min_sine_dur (float): Minimum duration of a track in seconds
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
     freq_dev_slope (float): Slope of frequency deviation threshold
     frequency_bounds (float, float): Minimum and maximum accepted mean frequency
@@ -60,8 +62,9 @@ class ModalTracker(sm.SineTracker):
       :data:`"single"` (based on the frequency difference of the tail of older
       track and head of new track), :data:`"average"` (based on frequency
       difference of average frequencies)
-    strip_t (int): Strip time (in frames). Tracks starting later than this
-      time will be omitted from the track list. If :data:`None`, don't strip"""
+    strip_t (int): Strip time (in seconds). Tracks starting later than this
+      time will be omitted from the track list. If :data:`None`, don't strip
+    **kwargs: Additional parameters for sub-models"""
 
   def __init__(self,
                max_n_sines: int = 100,
@@ -92,11 +95,12 @@ class ModalTracker(sm.SineTracker):
 
   @property
   def strip_n(self):
+    """Strip time (in frames)"""
     return None if self.strip_t is None else math.ceil(self.strip_t *
                                                        self.frame_rate)
 
   def track_ok(self, track: dict) -> bool:
-    """Check if deactivated track is ok to be saved
+    """Check if a deactivated track is ok to be saved
 
     Args:
       track (dict): Track to check
@@ -141,7 +145,7 @@ class ModalTracker(sm.SineTracker):
 
   def deactivate(self, track_index: int) -> dict:
     """Remove track from list of active tracks and save it in
-    :attr:`tracks_` if it meets cleanness criteria
+    :attr:`tracks_` if it meets cleanliness criteria
 
     Args:
       track_index (int): Index of track to deactivate
@@ -168,8 +172,8 @@ class ModalTracker(sm.SineTracker):
 
   @property
   def all_tracks_(self) -> Iterable[TractT]:
-    """All deactivated tracks in :attr:`tracks_` and those active tracks
-    that would pass the cleanness check at the current state of the tracker"""
+    """All deactivated tracks in :attr:`tracks_` and those active tracks that
+    would pass the cleanliness check at the current state of the tracker"""
     tracks = super().all_tracks_
     if self.strip_n is None:
       return tracks
@@ -184,6 +188,7 @@ class ModalTracker(sm.SineTracker):
 
 
 def _decorate_modal_model(func):
+  """Decorator for deprecated arguments of :class:`ModalModel`"""
 
   @utils.deprecated_argument("reverse", "tracker__reverse")
   @utils.deprecated_argument("frequency_bounds", "tracker__frequency_bounds")
@@ -201,39 +206,18 @@ class ModalModel(sm.SinusoidalModel):
   """Sinusoidal model with a :class:`ModalTracker` as sine tracker
 
   Args:
-    fs (int): sampling frequency in Hz. Defaults to 44100
-    w: Analysis window. Defaults to None (if None,
-      the :attr:`default_window` is used)
+    w: Analysis window
     n (int): FFT size. Defaults to 2048
-    h (int): Window hop size. Defaults to 500
     t (float): threshold in dB. Defaults to -90
-    max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
-    min_sine_dur (float): Minimum duration of a track in seconds.
-      Defaults to 0.04
-    safe_sine_len (int): Minimum safe length of a track in number of
-      frames. This mainly serves as a check over the :data:`min_sine_dur`
-      parameter. If :data:`None` (default), then, do not
-      check :data:`min_sine_dur`. Set this to :data:`2` to avoid length
-      errors for the regressor
-    freq_dev_offset (float): Frequency deviation threshold at 0Hz.
-      Defaults to 20
-    freq_dev_slope (float): Slope of frequency deviation threshold.
-      Defaults to 0.01
-    reverse (bool): Whether to process audio in reverse.
-      Defaults to False
-    sine_tracker_cls (type): Sine tracker class
-    save_intermediate (bool): If True, save intermediate data structures in
-      the attribute :attr:`intermediate_`. Defaults to False
-    frequency_bounds (float, float): Minimum and maximum accepted mean frequency
-    peak_threshold (float): Minimum peak magnitude (magnitude at time=0) in dB
-      for modal tracks
-    merge_strategy (str): Track merging strategy. Supported strategies are:
-      :data:`"single"` (based on the frequency difference of the tail of older
-      track and head of new track), :data:`"average"` (based on frequency
-      difference of average frequencies)
-    strip_t (float): Strip time (in seconds). Tracks starting later than this
-      time will be omitted from the track list.
-      Default is :data:`None` (don't strip)"""
+    tracker (SineTracker): Sine tracker.
+      Defaults to a :class:`ModalTracker`
+    intermediate (OptionalStorage): Optionally-activatable storage
+    **kwargs: Additional parameters for sub-models. See
+      :class:`sample.sms.mm.ModalTracker` and
+      :class:`sample.utils.learn.OptionalStorage`
+
+  Attributes:
+    w_ (array): Effective analysis window"""
 
   @_decorate_modal_model
   def __init__(self,
