@@ -49,10 +49,10 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   """SAMPLE (Spectral Analysis for Modal Parameter Linear Estimate) model
 
   Args:
-    sinusoidal_model: Sinusoidal model. Default is an instance of
-      :class:`sample.sms.mm.ModalModel`
-    regressor: Regressor. Default is an instance of
-      :class:`sample.hinge.HingeRegression`
+    sinusoidal (SinusoidalModel): Sinusoidal analysis model.
+      Default is an instance of :class:`ModalModel`
+    regressor: Modal parameters regression model.
+      Default is an instance of :class:`HingeRegression`
     regressor_k (str): Attribute name for the estimated slope
       coefficient of :data:`regressor`
     regressor_q (str): Attribute name for the estimated intercept
@@ -61,10 +61,14 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       into a single frequency. Defaults to :func:`numpy.mean`
     max_n_modes (int): Number of modes to use in resynthesis. If :data:`None`
       (default), then synthesise all modes
-    **kwargs: Keyword arguments, will be set as parameters of submodels. For a
-      complete list of all parameter names and default values, please, run
-      :data:`SAMPLE().get_params()`. For an explanation of the parameters,
-      please, refer to the documentation of the submodels"""
+    **kwargs: Additional parameters for sub-models. See
+      :class:`sample.sms.mm.ModalTracker`,
+      :class:`sample.sms.mm.ModalModel`,
+      :class:`sample.hinge.HingeRegression`, and
+      :class:`sample.utils.learn.OptionalStorage`
+
+  Attributes:
+    param_matrix_ (array): 3-by-N matrix of modal parameters"""
 
   @_decorate_sample
   def __init__(
@@ -91,10 +95,12 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   @utils.learn.default_property
   def sinusoidal(self):
+    """Sinusoidal analysis model"""
     return mm.ModalModel()
 
   @utils.learn.default_property
   def regressor(self):
+    """Modal parameters regression model"""
     return hinge.HingeRegression()
 
   def _preprocess_track(self, i: int, x: np.ndarray,
@@ -162,6 +168,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   @property
   def _valid_params_(self) -> Sequence[bool]:
+    """Boolean array that indicates parameter validity"""
     return np.isfinite(self.param_matrix_).all(axis=0)
 
   @property

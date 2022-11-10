@@ -32,17 +32,17 @@ def sample_kwargs_remapper(sinusoidal__log_n: Optional[int] = None,
   window paramaters and lets every other parameter pass through
 
   Args:
-    sinusoidal_model__log_n (int): Logarithm of fft size. Will be remapped to
-      :data:`sinusoidal_model__n` if not in :data:`kwargs`
-    sinusoidal_model__wtype (str): Name of the window to use. Default is
+    sinusoidal__log_n (int): Logarithm of fft size. Will be remapped to
+      :data:`sinusoidal__n` if not in :data:`kwargs`
+    sinusoidal__wtype (str): Name of the window to use. Default is
       :data:`"hamming"`. It is used to compute the window
-      :data:`sinusoidal_model__w` if not in :data:`kwargs`
-    sinusoidal_model__wsize (float): Window size as a fraction of fft size.
+      :data:`sinusoidal__w` if not in :data:`kwargs`
+    sinusoidal__wsize (float): Window size as a fraction of fft size.
       Default is :data:`1.0`. It is used to compute the window
-      :data:`sinusoidal_model__w` if not in :data:`kwargs`
-    sinusoidal_model__overlap (float): Window overlap as a fraction of the
+      :data:`sinusoidal__w` if not in :data:`kwargs`
+    sinusoidal__overlap (float): Window overlap as a fraction of the
       window size. Default is :data:`0.5`. It is used to compute the hop size
-      :data:`sinusoidal_model__h` if not in :data:`kwargs`
+      :data:`sinusoidal__tracker__h` if not in :data:`kwargs`
     **kwargs: Pass-through keyword arguments
 
   Returns:

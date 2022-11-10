@@ -39,6 +39,7 @@ class SinusoidalModel4GUI(mm.ModalModel):
 
   @utils.learn.default_property
   def intermediate(self):
+    """Optionally-activatable storage"""
     return utils.learn.OptionalStorage(save=True)
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
@@ -52,7 +53,7 @@ class SinusoidalModel4GUI(mm.ModalModel):
     Returns:
       SinusoidalModel: self"""
     self.set_params(**kwargs)
-    self.w_ = self.normalized_window
+    self.w_ = self._normalized_window
     if self.progressbar is not None:
       self.progressbar["maximum"] = -1
       self.progressbar.config(value=0, maximum=len(list(self.time_frames(x))))
@@ -95,4 +96,5 @@ class SAMPLE4GUI(sample.SAMPLE):
 
   @utils.learn.default_property
   def sinusoidal(self):
+    """Sinusoidal analysis model"""
     return SinusoidalModel4GUI()

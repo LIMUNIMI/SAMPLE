@@ -2,8 +2,7 @@
 import functools
 import itertools
 import math
-from typing import (Any, Callable, Dict, Generator, Iterable, List, Optional,
-                    Tuple)
+from typing import Any, Callable, Dict, Generator, Iterable, List, Tuple
 
 import numpy as np
 from sklearn import base
@@ -38,13 +37,16 @@ def min_key(it: Iterable, key: Callable) -> Tuple[Any, Any]:
 
 
 class SineTracker(base.BaseEstimator):
-  """Model for keeping track of sinusiods across frames
+  """Model for keeping track of sines across frames
 
   Args:
+    fs (int): Sampling frequency
+    h (int): Hop size (in samples)
     max_n_sines (int): Maximum number of tracks per frame
-    min_sine_dur (int): Minimum duration of a track in number of frames
+    min_sine_dur (float): Minimum duration of a track in seconds
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
     freq_dev_slope (float): Slope of frequency deviation threshold
+    **kwargs: Additional parameters for sub-models
 
   Attributes:
     tracks_ (list of dict): Deactivated tracks"""
@@ -82,16 +84,18 @@ class SineTracker(base.BaseEstimator):
 
   @property
   def n_active_tracks(self) -> int:
+    """Number of currently active tracks"""
     return len(self._active_tracks)
 
   @property
   def min_sine_len(self) -> int:
+    """Minimum duration of a track in number of frames"""
     return max(2, math.ceil(self.min_sine_dur * self.frame_rate))
 
   @property
   def all_tracks_(self) -> Iterable[dict]:
-    """All deactivated tracks in :attr:`tracks_` and those active tracks
-    that would pass the cleanness check at the current state of the tracker"""
+    """All deactivated tracks in :attr:`tracks_` and those active tracks that
+    would pass the cleanliness check at the current state of the tracker"""
     return itertools.chain(
         self.tracks_,
         filter(self.track_ok, map(self.numpy_track, self._active_tracks)))
@@ -108,7 +112,7 @@ class SineTracker(base.BaseEstimator):
 
   @staticmethod
   def numpy_track(track: dict) -> dict:
-    """Convert to numpy arrays all values in track
+    """Convert to numpy arrays all values in a track
 
     Args:
       track (dict): Track to convert
@@ -118,7 +122,7 @@ class SineTracker(base.BaseEstimator):
     return {k: np.array(v) for k, v in track.items()}
 
   def track_ok(self, track: dict) -> bool:
-    """Check if deactivated track is ok to be saved
+    """Check if a deactivated track is ok to be saved
 
     Args:
       track (dict): Track to check
@@ -129,7 +133,7 @@ class SineTracker(base.BaseEstimator):
 
   def deactivate(self, track_index: int) -> dict:
     """Remove track from list of active tracks and save it in
-    :attr:`tracks_` if it meets cleanness criteria
+    :attr:`tracks_` if it meets cleanliness criteria
 
     Args:
       track_index (int): Index of track to deactivate
@@ -194,6 +198,7 @@ class SineTracker(base.BaseEstimator):
 
 
 def _decorate_sinusoidal_model(func):
+  """Decorator for deprecated arguments of :class:`SinusoidalModel`"""
 
   @utils.deprecated_argument("max_n_sines", "tracker__max_n_sines")
   @utils.deprecated_argument("min_sine_dur", "tracker__min_sine_dur")
@@ -224,38 +229,22 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
   """Model for sinusoidal tracking
 
   Args:
-    fs (int): sampling frequency in Hz. Defaults to 44100
-    w: Analysis window. Defaults to None (if None,
-      the :attr:`default_window` is used)
+    w: Analysis window
     n (int): FFT size. Defaults to 2048
-    h (int): Window hop size. Defaults to 500
     t (float): threshold in dB. Defaults to -90
-    max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
-    min_sine_dur (float): Minimum duration of a track in seconds.
-      Defaults to 0.04
-    safe_sine_len (int): Minimum safe length of a track in number of
-      frames. This mainly serves as a check over the :data:`min_sine_dur`
-      parameter. If :data:`None` (default), then, do not
-      check :data:`min_sine_dur`. Set this to :data:`2` to avoid length
-      errors for the regressor.
-    freq_dev_offset (float): Frequency deviation threshold at 0Hz.
-      Defaults to 20
-    freq_dev_slope (float): Slope of frequency deviation threshold.
-      Defaults to 0.01
-    reverse (bool): Whether to process audio in reverse.
-      Defaults to False
-    sine_tracker_cls (type): Sine tracker class
-    save_intermediate (bool): If True, save intermediate data structures in
-      the attribute :attr:`intermediate_`. Defaults to False
+    tracker (SineTracker): Sine tracker
+    intermediate (OptionalStorage): Optionally-activatable storage
+    **kwargs: Additional parameters for sub-models. See
+      :class:`sample.sms.sm.SineTracker` and
+      :class:`sample.utils.learn.OptionalStorage`
 
   Attributes:
-    w_ (array): Effective analysis window
-    intermediate_ (dict): Dictionary of intermediate data structures"""
+    w_ (array): Effective analysis window"""
 
   @_decorate_sinusoidal_model
   def __init__(
       self,
-      w: Optional[np.ndarray] = None,
+      w: np.ndarray = None,
       n: int = 2048,
       t: float = -90,
       tracker: SineTracker = None,
@@ -275,11 +264,18 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
   @utils.learn.default_property
   def intermediate(self):
+    """Optionally-activatable storage"""
     return utils.learn.OptionalStorage()
 
   @utils.learn.default_property
   def tracker(self):
+    """Sine tracker"""
     return SineTracker()
+
+  @utils.learn.default_property
+  def w(self) -> np.ndarray:
+    """Analysis window"""
+    return np.hamming(2001)
 
   @property
   def frame_rate(self) -> float:
@@ -288,10 +284,12 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
   @property
   def fs(self):
+    """Sampling frequency"""
     return self.tracker.fs
 
   @property
   def h(self):
+    """Hop size (in samples)"""
     return self.tracker.h
 
   def fit(
@@ -304,14 +302,15 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     Args:
       x (array): audio input
       y (ignored): exists for compatibility
-      kwargs: Any parameter, overrides initialization
+      kwargs: Any parameter, overrides initialization. Mainly meant for setting
+        the sampling frequency (:data:`tracker__fs`)
 
     Returns:
       SinusoidalModel: self"""
     self.intermediate.reset()
     self.set_params(**kwargs)
     self.tracker.reset()
-    self.w_ = self.normalized_window
+    self.w_ = self._normalized_window
     if getattr(self.tracker, "reverse", False):
       x = np.flip(x)
 
@@ -329,15 +328,9 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     return list(self.tracker.all_tracks_)
 
   @property
-  def default_window(self) -> np.ndarray:
-    """Default window (2001 samples Hamming window)"""
-    return np.hamming(2001)
-
-  @property
-  def normalized_window(self) -> np.ndarray:
-    """Normalized analysis window (if None, normalized default window)"""
-    w = self.default_window if self.w is None else self.w
-    return w / np.sum(w)
+  def _normalized_window(self) -> np.ndarray:
+    """Normalized analysis window"""
+    return self.w / np.sum(self.w)
 
   def pad_input(self, x: np.ndarray) -> Tuple[np.ndarray, int]:
     """Pad input at the beginning (so that the first window is centered at

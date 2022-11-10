@@ -91,14 +91,17 @@ class HingeRegression(base.RegressorMixin, base.BaseEstimator):
 
   @utils.learn.default_property
   def linear_regressor(self):
+    """Linear regression model"""
     return linear_model.LinearRegression()
 
   @utils.learn.default_property
   def coeffs_init(self):
+    """Initializer for hinge function coefficients"""
     return self._default_coeffs_init
 
   @utils.learn.default_property
   def bounds(self):
+    """Callable for computing hinge function coefficient boundaries"""
     return self._default_bounds
 
   @staticmethod
