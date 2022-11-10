@@ -1,4 +1,5 @@
 """Analysis tab"""
+import contextlib
 import json
 import os
 import threading
@@ -11,6 +12,24 @@ from sample import plots
 from sample.widgets import audio, logging, pyplot
 from sample.widgets import responsive as tk
 from sample.widgets import utils
+
+
+@contextlib.contextmanager
+def _non_block_lock(lock: threading.Lock):
+  """Try to take ownership of a lock. Non-blocking
+
+  Args:
+    lock (Lock): Lock
+
+  Yields:
+    bool: :data:`True` if the lock has been owned"""
+  owned = False
+  try:
+    owned = lock.acquire(blocking=False)
+    yield owned
+  finally:
+    if owned:
+      lock.release()
 
 
 class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
@@ -189,25 +208,24 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     """Analysis callback"""
     if not self.audio_loaded:
       messagebox.showerror("No audio",
-                            "You have to load an audio file before analyzing")
+                           "You have to load an audio file before analyzing")
       return
-    if not self._analisis_lock.acquire(blocking=False):
-      logging.warning("Analysis in progress, ignoring user input")
-      return
-    try:
-      x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
-      self.sample_object.fit(
-          x,
-          sinusoidal__tracker__fs=self.audio_sr,
-          sinusoidal__progressbar=self.progressbar,
-      )
-      self.audio_resynth_x = None
-      self.update_plot()
-    except Exception as e:  # pylint: disable=W0703
-      messagebox.showerror(type(e).__name__, str(e))
-      return
-    finally:
-      self._analisis_lock.release()
+    with _non_block_lock(self._analisis_lock) as proceed:
+      if not proceed:
+        logging.warning("Analysis in progress, ignoring user input")
+        return
+      try:
+        x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
+        self.sample_object.fit(
+            x,
+            sinusoidal__tracker__fs=self.audio_sr,
+            sinusoidal__progressbar=self.progressbar,
+        )
+      except Exception as e:  # pylint: disable=W0703
+        messagebox.showerror(type(e).__name__, str(e))
+      finally:
+        self.audio_resynth_x = None
+        self.update_plot()
 
   def _get_audio(self, resynth: bool):
     """Get audio array"""
