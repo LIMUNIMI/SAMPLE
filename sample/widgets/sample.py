@@ -39,6 +39,7 @@ class SinusoidalModel4GUI(mm.ModalModel):
 
   @utils.learn.default_property
   def intermediate(self):
+    """Optionally-activatable storage"""
     return utils.learn.OptionalStorage(save=True)
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
@@ -95,4 +96,5 @@ class SAMPLE4GUI(sample.SAMPLE):
 
   @utils.learn.default_property
   def sinusoidal(self):
+    """Sinusoidal analysis model"""
     return SinusoidalModel4GUI()
