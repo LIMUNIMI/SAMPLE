@@ -30,6 +30,7 @@ class SinusoidalModel4GUI(mm.ModalModel):
                t: float = -90,
                tracker: sm.SineTracker = None,
                intermediate: utils.learn.OptionalStorage = None,
+               padded: bool = False,
                **kwargs):
     self.progressbar = progressbar
     super().__init__(w=w,
@@ -37,6 +38,7 @@ class SinusoidalModel4GUI(mm.ModalModel):
                      t=t,
                      tracker=tracker,
                      intermediate=intermediate,
+                     padded=padded,
                      **kwargs)
 
   @utils.learn.default_property

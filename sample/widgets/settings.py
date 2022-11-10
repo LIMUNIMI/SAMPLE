@@ -285,6 +285,14 @@ _settings = (
          boolean=True,
          tooltip="If True, then process audio in reverse order of time",
      )),
+    ("sinusoidal__padded",
+     dict(
+         label="zero-padding",
+         init_value=False,
+         boolean=True,
+         tooltip="If True, then zero-pad the audio to center the first "
+         "window on the first sample",
+     )),
     ("gui_space", dict(is_spacer=True, label=" ")),
     ("gui_group", dict(label="GUI", is_spacer=True)),
     ("gui_theme",
