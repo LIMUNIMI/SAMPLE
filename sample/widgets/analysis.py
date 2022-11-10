@@ -1,6 +1,7 @@
 """Analysis tab"""
 import json
 import os
+import threading
 from tkinter import filedialog, messagebox
 
 import numpy as np
@@ -36,6 +37,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
                pad_bottom_h: float = 0.05,
                **kwargs):
     super().__init__(*args, **kwargs)
+    self._analisis_lock = threading.Lock()
     self.filedialog_dir_save = None
     self.responsive(1, 1)
 
@@ -187,20 +189,25 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     """Analysis callback"""
     if not self.audio_loaded:
       messagebox.showerror("No audio",
-                           "You have to load an audio file before analyzing")
+                            "You have to load an audio file before analyzing")
       return
-    x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
+    if not self._analisis_lock.acquire(blocking=False):
+      logging.warning("Analysis in progress, ignoring user input")
+      return
     try:
+      x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
       self.sample_object.fit(
           x,
           sinusoidal__tracker__fs=self.audio_sr,
           sinusoidal__progressbar=self.progressbar,
       )
+      self.audio_resynth_x = None
+      self.update_plot()
     except Exception as e:  # pylint: disable=W0703
       messagebox.showerror(type(e).__name__, str(e))
       return
-    self.audio_resynth_x = None
-    self.update_plot()
+    finally:
+      self._analisis_lock.release()
 
   def _get_audio(self, resynth: bool):
     """Get audio array"""
