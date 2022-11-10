@@ -212,6 +212,7 @@ class ModalModel(sm.SinusoidalModel):
     tracker (SineTracker): Sine tracker.
       Defaults to a :class:`ModalTracker`
     intermediate (OptionalStorage): Optionally-activatable storage
+    padded (bool): Analyse a zero-padded version of the input
     **kwargs: Additional parameters for sub-models. See
       :class:`sample.sms.mm.ModalTracker` and
       :class:`sample.utils.learn.OptionalStorage`
@@ -226,12 +227,14 @@ class ModalModel(sm.SinusoidalModel):
                t: float = -90,
                tracker: sm.SineTracker = None,
                intermediate: utils.learn.OptionalStorage = None,
+               padded: bool = False,
                **kwargs):
     super().__init__(w=w,
                      n=n,
                      t=t,
                      tracker=tracker,
                      intermediate=intermediate,
+                     padded=padded,
                      **kwargs)
 
   @_decorate_modal_model

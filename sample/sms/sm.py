@@ -234,6 +234,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     t (float): threshold in dB. Defaults to -90
     tracker (SineTracker): Sine tracker
     intermediate (OptionalStorage): Optionally-activatable storage
+    padded (bool): Analyse a zero-padded version of the input
     **kwargs: Additional parameters for sub-models. See
       :class:`sample.sms.sm.SineTracker` and
       :class:`sample.utils.learn.OptionalStorage`
@@ -249,6 +250,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       t: float = -90,
       tracker: SineTracker = None,
       intermediate: utils.learn.OptionalStorage = None,
+      padded: bool = False,
       **kwargs,
   ):
     self.w = w
@@ -256,6 +258,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.t = t
     self.tracker = tracker
     self.intermediate = intermediate
+    self.padded = padded
     self.set_params(**kwargs)
 
   @_decorate_sinusoidal_model
@@ -341,6 +344,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       (array, int): The padded array and the initial padding length"""
+    if not self.padded:
+      return x, 0
     a = (self.w_.size + 1) // 2
     b = self.w_.size // 2
     y = np.zeros(x.size + a + b)
@@ -357,7 +362,9 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       generator: Generator of overlapping frames of the padded input"""
     y, a = self.pad_input(x)
     for i in range(a, y.size - a, self.h):
-      yield y[(i - a):(i - a + self.w_.size)]
+      y_i = y[(i - a):(i - a + self.w_.size)]
+      if y_i.size == self.w_.size:
+        yield y_i
 
   def dft_frames(self,
                  x: np.ndarray) -> Iterable[Tuple[np.ndarray, np.ndarray]]:

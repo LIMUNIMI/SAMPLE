@@ -108,8 +108,11 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     """Compute time axis, nan-filter track, and double the
     magnitude (compensate for spectral halving)"""
     notnans = np.logical_not(np.isnan(t["mag"]))
-    time_axis = (t["start_frame"] +
-                 np.arange(t["mag"].size)[notnans]) / self.sinusoidal.frame_rate
+    time_axis = np.arange(t["mag"].size, dtype=float)[notnans]
+    time_axis += t["start_frame"]
+    time_axis /= self.sinusoidal.frame_rate
+    if not self.sinusoidal.padded:
+      time_axis += 0.5 * self.sinusoidal.w.size / self.sinusoidal.fs
     t_filtered = {
         k: v if np.ndim(np.squeeze(v)) != 1 else v[notnans]
         for k, v in t.items()
