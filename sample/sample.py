@@ -10,7 +10,7 @@ import sample.utils
 import sample.utils.dsp
 import sample.utils.learn
 from sample import hinge
-from sample.sms import mm
+from sample.sms import mm, sm
 
 utils = sample.utils
 
@@ -50,9 +50,9 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   Args:
     sinusoidal (SinusoidalModel): Sinusoidal analysis model.
-      Default is an instance of :class:`ModalModel`
+      Default is an instance of :class:`sample.sms.mm.ModalModel`
     regressor: Modal parameters regression model.
-      Default is an instance of :class:`HingeRegression`
+      Default is an instance of :class:`sample.hinge.HingeRegression`
     regressor_k (str): Attribute name for the estimated slope
       coefficient of :data:`regressor`
     regressor_q (str): Attribute name for the estimated intercept
@@ -73,8 +73,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   @_decorate_sample
   def __init__(
       self,
-      sinusoidal=None,
-      regressor=None,
+      sinusoidal: sm.SinusoidalModel = None,
+      regressor: hinge.HingeRegression = None,
       regressor_k: str = "k_",
       regressor_q: str = "q_",
       freq_reduce: Callable[[np.ndarray], float] = np.mean,
@@ -127,7 +127,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       self,
       i: int,  # pylint: disable=W0613
       t: np.ndarray,
-      track: dict) -> Tuple[Tuple[float, float, float]]:
+      track: dict) -> Sequence[Tuple[float, float, float]]:
     """Fit parameters for one track.
 
     Args:
@@ -144,6 +144,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     d = self._D2K_CONST / getattr(r, self.regressor_k)
     a = utils.dsp.db2a(getattr(r, self.regressor_q))
     return ((f, d, a),)
+
+  _PARAM_MATRIX_NROWS: int = 3
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
@@ -164,7 +166,7 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
         itertools.starmap(self._fit_track, tracks))
     self.param_matrix_ = np.array(list(params)).T
     if self.param_matrix_.size == 0:
-      self.param_matrix_ = np.empty((3, 0))
+      self.param_matrix_ = np.empty((self._PARAM_MATRIX_NROWS, 0))
     self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
     return self
 
@@ -281,6 +283,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       else:
         n_modes = self.max_n_modes
     m_ord = self.mode_argsort_(order=order, reverse=reverse)[:n_modes]
+    if "phases" in kwargs and not isinstance(kwargs["phases"], str):
+      kwargs["phases"] = kwargs["phases"][m_ord]
     return additive_synth(x, self.freqs_[m_ord], self.decays_[m_ord],
                           self.amps_[m_ord], **kwargs)
 
