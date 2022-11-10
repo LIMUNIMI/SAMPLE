@@ -36,7 +36,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
     """Initialize test audio and sinusoidal model"""
     self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
     self.sm = sample_sm.SinusoidalModel()
-    self.sm.w_ = self.sm.normalized_window
+    self.sm.w_ = self.sm._normalized_window  # pylint: disable=W0212
 
     warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
