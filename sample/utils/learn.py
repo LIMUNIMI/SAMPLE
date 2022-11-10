@@ -25,6 +25,27 @@ class _DefaultProperty(property):
       "_": " because it is conventionally used as a placeholder",
   }
 
+  class DocumentedCallable:
+    """Wrapper for a callable and its docstring. This class avoids overwriting
+    the callable's :data:`__doc__` attribute
+
+    Args:
+      func (callable): Callable
+      doc (str): Docstring"""
+
+    def __init__(self, func: Callable, doc: Optional[str] = None):
+      self.func = func
+      self.doc = doc
+
+    def __call__(self, *args: Any, **kwargs: Any):
+      return self.func(*args, **kwargs)
+
+    @property
+    def __doc__(self) -> Optional[str]:
+      if self.doc is None:
+        return getattr(self.func, "__doc__", None)
+      return self.doc
+
   def __init__(self,
                default_fn: DefaultFunction,
                name: Optional[str] = None,
@@ -38,11 +59,20 @@ class _DefaultProperty(property):
     self._attr_name = f"_default_property_{name}"
     self._default_fn = default_fn
 
+    if "doc" not in kwargs:
+      kwargs["doc"] = getattr(default_fn, "__doc__", None)
     for k in ("fget", "fset", "fdef"):
       if k not in kwargs:
         kwargs[k] = getattr(self, f"_default_{k}")
+    self._doc = kwargs.pop("doc")
+    # This wrapper allows sphinx to get the correct docstring
+    kwargs["fget"] = self.DocumentedCallable(kwargs["fget"], self._doc)
     self.defaulter(kwargs.pop("fdef"))
     super().__init__(**kwargs)
+
+  def getter(self, __fget):
+    # This wrapper allows sphinx to get the correct docstring
+    return super().getter(self.DocumentedCallable(__fget, self._doc))
 
   def defaulter(self, fdef: Optional[Callable[[Any, Any], bool]] = None):
     """Assign a default-checker function to the property
