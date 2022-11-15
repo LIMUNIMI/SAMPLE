@@ -17,8 +17,16 @@ utils = sample.utils
 class BeatDecisor(base.BaseEstimator):
   """Model responsible for deciding wether the trajectory is a beat or not"""
 
-  def __init__(self, **kwargs) -> None:
+  def __init__(self,
+               intermediate: utils.learn.OptionalStorage = None,
+               **kwargs) -> None:
+    self.intermediate = intermediate
     self.set_params(**kwargs)
+
+  @utils.learn.default_property
+  def intermediate(self):
+    """Optionally-activatable storage"""
+    return utils.learn.OptionalStorage()
 
   def output_params(
       self, params: Tuple[float, float, float]
@@ -47,16 +55,34 @@ class BeatDecisor(base.BaseEstimator):
     a0, a1, f0, f1, d0, d1, p0, p1 = beat_params
     return ((f0, d0, a0, p0), (f1, d1, a1, p1))
 
-  def decide_beat(
+  # pylint: disable=W0613
+  def decide_beat(self, i: int, t: np.ndarray, track: dict,
+                  beatsdrop: sample.beatsdrop.regression.BeatRegression,
+                  params: Tuple[float, float, float]) -> bool:
+    """Decision function. Should be overwritten by child classes.
+    This method always decides for the single-partial parameters
+    (:data:`False`) and never for the beats (:data:`True`)
+
+    Args:
+      i (int): Track index
+      t (array): Time axis
+      track (dict): Track
+      beatsdrop (BeatRegression): Beat regression model
+      params (triplet of floats): Frequency, decay, and amplitude
+
+    Returns:
+      bool: Decision"""
+    return False
+
+  def track_params(
       self,
-      i: int,  # pylint: disable=W0613
+      i: int,
       t: np.ndarray,
       track: dict,
       beatsdrop: sample.beatsdrop.regression.BeatRegression,
       params: Tuple[float, float, float],
       fit: bool = False) -> Sequence[Tuple[float, float, float, float]]:
-    """Decision function. Should be overwritten by child classes.
-    This method always decides for the single-partial parameters.
+    """Returns linear or beat parameters depending on the decision
 
     Args:
       i (int): Track index
@@ -70,7 +96,15 @@ class BeatDecisor(base.BaseEstimator):
       Parameters for the :meth:`sample.sample.SAMPLE._fit_track` method"""
     if fit:
       beatsdrop.fit(t=t, a=track["mag"], f=track["freq"])
-    return self.output_params(params)
+    d = self.intermediate.append("decision",
+                                 self.decide_beat(i=i,
+                                                  t=t,
+                                                  track=track,
+                                                  beatsdrop=beatsdrop,
+                                                  params=params),
+                                 index=i)
+    return self.output_beat_params(
+        beatsdrop.params_) if d else self.output_params(params)
 
   def amplitude_residuals(
       self, t: np.ndarray, track: dict,
@@ -105,8 +139,8 @@ class SpectralInformationGainBeatDecisor(BeatDecisor):
     ls_bins (int): Number of bins for the Lomb-Scargle periodogram
     th (float): Information-gain threshold (normalized between 0 and 1).
       If the spectral information in the beat residuals exceeds the spectral
-        information in the linear residuals by this amount, then the trajectory
-        is considered a beat
+      information in the linear residuals by this amount, then the trajectory
+      is considered a beat
     intermediate (OptionalStorage): Optionally-activatable storage"""
 
   def __init__(self,
@@ -116,23 +150,12 @@ class SpectralInformationGainBeatDecisor(BeatDecisor):
                **kwargs) -> None:
     self.ls_bins = ls_bins
     self.th = th
-    self.intermediate = intermediate
-    super().__init__(**kwargs)
+    super().__init__(intermediate=intermediate, **kwargs)
 
-  @utils.learn.default_property
-  def intermediate(self):
-    """Optionally-activatable storage"""
-    return utils.learn.OptionalStorage()
-
-  def decide_beat(
-      self,
-      i: int,
-      t: np.ndarray,
-      track: dict,
-      beatsdrop: sample.beatsdrop.regression.BeatRegression,
-      params: Tuple[float, float, float],
-      fit: bool = True) -> Sequence[Tuple[float, float, float, float]]:
-    """Decision function
+  def decide_beat(self, i: int, t: np.ndarray, track: dict,
+                  beatsdrop: sample.beatsdrop.regression.BeatRegression,
+                  params: Tuple[float, float, float]) -> bool:
+    """Decision function based on spectral information gain
 
     Args:
       i (int): Track index
@@ -140,22 +163,13 @@ class SpectralInformationGainBeatDecisor(BeatDecisor):
       track (dict): Track
       beatsdrop (BeatRegression): Beat regression model
       params (triplet of floats): Frequency, decay, and amplitude
-      fit (bool): If :data:`True` (default), then fit
-        the :data:`beat_regression` model
 
     Returns:
-      Parameters for :meth:`sample.sample.SAMPLE._fit_track` and phases"""
-    super().decide_beat(i=i,
-                        t=t,
-                        track=track,
-                        beatsdrop=beatsdrop,
-                        params=params,
-                        fit=fit)
+      bool: :data:`True` iff the information-gain exceeds the threshold"""
     r_lin, r_biz = self.amplitude_residuals(t=t,
                                             track=track,
                                             beatsdrop=beatsdrop,
                                             params=params)
-
     nse_lin = self.intermediate.append("nse_lin",
                                        self._normalized_spectral_entropy(
                                            t, r_lin, fs=beatsdrop.lpf * 2),
@@ -164,9 +178,7 @@ class SpectralInformationGainBeatDecisor(BeatDecisor):
                                        self._normalized_spectral_entropy(
                                            t, r_biz, fs=beatsdrop.lpf * 2),
                                        index=i)
-    if nse_biz - nse_lin > self.th:
-      return self.output_beat_params(beatsdrop.params_)
-    return self.output_params(params)
+    return nse_biz - nse_lin > self.th
 
   def _normalized_spectral_entropy(self, t, x, fs) -> float:
     """Compute normalized spectral entropy from Lomb-Scargle periodogram
@@ -204,23 +216,12 @@ class ResidualCorrelationBeatDecisor(BeatDecisor):
                **kwargs) -> None:
     self.alpha = alpha
     self.statistic = statistic
-    self.intermediate = intermediate
-    super().__init__(**kwargs)
+    super().__init__(intermediate=intermediate, **kwargs)
 
-  @utils.learn.default_property
-  def intermediate(self):
-    """Optionally-activatable storage"""
-    return utils.learn.OptionalStorage()
-
-  def decide_beat(
-      self,
-      i: int,
-      t: np.ndarray,
-      track: dict,
-      beatsdrop: sample.beatsdrop.regression.BeatRegression,
-      params: Tuple[float, float, float],
-      fit: bool = True) -> Sequence[Tuple[float, float, float, float]]:
-    """Decision function
+  def decide_beat(self, i: int, t: np.ndarray, track: dict,
+                  beatsdrop: sample.beatsdrop.regression.BeatRegression,
+                  params: Tuple[float, float, float]) -> bool:
+    """Decision function based on residuals correlation
 
     Args:
       i (int): Track index
@@ -228,22 +229,13 @@ class ResidualCorrelationBeatDecisor(BeatDecisor):
       track (dict): Track
       beatsdrop (BeatRegression): Beat regression model
       params (triplet of floats): Frequency, decay, and amplitude
-      fit (bool): If :data:`True` (default), then fit
-        the :data:`beat_regression` model
 
     Returns:
-      Parameters for :meth:`sample.sample.SAMPLE._fit_track` and phases"""
-    super().decide_beat(i=i,
-                        t=t,
-                        track=track,
-                        beatsdrop=beatsdrop,
-                        params=params,
-                        fit=fit)
+      bool: :data:`True` iff the correlation is not significant
+      or is below the threshold"""
     r_lin, r_biz = self.amplitude_residuals(t=t,
                                             track=track,
                                             beatsdrop=beatsdrop,
                                             params=params)
     t = self.intermediate.append("test", stats.pearsonr(r_lin, r_biz), index=i)
-    if t.statistic > self.statistic and t.pvalue < self.alpha:
-      return self.output_params(params)
-    return self.output_beat_params(beatsdrop.params_)
+    return t.pvalue > self.alpha or t.statistic < self.statistic

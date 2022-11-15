@@ -95,13 +95,13 @@ class SAMPLEBeatsDROP(sample.sample.SAMPLE):
 
     Returns:
       ((float, float, float),): Frequency, decay, and amplitude"""
-    return self.beat_decisor.decide_beat(i=i,
-                                         t=t,
-                                         track=track,
-                                         beatsdrop=base.clone(self.beatsdrop),
-                                         params=super()._fit_track(i, t,
-                                                                   track)[0],
-                                         fit=True)
+    return self.beat_decisor.track_params(i=i,
+                                          t=t,
+                                          track=track,
+                                          beatsdrop=base.clone(self.beatsdrop),
+                                          params=super()._fit_track(
+                                              i, t, track)[0],
+                                          fit=True)
 
   @property
   def phases_(self) -> np.ndarray:
