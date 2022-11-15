@@ -6,6 +6,7 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 import numpy as np
 from sklearn import base
 
+import sample._training
 import sample.utils
 import sample.utils.dsp
 import sample.utils.learn
@@ -148,6 +149,10 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     a = utils.dsp.db2a(getattr(r, self.regressor_q))
     return ((f, d, a),)
 
+  def _track_preprocess_and_fit(self, i: int, x: np.ndarray, t: dict):
+    """Call both :func:`_preprocess_track` and :func:`_fit_track`"""
+    return self._fit_track(*self._preprocess_track(i=i, x=x, t=t))
+
   _PARAM_MATRIX_NROWS: int = 3
 
   def fit(self, x: np.ndarray, y=None, **kwargs):
@@ -160,18 +165,31 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
     Returns:
       SAMPLE: self"""
-    self.set_params(**kwargs)
-    tracks = self.sinusoidal.fit(x, y).tracks_
-    tracks = itertools.starmap(
-        self._preprocess_track, map(lambda t: (t[0], x, t[1]),
-                                    enumerate(tracks)))
-    params = itertools.chain.from_iterable(
-        itertools.starmap(self._fit_track, tracks))
-    self.param_matrix_ = np.array(list(params)).T
-    if self.param_matrix_.size == 0:
-      self.param_matrix_ = np.empty((self._PARAM_MATRIX_NROWS, 0))
-    self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
-    return self
+    sample_kwargs = {}
+    ctx_kwargs = {}
+    for k, v in kwargs.items():
+      (sample_kwargs if k in self.get_params() else ctx_kwargs)[k] = v
+    self.set_params(**sample_kwargs)
+
+    with sample._training.sample_training_context(self, **kwargs) as fit_args:  # pylint: disable=W0212
+      # Process frames
+      fit_args.progress_start(len(self.sinusoidal.time_frames(x)))
+      tracks = self.sinusoidal.fit(x, y, _fit_args=fit_args).tracks_
+      fit_args.progress_stop()
+
+      # Process tracks
+      params = itertools.chain.from_iterable(
+          fit_args.starmap_progress(self._track_preprocess_and_fit,
+                                    ((i, x, t) for i, t in enumerate(tracks)),
+                                    tot=len(self.sinusoidal.tracks_)))
+      self.param_matrix_ = np.array(list(params)).T
+
+      # Clean results
+      if self.param_matrix_.size == 0:
+        self.param_matrix_ = np.empty((self._PARAM_MATRIX_NROWS, 0))
+      self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
+
+      return self
 
   @property
   def _valid_params_(self) -> Sequence[bool]:

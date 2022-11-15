@@ -1,4 +1,5 @@
 """Machine learning utilities"""
+import copy
 import functools
 import itertools
 from typing import Any, Callable, Dict, Optional, TypeVar, overload
@@ -253,6 +254,17 @@ class OptionalStorage(base.BaseEstimator):
 
   def __getitem__(self, key):
     return getattr(self, "cache_", {})[key]
+
+  def get_state(self, deepcopy: bool = True):
+    """Retrieve the storage state
+
+    Args:
+      deepcopy (bool): If :data:`True`, make a deep copy if the state
+
+    Returns:
+      dict: The state"""
+    s = self.cache_ if hasattr(self, "cache_") else {}
+    return copy.deepcopy(s) if deepcopy else s
 
   def reset(self):
     """Reset memory"""

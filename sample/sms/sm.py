@@ -2,7 +2,7 @@
 import functools
 import itertools
 import math
-from typing import Any, Callable, Dict, Generator, Iterable, List, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 import numpy as np
 from sklearn import base
@@ -310,6 +310,9 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       SinusoidalModel: self"""
+    # Avoid _fit_args appearing in signatures, since it's considered
+    # an implementation detail
+    fit_args = kwargs.pop("_fit_args", None)
     self.intermediate.reset()
     self.set_params(**kwargs)
     self.tracker.reset()
@@ -317,12 +320,14 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     if getattr(self.tracker, "reverse", False):
       x = np.flip(x)
 
-    for mx, px in map(functools.partial(self.intermediate, "stft"),
+    for mx, px in map(functools.partial(self.intermediate.append, "stft"),
                       self.dft_frames(x)):
-      ploc, pmag, pph = self.intermediate(
+      ploc, pmag, pph = self.intermediate.append(
           "peaks", sms.dsp.peak_detect_interp(mx, px, self.t))
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
       self.tracker(pfreq, pmag, pph)
+      if fit_args is not None:
+        fit_args.progress_update()
     return self
 
   @property
