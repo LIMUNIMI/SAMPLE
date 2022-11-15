@@ -20,7 +20,15 @@ from sample.sms import sm
 from sample.utils import dsp as dsp_utils
 
 
-def sine_tracking_2d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
+def _is_beat(m: SAMPLE, track_i: int):
+  """Helper function to determine if a track is been detected as beating"""
+  return hasattr(
+      m, "beat_decisor"
+  ) and m.beat_decisor.intermediate.save and m.beat_decisor.intermediate[
+      "decision"][track_i]
+
+
+def sine_tracking_2d(s: Union[sm.SinusoidalModel, SAMPLE], ax=None):
   """Plot sinusoidal tracks detected by the model on two axes,
   one for frequency and one for magnitude
 
@@ -31,8 +39,7 @@ def sine_tracking_2d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
 
   Returns:
     The axes list"""
-  if isinstance(m, SAMPLE):
-    m = m.sinusoidal
+  m = s.sinusoidal if isinstance(s, SAMPLE) else s
   if ax is None:
     _, ax = plt.subplots(1, 2, sharex=True)
   tmax = 0
@@ -42,13 +49,14 @@ def sine_tracking_2d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
       tmax = len(m.intermediate["stft"]) * m.h / m.fs
     else:
       tmax = max((track["start_frame"] + track["freq"].size) * m.h / m.fs
-                 for track in m.tracker.all_tracks_)
-  for track in m.tracker.all_tracks_:
+                 for track in m.tracks_)
+  for i, track in enumerate(m.tracks_):
     t_x = (track["start_frame"] + np.arange(track["freq"].size)) * m.h / m.fs
     if reverse:
       t_x = tmax - t_x
-    ax[0].plot(t_x, track["freq"])
-    ax[1].plot(t_x, track["mag"])
+    b = _is_beat(s, i)
+    ax[0].plot(t_x, track["freq"], "--" if b else "-")
+    ax[1].plot(t_x, track["mag"], "--" if b else "-")
 
   ax[0].grid(zorder=-100)
   ax[0].set_title("frequency")
@@ -63,7 +71,7 @@ def sine_tracking_2d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
   return ax
 
 
-def sine_tracking_3d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
+def sine_tracking_3d(s: Union[sm.SinusoidalModel, SAMPLE], ax=None):
   """Plot sinusoidal tracks detected by the model on one 3D axis
 
   Args:
@@ -73,13 +81,12 @@ def sine_tracking_3d(m: Union[sm.SinusoidalModel, SAMPLE], ax=None):
 
   Returns:
     The 3D axis"""
-  if isinstance(m, SAMPLE):
-    m = m.sinusoidal
+  m = s.sinusoidal if isinstance(s, SAMPLE) else s
   if ax is None:
     ax = plt.axes(projection="3d")
-  for track in m.tracker.all_tracks_:
+  for i, track in enumerate(m.tracks_):
     t_x = (track["start_frame"] + np.arange(track["freq"].size)) * m.h / m.fs
-    ax.plot(t_x, track["freq"], track["mag"])
+    ax.plot(t_x, track["freq"], track["mag"], "--" if _is_beat(s, i) else "-")
 
   ax.set_xlabel("time (s)")
   ax.set_ylabel("frequency (Hz)")
