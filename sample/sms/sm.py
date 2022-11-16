@@ -352,7 +352,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     y[a:(a + x.size)] = x
     return y, a
 
-  def time_frames(self, x: np.ndarray) -> Generator[np.ndarray, None, None]:
+  def time_frames(self, x: np.ndarray) -> np.ndarray:
     """Generator of frames for a given input
 
     Args:
@@ -360,11 +360,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       generator: Generator of overlapping frames of the padded input"""
-    y, a = self.pad_input(x)
-    for i in range(a, y.size - a, self.h):
-      y_i = y[(i - a):(i - a + self.w_.size)]
-      if y_i.size == self.w_.size:
-        yield y_i
+    y, _ = self.pad_input(x)
+    return utils.dsp.overlapping_windows(y, self.w.size, self.h)
 
   def dft_frames(self,
                  x: np.ndarray) -> Iterable[Tuple[np.ndarray, np.ndarray]]:
