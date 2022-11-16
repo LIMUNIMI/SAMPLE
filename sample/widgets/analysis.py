@@ -136,7 +136,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       stft = np.fliplr(stft)
     tmax = len(m.intermediate["stft"]) * m.h / m.fs
 
-    plots.sine_tracking_2d(m, ax=self.ax)
+    plots.sine_tracking_2d(self.sample_object, ax=self.ax)
 
     if tmax > 0:
       xlim = (0, tmax)
