@@ -11,7 +11,7 @@ from scipy.io import wavfile
 from sample import plots
 from sample.widgets import audio, logging, pyplot
 from sample.widgets import responsive as tk
-from sample.widgets import utils
+from sample.widgets import sample, utils
 
 
 @contextlib.contextmanager
@@ -216,13 +216,14 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
         return
       try:
         x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
-        self.sample_object.fit(
-            x,
+        self.sample_object, fit_kwargs = sample.sample_factory(
+            progressbar=self.progressbar,
             sinusoidal__tracker__fs=self.audio_sr,
-            sinusoidal__progressbar=self.progressbar,
-        )
+            **self.sample_object_kwargs)
+        self.sample_object.fit(x, **fit_kwargs)
       except Exception as e:  # pylint: disable=W0703
         messagebox.showerror(type(e).__name__, str(e))
+        logging.error("Error while fitting", exc_info=True)
       finally:
         self.audio_resynth_x = None
         self.update_plot()

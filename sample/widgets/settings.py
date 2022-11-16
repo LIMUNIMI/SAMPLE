@@ -10,7 +10,7 @@ from scipy import signal
 
 from sample.widgets import logging
 from sample.widgets import responsive as tk
-from sample.widgets import sample, userfiles, utils
+from sample.widgets import userfiles, utils
 
 
 # --- Parsers ----------------------------------------------------------------
@@ -193,6 +193,21 @@ def postprocess_windows(sinusoidal__n: int, wsize: int,
   return in_kw, out_kw
 
 
+def postprocess_multiprocessing(
+    parallel: bool, n_jobs: int) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+  """Postprocess number of jobs
+
+  Args:
+    parallel (bool): Toggle on/off multiprocessing
+    n_jobs (int): Number of workers
+
+  Returns:
+    dict, dict: Postprocessed settings and parameters as dictionaries"""
+  in_kw = dict(parallel=parallel, n_jobs=n_jobs)
+  out_kw = dict(n_jobs=n_jobs if parallel else 0)
+  return in_kw, out_kw
+
+
 def postprocess_guitheme(
     gui_theme: str,) -> Tuple[Dict[str, Any], Dict[str, Any]]:
   """Postprocess GUI theme
@@ -328,6 +343,21 @@ _settings = (
          boolean=True,
          tooltip="If True, apply BeatsDROP to de-couple beats",
      )),
+    ("parallel",
+     dict(
+         label="multiprocessing",
+         init_value=False,
+         boolean=True,
+         tooltip="If True, parallelize BeatsDROP "
+         "amongst multiple processes",
+     )),
+    ("n_jobs",
+     dict(
+         label="n jobs",
+         init_value=4,
+         get_fn=functools.partial(custom_positive_int, dflt=4),
+         tooltip="Number of parallel processes to use",
+     )),
     ("beat_decisor__alpha",
      dict(label="alpha",
           get_fn=float_clip(left=0, right=1, default=0.05),
@@ -356,6 +386,7 @@ _settings = (
 )
 
 _postprocess = (
+    postprocess_multiprocessing,
     postprocess_windows,
     postprocess_fbound,
     postprocess_guitheme,
@@ -492,7 +523,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.bind("<Button-1>", self.apply_cbk)
     self.button.grid()
 
-    self.sample_object = sample.sample_factory()
+    self.sample_object_kwargs = {}
     self.apply_cbk(from_file=True)
 
   def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613
@@ -560,8 +591,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       self.settings_file.save_json(settings, indent=2)
     for k, v in settings.items():
       self._settings[k].set(v)
-    self.sample_object = sample.sample_factory(**params)
-    logging.debug("SAMPLE: %s", self.sample_object)
+    self.sample_object_kwargs = params
     if prev_theme != ttk_theme.get():
       logging.info("Reload GUI to apply changes")
       if messagebox.askyesno(
