@@ -219,3 +219,14 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     _, axs = plt.subplots(2, 1)
     with self.assert_doesnt_raise():
       plots.resynthesis(self.x, axs=axs)
+
+  def test_parallel_fit(self):
+    """Test SAMPLE fit in multiprocessing (useless)"""
+    s = base.clone(self.sample).fit(self.x)
+    p = base.clone(self.sample).fit(self.x, n_jobs=4)
+    with self.subTest(test="freqs"):
+      np.testing.assert_array_equal(s.freqs_, p.freqs_)
+    with self.subTest(test="amps"):
+      np.testing.assert_array_equal(s.amps_, p.amps_)
+    with self.subTest(test="decays"):
+      np.testing.assert_array_equal(s.decays_, p.decays_)

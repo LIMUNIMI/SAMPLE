@@ -271,3 +271,21 @@ class TestBeatRegression(unittestmixins.AssertDoesntRaiseMixin,
     closs = sample.evaluation.metrics.CochleagramLoss(fs=self.fs, stride=1 << 9)
     with self.subTest(check="lower_loss"):
       self.assertLess(closs(self.x, y_bd), closs(self.x, y))
+
+  def test_sample_parallel_fit(self):
+    """Test SAMPLE+BeatsDROP integration in multiprocessing"""
+    model_bd = bd.sample.SAMPLEBeatsDROP(beat_decisor__intermediate__save=True,
+                                         **base.clone(self.model).get_params())
+    model_bd.fit(self.x)
+    model_bdp = base.clone(model_bd).fit(self.x, n_jobs=4)
+    with self.subTest(test="freqs"):
+      np.testing.assert_array_equal(model_bd.freqs_, model_bdp.freqs_)
+    with self.subTest(test="amps"):
+      np.testing.assert_array_equal(model_bd.amps_, model_bdp.amps_)
+    with self.subTest(test="decays"):
+      np.testing.assert_array_equal(model_bd.decays_, model_bdp.decays_)
+    with self.subTest(test="phases"):
+      np.testing.assert_array_equal(model_bd.phases_, model_bdp.phases_)
+    with self.subTest(test="correlation tests"):
+      np.testing.assert_array_equal(model_bd.beat_decisor.intermediate["test"],
+                                    model_bdp.beat_decisor.intermediate["test"])
