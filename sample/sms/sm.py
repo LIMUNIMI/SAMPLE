@@ -351,8 +351,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       (array, int): The padded array and the initial padding length"""
     if not self.padded:
       return x, 0
-    a = (self.w_.size + 1) // 2
-    b = self.w_.size // 2
+    a = (self.w.size + 1) // 2
+    b = self.w.size // 2
     y = np.zeros(x.size + a + b)
     y[a:(a + x.size)] = x
     return y, a
