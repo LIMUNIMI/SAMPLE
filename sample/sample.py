@@ -155,6 +155,9 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   _PARAM_MATRIX_NROWS: int = 3
 
+  @utils.warnings_simplefilter(action="ignore",
+                               category=RuntimeWarning,
+                               toggle=("ignore_warnings", True))
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
 
