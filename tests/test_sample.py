@@ -230,3 +230,16 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
       np.testing.assert_array_equal(s.amps_, p.amps_)
     with self.subTest(test="decays"):
       np.testing.assert_array_equal(s.decays_, p.decays_)
+
+  def test_fit_no_tracks(self):
+    """Test that SAMPLE doesn't find anything in low-volume noise"""
+    rng = np.random.default_rng(seed=42)
+    x = rng.normal(scale=dsp_utils.db2a(-20), size=self.x.size)
+    s = base.clone(self.sample).fit(x)
+    with self.subTest(check="tracks"):
+      self.assertEqual(s.sinusoidal.tracks_, [])
+    with self.subTest(check="params"):
+      np.testing.assert_array_equal(s.param_matrix_.flatten(), [])
+    with self.subTest(check="audio"):
+      np.testing.assert_array_equal(s.predict(np.arange(self.x.size) / self.fs),
+                                    np.zeros(self.x.size))
