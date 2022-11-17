@@ -138,7 +138,7 @@ def _wrap_as_managed(mp_manager: mp.managers.BaseManager,
     return
   try:
     original = model.get_params(deep=True)[key]
-  except AttributeError:
+  except KeyError:
     yield
   else:
     managed = getattr(mp_manager,
