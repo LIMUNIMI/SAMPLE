@@ -146,6 +146,7 @@ def _wrap_as_managed(mp_manager: mp.managers.BaseManager,
     try:
       model.set_params(**{key: managed})
       yield
-      original.cache_ = managed.get_state()
+      if isinstance(original, utils.learn.OptionalStorage):
+        original.cache_ = managed.get_state()
     finally:
       model.set_params(**{key: original})
