@@ -287,5 +287,7 @@ class TestBeatRegression(unittestmixins.AssertDoesntRaiseMixin,
     with self.subTest(test="phases"):
       np.testing.assert_array_equal(model_bd.phases_, model_bdp.phases_)
     with self.subTest(test="correlation tests"):
+      self.assertTrue("test" in model_bd.beat_decisor.intermediate.get_state())
+      self.assertTrue("test" in model_bdp.beat_decisor.intermediate.get_state())
       np.testing.assert_array_equal(model_bd.beat_decisor.intermediate["test"],
                                     model_bdp.beat_decisor.intermediate["test"])
