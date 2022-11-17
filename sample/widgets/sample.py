@@ -1,100 +1,89 @@
 """SAMPLE class for use in GUI"""
-import tkinter as tk
+import itertools
+import threading
 from typing import Optional
 
-import numpy as np
 import throttle
 
+import sample._training
+import sample.beatsdrop
+import sample.beatsdrop.sample
+import sample.sample
 import sample.utils
 import sample.utils.learn
-from sample import sample
-from sample.sms import mm, sm
+from sample.widgets import logging
 
+bd = sample.beatsdrop
 utils = sample.utils
 
 
-class SinusoidalModel4GUI(mm.ModalModel):
-  """Sinusoidal tracker for use in the GUI. For a full list of
-  arguments see :class:`sample.sms.mm.ModalModel`
+class _GUIFitArgs(sample._training.FitArgs):  # pylint: disable=W0212
+  """Fit arguments for GUI"""
+
+  def __init__(self, starmap=itertools.starmap, progressbar=None) -> None:
+    self._current_progress = 0
+    self._lock = threading.Lock()
+    super().__init__(starmap=starmap, progressbar=progressbar)
+
+  def progress_start(self, maximum: int, value: int = 0):
+    """Start progressbar and set the maximum"""
+    with self._lock:
+      self._current_progress = value
+      if self.progressbar is not None:
+        self.progressbar["maximum"] = -1
+        self.progressbar.config(value=value, maximum=maximum)
+        self.progressbar.update()
+
+  def progress_stop(self):
+    """Fill progressbar and reset the maximum"""
+    self.progress_start(1, 1)
+
+  def progress_update(self, value: Optional[float] = None):
+    """Update the progress bar"""
+    with self._lock:
+      if value is None:
+        value = self._current_progress + 1
+      self._current_progress = value
+      self._progress_update_inner(value=value)
+
+  @throttle.wrap(0.2, 1)
+  def _progress_update_inner(self, value: Optional[float] = None):
+    """Update the progress bar. This function is throttled"""
+    if self.progressbar is not None:
+      if value is not None:
+        self.progressbar.config(value=value)
+      self.progressbar.update()
+
+
+_default_kwargs = {
+    "beat_decisor__intermediate__save": True,
+    "sinusoidal__intermediate__save": True,
+}
+
+
+def sample_factory(beatsdrop: bool = False,
+                   progressbar=None,
+                   n_jobs: int = 0,
+                   **kwargs):
+  """Factory function for SAMPLE models for the GUI
 
   Args:
-    progressbar (optional): Progressbar widget for visualizing
-      the peak tracking progress"""
+    beatsdrop (bool): Whether to use BeatsDROP or not
+    n_jobs (int): Number of workers
+    progressbar: Progressbar widget
+    **kwargs: Parameters for the SAMPLE model
 
-  def __init__(self,
-               progressbar: Optional[tk.Widget] = None,
-               w: Optional[np.ndarray] = None,
-               n: int = 2048,
-               t: float = -90,
-               tracker: sm.SineTracker = None,
-               intermediate: utils.learn.OptionalStorage = None,
-               **kwargs):
-    self.progressbar = progressbar
-    super().__init__(w=w,
-                     n=n,
-                     t=t,
-                     tracker=tracker,
-                     intermediate=intermediate,
-                     **kwargs)
-
-  @utils.learn.default_property
-  def intermediate(self):
-    """Optionally-activatable storage"""
-    return utils.learn.OptionalStorage(save=True)
-
-  def fit(self, x: np.ndarray, y=None, **kwargs):
-    """Analyze audio data
-
-    Args:
-      x (array): audio input
-      y (ignored): exists for compatibility
-      kwargs: Any parameter, overrides initialization
-
-    Returns:
-      SinusoidalModel: self"""
-    self.set_params(**kwargs)
-    self.w_ = self._normalized_window
-    if self.progressbar is not None:
-      self.progressbar["maximum"] = -1
-      self.progressbar.config(value=0, maximum=len(list(self.time_frames(x))))
-    s = super().fit(x=x, y=y)
-    if self.progressbar is not None:
-      self.progressbar.config(value=1, maximum=1)
-    return s
-
-  @throttle.wrap(.0125, 1)
-  def progressbar_update(self, value: Optional[float] = None):
-    """Update the progress bar. This function is throttled"""
-    if value is not None:
-      self.progressbar.config(value=value)
-    self.progressbar.update()
-
-  def time_frames(self, x: np.ndarray):
-    """Generator of frames for a given input. Also,
-    updates the progressbar if one has been specified
-
-    Args:
-      x (array): Input
-
-    Returns:
-      generator: Generator of overlapping frames of the padded input"""
-    it = super().time_frames(x)
-    if self.progressbar is not None and self.progressbar["maximum"] > 0:
-
-      def func(t):
-        self.progressbar_update(value=t[0])
-        return t[-1]
-
-      it = map(func, enumerate(it))
-    for f in it:
-      yield f
-
-
-class SAMPLE4GUI(sample.SAMPLE):
-  """SAMPLE model for use in the GUI. For a full list of arguments see
-  :class:`sample.sample.SAMPLE`"""
-
-  @utils.learn.default_property
-  def sinusoidal(self):
-    """Sinusoidal analysis model"""
-    return SinusoidalModel4GUI()
+  Returns:
+    SAMPLE, dict: Model and fit function arguments"""
+  kwargs.update((k, v) for k, v in _default_kwargs.items() if k not in kwargs)
+  cls = bd.sample.SAMPLEBeatsDROP if beatsdrop else sample.sample.SAMPLE
+  self = cls()
+  ok_kwargs = dict(filter(lambda t: t[0] in self.get_params(), kwargs.items()))
+  logging.info("Building SAMPLE object of class %s with arguments: %s",
+               cls.__name__, ok_kwargs)
+  self.set_params(**ok_kwargs)
+  fit_kwargs = {
+      "_fit_args": _GUIFitArgs(progressbar=progressbar),
+      "n_jobs": n_jobs
+  }
+  return self, fit_kwargs

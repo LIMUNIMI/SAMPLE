@@ -94,6 +94,7 @@ class DataOnRootMixin(metaclass=DataOnRootMeta):
       "audio_trim_start",
       "audio_trim_stop",
       "sample_object",
+      "sample_object_kwargs",
       "audio_resynth_x",
       "persistent_dir",
       "settings_file",

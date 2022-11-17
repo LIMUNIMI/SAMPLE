@@ -2,7 +2,7 @@
 import functools
 import itertools
 import math
-from typing import Any, Callable, Dict, Generator, Iterable, List, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 import numpy as np
 from sklearn import base
@@ -234,6 +234,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     t (float): threshold in dB. Defaults to -90
     tracker (SineTracker): Sine tracker
     intermediate (OptionalStorage): Optionally-activatable storage
+    padded (bool): Analyse a zero-padded version of the input
     **kwargs: Additional parameters for sub-models. See
       :class:`sample.sms.sm.SineTracker` and
       :class:`sample.utils.learn.OptionalStorage`
@@ -249,6 +250,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
       t: float = -90,
       tracker: SineTracker = None,
       intermediate: utils.learn.OptionalStorage = None,
+      padded: bool = False,
       **kwargs,
   ):
     self.w = w
@@ -256,6 +258,7 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     self.t = t
     self.tracker = tracker
     self.intermediate = intermediate
+    self.padded = padded
     self.set_params(**kwargs)
 
   @_decorate_sinusoidal_model
@@ -307,6 +310,9 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       SinusoidalModel: self"""
+    # Avoid _fit_args appearing in signatures, since it's considered
+    # an implementation detail
+    fit_args = kwargs.pop("_fit_args", None)
     self.intermediate.reset()
     self.set_params(**kwargs)
     self.tracker.reset()
@@ -314,12 +320,14 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
     if getattr(self.tracker, "reverse", False):
       x = np.flip(x)
 
-    for mx, px in map(functools.partial(self.intermediate, "stft"),
+    for mx, px in map(functools.partial(self.intermediate.append, "stft"),
                       self.dft_frames(x)):
-      ploc, pmag, pph = self.intermediate(
+      ploc, pmag, pph = self.intermediate.append(
           "peaks", sms.dsp.peak_detect_interp(mx, px, self.t))
       pfreq = ploc * self.fs / self.n  # indices to frequencies in Hz
       self.tracker(pfreq, pmag, pph)
+      if fit_args is not None:
+        fit_args.progress_update()
     return self
 
   @property
@@ -341,13 +349,15 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       (array, int): The padded array and the initial padding length"""
-    a = (self.w_.size + 1) // 2
-    b = self.w_.size // 2
+    if not self.padded:
+      return x, 0
+    a = (self.w.size + 1) // 2
+    b = self.w.size // 2
     y = np.zeros(x.size + a + b)
     y[a:(a + x.size)] = x
     return y, a
 
-  def time_frames(self, x: np.ndarray) -> Generator[np.ndarray, None, None]:
+  def time_frames(self, x: np.ndarray) -> np.ndarray:
     """Generator of frames for a given input
 
     Args:
@@ -355,9 +365,8 @@ class SinusoidalModel(base.TransformerMixin, base.BaseEstimator):
 
     Returns:
       generator: Generator of overlapping frames of the padded input"""
-    y, a = self.pad_input(x)
-    for i in range(a, y.size - a, self.h):
-      yield y[(i - a):(i - a + self.w_.size)]
+    y, _ = self.pad_input(x)
+    return utils.dsp.overlapping_windows(y, self.w.size, self.h)
 
   def dft_frames(self,
                  x: np.ndarray) -> Iterable[Tuple[np.ndarray, np.ndarray]]:

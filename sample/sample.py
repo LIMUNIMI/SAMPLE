@@ -6,11 +6,12 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 import numpy as np
 from sklearn import base
 
+import sample._training
 import sample.utils
 import sample.utils.dsp
 import sample.utils.learn
 from sample import hinge
-from sample.sms import mm
+from sample.sms import mm, sm
 
 utils = sample.utils
 
@@ -50,9 +51,9 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   Args:
     sinusoidal (SinusoidalModel): Sinusoidal analysis model.
-      Default is an instance of :class:`ModalModel`
+      Default is an instance of :class:`sample.sms.mm.ModalModel`
     regressor: Modal parameters regression model.
-      Default is an instance of :class:`HingeRegression`
+      Default is an instance of :class:`sample.hinge.HingeRegression`
     regressor_k (str): Attribute name for the estimated slope
       coefficient of :data:`regressor`
     regressor_q (str): Attribute name for the estimated intercept
@@ -73,8 +74,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
   @_decorate_sample
   def __init__(
       self,
-      sinusoidal=None,
-      regressor=None,
+      sinusoidal: sm.SinusoidalModel = None,
+      regressor: hinge.HingeRegression = None,
       regressor_k: str = "k_",
       regressor_q: str = "q_",
       freq_reduce: Callable[[np.ndarray], float] = np.mean,
@@ -105,12 +106,17 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
   def _preprocess_track(self, i: int, x: np.ndarray,
                         t: dict) -> Tuple[int, np.ndarray, dict]:
-    """Compute time axis and nan-filter track"""
+    """Compute time axis, nan-filter track, and double the
+    magnitude (compensate for spectral halving)"""
     notnans = np.logical_not(np.isnan(t["mag"]))
-    time_axis = (t["start_frame"] +
-                 np.arange(t["mag"].size)[notnans]) / self.sinusoidal.frame_rate
+    time_axis = np.arange(t["mag"].size, dtype=float)[notnans]
+    time_axis += t["start_frame"]
+    time_axis /= self.sinusoidal.frame_rate
+    if not self.sinusoidal.padded:
+      time_axis += 0.5 * self.sinusoidal.w.size / self.sinusoidal.fs
     t_filtered = {
-        k: v if k == "start_frame" else v[notnans] for k, v in t.items()
+        k: v if np.ndim(np.squeeze(v)) != 1 else v[notnans]
+        for k, v in t.items()
     }
     if getattr(self.sinusoidal.tracker, "reverse", False):
       # Reverse time axis
@@ -125,12 +131,12 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       self,
       i: int,  # pylint: disable=W0613
       t: np.ndarray,
-      track: dict) -> Tuple[Tuple[float, float, float]]:
+      track: dict) -> Sequence[Tuple[float, float, float]]:
     """Fit parameters for one track.
 
     Args:
       i (int): Track index
-      tim (array): Time axis
+      t (array): Time axis
       track (dict): Track
 
     Returns:
@@ -143,6 +149,15 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
     a = utils.dsp.db2a(getattr(r, self.regressor_q))
     return ((f, d, a),)
 
+  def _track_preprocess_and_fit(self, i: int, x: np.ndarray, t: dict):
+    """Call both :func:`_preprocess_track` and :func:`_fit_track`"""
+    return self._fit_track(*self._preprocess_track(i=i, x=x, t=t))
+
+  _PARAM_MATRIX_NROWS: int = 3
+
+  @utils.warnings_simplefilter(action="ignore",
+                               category=RuntimeWarning,
+                               toggle=("ignore_warnings", True))
   def fit(self, x: np.ndarray, y=None, **kwargs):
     """Analyze audio data
 
@@ -153,18 +168,31 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
 
     Returns:
       SAMPLE: self"""
-    self.set_params(**kwargs)
-    tracks = self.sinusoidal.fit(x, y).tracks_
-    tracks = itertools.starmap(
-        self._preprocess_track, map(lambda t: (t[0], x, t[1]),
-                                    enumerate(tracks)))
-    params = itertools.chain.from_iterable(
-        itertools.starmap(self._fit_track, tracks))
-    self.param_matrix_ = np.array(list(params)).T
-    if self.param_matrix_.size == 0:
-      self.param_matrix_ = np.empty((3, 0))
-    self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
-    return self
+    sample_kwargs = {}
+    ctx_kwargs = {}
+    for k, v in kwargs.items():
+      (sample_kwargs if k in self.get_params() else ctx_kwargs)[k] = v
+    self.set_params(**sample_kwargs)
+
+    with sample._training.sample_training_context(self, **kwargs) as fit_args:  # pylint: disable=W0212
+      # Process frames
+      fit_args.progress_start(len(self.sinusoidal.time_frames(x)))
+      tracks = self.sinusoidal.fit(x, y, _fit_args=fit_args).tracks_
+      fit_args.progress_stop()
+
+      # Process tracks
+      params = itertools.chain.from_iterable(
+          fit_args.starmap_progress(self._track_preprocess_and_fit,
+                                    ((i, x, t) for i, t in enumerate(tracks)),
+                                    tot=len(self.sinusoidal.tracks_)))
+      self.param_matrix_ = np.array(list(params)).T
+
+      # Clean results
+      if self.param_matrix_.size == 0:
+        self.param_matrix_ = np.empty((self._PARAM_MATRIX_NROWS, 0))
+      self.param_matrix_ = self.param_matrix_[:, self._valid_params_]
+
+      return self
 
   @property
   def _valid_params_(self) -> Sequence[bool]:
@@ -279,6 +307,8 @@ class SAMPLE(base.RegressorMixin, base.BaseEstimator):
       else:
         n_modes = self.max_n_modes
     m_ord = self.mode_argsort_(order=order, reverse=reverse)[:n_modes]
+    if "phases" in kwargs and not isinstance(kwargs["phases"], str):
+      kwargs["phases"] = kwargs["phases"][m_ord]
     return additive_synth(x, self.freqs_[m_ord], self.decays_[m_ord],
                           self.amps_[m_ord], **kwargs)
 

@@ -10,7 +10,7 @@ from scipy import signal
 
 from sample.widgets import logging
 from sample.widgets import responsive as tk
-from sample.widgets import sample, userfiles, utils
+from sample.widgets import userfiles, utils
 
 
 # --- Parsers ----------------------------------------------------------------
@@ -73,17 +73,43 @@ def strip_time_parse(x: str) -> Optional[float]:
   return x
 
 
-def non_negative(x: str) -> float:
-  """Clip floats at zero. Invalid values are also mapped to zero
+def float_clip(left: Optional[float] = None,
+               right: Optional[float] = None,
+               default: Optional[float] = None):
+  """Clip floats between extremities.
   Args:
-    x (str): Input number as a string
+    left (float): Left extremum
+    right (float): Right extremum
+    default (float): Default value on error
+
   Returns:
-    float: :data:`x` if positive, else :data:`0`"""
-  try:
-    x = float(x)
-  except ValueError:
-    return 0
-  return max(0., x)
+    float: Clipped value"""
+  if default is None:
+    if left is None:
+      if right is None:
+        default = 0
+      else:
+        default = right
+    elif right is None:
+      default = left
+    else:
+      default = (left + right) / 2
+
+  def float_clip_(x: str,
+                  left: Optional[float] = left,
+                  right: Optional[float] = right,
+                  default: float = default):
+    try:
+      x = float(x)
+    except ValueError:
+      return default
+    if left is not None:
+      x = max(left, x)
+    if right is not None:
+      x = min(right, x)
+    return x
+
+  return float_clip_
 
 
 def custom_positive_int(x: str, dflt: Optional[int] = 1) -> int:
@@ -164,6 +190,21 @@ def postprocess_windows(sinusoidal__n: int, wsize: int,
       break
   in_kw = dict(sinusoidal__n=sinusoidal__n, wsize=wsize, wtype=wtype)
   out_kw = dict(sinusoidal__n=sinusoidal__n, sinusoidal__w=w)
+  return in_kw, out_kw
+
+
+def postprocess_multiprocessing(
+    parallel: bool, n_jobs: int) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+  """Postprocess number of jobs
+
+  Args:
+    parallel (bool): Toggle on/off multiprocessing
+    n_jobs (int): Number of workers
+
+  Returns:
+    dict, dict: Postprocessed settings and parameters as dictionaries"""
+  in_kw = dict(parallel=parallel, n_jobs=n_jobs)
+  out_kw = dict(n_jobs=n_jobs if parallel else 0)
   return in_kw, out_kw
 
 
@@ -266,7 +307,7 @@ _settings = (
           tooltip="Threshold in dB for the peak detection algorithm")),
     ("sinusoidal__tracker__min_sine_dur",
      dict(label="minimum sine duration",
-          get_fn=non_negative,
+          get_fn=float_clip(left=0, default=0.1),
           init_value=0.1,
           tooltip="Minimum duration of a track (in seconds)")),
     ("sinusoidal__tracker__strip_t",
@@ -285,6 +326,54 @@ _settings = (
          boolean=True,
          tooltip="If True, then process audio in reverse order of time",
      )),
+    ("sinusoidal__padded",
+     dict(
+         label="zero-padding",
+         init_value=False,
+         boolean=True,
+         tooltip="If True, then zero-pad the audio to center the first "
+         "window on the first sample",
+     )),
+    ("beatsdrop_space", dict(is_spacer=True, label=" ")),
+    ("beatsdrop_group", dict(label="BeatsDROP", is_spacer=True)),
+    ("beatsdrop",
+     dict(
+         label="BeatsDROP",
+         init_value=False,
+         boolean=True,
+         tooltip="If True, apply BeatsDROP to de-couple beats",
+     )),
+    ("parallel",
+     dict(
+         label="multiprocessing",
+         init_value=False,
+         boolean=True,
+         tooltip="If True, parallelize BeatsDROP "
+         "amongst multiple processes",
+     )),
+    ("n_jobs",
+     dict(
+         label="n jobs",
+         init_value=4,
+         get_fn=functools.partial(custom_positive_int, dflt=4),
+         tooltip="Number of parallel processes to use",
+     )),
+    ("beat_decisor__alpha",
+     dict(label="alpha",
+          get_fn=float_clip(left=0, right=1, default=0.05),
+          init_value=0.05,
+          tooltip="Significance level for correlation test")),
+    ("beat_decisor__statistic",
+     dict(label="correlation",
+          get_fn=float_clip(left=-1, right=1, default=0),
+          init_value=0,
+          tooltip="Correlation threshold")),
+    ("beatsdrop__lpf",
+     dict(label="lpf",
+          get_fn=float_clip(left=2, right=50, default=12),
+          init_value=12,
+          tooltip="Cutoff frequency for the low-pass filter used "
+          "for computing the amplitude autocorrelation")),
     ("gui_space", dict(is_spacer=True, label=" ")),
     ("gui_group", dict(label="GUI", is_spacer=True)),
     ("gui_theme",
@@ -297,6 +386,7 @@ _settings = (
 )
 
 _postprocess = (
+    postprocess_multiprocessing,
     postprocess_windows,
     postprocess_fbound,
     postprocess_guitheme,
@@ -433,7 +523,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.button.bind("<Button-1>", self.apply_cbk)
     self.button.grid()
 
-    self.sample_object = sample.SAMPLE4GUI()
+    self.sample_object_kwargs = {}
     self.apply_cbk(from_file=True)
 
   def reset_selections(self, *args, **kwargs):  # pylint: disable=W0613
@@ -501,8 +591,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       self.settings_file.save_json(settings, indent=2)
     for k, v in settings.items():
       self._settings[k].set(v)
-    self.sample_object.set_params(**params)
-    logging.debug("SAMPLE: %s", self.sample_object)
+    self.sample_object_kwargs = params
     if prev_theme != ttk_theme.get():
       logging.info("Reload GUI to apply changes")
       if messagebox.askyesno(
