@@ -223,7 +223,7 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_parallel_fit(self):
     """Test SAMPLE fit in multiprocessing (useless)"""
     s = base.clone(self.sample).fit(self.x)
-    p = base.clone(self.sample).fit(self.x, n_jobs=4)
+    p = base.clone(self.sample).fit(self.x, n_jobs=4, ignore_warnings=False)
     with self.subTest(test="freqs"):
       np.testing.assert_array_equal(s.freqs_, p.freqs_)
     with self.subTest(test="amps"):
