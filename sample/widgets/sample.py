@@ -46,7 +46,7 @@ class _GUIFitArgs(sample._training.FitArgs):  # pylint: disable=W0212
       self._current_progress = value
       self._progress_update_inner(value=value)
 
-  @throttle.wrap(0.01, 1)
+  @throttle.wrap(0.2, 1)
   def _progress_update_inner(self, value: Optional[float] = None):
     """Update the progress bar. This function is throttled"""
     if self.progressbar is not None:
