@@ -2,7 +2,7 @@
 import functools
 import inspect
 import warnings
-from typing import Any, Callable, Iterable, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple, overload, TypeVar, Union
 
 import numpy as np
 import paragraph as pg
@@ -314,6 +314,7 @@ def deprecated_argument(old_key: str,
                         msg: Optional[str] = None,
                         prefix: bool = False,
                         warn: bool = True):
+  # pylint: disable=C0301 (line-too-long unavoidable because of doctest)
   """Wrap a function to deprecate an argument.
 
   Args:
@@ -330,25 +331,42 @@ def deprecated_argument(old_key: str,
       when the deprecated argument is used
 
   Example:
-    >>> from sample.utils import deprecated_argument
+    >>> from sample.utils import deprecated_argument, warnings_simplefilter
+    >>> # First of all, let's use a filter to catch and print warnings
+    >>> warns = []
+    >>> filt = warnings_simplefilter(action="always",
+    ...                              category=DeprecationWarning,
+    ...                              catch_kws=dict(record=True),
+    ...                              traces=warns,
+    ...                              toggle=("ignore_warnings", True))
     >>> # Let's say that this function used to have a argument 'n',
     >>> # which was too generic and we decided to change the name to 'size'
-    >>> @deprecated_argument("n", "size")
+    >>> @filt
+    ... @deprecated_argument("n", "size")
     ... def func(x: str, size: int = 1):
     ...   return x * size
     >>> # Positional arguments do not trigger warnings
     >>> func("x", 5)
     'xxxxx'
+    >>> warns[-1]
+    []
     >>> # The 'size' argument does not trigger warnings
     >>> func("x", size=5)
     'xxxxx'
+    >>> warns[-1]
+    []
     >>> # The 'n' argument triggers a warning
     >>> func("x", n=5)
     'xxxxx'
+    >>> len(warns[-1])
+    1
+    >>> print(warns[-1][-1].message)
+    The 'n' argument is deprecated, use 'size' instead.
     >>> # Let's say that now we want to use an argument that specifies
     >>> # the total length of the output string
     >>> # A message explains the difference in behaviour
-    >>> @deprecated_argument("n", "size")
+    >>> @filt
+    ... @deprecated_argument("n", "size")
     ... @deprecated_argument(
     ...     "size",
     ...     convert=lambda x, size: ("length", len(x) * size),
@@ -361,12 +379,20 @@ def deprecated_argument(old_key: str,
     >>> # This example gives the same output as with the old function
     >>> func("x", length=5)
     'xxxxx'
+    >>> warns[-1]
+    []
     >>> # But this shows the new behaviour
     >>> func("_-", length=5)
     '_-_-_'
+    >>> warns[-1]
+    []
     >>> # The keyword 'size' issues a warning but preserves the old behaviour
     >>> func("_-", size=5)
     '_-_-_-_-_-'
+    >>> len(warns[-1])
+    1
+    >>> print(warns[-1][-1].message)
+    The 'size' argument is deprecated, use 'length' instead. The new 'length' argument specifies the desired total length of the string and NOT the number of repetitions
     >>> # To deprecate an argument, we have to specify either a new key
     >>> # or a conversion function
     >>> try:
@@ -377,15 +403,24 @@ def deprecated_argument(old_key: str,
     ...   print(e)
     At least one between 'new_key' and 'convert' should not be None
     >>> # We can deprecate all arguments starting with the same prefix
-    >>> @deprecated_argument("array_", "", prefix=True)
+    >>> @filt
+    ... @deprecated_argument("array_", "", prefix=True)
     ... def full(value, size: int = 1):
     ...   return [value] * size
     >>> full(3, 5)
     [3, 3, 3, 3, 3]
+    >>> warns[-1]
+    []
     >>> # The deprecated argument 'array_size' will be mapped to 'size'
     >>> # and 'array_value' to 'value'
     >>> full(array_value=3, array_size=5)
     [3, 3, 3, 3, 3]
+    >>> len(warns[-1])
+    2
+    >>> print(warns[-1][0].message)
+    The 'array_value' argument is deprecated, use 'value' instead.
+    >>> print(warns[-1][1].message)
+    The 'array_size' argument is deprecated, use 'size' instead.
     >>> # Using a prefix requires the 'new_key' argument
     >>> try:
     ...   @deprecated_argument("array_", prefix=True)
@@ -437,9 +472,65 @@ def deprecated_argument(old_key: str,
                 f"The '{old_key_}' argument is deprecated, "
                 f"use '{new_key__}' instead."
                 f"{'' if msg is None else ' '}{'' if msg is None else msg}",
-                SAMPLEDeprecationWarning, 1)
+                SAMPLEDeprecationWarning, 2)
       return func(*args, **kwargs)
 
     return func_
 
   return deprecated_argument_
+
+
+F = TypeVar("F", bound=Callable)
+
+
+@overload
+def warnings_simplefilter(catch_kws: Optional[Dict[str, Any]] = None,
+                          traces: Optional[list] = None,
+                          toggle: Optional[Tuple[str, bool]] = None,
+                          **kwargs) -> Callable[[F], F]:
+  ...  # pragma: no cover
+
+
+@overload
+def warnings_simplefilter(func: F, **kwargs) -> F:
+  ...  # pragma: no cover
+
+
+def warnings_simplefilter(func: Optional[F] = None,
+                          catch_kws: Optional[Dict[str, Any]] = None,
+                          traces: Optional[list] = None,
+                          toggle: Optional[Tuple[str, bool]] = None,
+                          **kwargs) -> Union[F, Callable[[F], F]]:
+  """Decorator for filtering warnings. For usage examples,
+  see :func:`deprecated_argument`
+
+  Args:
+    func (callable): Function to decorate. If unspecified, a partial
+      :func:`warnings_simplefilter` will be returned
+    catch_kws (dict): Keyword arguments for :func:`warnings.catch_warnings`
+    traces (list): If specified, lists yielded by
+      :func:`warnings.catch_warnings` will be appended to this list
+    toggle (str, bool): Key and default value for a function argument that
+      controls warning filtering (when :data:`True`, warnings are filtered)
+    **kwargs (dict): Keyword arguments for :func:`warnings.simplefilter`"""
+  if func is None:
+    for k in ("catch_kws", "traces", "toggle"):
+      v = locals()[k]
+      if v is not None:
+        kwargs[k] = v
+    return functools.partial(warnings_simplefilter, **kwargs)
+  ctx_fn = functools.partial(warnings.catch_warnings,
+                             **({} if catch_kws is None else catch_kws))
+  flt_fn = functools.partial(warnings.simplefilter, **kwargs)
+
+  @functools.wraps(func)
+  def func_(*ars, **kws):
+    if toggle is not None and not kws.pop(*toggle):
+      return func(*ars, **kws)
+    with ctx_fn() as y:
+      flt_fn()
+      if traces is not None:
+        traces.append(y)
+      return func(*ars, **kws)
+
+  return func_
