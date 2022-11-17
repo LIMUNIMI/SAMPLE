@@ -71,10 +71,6 @@ class _DefaultProperty(property):
     self.defaulter(kwargs.pop("fdef"))
     super().__init__(**kwargs)
 
-  def getter(self, __fget):
-    # This wrapper allows sphinx to get the correct docstring
-    return super().getter(self.DocumentedCallable(__fget, self._doc))
-
   def defaulter(self, fdef: Optional[Callable[[Any, Any], bool]] = None):
     """Assign a default-checker function to the property
 
