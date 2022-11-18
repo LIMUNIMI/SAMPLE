@@ -1,4 +1,5 @@
 """Decision models for discriminating beating trajectories"""
+import collections
 from typing import Sequence, Tuple
 
 import numpy as np
@@ -131,6 +132,17 @@ class BeatDecisor(base.BaseEstimator):
     return a_lin, a_biz
 
 
+_PearsonRResult = collections.namedtuple("_PearsonRResult",
+                                         ("statistic", "pvalue"))
+
+
+def _pearsonr(x, y):
+  """Wrapper for :func:`scipy.stats.pearsonr`
+  This avoids errors due to the API change in scipy"""
+  r = stats.pearsonr(x, y)
+  return _PearsonRResult(*r) if isinstance(r, tuple) else r
+
+
 class ResidualCorrelationBeatDecisor(BeatDecisor):
   """Decide if a trajectory is a beat or not based on the correlation
   between linear- and beat-regression residuals
@@ -171,5 +183,5 @@ class ResidualCorrelationBeatDecisor(BeatDecisor):
                                             track=track,
                                             beatsdrop=beatsdrop,
                                             params=params)
-    t = self.intermediate.append("test", stats.pearsonr(r_lin, r_biz), index=i)
+    t = self.intermediate.append("test", _pearsonr(r_lin, r_biz), index=i)
     return t.pvalue > self.alpha or t.statistic < self.statistic
