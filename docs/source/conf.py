@@ -22,11 +22,18 @@ project = "Spectral Analysis for Modal Parameter Linear Estimate"
 copyright = "2021-2022, Marco Tiraboschi"  # pylint: disable=W0622
 author = "Marco Tiraboschi"
 
-if os.environ.get("SAMPLE_SPHINX_VERSION_IS_SHA", False):
+SAMPLE_SPHINX_VERSION_IS_SHA = os.environ.get("SAMPLE_SPHINX_VERSION_IS_SHA",
+                                              "")
+if not SAMPLE_SPHINX_VERSION_IS_SHA:
+  # Get version from package
+  version = importlib.import_module("sample").__version__
+elif len(SAMPLE_SPHINX_VERSION_IS_SHA) > 1:
+  # Get version from provided git sha
+  version = SAMPLE_SPHINX_VERSION_IS_SHA
+else:
+  # Get version from git sha
   version = subprocess.check_output("git rev-parse HEAD",
                                     shell=True).decode("utf-8")
-else:
-  version = importlib.import_module("sample").__version__
 release = version
 
 # -- General configuration ---------------------------------------------------
