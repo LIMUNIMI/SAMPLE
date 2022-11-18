@@ -1,7 +1,7 @@
-"""Implementation of SAMPLE (Spectral Analysis for
-Modal Parameter Linear Estimate)
+"""Implementation of SAMPLE (Spectral Analysis for Modal Parameter Linear
+Estimate) and BeatsDROP (Beats Duality for the Resolution Of Partials)
 
-Copyright (c) 2021 Marco Tiraboschi
+Copyright (c) 2021-2022 Marco Tiraboschi
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "Spectral Analysis for Modal Parameter Linear Estimate"
-copyright = "2021, Marco Tiraboschi"
+copyright = "2021-2022, Marco Tiraboschi"
 author = "Marco Tiraboschi"
 
 from sample import __version__ as version
