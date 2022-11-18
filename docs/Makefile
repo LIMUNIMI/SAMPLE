@@ -8,6 +8,7 @@ SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
 PROJECTDIR    = ../sample
+IGNOREPATHS   = ../sample/widgets ../sample/gui.py ../sample/vid.py
 INDICES       = index.rst changelog.rst
 
 help:
@@ -22,7 +23,7 @@ clean: clean_rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 rst:
-	sphinx-apidoc -e -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)"
+	sphinx-apidoc -e -T -M -o "$(SOURCEDIR)" "$(PROJECTDIR)" $(IGNOREPATHS) -d 1
 
 clean_rst:
 	mkdir -p .tmp
