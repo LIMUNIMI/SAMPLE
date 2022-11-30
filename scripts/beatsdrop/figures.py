@@ -6,6 +6,7 @@ import os
 import sys
 from typing import Tuple
 
+import emd
 import matplotlib as mpl
 import numpy as np
 from chromatictools import cli
@@ -15,6 +16,7 @@ from matplotlib import pyplot as plt
 import sample.beatsdrop.regression
 import sample.beatsdrop.sample
 from sample import beatsdrop, plots, sample
+from sample.utils import dsp as dsp_utils
 
 logger = logging.getLogger("BeatsDROP-Figures")
 
@@ -211,9 +213,6 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
 
   Args:
     args (Namespace): CLI arguments
-
-  Args:
-    args (Namespace): CLI arguments
     **kwargs: Keyword arguments for :func:`subplots`
 
   Returns:
@@ -264,12 +263,182 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
   return args
 
 
+def plot_emd(args,
+             n_points: int = 384,
+             ncols: int = 1,
+             subq: float = 0.33,
+             horizontal: bool = False,
+             **kwargs):
+  """Plot EMD IMFs
+
+  Args:
+    args (Namespace): CLI arguments
+    **kwargs: Keyword arguments for :func:`subplots`
+
+  Returns:
+    Namespace: CLI arguments"""
+  # --- Synthesize data -------------------------------------------------------
+  fs = 44100
+  t = np.arange(int(fs * 4)) / fs
+  np.random.seed(42)
+
+  a0, a1 = 0.8, 0.2
+  f0, f1 = 1100, np.pi
+  f0, f1 = f0 + f1, f0 - f1
+  d0, d1 = 0.75, 2
+  p0, p1 = 0, np.random.rand() * 2 * np.pi
+
+  x = sample.additive_synth(t,
+                            freqs=[f0, f1],
+                            amps=[a0, a1],
+                            decays=[d0, d1],
+                            phases=[p0, p1],
+                            analytical=True)
+
+  # Add noise
+  np.random.seed(42)
+  a_noise = dsp_utils.db2a(-45)
+  x_real = x.real + np.random.randn(np.size(x)) * a_noise
+
+  keys_list = []
+  insa_list = []
+  imfs_list = []
+
+  # Apply EMD
+  logger.debug("Apply EMD")
+  imfs = emd.sift.sift(x_real, max_imfs=3)
+  _, _, ias = emd.spectra.frequency_transform(imfs, fs, "hilbert")
+
+  keys_list.append("EMD")
+  insa_list.append(ias.T)
+  imfs_list.append(imfs.T)
+
+  # Apply Ensemble EMD
+  logger.debug("Apply Ensemble EMD")
+  imfs_e = emd.sift.ensemble_sift(x_real,
+                                  max_imfs=3,
+                                  nensembles=4,
+                                  nprocesses=4)
+  _, _, ias_e = emd.spectra.frequency_transform(imfs_e, fs, "hilbert")
+
+  keys_list.append("Ensemble EMD")
+  insa_list.append(ias_e.T)
+  imfs_list.append(imfs_e.T)
+
+  # Apply Masked EMD
+  logger.debug("Apply Masked EMD")
+  imfs_m = emd.sift.mask_sift(x_real,
+                              max_imfs=3,
+                              mask_freqs=(f0 + f1) / (2 * fs))
+  _, _, ias_m = emd.spectra.frequency_transform(imfs_m, fs, "hilbert")
+
+  keys_list.append("Masked EMD")
+  insa_list.append(ias_m.T)
+  imfs_list.append(imfs_m.T)
+
+  # Apply Iterated-Mask EMD
+  logger.debug("Apply Iterated-Mask EMD")
+  imfs_im = emd.sift.iterated_mask_sift(x_real, max_imfs=3, sample_rate=fs)
+  _, _, ias_im = emd.spectra.frequency_transform(imfs_im, fs, "hilbert")
+
+  keys_list.append("Iterated-Mask EMD")
+  insa_list.append(ias_im.T)
+  imfs_list.append(imfs_im.T)
+
+  # Apply SAMPLE+BeatsDROP
+  logger.debug("Apply SAMPLE+BeatsDROP")
+  model = beatsdrop.sample.SAMPLEBeatsDROP(
+      sinusoidal__tracker__max_n_sines=32,
+      sinusoidal__tracker__reverse=True,
+      sinusoidal__t=-90,
+      sinusoidal__intermediate__save=True,
+      sinusoidal__tracker__peak_threshold=-45,
+  ).fit(x_real, sinusoidal_model__fs=fs)
+  ias_sbd = np.exp(t.reshape((-1, 1)) @ (-2 / model.decays_.reshape(
+      (1, -1)))) * model.amps_
+  imfs_sbd = ias_sbd * np.cos(
+      t.reshape((-1, 1)) @ (2 * np.pi * model.freqs_.reshape((1, -1))))
+
+  keys_list.append("SAMPLE+BeatsDROP")
+  insa_list.append(ias_sbd.T)
+  imfs_list.append(imfs_sbd.T)
+
+  #  --- Plot -----------------------------------------------------------------
+  i_detail = np.arange(n_points)
+  subsample_k = np.floor(x_real.size / n_points).astype(int)
+  i_subsample = np.multiply(i_detail, subsample_k, dtype=int)
+  i_detail = i_detail[:int(n_points * subq)]
+
+  nrows = np.ceil(len(keys_list) / ncols).astype(int)
+  _, axs = subplots(vshape=(nrows, ncols),
+                    sharex=True,
+                    sharey=True,
+                    horizontal=horizontal,
+                    squeeze=False,
+                    **kwargs)
+  b = np.mod(np.mod(np.arange(axs.size), ncols), 2)
+  s = axs.shape
+  axs = axs.reshape((-1,))
+  for i in range(len(keys_list) - 1, axs.size - 1):
+    b[i] = 2
+    axs[i].remove()
+    axs[i] = None
+  axs = axs.reshape(s)
+
+  yl = np.array([-1.15, 1.15])
+  t_q = t[i_detail] - np.min(t[i_detail])
+  t_q /= np.max(t_q)
+  dx = np.diff(t[i_subsample[[0, -1]]])[0]
+  x_q_off = t[i_subsample[0]] + (1 - subq) * dx
+  x_q_slope = subq * dx
+  t_q = x_q_off + x_q_slope * t_q
+  for k, ax, ias_, imfs_ in zip(
+      keys_list, filter(lambda ax: ax is not None, np.ravel(axs)), insa_list,
+      imfs_list):
+    ax.set_title(k)
+    for i, (ia, imf) in enumerate(zip(ias_, imfs_)):
+      ax.fill_between(t[i_subsample],
+                      ia[i_subsample],
+                      -ia[i_subsample],
+                      ec=args.colors(i),
+                      fc=args.colors(i),
+                      alpha=0.33,
+                      zorder=101)
+      xl = ax.get_xlim()
+
+      # Virtual internal subplot
+      ax.fill_between(t_q, (np.clip(ia[i_detail], *yl) - yl[0]) * subq + yl[0],
+                      (np.clip(-ia[i_detail], *yl) - yl[0]) * subq + yl[0],
+                      ec=args.colors(i),
+                      fc=args.colors(i),
+                      alpha=0.33,
+                      zorder=100)
+      ax.plot(t_q, (np.clip(imf[i_detail], *yl) - yl[0]) * subq + yl[0],
+              c=args.colors(i),
+              alpha=0.75,
+              zorder=102)
+
+      ax.set_xlim(xl)
+      ax.set_ylim(yl)
+
+  for col in (axs.T if horizontal else axs):
+    for ax in np.flip(col):
+      if ax is None:
+        continue
+      ax.set_xlabel("time (s)")
+      break
+  save_fig("emd", args)
+  # ---------------------------------------------------------------------------
+
+  return args
+
+
 @cli.main(__name__, *sys.argv[1:])
 def main(*argv):
   """Script runner"""
   args = ArgParser(description=__doc__).custom_parse_args(argv)
-  # Make figure folder
   logger.debug("Making directory: %s", args.output)
   os.makedirs(args.output, exist_ok=True)
   plot_beat(args)
   plot_regression(args, horizontal=True, w=2)
+  plot_emd(args, horizontal=True, w=2)
