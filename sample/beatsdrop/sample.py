@@ -95,10 +95,12 @@ class SAMPLEBeatsDROP(sample.sample.SAMPLE):
 
     Returns:
       ((float, float, float),): Frequency, decay, and amplitude"""
+    b = base.clone(self.beatsdrop)
+    b.set_params(fs=self.sinusoidal.fs)
     return self.beat_decisor.track_params(i=i,
                                           t=t,
                                           track=track,
-                                          beatsdrop=base.clone(self.beatsdrop),
+                                          beatsdrop=b,
                                           params=super()._fit_track(
                                               i, t, track)[0],
                                           fit=True)
