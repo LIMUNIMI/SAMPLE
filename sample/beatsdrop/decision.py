@@ -148,12 +148,8 @@ class AlmostNotABeatDecisor(BeatDecisor):
     super().__init__(intermediate=intermediate, **kwargs)
 
   @property
-  def th(self) -> float:
-    return self._th / np.finfo(float).eps
-
-  @th.setter
-  def th(self, value: float):
-    self._th = value * np.finfo(float).eps
+  def _th(self) -> float:
+    return self.th * np.finfo(float).eps
 
   def _not_amost_zero(self, values):
     return np.greater(values, self._th)
