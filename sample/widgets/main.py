@@ -9,7 +9,7 @@ from sample.widgets import analysis, audio, audioload, images, logging
 from sample.widgets import responsive as tk
 from sample.widgets import settings, userfiles, utils
 
-_prerelease = re.fullmatch(r"v?(\d\.)*\d", sample.__version__) is None
+_PRERELEASE_REGEX = re.compile(r"v?(\d+\.)*\d+")
 
 
 class SAMPLERoot(tk.ThemedTk):
@@ -26,7 +26,8 @@ class SAMPLERoot(tk.ThemedTk):
     self.reload_queue = reload_queue
     self.should_reload = False
     super().__init__(**kwargs, theme=theme)
-    self.title(f"SAMPLE ({sample.__version__})" if _prerelease else "SAMPLE")
+    self.title(f"SAMPLE ({sample.__version__})" if _PRERELEASE_REGEX.
+               fullmatch(sample.__version__) is None else "SAMPLE")
     self.tk.call("wm", "iconphoto", self._w, images.LogoIcon())
     self.responsive(1, 1)
     self.protocol("WM_DELETE_WINDOW", self.on_closing)
