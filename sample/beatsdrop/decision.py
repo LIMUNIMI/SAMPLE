@@ -1,9 +1,7 @@
 """Decision models for discriminating beating trajectories"""
-import collections
 from typing import Sequence, Tuple
 
 import numpy as np
-from scipy import stats
 from sklearn import base
 
 import sample.beatsdrop.regression
@@ -132,42 +130,38 @@ class BeatDecisor(base.BaseEstimator):
     return a_lin, a_biz
 
 
-_PearsonRResult = collections.namedtuple("_PearsonRResult",
-                                         ("statistic", "pvalue"))
-
-
-def _pearsonr(x, y):
-  """Wrapper for :func:`scipy.stats.pearsonr`
-  This avoids errors due to the API change in scipy"""
-  r = stats.pearsonr(x, y)
-  return _PearsonRResult(*r) if isinstance(r, tuple) else r
-
-
-class ResidualCorrelationBeatDecisor(BeatDecisor):
-  """Decide if a trajectory is a beat or not based on the correlation
-  between linear- and beat-regression residuals
+class AlmostNotABeatDecisor(BeatDecisor):
+  """Decide if a trajectory is a beat or not based on the fact that the two
+  amplitudes are not almost zero and the two frequencies are not almost the
+  same.
 
   Args:
-    alpha (float): p-value threshold. If the two residuals are uncorrelated
-      (pvalue > alpha), then the trajectory is considered a beat
-    statistic (float): Correlation statistic threshold. If the two correlation
-      coefficient is less than this value, then
-      the trajectory is considered a beat
+    th (float): Inexact equality threshold, as a multiplier of floating
+      point epsilon.
     intermediate (OptionalStorage): Optionally-activatable storage"""
 
   def __init__(self,
-               alpha: float = 0.05,
-               statistic: float = 0,
+               th: float = 1,
                intermediate: utils.learn.OptionalStorage = None,
                **kwargs) -> None:
-    self.alpha = alpha
-    self.statistic = statistic
+    self.th = th
     super().__init__(intermediate=intermediate, **kwargs)
+
+  @property
+  def th(self) -> float:
+    return self._th / np.finfo(float).eps
+
+  @th.setter
+  def th(self, value: float):
+    self._th = value * np.finfo(float).eps
+
+  def _not_amost_zero(self, values):
+    return np.greater(values, self._th)
 
   def decide_beat(self, i: int, t: np.ndarray, track: dict,
                   beatsdrop: sample.beatsdrop.regression.BeatRegression,
                   params: Tuple[float, float, float]) -> bool:
-    """Decision function based on residuals correlation
+    """Decision function based on normalized power square difference
 
     Args:
       i (int): Track index
@@ -179,9 +173,7 @@ class ResidualCorrelationBeatDecisor(BeatDecisor):
     Returns:
       bool: :data:`True` iff the correlation is not significant
       or is below the threshold"""
-    r_lin, r_biz = self.amplitude_residuals(t=t,
-                                            track=track,
-                                            beatsdrop=beatsdrop,
-                                            params=params)
-    t = self.intermediate.append("test", _pearsonr(r_lin, r_biz), index=i)
-    return t.pvalue > self.alpha or t.statistic < self.statistic
+    a0, a1, f0, f1, _, _, _, _ = beatsdrop.params_
+
+    d = self.intermediate.append("test", np.abs((f0 - f1, a0, a1)), index=i)
+    return np.all(self._not_amost_zero(d))

@@ -2,13 +2,14 @@
 Duality for the Resolution Of Partials)"""
 import functools
 import itertools
-from typing import Callable, Optional, Union, Tuple, List, Iterable
+from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
 import paragraph as pg
+from scipy import integrate
+
 from sample import utils
 from sample.utils import np2pg
-from scipy import integrate
 
 if not hasattr(integrate, "cumulative_trapezoid"):
   # Available Scipy versions for old Python versions (e.g. Python 3.6.x)

@@ -26,7 +26,7 @@ class SAMPLEBeatsDROP(sample.sample.SAMPLE):
       of :class:`sample.beatsdrop.regression.DualBeatRegression`
     beat_decisor (BeatDecisor): Model responsible for deciding wether the
       trajectory is a beat or not. By default it is an instance of
-      :class:`sample.beatsdrop.decision.ResidualCorrelationBeatDecisor`
+      :class:`sample.beatsdrop.decision.AlmostNotABeatDecisor`
     sinusoidal (SinusoidalModel): Sinusoidal analysis model.
       Default is an instance of :class:`sample.sms.mm.ModalModel`
     regressor: Modal parameters regression model.
@@ -41,7 +41,7 @@ class SAMPLEBeatsDROP(sample.sample.SAMPLE):
       (default), then synthesise all modes
     **kwargs: Additional parameters for sub-models. See
       :class:`sample.beatsdrop.regression.DualBeatRegression`,
-      :class:`sample.beatsdrop.decision.ResidualCorrelationBeatDecisor`,
+      :class:`sample.beatsdrop.decision.AlmostNotABeatDecisor`,
       :class:`sample.sms.mm.ModalTracker`,
       :class:`sample.sms.mm.ModalModel`,
       :class:`sample.hinge.HingeRegression`, and
@@ -80,7 +80,7 @@ class SAMPLEBeatsDROP(sample.sample.SAMPLE):
   @utils.learn.default_property
   def beat_decisor(self):
     """Beat decision model"""
-    return bd.decision.ResidualCorrelationBeatDecisor()
+    return bd.decision.AlmostNotABeatDecisor()
 
   _PARAM_MATRIX_NROWS: int = 4
 
@@ -95,10 +95,12 @@ class SAMPLEBeatsDROP(sample.sample.SAMPLE):
 
     Returns:
       ((float, float, float),): Frequency, decay, and amplitude"""
+    b = base.clone(self.beatsdrop)
+    b.set_params(fs=self.sinusoidal.fs)
     return self.beat_decisor.track_params(i=i,
                                           t=t,
                                           track=track,
-                                          beatsdrop=base.clone(self.beatsdrop),
+                                          beatsdrop=b,
                                           params=super()._fit_track(
                                               i, t, track)[0],
                                           fit=True)

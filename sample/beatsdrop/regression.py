@@ -250,9 +250,9 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
     # Frequency bounds
     f_min = np.min(f)
     f_max = np.max(f)
-    df = f_max - f_min
-    f_max = max(*p[2:4], f_max + df)
-    f_min = min(*p[2:4], f_min - df)
+    df = min(f_max - f_min, 1)
+    f_max = max(*p[2:4], f_max) + df
+    f_min = min(*p[2:4], f_min) - df
 
     eps = np.finfo(float).eps
 
