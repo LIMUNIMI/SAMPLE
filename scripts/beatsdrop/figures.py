@@ -1,7 +1,6 @@
 """Plot figures for the paper 'Acoustic Beats and Where To Find Them:
 Theory of Uneven Beats and Applications to Modal Parameters Estimate'"""
 import argparse
-import itertools
 import logging
 import os
 import sys
@@ -9,12 +8,13 @@ from typing import Tuple
 
 import matplotlib as mpl
 import numpy as np
-import sample.beatsdrop.regression
 from chromatictools import cli
 from matplotlib import colors
 from matplotlib import pyplot as plt
-from sample import beatsdrop, sample
-from sample.utils import dsp as dsp_utils
+
+import sample.beatsdrop.regression
+import sample.beatsdrop.sample
+from sample import beatsdrop, plots, sample
 
 logger = logging.getLogger("BeatsDROP-Figures")
 
@@ -206,7 +206,7 @@ def plot_beat(args, **kwargs):
   return args
 
 
-def plot_regression(args, **kwargs):
+def plot_regression(args, horizontal: bool = True, **kwargs):
   """Plot regression parameters
 
   Args:
@@ -233,99 +233,32 @@ def plot_regression(args, **kwargs):
                             freqs=[f0, f1],
                             amps=[a0, a1],
                             decays=[d0, d1],
-                            phases=[p0, p1],
-                            analytical=True)
-  hf = np.diff(np.unwrap(np.angle(x))) / (2 * np.pi * np.diff(t))
+                            phases=[p0, p1])
 
   sample_model = sample.SAMPLE(
-      sinusoidal_model__max_n_sines=32,
-      sinusoidal_model__reverse=True,
-      sinusoidal_model__t=-90,
-      sinusoidal_model__save_intermediate=True,
-      sinusoidal_model__peak_threshold=-45,
-  ).fit(x.real, sinusoidal_model__fs=fs)
-
-  track = sample_model.sinusoidal_model.tracks_[0]
-  track_t = np.arange(
-      len(track["mag"]
-         )) * sample_model.sinusoidal_model.h / sample_model.sinusoidal_model.fs
-  track_a = np.flip(track["mag"]) + 6
-  track_f = np.flip(track["freq"])
-  # ---------------------------------------------------------------------------
-
-  # --- Perform regression ----------------------------------------------------
-  br = beatsdrop.regression.BeatRegression()
-  dbr = beatsdrop.regression.DualBeatRegression()
-  for b in (br, dbr):
-    b.fit(t=track_t, a=track_a, f=track_f)
-  # ---------------------------------------------------------------------------
+      sinusoidal__tracker__max_n_sines=32,
+      sinusoidal__tracker__reverse=True,
+      sinusoidal__t=-90,
+      sinusoidal__intermediate__save=True,
+      sinusoidal__tracker__peak_threshold=-45,
+  ).fit(x, sinusoidal_model__fs=fs)
 
   #  --- Plot -----------------------------------------------------------------
-  _, axs = subplots(vshape=(3, 2), sharex=True, sharey="row", **kwargs)
+  fig, axs = subplots(vshape=(3, 2),
+                      sharex=True,
+                      sharey="row",
+                      horizontal=horizontal,
+                      **kwargs)
+  plots.beatsdrop_comparison(sample_model, {
+      "BeatsDROP": beatsdrop.regression.DualBeatRegression(fs=fs),
+      "Baseline": beatsdrop.regression.BeatRegression(fs=fs),
+  },
+                             x,
+                             track_i=0,
+                             fig=fig,
+                             axs=axs,
+                             transpose=horizontal)
 
-  for i, b in enumerate((dbr, br)):
-    am_, a0_, a1_, fm_ = b.predict(t, "am", "a0", "a1", "fm")
-    np.true_divide(fm_, 2 * np.pi, out=fm_)
-
-    # --- AM ------------------------------------------------------------------
-    for a, kw in (
-        (np.abs(x), dict(c=args.colors(0), label="Ground Truth", zorder=102)),
-        (am_,
-         dict(linestyle="--", c=args.colors(1), label="Prediction",
-              zorder=102)),
-        (a0_, dict(c=args.colors(3), label="$A_1$", zorder=101)),
-        (a1_, dict(c=args.colors(4), label="$A_2$", zorder=101)),
-    ):
-      a_ = np.copy(a)
-      a_[np.less_equal(a, dsp_utils.db2a(-60))] = np.nan
-      axs[0][i].plot(t, a, **kw)
-      axs[1][i].plot(t, dsp_utils.a2db(a_), **kw)
-    axs[0][i].plot(t,
-                   x.real,
-                   c=args.colors(2),
-                   alpha=.5,
-                   label="Signal",
-                   zorder=100)
-
-    if i == 0:
-      axs[0][i].set_ylabel("amplitude")
-      axs[1][i].set_ylabel("amplitude (dB)")
-    p = 1.10
-    axs[0][i].set_ylim(-p, p)
-    axs[1][i].set_ylim(-65, 5)
-    axs[0][0].set_title("BeatsDROP")
-    axs[0][1].set_title("Baseline")
-    # -------------------------------------------------------------------------
-
-    # --- FM ------------------------------------------------------------------
-    axs[2][i].plot(t[1:], hf, c=args.colors(0), zorder=3, label="Ground Truth")
-    axs[2][i].plot(t, fm_, "--", c=args.colors(1), zorder=5, label="Prediction")
-    axs[2][i].plot(t,
-                   np.full_like(t, b.params_[2]),
-                   c=args.colors(3),
-                   label=r"$\nu_1$",
-                   zorder=4)
-    axs[2][i].plot(t,
-                   np.full_like(t, b.params_[3]),
-                   c=args.colors(4),
-                   label=r"$\nu_2$",
-                   zorder=4)
-    if i == 0:
-      axs[2][i].set_ylabel("frequency (Hz)")
-    # -------------------------------------------------------------------------
-
-  for ax in itertools.chain.from_iterable(axs):
-    ax.legend(loc="upper right")
-    ax.grid()
-    yl = ax.get_ylabel()
-    if yl:
-      yl = ax.set_ylabel(yl)
-      yl.set_rotation(0)
-      yl.set_horizontalalignment("left")
-      yl.set_verticalalignment("bottom")
-      ax.yaxis.set_label_coords(-0.05, 1.01)
-  for c in range(axs.shape[0]):
-    axs[c, -1].set_xlabel("time (s)")
   save_fig("regression", args)
   # ---------------------------------------------------------------------------
   return args
