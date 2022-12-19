@@ -43,7 +43,7 @@ class CollapsibleModelParams(ipd.HTML):
   _SINGLE_WS_REGEX = re.compile(r"\s")
 
   @staticmethod
-  def _unwrap_sphinx_inner(m: re.Match):
+  def _unwrap_sphinx_inner(m: "re.Match"):
     return m.group(0).split("`", 2)[1]
 
   @staticmethod
