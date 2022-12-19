@@ -28,7 +28,7 @@ def _is_beat(m: SAMPLE, track_i: int):
       "decision"][track_i]
 
 
-def sine_tracking_2d(s: Union[sm.SinusoidalModel, SAMPLE], ax=None):
+def sine_tracking_2d(s: Union[sm.SinusoidalModel, SAMPLE], ax=None, **kwargs):
   """Plot sinusoidal tracks detected by the model on two axes,
   one for frequency and one for magnitude
 
@@ -36,6 +36,7 @@ def sine_tracking_2d(s: Union[sm.SinusoidalModel, SAMPLE], ax=None):
     m (sample.sms.sm.SinusoidalModel): Trained sinusoidal
       model (or SAMPLE model)
     ax: Axes list (optional)
+    **kwargs: Keyword arguments for :func:`matplotlib.pyplot.plot`
 
   Returns:
     The axes list"""
@@ -55,8 +56,8 @@ def sine_tracking_2d(s: Union[sm.SinusoidalModel, SAMPLE], ax=None):
     if reverse:
       t_x = tmax - t_x
     b = _is_beat(s, i)
-    ax[0].plot(t_x, track["freq"], "--" if b else "-")
-    ax[1].plot(t_x, track["mag"], "--" if b else "-")
+    ax[0].plot(t_x, track["freq"], "--" if b else "-", **kwargs)
+    ax[1].plot(t_x, track["mag"], "--" if b else "-", **kwargs)
 
   ax[0].grid(zorder=-100)
   ax[0].set_title("frequency")

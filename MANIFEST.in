@@ -1,1 +1,2 @@
 include sample/web_audio.html
+include sample/collapsible_params.html

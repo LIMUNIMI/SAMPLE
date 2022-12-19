@@ -172,6 +172,7 @@ class SAMPLEOptimizer:
       fs: float = 44100,
       state: Optional[scipy.optimize.OptimizeResult] = None,
       ignore_warnings: bool = True,
+      fit_kws: Optional[Dict[str, Any]] = None,
       **kwargs) -> Tuple[sample.SAMPLE, scipy.optimize.OptimizeResult]:
     """Use :func:`skopt.gp_minimize` to tune the hyperparameters
 
@@ -180,6 +181,7 @@ class SAMPLEOptimizer:
       fs (float): Sample rate
       ignore_warnings (bool): If :data:`True` (default), then ignore warnings
         while optimizing
+      fit_kws (dict): Arguments for the :function:`self.model.fit` method
       **kwargs: Keyword arguments for :func:`skopt.gp_minimize`
 
     Returns:
@@ -194,7 +196,7 @@ class SAMPLEOptimizer:
                               **kwargs)
     model = base.clone(self.model)
     model.set_params(**self._kwargs(*res.x, sinusoidal__tracker__fs=fs))
-    model.fit(x)
+    model.fit(x, **({} if fit_kws is None else fit_kws))
     return model, res
 
 
