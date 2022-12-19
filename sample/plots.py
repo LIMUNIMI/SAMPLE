@@ -294,7 +294,6 @@ def beatsdrop_comparison(
 
   _, track_t, track = model._preprocess_track(  # pylint: disable=W0212
       None, x, model.sinusoidal.tracks_[track_i])
-  np.add(track["mag"], dsp_utils.a2db(2), out=track["mag"])
   track_a = dsp_utils.db2a(track["mag"])
 
   # Apply both variants of regression
