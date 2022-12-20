@@ -46,6 +46,18 @@ evaluation
 
 Run time with 10 parallel jobs is less than 15 minutes on an Intel® Core™ i9-9820X CPU at 3.30GHz.
 
+### Decision rule
+To evaluate the decision rule, just add the `--test-decision` switch. E.g.
+```
+python scripts/beatsdrop/evaluation.py \
+  --test-decision \
+  -O evaluation/decision \
+  --wav evaluation/dataset \
+  --checkpoint 100 \
+  --tqdm \
+  -j 10
+```
+
 ## Figures
 The script [`figures.py`](figures.py) produces the plots for the paper. To print the script options, run
 ```

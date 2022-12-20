@@ -19,14 +19,18 @@ from typing import List, Optional, Tuple
 import autorank
 import numpy as np
 import pandas as pd
-import sample
-import sample.beatsdrop.regression
+import sklearn.base
+import sklearn.metrics
 import tqdm
 from chromatictools import cli, pickle
+from scipy.io import wavfile
+
+import sample
+import sample.beatsdrop.regression
+import sample.beatsdrop.sample
 from sample import beatsdrop, psycho
 from sample.evaluation import random
 from sample.utils import dsp as dsp_utils
-from scipy.io import wavfile
 
 logger = logging.getLogger("BeatsDROP-Eval")
 
@@ -106,6 +110,9 @@ class ArgParser(argparse.ArgumentParser):
                       default=None,
                       help="Folder for writing logs for test failure, "
                       "instead of raising an exception")
+    self.add_argument("--test-decision",
+                      action="store_true",
+                      help="Test the beat decision rule")
 
   def custom_parse_args(self, argv: Tuple[str]) -> argparse.Namespace:
     """Customized argument parsing for the BeatsDROP evaluation script
@@ -117,6 +124,14 @@ class ArgParser(argparse.ArgumentParser):
       Namespace: Parsed arguments"""
     args = self.parse_args(argv)
     setup_logging(args.log_level)
+    if args.test_decision:
+      args.fieldnames = beatsdrop_decision_result_fields
+      args.result_cls = BeatsDROPDecisionResult
+      args.test_func = test_case_decision
+    else:
+      args.fieldnames = beatsdrop_eval_result_fields
+      args.result_cls = BeatsDROPEvalResult
+      args.test_func = test_case
     logger.debug("Args: %s", args)
     return args
 
@@ -136,6 +151,8 @@ def setup_logging(log_level):
 
 
 beat_param_names = ("a0", "a1", "f0", "f1", "d0", "d1", "p0", "p1")
+three_param_names = ("a0", "a1", "a2", "f0", "f1", "f2", "d0", "d1", "d2", "p0",
+                     "p1", "p2")
 br_param_names = tuple(map("br_".__add__, beat_param_names))
 dbr_param_names = tuple(map("dbr_".__add__, beat_param_names))
 beatsdrop_eval_result_fields = ("seed", *beat_param_names, *br_param_names,
@@ -144,6 +161,20 @@ BeatsDROPEvalResult = collections.namedtuple(
     typename="BeatsDROPEvalResult",
     field_names=beatsdrop_eval_result_fields,
     defaults=itertools.repeat(None, len(beatsdrop_eval_result_fields)))
+beatsdrop_decision_result_fields = ("seed", "beat", "single",
+                                    *three_param_names)
+BeatsDROPDecisionResult = collections.namedtuple(
+    typename="BeatsDROPDecisionResult",
+    field_names=beatsdrop_decision_result_fields,
+    defaults=itertools.repeat(None, len(beatsdrop_decision_result_fields)))
+
+base_model: sample.SAMPLE = sample.SAMPLE(
+    sinusoidal__tracker__max_n_sines=32,
+    sinusoidal__tracker__reverse=True,
+    sinusoidal__t=-90,
+    sinusoidal__intermediate__save=True,
+    sinusoidal__tracker__peak_threshold=-45,
+)
 
 
 def test_case(seed: int,
@@ -166,16 +197,9 @@ def test_case(seed: int,
     if wav_path is not None:
       wavfile.write(filename=wav_path.format(seed), rate=fs, data=x)
     # Apply SAMPLE
-    s = sample.SAMPLE(
-        sinusoidal_model__max_n_sines=32,
-        sinusoidal_model__reverse=True,
-        sinusoidal_model__t=-90,
-        sinusoidal_model__save_intermediate=True,
-        sinusoidal_model__peak_threshold=-45,
-    ).fit(x, sinusoidal_model__fs=fs)
-    track = s.sinusoidal_model.tracks_[np.argmax(s.energies_)]
-    track_t = np.arange(len(
-        track["mag"])) * s.sinusoidal_model.h / s.sinusoidal_model.fs
+    s = sklearn.base.clone(base_model).fit(x, sinusoidal__tracker__fs=fs)
+    track = s.sinusoidal.tracks_[np.argmax(s.energies_)]
+    track_t = np.arange(len(track["mag"])) / s.sinusoidal.frame_rate
     track_a = np.flip(track["mag"]) + 6
     track_f = np.flip(track["freq"])
 
@@ -183,14 +207,16 @@ def test_case(seed: int,
     track_t = track_t[iok]
     track_a = track_a[iok]
     track_f = track_f[iok]
-    # Apply BeatRegression
-    br = beatsdrop.regression.BeatRegression().fit(t=track_t,
-                                                   a=track_a,
-                                                   f=track_f)
-    # Apply DualBeatRegression
-    dbr = beatsdrop.regression.DualBeatRegression().fit(t=track_t,
-                                                        a=track_a,
-                                                        f=track_f)
+    with warnings.catch_warnings():
+      warnings.simplefilter("ignore")
+      # Apply BeatRegression
+      br = beatsdrop.regression.BeatRegression().fit(t=track_t,
+                                                     a=track_a,
+                                                     f=track_f)
+      # Apply DualBeatRegression
+      dbr = beatsdrop.regression.DualBeatRegression().fit(t=track_t,
+                                                          a=track_a,
+                                                          f=track_f)
 
     return BeatsDROPEvalResult(
         seed=seed,
@@ -220,7 +246,73 @@ def test_case(seed: int,
         f.write(traceback.format_exc())
 
 
-def list2df(results: List[BeatsDROPEvalResult]) -> "pd.DataFrame":
+def test_case_decision(
+    seed: int,
+    log_level: Optional[int] = None,
+    log_path: Optional[str] = None,
+    wav_path: Optional[str] = None) -> Optional[BeatsDROPEvalResult]:
+  """BeatsDROP test case for decision rule
+
+  Args:
+    seed (int): RNG seed
+    wav_path (str): Path for writing WAV file"""
+  # Generate ground truth
+  bg = random.BeatsGenerator(onlybeat=False, seed=seed)
+  x, fs, ((f0, f1, f2), (d0, d1, d2), (a0, a1, a2), _) = bg.audio()
+
+  s = beatsdrop.sample.SAMPLEBeatsDROP(
+      **sklearn.base.clone(base_model).get_params(),
+      beat_decisor__intermediate__save=True,
+      beat_decisor__th=4,
+  )
+  try:
+    # Save WAV
+    if wav_path is not None:
+      wavfile.write(filename=wav_path.format(f"{seed}-d"), rate=fs, data=x)
+    # Apply SAMPLE
+    with warnings.catch_warnings():
+      warnings.simplefilter("ignore")
+      s.fit(x, sinusoidal__tracker__fs=fs)
+    median_freqs = np.vectorize(lambda track: np.median(track["freq"]))(
+        s.sinusoidal.tracks_)
+
+    res = {
+        "seed": seed,
+        "a0": a0,
+        "a1": a1,
+        "a2": a2,
+        "d0": d0,
+        "d1": d1,
+        "d2": d2,
+        "f0": f0,
+        "f1": f1,
+        "f2": f2,
+    }
+    for k, f in {
+        "beat": (f0 + f1) / 2,
+        "single": f2,
+    }.items():
+      i = np.argmin(np.abs(f - median_freqs))
+      res[k] = s.beat_decisor.intermediate["decision"][i]
+    return BeatsDROPDecisionResult(**res)
+  except Exception as e:  # pylint: disable=W0703
+    if log_level is not None:
+      setup_logging(log_level)
+    logger.error("Error in test for seed: %d", seed)
+    if log_path is None:
+      raise e
+    else:
+      filename = log_path.format(f"{seed}-d")
+      os.makedirs(os.path.dirname(filename), exist_ok=True)
+      with open(filename, mode="w", encoding="utf-8") as f:
+        f.write(f"Seed: {seed}")
+        f.write("\n")
+        f.write(str(e))
+        f.write("\n")
+        f.write(traceback.format_exc())
+
+
+def list2df(results: List[BeatsDROPEvalResult], fieldnames) -> "pd.DataFrame":
   """Convert a list of results to a pandas dataframe
 
   Args:
@@ -228,9 +320,9 @@ def list2df(results: List[BeatsDROPEvalResult]) -> "pd.DataFrame":
 
   Returns:
     DataFrame: DataFrame of results"""
-  data = dict(map(lambda k: (k, []), beatsdrop_eval_result_fields))
+  data = dict(map(lambda k: (k, []), fieldnames))
   for r in filter(lambda r: r.seed is not None, results):
-    for k in beatsdrop_eval_result_fields:
+    for k in fieldnames:
       data[k].append(getattr(r, k))
   return pd.DataFrame(data=data)
 
@@ -251,10 +343,10 @@ def prepare_folders(args: argparse.Namespace):
     args.wav_path = None
   else:
     os.makedirs(args.wav, exist_ok=True)
-    args.wav_path = os.path.join(args.wav, "{:.0f}.wav")
+    args.wav_path = os.path.join(args.wav, "{}.wav")
   # Logs folder
   args.log_path = None if args.log_exception is None else os.path.join(
-      args.log_exception, "{:.0f}.log")
+      args.log_exception, "{}.log")
   return args
 
 
@@ -266,7 +358,7 @@ def load_results(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
-  args.results = list(itertools.repeat(BeatsDROPEvalResult(), args.n_cases))
+  args.results = list(itertools.repeat(args.result_cls(), args.n_cases))
   seeds = range(args.n_cases)
   args.csv_path = None
   args.ckpt_path = None
@@ -293,10 +385,10 @@ def load_results(args: argparse.Namespace):
     if args.resume and args.last_file is not None:
       logger.info("Loading '%s'", args.last_file)
       for _, r in pd.read_csv(args.last_file).iterrows():
-        d = {k: r[k] for k in beatsdrop_eval_result_fields}
+        d = {k: r[k] for k in args.fieldnames}
         d["seed"] = int(d["seed"])
         if d["seed"] < len(args.results):
-          args.results[d["seed"]] = BeatsDROPEvalResult(**d)
+          args.results[d["seed"]] = args.result_cls(**d)
 
       def _f(i: int) -> bool:
         """Check that result is not yet computed"""
@@ -329,7 +421,7 @@ def run_tests(args: argparse.Namespace):
     logger.info("Running tests")
     with mp.Pool(processes=args.n_jobs) as pool:
       it = pool.imap_unordered(
-          functools.partial(test_case,
+          functools.partial(args.test_func,
                             log_level=args.log_level,
                             log_path=args.log_path,
                             wav_path=args.wav_path), args.seeds)
@@ -346,7 +438,7 @@ def run_tests(args: argparse.Namespace):
             it.set_description(f"Checkpoint: '{args.last_file}'")
           else:
             logger.info("Writing checkpoint: '%s'", args.last_file)
-          list2df(args.results).to_csv(args.last_file)
+          list2df(args.results, args.fieldnames).to_csv(args.last_file)
   return args
 
 
@@ -358,7 +450,7 @@ def save_dataframe(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
-  args.df = list2df(args.results)
+  args.df = list2df(args.results, args.fieldnames)
   if args.csv_path is not None and (args.csv_path != args.last_file or
                                     not args.resume):
     logger.info("Writing CSV file: '%s'", args.csv_path)
@@ -500,6 +592,8 @@ def statistical_tests(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
+  if args.test_decision:
+    return args
   residual_premap = {
       "f": psycho.hz2mel,
       "a": dsp_utils.a2db,
@@ -551,6 +645,32 @@ def statistical_tests(args: argparse.Namespace):
     with open(args.report_file, mode="w", encoding="utf-8") as f:
       with contextlib.redirect_stdout(f):
         print_report(args.rank_result)
+  return args
+
+
+def decision_report(args):
+  """Output the classification report for the decision rule
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace, list: CLI arguments, augmented"""
+  if not args.test_decision:
+    return args
+  n_samples = args.df.shape[0]
+  y_true = np.array(
+      [*np.ones(n_samples, dtype=bool), *np.zeros(n_samples, dtype=bool)])
+  y_pred = np.array([*args.df["beat"], *args.df["single"]])
+  s = sklearn.metrics.classification_report(y_true, y_pred)
+  if args.output is None:
+    print(s)
+  else:
+    args.report_file = f"{args.output}_report.txt"
+    logger.info("Writing report file: '%s'", args.report_file)
+    with open(args.report_file, mode="w", encoding="utf-8") as f:
+      f.write(s)
+  return args
 
 
 @cli.main(__name__, *sys.argv[1:])
@@ -567,4 +687,5 @@ def main(*argv):
   save_dataframe(args)
   logger.debug("Statistical comparison. Args: %s", args)
   statistical_tests(args)
+  decision_report(args)
   logger.info("Done.")
