@@ -19,14 +19,15 @@ from typing import List, Optional, Tuple
 import autorank
 import numpy as np
 import pandas as pd
-import sample
-import sample.beatsdrop.regression
 import tqdm
 from chromatictools import cli, pickle
+from scipy.io import wavfile
+
+import sample
+import sample.beatsdrop.regression
 from sample import beatsdrop, psycho
 from sample.evaluation import random
 from sample.utils import dsp as dsp_utils
-from scipy.io import wavfile
 
 logger = logging.getLogger("BeatsDROP-Eval")
 
