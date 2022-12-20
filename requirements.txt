@@ -3,7 +3,7 @@ wheel
 
 # Run
 chromatictools
-numpy
+numpy<1.24
 paragraph
 scikit-learn
 scikit-optimize
