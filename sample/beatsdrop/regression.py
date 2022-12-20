@@ -107,7 +107,7 @@ class BeatRegression(base.RegressorMixin, base.BaseEstimator):
   def __init__(
       self,
       fs: float = 100,
-      lpf: float = 12,
+      lpf: float = 50,
       linear_regressor=None,
       linear_regressor_k: str = "coef_",
       linear_regressor_q: str = "intercept_",
@@ -364,7 +364,7 @@ class DualBeatRegression(BeatRegression):
   def __init__(
       self,
       fs: float = 100,
-      lpf: float = 12,
+      lpf: float = 50,
       linear_regressor=None,
       linear_regressor_k: str = "coef_",
       linear_regressor_q: str = "intercept_",

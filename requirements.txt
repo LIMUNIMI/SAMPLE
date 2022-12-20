@@ -31,6 +31,7 @@ throttle
 # BeatsDROP
 autorank
 pandas
+emd
 
 # Style
 pylint
