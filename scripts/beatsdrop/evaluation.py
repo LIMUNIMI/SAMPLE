@@ -167,15 +167,14 @@ def test_case(seed: int,
       wavfile.write(filename=wav_path.format(seed), rate=fs, data=x)
     # Apply SAMPLE
     s = sample.SAMPLE(
-        sinusoidal_model__max_n_sines=32,
-        sinusoidal_model__reverse=True,
-        sinusoidal_model__t=-90,
-        sinusoidal_model__save_intermediate=True,
-        sinusoidal_model__peak_threshold=-45,
-    ).fit(x, sinusoidal_model__fs=fs)
-    track = s.sinusoidal_model.tracks_[np.argmax(s.energies_)]
-    track_t = np.arange(len(
-        track["mag"])) * s.sinusoidal_model.h / s.sinusoidal_model.fs
+        sinusoidal__tracker__max_n_sines=32,
+        sinusoidal__tracker__reverse=True,
+        sinusoidal__t=-90,
+        sinusoidal__intermediate__save=True,
+        sinusoidal__tracker__peak_threshold=-45,
+    ).fit(x, sinusoidal__tracker__fs=fs)
+    track = s.sinusoidal.tracks_[np.argmax(s.energies_)]
+    track_t = np.arange(len(track["mag"])) / s.sinusoidal.frame_rate
     track_a = np.flip(track["mag"]) + 6
     track_f = np.flip(track["freq"])
 
