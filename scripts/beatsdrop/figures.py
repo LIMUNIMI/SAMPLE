@@ -420,6 +420,7 @@ def plot_emd(args,
 
       ax.set_xlim(xl)
       ax.set_ylim(yl)
+    ax.grid()
 
   for col in (axs.T if horizontal else axs):
     for ax in np.flip(col):
