@@ -29,6 +29,7 @@ docs/source/*.rst
 *.tex
 *.zip
 *.pdf
+*.ckpt-*
 
 # Test files
 sms
