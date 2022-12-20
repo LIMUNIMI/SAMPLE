@@ -151,6 +151,8 @@ def setup_logging(log_level):
 
 
 beat_param_names = ("a0", "a1", "f0", "f1", "d0", "d1", "p0", "p1")
+three_param_names = ("a0", "a1", "a2", "f0", "f1", "f2", "d0", "d1", "d2", "p0",
+                     "p1", "p2")
 br_param_names = tuple(map("br_".__add__, beat_param_names))
 dbr_param_names = tuple(map("dbr_".__add__, beat_param_names))
 beatsdrop_eval_result_fields = ("seed", *beat_param_names, *br_param_names,
@@ -159,7 +161,8 @@ BeatsDROPEvalResult = collections.namedtuple(
     typename="BeatsDROPEvalResult",
     field_names=beatsdrop_eval_result_fields,
     defaults=itertools.repeat(None, len(beatsdrop_eval_result_fields)))
-beatsdrop_decision_result_fields = ("seed", "beat", "single")
+beatsdrop_decision_result_fields = ("seed", "beat", "single",
+                                    *three_param_names)
 BeatsDROPDecisionResult = collections.namedtuple(
     typename="BeatsDROPDecisionResult",
     field_names=beatsdrop_decision_result_fields,
@@ -255,7 +258,8 @@ def test_case_decision(
     wav_path (str): Path for writing WAV file"""
   # Generate ground truth
   bg = random.BeatsGenerator(onlybeat=False, seed=seed)
-  x, fs, ((f0, f1, f2), _, _, _) = bg.audio()
+  x, fs, ((f0, f1, f2), (d0, d1, d2), (a0, a1, a2), (p0, p1, p2)) = bg.audio()
+
   s = beatsdrop.sample.SAMPLEBeatsDROP(
       **sklearn.base.clone(base_model).get_params(),
       beat_decisor__intermediate__save=True,
@@ -272,14 +276,25 @@ def test_case_decision(
     median_freqs = np.vectorize(lambda track: np.median(track["freq"]))(
         s.sinusoidal.tracks_)
 
-    res = {}
+    res = {
+        "seed": seed,
+        "a0": a0,
+        "a1": a1,
+        "a2": a2,
+        "d0": d0,
+        "d1": d1,
+        "d2": d2,
+        "f0": f0,
+        "f1": f1,
+        "f2": f2,
+    }
     for k, f in {
         "beat": (f0 + f1) / 2,
         "single": f2,
     }.items():
       i = np.argmin(np.abs(f - median_freqs))
       res[k] = s.beat_decisor.intermediate["decision"][i]
-    return BeatsDROPDecisionResult(seed=seed, **res)
+    return BeatsDROPDecisionResult(**res)
   except Exception as e:  # pylint: disable=W0703
     if log_level is not None:
       setup_logging(log_level)
