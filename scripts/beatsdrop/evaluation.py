@@ -183,14 +183,16 @@ def test_case(seed: int,
     track_t = track_t[iok]
     track_a = track_a[iok]
     track_f = track_f[iok]
-    # Apply BeatRegression
-    br = beatsdrop.regression.BeatRegression().fit(t=track_t,
-                                                   a=track_a,
-                                                   f=track_f)
-    # Apply DualBeatRegression
-    dbr = beatsdrop.regression.DualBeatRegression().fit(t=track_t,
-                                                        a=track_a,
-                                                        f=track_f)
+    with warnings.catch_warnings():
+      warnings.simplefilter("ignore")
+      # Apply BeatRegression
+      br = beatsdrop.regression.BeatRegression().fit(t=track_t,
+                                                    a=track_a,
+                                                    f=track_f)
+      # Apply DualBeatRegression
+      dbr = beatsdrop.regression.DualBeatRegression().fit(t=track_t,
+                                                          a=track_a,
+                                                          f=track_f)
 
     return BeatsDROPEvalResult(
         seed=seed,
