@@ -258,7 +258,7 @@ def test_case_decision(
     wav_path (str): Path for writing WAV file"""
   # Generate ground truth
   bg = random.BeatsGenerator(onlybeat=False, seed=seed)
-  x, fs, ((f0, f1, f2), (d0, d1, d2), (a0, a1, a2), (p0, p1, p2)) = bg.audio()
+  x, fs, ((f0, f1, f2), (d0, d1, d2), (a0, a1, a2), _) = bg.audio()
 
   s = beatsdrop.sample.SAMPLEBeatsDROP(
       **sklearn.base.clone(base_model).get_params(),
