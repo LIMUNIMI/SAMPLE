@@ -372,8 +372,6 @@ def plot_emd(args,
 
   nrows = np.ceil(len(keys_list) / ncols).astype(int)
   _, axs = subplots(vshape=(nrows, ncols),
-                    sharex=True,
-                    sharey=True,
                     horizontal=horizontal,
                     squeeze=False,
                     **kwargs)
@@ -386,17 +384,30 @@ def plot_emd(args,
     axs[i] = None
   axs = axs.reshape(s)
 
-  yl = np.array([-1.15, 1.15])
-  t_q = t[i_detail] - np.min(t[i_detail])
-  t_q /= np.max(t_q)
-  dx = np.diff(t[i_subsample[[0, -1]]])[0]
-  x_q_off = t[i_subsample[0]] + (1 - subq) * dx
-  x_q_slope = subq * dx
-  t_q = x_q_off + x_q_slope * t_q
+  plot_k = 0.075
+
+  def _enlarge(a: np.ndarray, k: float = plot_k):
+    a = np.array(a)
+    return a + np.array([-1, *np.zeros(a.size - 2, dtype=int), 1]).reshape(
+        a.shape) * k * np.diff(a.flatten()[[0, -1]])[0]
+
+  yl = _enlarge([-1, 1])
+  xl = _enlarge(t[[0, -1]])
+
+  subq_yl = _enlarge(-1 + np.array([0, 2 * subq]), k=[plot_k, -plot_k])
+  subq_xl = _enlarge(t[[0, -1]] + [np.diff(t[[0, -1]])[0] * (1 - subq), 0],
+                     k=[-plot_k, plot_k])
+  t_q = np.linspace(*subq_xl, i_detail.size, endpoint=True)
+
+  dy = np.diff(yl)[0]
+  subq_dy = np.diff(subq_yl)[0]
+
   for k, ax, ias_, imfs_ in zip(
       keys_list, filter(lambda ax: ax is not None, np.ravel(axs)), insa_list,
       imfs_list):
     ax.set_title(k)
+    norm_gain = np.max(np.abs(yl)) / np.max(
+        np.abs(np.clip([ia[i_detail] for ia in ias_], *yl)))
     for i, (ia, imf) in enumerate(zip(ias_, imfs_)):
       ax.fill_between(t[i_subsample],
                       ia[i_subsample],
@@ -405,30 +416,53 @@ def plot_emd(args,
                       fc=args.colors(i),
                       alpha=0.33,
                       zorder=101)
-      xl = ax.get_xlim()
 
       # Virtual internal subplot
-      ax.fill_between(t_q, (np.clip(ia[i_detail], *yl) - yl[0]) * subq + yl[0],
-                      (np.clip(-ia[i_detail], *yl) - yl[0]) * subq + yl[0],
-                      ec=args.colors(i),
-                      fc=args.colors(i),
-                      alpha=0.33,
-                      zorder=100)
-      ax.plot(t_q, (np.clip(imf[i_detail], *yl) - yl[0]) * subq + yl[0],
+      ax.fill_between(
+          t_q, (np.clip(ia[i_detail] * norm_gain, *yl) - yl[0]) * subq_dy / dy +
+          subq_yl[0],
+          (np.clip(-ia[i_detail] * norm_gain, *yl) - yl[0]) * subq_dy / dy +
+          subq_yl[0],
+          ec=args.colors(i),
+          fc=args.colors(i),
+          alpha=0.33,
+          zorder=100)
+      ax.plot(t_q,
+              (np.clip(imf[i_detail] * norm_gain, *yl) - yl[0]) * subq_dy / dy +
+              subq_yl[0],
               c=args.colors(i),
               alpha=0.75,
               zorder=102)
 
-      ax.set_xlim(xl)
-      ax.set_ylim(yl)
-    ax.grid()
-
-  for col in (axs.T if horizontal else axs):
-    for ax in np.flip(col):
+  # Manually handle x-axis labels and tick-labels
+  for col in (axs if horizontal else axs.T):
+    is_bottom = True
+    for ax in reversed(col):
       if ax is None:
         continue
-      ax.set_xlabel("time (s)")
-      break
+      if is_bottom:
+        is_bottom = False
+        ax.set_xlabel("time (s)")
+      else:
+        xt = ax.get_xticks()
+        ax.set_xticks(xt, [""] * len(xt))
+      ax.set_xlim(xl)
+
+  # Manually handle y-axis labels and tick-labels
+  for row in (axs.T if horizontal else axs):
+    is_left = True
+    for ax in row:
+      if ax is None:
+        continue
+      if is_left:
+        is_left = False
+        # ax.set_ylabel("amplitude")
+      else:
+        yt = ax.get_yticks()
+        ax.set_yticks(yt, [""] * len(yt))
+      ax.set_ylim(yl)
+      ax.grid()
+
   save_fig("emd", args)
   # ---------------------------------------------------------------------------
 
@@ -441,6 +475,6 @@ def main(*argv):
   args = ArgParser(description=__doc__).custom_parse_args(argv)
   logger.debug("Making directory: %s", args.output)
   os.makedirs(args.output, exist_ok=True)
-  plot_beat(args)
+  plot_beat(args, horizontal=True, w=2)
   plot_regression(args, horizontal=True, w=2)
-  plot_emd(args, horizontal=True, w=2)
+  plot_emd(args, horizontal=False, ncols=3, w=2)
