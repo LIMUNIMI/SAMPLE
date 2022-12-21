@@ -256,6 +256,7 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
                              track_i=0,
                              fig=fig,
                              axs=axs,
+                             signal_hilbert_am=512,
                              transpose=horizontal)
 
   save_fig("regression", args)

@@ -253,6 +253,7 @@ def beatsdrop_comparison(
     track_i: int = 0,
     fs: float = None,
     transpose: bool = False,
+    signal_hilbert_am: Union[bool, int] = False,
     axs: Optional[Sequence[plt.Axes]] = None,
     fig: Optional[matplotlib.figure.Figure] = None,
 ):
@@ -267,6 +268,9 @@ def beatsdrop_comparison(
     fs (float): Sampling frequency. If unspecified, it will be inferred
       by the :data:`model`
     transpose (bool): Swap small multiples rows and columns
+    signal_hilbert_am (bool or int): If :data:`True`, then plot the Hilbert
+      envelope of the signal, instead of the signal. If an :class:`int`,
+      then subsample the envelope by this factor
     axs (sequence of axes): Axes onto which to plot. If unspecified, they will
       be defined on :data:`fig`
     fig (figure): Figure onto which to put axes. If unspecified,
@@ -306,11 +310,27 @@ def beatsdrop_comparison(
     fm_ /= 2 * np.pi
 
     # Amplitude modulation
-    axs[0][i].plot(np.arange(x.size) / fs,
-                   x,
-                   c="C0",
-                   alpha=0.25,
-                   label="Signal")
+    if signal_hilbert_am:
+      if isinstance(signal_hilbert_am, bool):
+        i_env = np.arange(x.size)
+      else:
+        i_env = (np.arange(np.floor(x.size / signal_hilbert_am).astype(int)) *
+                 signal_hilbert_am).astype(int)
+      x_a = signal.hilbert(x)
+      x_env = np.abs(x_a[i_env])
+      axs[0][i].fill_between(i_env / fs,
+                             x_env,
+                             -x_env,
+                             fc="C0",
+                             ec="C0",
+                             alpha=0.25,
+                             label="Signal")
+    else:
+      axs[0][i].plot(np.arange(x.size) / fs,
+                     x,
+                     c="C0",
+                     alpha=0.25,
+                     label="Signal")
     for a, kw in (
         (track_a, dict(c="C0", label="Sinusoidal Track", zorder=102)),
         (am_, dict(linestyle="--", c="C1", label="Prediction", zorder=102)),
