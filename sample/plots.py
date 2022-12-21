@@ -4,6 +4,7 @@ This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
 import itertools
+import warnings
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
 
 import matplotlib.figure
@@ -254,6 +255,7 @@ def beatsdrop_comparison(
     fs: float = None,
     transpose: bool = False,
     signal_hilbert_am: Union[bool, int] = False,
+    warnings_ignore: bool = True,
     axs: Optional[Sequence[plt.Axes]] = None,
     fig: Optional[matplotlib.figure.Figure] = None,
 ):
@@ -271,6 +273,8 @@ def beatsdrop_comparison(
     signal_hilbert_am (bool or int): If :data:`True`, then plot the Hilbert
       envelope of the signal, instead of the signal. If an :class:`int`,
       then subsample the envelope by this factor
+    warnings_ignore (bool): if :data:`True` (default), then ignore warnings
+      while fitting beat regression models
     axs (sequence of axes): Axes onto which to plot. If unspecified, they will
       be defined on :data:`fig`
     fig (figure): Figure onto which to put axes. If unspecified,
@@ -301,10 +305,13 @@ def beatsdrop_comparison(
   track_a = dsp_utils.db2a(track["mag"])
 
   # Apply both variants of regression
-  beatsdrops = {
-      k: base.clone(v).fit(t=track_t, a=track["mag"], f=track["freq"])
-      for k, v in beatsdrops.items()
-  }
+  with warnings.catch_warnings():
+    if warnings_ignore:
+      warnings.simplefilter("ignore")
+    beatsdrops = {
+        k: base.clone(v).fit(t=track_t, a=track["mag"], f=track["freq"])
+        for k, v in beatsdrops.items()
+    }
   for i, (k, b) in enumerate(beatsdrops.items()):
     am_, a0_, a1_, fm_ = b.predict(track_t, "am", "a0", "a1", "fm")
     fm_ /= 2 * np.pi
