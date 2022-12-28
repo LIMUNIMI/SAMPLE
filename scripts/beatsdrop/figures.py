@@ -1,12 +1,13 @@
 """Plot figures for the paper 'Acoustic Beats and Where To Find Them:
 Theory of Uneven Beats and Applications to Modal Parameters Estimate'"""
 import argparse
+import functools
+import importlib
 import logging
 import os
 import sys
-from typing import Tuple
+from typing import Callable, Tuple
 
-import emd
 import matplotlib as mpl
 import numpy as np
 from chromatictools import cli
@@ -53,6 +54,33 @@ class ArgParser(argparse.ArgumentParser):
         type=lambda s: str(s).upper(),
         help="Set the log level. Default is 'INFO'",
     )
+    for k in self._PLOTS:
+      self.add_argument(f"--plot-{k}",
+                        dest=k,
+                        action="store_true",
+                        help=f"Plot the '{k}' plot")
+
+  _PLOTS = {}
+
+  @classmethod
+  def register_plot(cls, _name: str, **kwargs):  # pylint: disable=C0103
+    """Register plot function to be called via CLI
+
+    Args:
+      __name (str): Name of the plot
+      **kwargs: Keyword arguments for the plot function"""
+
+    def register_plot_(func: Callable):
+      cls._PLOTS[_name] = functools.partial(func, **kwargs)
+      return func
+
+    return register_plot_
+
+  def make_plots(self, args: argparse.Namespace):
+    """Make all specified plots"""
+    for k, f in args.plots.items():
+      logger.info("Plot: '%s'", k)
+      f(args)
 
   def custom_parse_args(self, argv: Tuple[str]) -> argparse.Namespace:
     """Customized argument parsing for the BeatsDROP figure script
@@ -70,6 +98,12 @@ class ArgParser(argparse.ArgumentParser):
     )
     logging.captureWarnings(True)
     logger.setLevel(args.log_level)
+    plots_flags = {
+        k: (getattr(args, k, False), f) for k, f in self._PLOTS.items()
+    }
+    if not any(b for b, _ in plots_flags.values()):
+      plots_flags = {k: (True, f) for k, f in self._PLOTS.items()}
+    args.plots = {k: f for k, (b, f) in plots_flags.items() if b}
     logger.debug("Args: %s", args)
     plt.style.use(args.mpl_style)
     args.colors = lambda i: resaturate(f"C{i}", args.saturation)
@@ -137,6 +171,7 @@ def resaturate(c, saturation: float = 1):
   return colors.hsv_to_rgb(d)
 
 
+@ArgParser.register_plot("beat", horizontal=True, w=2)
 def plot_beat(args, **kwargs):
   """Plot beat pattern
 
@@ -208,6 +243,7 @@ def plot_beat(args, **kwargs):
   return args
 
 
+@ArgParser.register_plot("regression", horizontal=True, w=2)
 def plot_regression(args, horizontal: bool = True, **kwargs):
   """Plot regression parameters
 
@@ -264,6 +300,7 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
   return args
 
 
+@ArgParser.register_plot("emd", horizontal=False, ncols=3, w=2)
 def plot_emd(args,
              n_points: int = 384,
              ncols: int = 1,
@@ -278,6 +315,8 @@ def plot_emd(args,
 
   Returns:
     Namespace: CLI arguments"""
+  emd = importlib.import_module("emd")
+
   # --- Synthesize data -------------------------------------------------------
   fs = 44100
   t = np.arange(int(fs * 4)) / fs
@@ -472,9 +511,8 @@ def plot_emd(args,
 @cli.main(__name__, *sys.argv[1:])
 def main(*argv):
   """Script runner"""
-  args = ArgParser(description=__doc__).custom_parse_args(argv)
+  p = ArgParser(description=__doc__)
+  args = p.custom_parse_args(argv)
   logger.debug("Making directory: %s", args.output)
   os.makedirs(args.output, exist_ok=True)
-  plot_beat(args, horizontal=True, w=2)
-  plot_regression(args, horizontal=True, w=2)
-  plot_emd(args, horizontal=False, ncols=3, w=2)
+  p.make_plots(args)
