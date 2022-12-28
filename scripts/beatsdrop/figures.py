@@ -173,7 +173,7 @@ def resaturate(c, saturation: float = 1):
   return colors.hsv_to_rgb(d)
 
 
-@ArgParser.register_plot("beat", horizontal=True, w=2)
+@ArgParser.register_plot("beat", horizontal=True, w=1.7)
 def plot_beat(args, **kwargs):
   """Plot beat pattern
 
@@ -227,7 +227,7 @@ def plot_beat(args, **kwargs):
               c=args.colors(3),
               zorder=11,
               label=r"$\omega_2$")
-  yl = axs[1].set_ylabel(r"angular velocity (rad/s)")
+  yl = axs[1].set_ylabel(r"$\omega$ (rad/s)")
   yl.set_rotation(0)
   yl.set_horizontalalignment("left")
   yl.set_verticalalignment("bottom")
@@ -245,7 +245,7 @@ def plot_beat(args, **kwargs):
   return args
 
 
-@ArgParser.register_plot("regression", horizontal=True, w=2)
+@ArgParser.register_plot("regression", horizontal=True, w=1.7)
 def plot_regression(args, horizontal: bool = True, **kwargs):
   """Plot regression parameters
 
@@ -302,7 +302,7 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
   return args
 
 
-@ArgParser.register_plot("emd", horizontal=False, ncols=3, w=2)
+@ArgParser.register_plot("emd", horizontal=False, ncols=3, w=1.7)
 def plot_emd(args,
              n_points: int = 384,
              ncols: int = 1,
@@ -548,7 +548,7 @@ def _beat_ft(nu: float,
       nu, nu_0=nu_2, a=a_2, d=d_2, phi=phi_2, half=half)
 
 
-@ArgParser.register_plot("fft", horizontal=True, w=2)
+@ArgParser.register_plot("fft", horizontal=True, w=1.7)
 def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   """Plot FFT of varying-decay beats
 
