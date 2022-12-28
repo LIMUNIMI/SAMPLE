@@ -6,13 +6,15 @@ import importlib
 import logging
 import os
 import sys
-from typing import Callable, Tuple
+from typing import Callable, Optional, Tuple
 
 import matplotlib as mpl
 import numpy as np
+import sklearn.base
 from chromatictools import cli
 from matplotlib import colors
 from matplotlib import pyplot as plt
+from scipy import signal
 
 import sample.beatsdrop.regression
 import sample.beatsdrop.sample
@@ -152,7 +154,7 @@ def subplots(vshape: Tuple[int, int] = (1, 1),
       if isinstance(v, str):
         kwargs[k] = share_d[v]
   fig, axs = plt.subplots(*shape, **kwargs)
-  if horizontal and all(d != 1 for d in vshape):
+  if horizontal:
     axs = axs.T
   return fig, axs
 
@@ -503,6 +505,166 @@ def plot_emd(args,
       ax.grid()
 
   save_fig("emd", args)
+  # ---------------------------------------------------------------------------
+
+  return args
+
+
+def _exp_ft(nu: float, a: float):
+  """Helper function for :func:`_cos_ft`"""
+  return 1 / (a + 2j * np.pi * nu)
+
+
+def _cos_ft(nu: float,
+            nu_0: float,
+            a: float = 1,
+            d: float = 1,
+            phi: float = 0,
+            half: bool = False):
+  """Helper function for :func:`_beat_ft`"""
+  return a / 2 * (_exp_ft(nu - nu_0, 2 / d) * np.exp(-1j * phi) +
+                  (0 if half else _exp_ft(nu + nu_0, 2 / d) * np.exp(1j * phi)))
+
+
+def _beat_ft(nu: float,
+             nu_1: float,
+             a_1: float = 1,
+             d_1: float = 1,
+             phi_1: float = 0,
+             nu_2: Optional[float] = None,
+             a_2: Optional[float] = None,
+             d_2: Optional[float] = None,
+             phi_2: Optional[float] = None,
+             half: bool = False):
+  """Helper function for :func:`plot_fft`"""
+  if nu_2 is None:
+    nu_2 = nu_1 + 2
+  if a_2 is None:
+    a_2 = a_1
+  if d_2 is None:
+    d_2 = d_1
+  if phi_2 is None:
+    phi_2 = phi_1
+  return _cos_ft(nu, nu_0=nu_1, a=a_1, d=d_1, phi=phi_1, half=half) + _cos_ft(
+      nu, nu_0=nu_2, a=a_2, d=d_2, phi=phi_2, half=half)
+
+
+@ArgParser.register_plot("fft", horizontal=True, w=2)
+def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
+  """Plot FFT of varying-decay beats
+
+  Args:
+    args (Namespace): CLI arguments
+    db_t (bool): If :data:`True` plot time series in dB
+    db_f (bool): If :data:`True` plot Fourier transform in dB
+    db_s (bool): If :data:`True` plot sample trajectory in dB
+    **kwargs: Keyword arguments for :func:`subplots`
+
+  Returns:
+    Namespace: CLI arguments"""
+
+  # --- Synthesize data -------------------------------------------------------
+  fs = 44100
+  nu_a = 50
+  nu_d = 0.5
+  ds = np.array((0.1, 0.16, 0.2, 0.45)) / nu_d
+
+  nu_d_plt = 12 * nu_d
+  nu = np.linspace(nu_a - nu_d_plt, nu_a + nu_d_plt, npoints)
+  beat_ft_fn = functools.partial(_beat_ft, nu_1=nu_a - nu_d, nu_2=nu_a + nu_d)
+  x_ffts = [np.abs(beat_ft_fn(nu, d_1=d)) for d in ds]
+  t = np.arange(int(fs * 3)) / fs
+  x_s = [
+      sample.additive_synth(t,
+                            freqs=(nu_a - nu_d, nu_a + nu_d),
+                            amps=np.full(2, 0.5),
+                            decays=np.full(2, d),
+                            phases=np.full(2, -np.pi / 2),
+                            analytical=True) for d in ds
+  ]
+  i_subsample = (np.arange(npoints) * np.floor(t.size / npoints)).astype(int)
+  # ---------------------------------------------------------------------------
+
+  #  --- Apply SAMPLE ---------------------------------------------------------
+  model = beatsdrop.sample.SAMPLEBeatsDROP(
+      sinusoidal__tracker__fs=fs,
+      sinusoidal__tracker__reverse=True,
+      sinusoidal__tracker__min_sine_dur=0.1,
+      sinusoidal__w=signal.get_window("blackman", 1 << 10),
+      sinusoidal__tracker__h=1 << 9,
+      sinusoidal__tracker__frequency_bounds=(35, 75),
+      sinusoidal__tracker__freq_dev_offset=200,
+      sinusoidal__intermediate__save=True,
+      beat_decisor__intermediate__save=True)
+  models = [sklearn.base.clone(model).fit(x) for x in x_s]
+  # ---------------------------------------------------------------------------
+
+  #  --- Plot -----------------------------------------------------------------
+  _, axs = subplots(vshape=(3, 1),
+                    horizontal=horizontal,
+                    squeeze=False,
+                    **kwargs)
+  ax_sig = axs[1, 0]
+  ax_fft = axs[0, 0]
+  ax_sample = axs[2, 0]
+
+  # Plot time series
+  for i, (d, x) in enumerate(zip(ds, x_s)):
+    x = np.abs(x[i_subsample])
+    kws = dict(zorder=150 - i,
+               fc=args.colors(i),
+               ec=args.colors(i),
+               label=f"{1000 * d:.0f}",
+               alpha=0.66)
+
+    ax_sig.fill_between(t[i_subsample], x, -x, **kws)
+    if ax_sample is not ax_sig:
+      x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t, floor_db=True)
+      ax_sample.fill_between(t[i_subsample], x_db,
+                             np.full_like(x_db, model.sinusoidal.t), **kws)
+  ax_sig.set_xlabel("time (s)")
+  ax_sig.set_title("Amplitude Envelope")
+
+  # Plot FFT
+  for i, (d, x_fft) in enumerate(zip(ds, x_ffts)):
+    # x_fft = dsp_utils.a2db(x_fft, floor=model.sinusoidal.t, floor_db=True)
+    ax_fft.plot(nu, x_fft, label=f"{1000 * d:.0f}", zorder=150 - i)
+  yl = np.array(ax_fft.get_ylim())
+  yl[0] = 0
+  ax_fft.set_xlim(nu[[0, -1]])
+  ax_fft.set_ylim(yl)
+  ax_fft.set_xlabel("frequency (Hz)")
+  ax_fft.set_title("Fourier-Transform Magnitude")
+
+  # Plot SAMPLE trajectories
+  for i, (d, x, m) in enumerate(zip(ds, x_s, models)):
+    for j, raw_track in enumerate(m.sinusoidal.tracks_):
+      _, track_t, track = m._preprocess_track(  # pylint: disable=W0212
+          None, x, raw_track)
+      a = track["mag"]
+      if ax_sample is ax_sig:
+        a = dsp_utils.db2a(a)
+      ax_sample.plot(
+          track_t,
+          a,
+          c=args.colors(i),
+          zorder=200 - i,
+          **({
+              "label": f"{1000 * d:.0f}"
+          } if j == 0 else {}),
+      )
+
+  yl = np.array(ax_sample.get_ylim())
+  yl[0] = max(yl[0], model.sinusoidal.t)
+  ax_sample.set_ylim(yl)
+  ax_sample.set_xlim(ax_sig.get_xlim())
+  ax_sample.set_xlabel("time (s)")
+  ax_sample.set_title("SAMPLE Trajectory")
+
+  for ax in axs.flatten():
+    ax.grid()
+  axs[0, 0].legend(title="decay (ms)", loc="upper left")
+  save_fig("fft", args)
   # ---------------------------------------------------------------------------
 
   return args
