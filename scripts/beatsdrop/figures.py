@@ -2,12 +2,12 @@
 Theory of Uneven Beats and Applications to Modal Parameters Estimate'"""
 import argparse
 import functools
-import importlib
 import logging
 import os
 import sys
 from typing import Callable, Optional, Tuple
 
+import emd
 import matplotlib as mpl
 import numpy as np
 import sklearn.base
@@ -317,7 +317,6 @@ def plot_emd(args,
 
   Returns:
     Namespace: CLI arguments"""
-  emd = importlib.import_module("emd")
 
   # --- Synthesize data -------------------------------------------------------
   fs = 44100
