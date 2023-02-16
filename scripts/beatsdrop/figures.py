@@ -14,7 +14,7 @@ import sklearn.base
 from chromatictools import cli
 from matplotlib import colors
 from matplotlib import pyplot as plt
-from scipy import signal
+from scipy import interpolate, signal
 
 import sample.beatsdrop.regression
 import sample.beatsdrop.sample
@@ -566,7 +566,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   fs = 44100
   nu_a = 50
   nu_d = 0.5
-  ds = np.array((0.1, 0.16, 0.2, 0.45)) / nu_d
+  ds = np.array((0.100, 0.275 / 2, 0.275, 0.450)) / nu_d
 
   nu_d_plt = 12 * nu_d
   nu = np.linspace(nu_a - nu_d_plt, nu_a + nu_d_plt, npoints)
@@ -610,17 +610,23 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   # Plot time series
   for i, (d, x) in enumerate(zip(ds, x_s)):
     x = np.abs(x[i_subsample])
-    kws = dict(zorder=150 - i,
-               fc=args.colors(i),
-               ec=args.colors(i),
-               label=f"{1000 * d:.0f}",
-               alpha=0.66)
+    kws = dict(
+        zorder=150 - i,
+        # fc=args.colors(i),
+        # ec=args.colors(i),
+        c=args.colors(i),
+        label=f"{1000 * d:.0f}",
+        #alpha=0.33
+    )
+    x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t - 0.1, floor_db=True)
+    x_db[np.less(x_db, model.sinusoidal.t)] = np.nan
+    ax_sig.plot(t[i_subsample], x_db, **kws)
 
-    ax_sig.fill_between(t[i_subsample], x, -x, **kws)
-    if ax_sample is not ax_sig:
-      x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t, floor_db=True)
-      ax_sample.fill_between(t[i_subsample], x_db,
-                             np.full_like(x_db, model.sinusoidal.t), **kws)
+    # ax_sig.fill_between(t[i_subsample], x, -x, **kws)
+    # if ax_sample is not ax_sig:
+    #   x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t, floor_db=True)
+    #   ax_sample.fill_between(t[i_subsample], x_db,
+    #                          np.full_like(x_db, model.sinusoidal.t), **kws)
   ax_sig.set_xlabel("time (s)")
   ax_sig.set_title("Amplitude Envelope")
 
@@ -664,6 +670,133 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
     ax.grid()
   axs[0, 0].legend(title="decay (ms)", loc="upper left")
   save_fig("fft", args)
+  # ---------------------------------------------------------------------------
+
+  return args
+
+
+def _find_extrema(a, cmp=np.greater):
+  """Local extrema finder for :fuc:`plot_beat_imf`"""
+  b = np.empty(a.size, dtype=bool)
+  cmp(a[1:-1], a[2:], out=b[1:-1])
+  np.logical_and(cmp(a[1:-1], a[:-2]), b[1:-1], out=b[1:-1])
+  b[[0, -1]] = False
+  return b
+
+
+def _find_zerox(a):
+  """Zero crossing finder for :fuc:`plot_beat_imf`"""
+  b = np.greater(a, 0)
+  np.not_equal(b[1:], b[:-1], out=b[1:])
+  b[0] = False
+  return b
+
+
+@ArgParser.register_plot("beatimf", horizontal=True, w=1.7)
+def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
+  """Plot Beat and show it is an IMF
+
+  Args:
+    args (Namespace): CLI arguments
+    **kwargs: Keyword arguments for :func:`subplots`
+
+  Returns:
+    Namespace: CLI arguments"""
+  kwargs["sharex"] = kwargs.get("sharex", True)
+  kwargs["sharey"] = kwargs.get("sharey", True)
+
+  # --- Synthesize data -------------------------------------------------------
+  fs = 44100
+  nu_a = 20
+  nu_d = np.array((1.5, 15))
+  ds = np.array((1, 0.5)) * 0.5
+  amps = np.array((0.2, 0.8))
+
+  t = np.arange(int(fs * 0.75)) / fs
+  x_s = [
+      sample.additive_synth(t,
+                            freqs=(nu_a - nu_di, nu_a + nu_di),
+                            amps=amps,
+                            decays=ds,
+                            phases=np.full(2, -np.pi / 2),
+                            analytical=False) for nu_di in nu_d
+  ]
+  i_subsample = (np.arange(npoints) * np.floor(t.size / npoints)).astype(int)
+  # ---------------------------------------------------------------------------
+
+  extrema = {
+      k: list(map(functools.partial(_find_extrema, cmp=getattr(np, k)), x_s))
+      for k in ("greater", "less")
+  }
+  envs = {
+      k: [
+          interpolate.interp1d(t[b],
+                               x[b],
+                               fill_value="extrapolate",
+                               kind="slinear") for x, b in zip(x_s, exs)
+      ] for k, exs in extrema.items()
+  }
+  zeroxs = list(map(_find_zerox, x_s))
+  arange = np.arange(t.size)
+  zerox_t_fn = interpolate.interp1d(arange, t)
+
+  #  --- Plot -----------------------------------------------------------------
+  _, axs = subplots(vshape=(nu_d.size, 1),
+                    horizontal=horizontal,
+                    squeeze=False,
+                    **kwargs)
+
+  # Plot time series
+  for i, ax in enumerate(axs.flatten()):
+    ax.plot(t[i_subsample],
+            x_s[i][i_subsample],
+            label="signal",
+            c=args.colors(0),
+            zorder=100)
+    low = envs["less"][i](t[i_subsample])
+    upp = envs["greater"][i](t[i_subsample])
+    minima = extrema["less"][i]
+    ax.scatter(t[minima],
+               x_s[i][minima],
+               label=f"minima ({sum(minima)})",
+               c=args.colors(1),
+               marker=".",
+               zorder=105)
+    ax.plot(t[i_subsample],
+            low,
+            label="lower envelope",
+            c=args.colors(1),
+            zorder=101)
+    maxima = extrema["greater"][i]
+    ax.scatter(t[maxima],
+               x_s[i][maxima],
+               label=f"maxima ({sum(maxima)})",
+               c=args.colors(2),
+               marker=".",
+               zorder=106)
+    ax.plot(t[i_subsample],
+            upp,
+            label="upper envelope",
+            c=args.colors(2),
+            zorder=102)
+    ax.plot(t[i_subsample], (low + upp) / 2,
+            label="envelope average",
+            c=args.colors(3),
+            zorder=103)
+    arange = np.arange(t.size)
+    zerox_t = zerox_t_fn(arange[zeroxs[i]] - 0.5)
+    ax.scatter(zerox_t,
+               np.zeros(zerox_t.shape),
+               label=f"zero-crossings ({zerox_t.size})",
+               c=args.colors(4),
+               marker=".",
+               zorder=107)
+
+  for ax in axs.flatten():
+    ax.grid()
+    ax.set_xlabel("time (s)")
+    ax.legend()
+  save_fig("beatimf", args)
   # ---------------------------------------------------------------------------
 
   return args
