@@ -32,6 +32,7 @@ throttle
 autorank
 pandas
 emd
+spectrum
 
 # Style
 pylint

@@ -11,6 +11,7 @@ import emd
 import matplotlib as mpl
 import numpy as np
 import sklearn.base
+import spectrum
 from chromatictools import cli
 from matplotlib import colors
 from matplotlib import pyplot as plt
@@ -797,6 +798,100 @@ def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
     ax.set_xlabel("time (s)")
     ax.legend()
   save_fig("beatimf", args)
+  # ---------------------------------------------------------------------------
+
+  return args
+
+
+_ar_methods = {
+    "pyule": "Yule-Walker",
+    # "pburg": "Burg",
+    "pcovar": "Covariance",
+    "pmodcovar": "Modified Covariance",
+}
+
+
+@ArgParser.register_plot("arpsd", horizontal=True, w=1.7)
+def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
+  """Plot AR PSDs computed with different methods
+
+  Args:
+    args (Namespace): CLI arguments
+    order (int): AR model order
+    **kwargs: Keyword arguments for :func:`subplots`
+
+  Returns:
+    Namespace: CLI arguments"""
+  kwargs["sharex"] = kwargs.get("sharex", True)
+  kwargs["sharey"] = kwargs.get("sharey", True)
+
+  # --- Synthesize data -------------------------------------------------------
+  fs = 1000
+  nu_a = 50
+  nu_d = 0.5
+  ds = np.array((1 / 2, 1, 4)) * 0.275 / nu_d
+
+  nu_d_plt = 6 * nu_d
+  t = np.arange(int(fs * 50)) / fs
+  x_s = [
+      sample.additive_synth(t,
+                            freqs=(nu_a - nu_d, nu_a + nu_d),
+                            amps=np.full(2, 0.5),
+                            decays=np.full(2, d),
+                            phases=np.full(2, -np.pi / 2),
+                            analytical=False) for d in ds
+  ]
+  fft_freqs = np.fft.rfftfreq(t.size, 1 / fs)
+  b = np.less(np.abs(fft_freqs - nu_a), nu_d_plt)
+  fft_freqs_ = fft_freqs[b]
+  logger.debug("Displaying fft points: %d", fft_freqs_.size)
+  results = {
+      "DFT": [
+          x_dft / np.max(x_dft)
+          for x_dft in (np.abs(np.fft.rfft(x)) for x in x_s)
+      ]
+  }
+  for k, lbl in _ar_methods.items():
+    results[lbl] = []
+    for x in x_s:
+      ar = getattr(spectrum, k)(x, order, sampling=fs, NFFT=x.size)
+      try:
+        psd = ar.psd / np.max(ar.psd)
+      except ValueError:
+        psd = np.full_like(fft_freqs, np.nan)
+      results[lbl].append(psd)
+
+  #  --- Plot -----------------------------------------------------------------
+  _, axs = subplots(vshape=(len(ds), 1),
+                    horizontal=horizontal,
+                    squeeze=False,
+                    **kwargs)
+
+  for i, (k, ress) in enumerate(results.items()):
+    for ax, res in zip(axs.flatten(), ress):
+      ax.plot(fft_freqs_, res[b], label=k, c=args.colors(i + 1), zorder=200)
+  for ax in axs.flatten():
+    yl = ax.get_ylim()
+    ax.plot(np.full(2, nu_a - nu_d), yl,
+            "--",
+            c=args.colors(0),
+            label="Ground Truth",
+            zorder=201)
+    ax.plot(np.full(2, nu_a + nu_d), yl, "--", c=args.colors(0), zorder=201)
+    ax.set_ylim(yl)
+
+  for ax, d in zip(axs.flatten(), ds):
+    ax.grid()
+    ax.set_xlim(fft_freqs_[[0, -1]])
+    ax.set_xlabel("frequency (Hz)")
+    ax.set_title(f"$d={1000 * d:.0f}\\,\\text{{ms}}$")
+  # ax.legend(loc="lower right",
+  #           ncols=len(results) + 1,
+  #           bbox_to_anchor=(1.02, -0.285))
+  axs.flatten()[axs.size // 2].legend(loc="lower center",
+                                      ncols=len(results) + 1,
+                                      bbox_to_anchor=(0.5, -0.285))
+  save_fig("arpsd", args)
   # ---------------------------------------------------------------------------
 
   return args

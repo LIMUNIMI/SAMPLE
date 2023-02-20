@@ -57,6 +57,7 @@ setuptools.setup(
             "autorank",
             "pandas",
             "emd",
+            "spectrum"
         ],
         "scripts-cim22": ["matplotlib",],
         "test": [
