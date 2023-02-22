@@ -341,8 +341,8 @@ def beatsdrop_comparison(
     for a, kw in (
         (track_a, dict(c="C0", label="Sinusoidal Track", zorder=102)),
         (am_, dict(linestyle="--", c="C1", label="Prediction", zorder=102)),
-        (a0_, dict(c="C3", label="$A_1$", zorder=101)),
-        (a1_, dict(c="C4", label="$A_2$", zorder=101)),
+        (a0_, dict(c="C3", label="$a_1$", zorder=101)),
+        (a1_, dict(c="C4", label="$a_2$", zorder=101)),
     ):
       a_ = np.copy(a)
       a_[np.less_equal(a, dsp_utils.db2a(-60))] = np.nan
