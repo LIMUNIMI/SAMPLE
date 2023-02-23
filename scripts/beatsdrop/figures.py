@@ -872,7 +872,8 @@ def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
       ax.plot(fft_freqs_, res[b], label=k, c=args.colors(i + 1), zorder=200)
   for ax in axs.flatten():
     yl = ax.get_ylim()
-    ax.plot(np.full(2, nu_a - nu_d), yl,
+    ax.plot(np.full(2, nu_a - nu_d),
+            yl,
             "--",
             c=args.colors(0),
             label="Ground Truth",

@@ -53,11 +53,7 @@ setuptools.setup(
             "requests",
         ],
         "scripts-beatsdrop": [
-            "matplotlib",
-            "autorank",
-            "pandas",
-            "emd",
-            "spectrum"
+            "matplotlib", "autorank", "pandas", "emd", "spectrum"
         ],
         "scripts-cim22": ["matplotlib",],
         "test": [
