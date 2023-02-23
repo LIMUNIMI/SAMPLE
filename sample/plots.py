@@ -4,6 +4,7 @@ This module requires extra dependencies, which you can install with
 
 :data:`pip install lim-sample[plots]`"""
 import itertools
+import warnings
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
 
 import matplotlib.figure
@@ -253,6 +254,8 @@ def beatsdrop_comparison(
     track_i: int = 0,
     fs: float = None,
     transpose: bool = False,
+    signal_hilbert_am: Union[bool, int] = False,
+    warnings_ignore: bool = True,
     axs: Optional[Sequence[plt.Axes]] = None,
     fig: Optional[matplotlib.figure.Figure] = None,
 ):
@@ -267,6 +270,11 @@ def beatsdrop_comparison(
     fs (float): Sampling frequency. If unspecified, it will be inferred
       by the :data:`model`
     transpose (bool): Swap small multiples rows and columns
+    signal_hilbert_am (bool or int): If :data:`True`, then plot the Hilbert
+      envelope of the signal, instead of the signal. If an :class:`int`,
+      then subsample the envelope by this factor
+    warnings_ignore (bool): if :data:`True` (default), then ignore warnings
+      while fitting beat regression models
     axs (sequence of axes): Axes onto which to plot. If unspecified, they will
       be defined on :data:`fig`
     fig (figure): Figure onto which to put axes. If unspecified,
@@ -297,25 +305,44 @@ def beatsdrop_comparison(
   track_a = dsp_utils.db2a(track["mag"])
 
   # Apply both variants of regression
-  beatsdrops = {
-      k: base.clone(v).fit(t=track_t, a=track["mag"], f=track["freq"])
-      for k, v in beatsdrops.items()
-  }
+  with warnings.catch_warnings():
+    if warnings_ignore:
+      warnings.simplefilter("ignore")
+    beatsdrops = {
+        k: base.clone(v).fit(t=track_t, a=track["mag"], f=track["freq"])
+        for k, v in beatsdrops.items()
+    }
   for i, (k, b) in enumerate(beatsdrops.items()):
     am_, a0_, a1_, fm_ = b.predict(track_t, "am", "a0", "a1", "fm")
     fm_ /= 2 * np.pi
 
     # Amplitude modulation
-    axs[0][i].plot(np.arange(x.size) / fs,
-                   x,
-                   c="C0",
-                   alpha=0.25,
-                   label="Signal")
+    if signal_hilbert_am:
+      if isinstance(signal_hilbert_am, bool):
+        i_env = np.arange(x.size)
+      else:
+        i_env = (np.arange(np.floor(x.size / signal_hilbert_am).astype(int)) *
+                 signal_hilbert_am).astype(int)
+      x_a = signal.hilbert(x)
+      x_env = np.abs(x_a[i_env])
+      axs[0][i].fill_between(i_env / fs,
+                             x_env,
+                             -x_env,
+                             fc="C0",
+                             ec="C0",
+                             alpha=0.25,
+                             label="Signal")
+    else:
+      axs[0][i].plot(np.arange(x.size) / fs,
+                     x,
+                     c="C0",
+                     alpha=0.25,
+                     label="Signal")
     for a, kw in (
         (track_a, dict(c="C0", label="Sinusoidal Track", zorder=102)),
         (am_, dict(linestyle="--", c="C1", label="Prediction", zorder=102)),
-        (a0_, dict(c="C3", label="$A_1$", zorder=101)),
-        (a1_, dict(c="C4", label="$A_2$", zorder=101)),
+        (a0_, dict(c="C3", label="$a_1$", zorder=101)),
+        (a1_, dict(c="C4", label="$a_2$", zorder=101)),
     ):
       a_ = np.copy(a)
       a_[np.less_equal(a, dsp_utils.db2a(-60))] = np.nan

@@ -142,3 +142,57 @@ def time_this(title: Optional[str] = None,
   if title is not None:
     msg = title + msg
   ipd.display(ipd.HTML(msg))
+
+
+class LabelAndPlayForeach:
+  """Class of callables to print label and play audio. To be used in conjuction
+  with :func:`sample.plots.resynthesis` as the :data:`foreach` argument."""
+
+  def __init__(self,
+               html_kws: Optional[Dict[str, Any]] = None,
+               audio_kws: Optional[Dict[str, Any]] = None,
+               display_kws: Optional[Dict[str, Any]] = None) -> None:
+    self._html_kws = {} if html_kws is None else html_kws.copy()
+    self._audio_kws = {} if audio_kws is None else audio_kws.copy()
+    self._display_kws = {} if display_kws is None else display_kws.copy()
+    self._audio_kws["normalize"] = self._audio_kws.get("normalize", False)
+
+  def _label(self,
+             i: Optional[int] = None,
+             k: Optional[str] = None) -> Optional[ipd.HTML]:
+    """Make label widget"""
+    if i is None and k is None:
+      return None
+    if i is None:
+      s = k
+    elif not k:
+      s = str(i + 1)
+    else:
+      s = f"{i + 1:.0f} - {k}"
+    return ipd.HTML(f"<h1>{s}</h1>", **self._html_kws)
+
+  def _audio(self, y: Optional[np.ndarray] = None) -> Optional[ipd.Audio]:
+    """Make audio widget"""
+    if y is None:
+      return None
+    if not self._audio_kws["normalize"]:
+      y = np.clip(y, -1, 1)
+    return ipd.Audio(y, **self._audio_kws)
+
+  def __call__(self,
+               i: Optional[int] = None,
+               k: Optional[str] = None,
+               y: Optional[np.ndarray] = None):
+    """Print label and play audio.
+
+    Args:
+      i (int): Label index
+      k (str): Label text
+      y (array): Audio samples"""
+    tbd = [
+        self._label(i=i, k=k),
+        self._audio(y=y),
+    ]
+    tbd = tuple(filter(lambda w: w is not None, tbd))
+    if tbd:
+      ipd.display(*tbd, **self._display_kws)

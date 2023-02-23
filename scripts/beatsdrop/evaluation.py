@@ -113,6 +113,12 @@ class ArgParser(argparse.ArgumentParser):
     self.add_argument("--test-decision",
                       action="store_true",
                       help="Test the beat decision rule")
+    self.add_argument("--test-fft",
+                      metavar="N",
+                      default=None,
+                      type=int,
+                      help="Test the efficacy of increasing the FFT size "
+                      "to the specified power-of-two")
 
   def custom_parse_args(self, argv: Tuple[str]) -> argparse.Namespace:
     """Customized argument parsing for the BeatsDROP evaluation script
@@ -124,14 +130,24 @@ class ArgParser(argparse.ArgumentParser):
       Namespace: Parsed arguments"""
     args = self.parse_args(argv)
     setup_logging(args.log_level)
-    if args.test_decision:
+    if args.test_decision and args.test_fft is not None:
+      raise ValueError(
+          "Please, use either '--test-fft' or '--test-decision', not both")
+    elif args.test_fft is not None:
+      args.fieldnames = beatsdrop_fft_result_fields
+      args.result_cls = BeatsDROPFFTResult
+      args.test_func = functools.partial(test_case_fft, n=1 << args.test_fft)
+      args.output_func = fft_report
+    elif args.test_decision:
       args.fieldnames = beatsdrop_decision_result_fields
       args.result_cls = BeatsDROPDecisionResult
       args.test_func = test_case_decision
+      args.output_func = decision_report
     else:
       args.fieldnames = beatsdrop_eval_result_fields
       args.result_cls = BeatsDROPEvalResult
       args.test_func = test_case
+      args.output_func = statistical_tests
     logger.debug("Args: %s", args)
     return args
 
@@ -155,18 +171,28 @@ three_param_names = ("a0", "a1", "a2", "f0", "f1", "f2", "d0", "d1", "d2", "p0",
                      "p1", "p2")
 br_param_names = tuple(map("br_".__add__, beat_param_names))
 dbr_param_names = tuple(map("dbr_".__add__, beat_param_names))
+
 beatsdrop_eval_result_fields = ("seed", *beat_param_names, *br_param_names,
                                 *dbr_param_names)
 BeatsDROPEvalResult = collections.namedtuple(
     typename="BeatsDROPEvalResult",
     field_names=beatsdrop_eval_result_fields,
     defaults=itertools.repeat(None, len(beatsdrop_eval_result_fields)))
+
 beatsdrop_decision_result_fields = ("seed", "beat", "single",
                                     *three_param_names)
 BeatsDROPDecisionResult = collections.namedtuple(
     typename="BeatsDROPDecisionResult",
     field_names=beatsdrop_decision_result_fields,
     defaults=itertools.repeat(None, len(beatsdrop_decision_result_fields)))
+
+fft_param_names = tuple(f"{k}_hat" for k in beat_param_names[:6])
+beatsdrop_fft_result_fields = ("seed", "count", *beat_param_names,
+                               *fft_param_names)
+BeatsDROPFFTResult = collections.namedtuple(
+    typename="BeatsDROPFFTResult",
+    field_names=beatsdrop_fft_result_fields,
+    defaults=itertools.repeat(None, len(beatsdrop_fft_result_fields)))
 
 base_model: sample.SAMPLE = sample.SAMPLE(
     sinusoidal__tracker__max_n_sines=32,
@@ -175,6 +201,50 @@ base_model: sample.SAMPLE = sample.SAMPLE(
     sinusoidal__intermediate__save=True,
     sinusoidal__tracker__peak_threshold=-45,
 )
+
+
+@contextlib.contextmanager
+def test_case_context(seed: int,
+                      onlybeat: bool = True,
+                      log_level: Optional[int] = None,
+                      log_path: Optional[str] = None,
+                      wav_path: Optional[str] = None,
+                      **kwargs):
+  """Context manager for test cases"""
+  bg = random.BeatsGenerator(seed=seed, onlybeat=onlybeat, **kwargs)
+  outs = bg.audio()
+  x, fs, ((f0, f1, f2), (d0, d1, d2), (a0, a1, a2), (p0, p1, p2)) = outs
+  beat_ground_truth = dict(
+      zip(beat_param_names,
+          beatsdrop.regression.sort_params((a0, a1, f0, f1, d0, d1, p0, p1))))
+  if not onlybeat:
+    beat_ground_truth["f2"] = f2
+    beat_ground_truth["d2"] = d2
+    beat_ground_truth["a2"] = a2
+    beat_ground_truth["p2"] = p2
+  try:
+    # Save WAV
+    if wav_path is not None:
+      wavfile.write(filename=wav_path.format(seed), rate=fs, data=x)
+    # User code
+    yield outs, beat_ground_truth
+  except Exception as e:  # pylint: disable=W0703
+    if log_level is not None:
+      setup_logging(log_level)
+    logger.error("Error in test for seed: %d", seed)
+    if log_path is None:
+      raise e
+    else:
+      filename = log_path.format(seed)
+      os.makedirs(os.path.dirname(filename), exist_ok=True)
+      with open(filename, mode="w", encoding="utf-8") as f:
+        f.write(f"Seed: {seed}")
+        f.write("\n")
+        json.dump(beat_ground_truth, f, indent=2)
+        f.write("\n")
+        f.write(str(e))
+        f.write("\n")
+        f.write(traceback.format_exc())
 
 
 def test_case(seed: int,
@@ -186,16 +256,11 @@ def test_case(seed: int,
   Args:
     seed (int): RNG seed
     wav_path (str): Path for writing WAV file"""
-  # Generate ground truth
-  bg = random.BeatsGenerator(onlybeat=True, seed=seed)
-  x, fs, ((f0, f1, _), (d0, d1, _), (a0, a1, _), (p0, p1, _)) = bg.audio()
-  ground_truth = dict(
-      zip(beat_param_names,
-          beatsdrop.regression.sort_params((a0, a1, f0, f1, d0, d1, p0, p1))))
-  try:
-    # Save WAV
-    if wav_path is not None:
-      wavfile.write(filename=wav_path.format(seed), rate=fs, data=x)
+  with test_case_context(seed=seed,
+                         log_level=log_level,
+                         log_path=log_path,
+                         wav_path=wav_path,
+                         onlybeat=True) as ((x, fs, _), ground_truth):
     # Apply SAMPLE
     s = sklearn.base.clone(base_model).fit(x, sinusoidal__tracker__fs=fs)
     track = s.sinusoidal.tracks_[np.argmax(s.energies_)]
@@ -227,23 +292,6 @@ def test_case(seed: int,
             zip(dbr_param_names,
                 beatsdrop.regression.sort_params(dbr.params_))),
     )
-  except Exception as e:  # pylint: disable=W0703
-    if log_level is not None:
-      setup_logging(log_level)
-    logger.error("Error in test for seed: %d", seed)
-    if log_path is None:
-      raise e
-    else:
-      filename = log_path.format(seed)
-      os.makedirs(os.path.dirname(filename), exist_ok=True)
-      with open(filename, mode="w", encoding="utf-8") as f:
-        f.write(f"Seed: {seed}")
-        f.write("\n")
-        json.dump(ground_truth, f, indent=2)
-        f.write("\n")
-        f.write(str(e))
-        f.write("\n")
-        f.write(traceback.format_exc())
 
 
 def test_case_decision(
@@ -256,19 +304,16 @@ def test_case_decision(
   Args:
     seed (int): RNG seed
     wav_path (str): Path for writing WAV file"""
-  # Generate ground truth
-  bg = random.BeatsGenerator(onlybeat=False, seed=seed)
-  x, fs, ((f0, f1, f2), (d0, d1, d2), (a0, a1, a2), _) = bg.audio()
-
   s = beatsdrop.sample.SAMPLEBeatsDROP(
       **sklearn.base.clone(base_model).get_params(),
       beat_decisor__intermediate__save=True,
       beat_decisor__th=4,
   )
-  try:
-    # Save WAV
-    if wav_path is not None:
-      wavfile.write(filename=wav_path.format(f"{seed}-d"), rate=fs, data=x)
+  with test_case_context(seed=seed,
+                         log_level=log_level,
+                         log_path=log_path,
+                         wav_path=wav_path,
+                         onlybeat=False) as ((x, fs, _), ground_truth):
     # Apply SAMPLE
     with warnings.catch_warnings():
       warnings.simplefilter("ignore")
@@ -277,39 +322,62 @@ def test_case_decision(
         s.sinusoidal.tracks_)
 
     res = {
-        "seed": seed,
-        "a0": a0,
-        "a1": a1,
-        "a2": a2,
-        "d0": d0,
-        "d1": d1,
-        "d2": d2,
-        "f0": f0,
-        "f1": f1,
-        "f2": f2,
+        k: s.beat_decisor.intermediate["decision"][np.argmin(
+            np.abs(f - median_freqs))] for k, f in {
+                "beat": (ground_truth["f0"] + ground_truth["f1"]) / 2,
+                "single": ground_truth["f2"],
+            }.items()
     }
-    for k, f in {
-        "beat": (f0 + f1) / 2,
-        "single": f2,
-    }.items():
-      i = np.argmin(np.abs(f - median_freqs))
-      res[k] = s.beat_decisor.intermediate["decision"][i]
-    return BeatsDROPDecisionResult(**res)
-  except Exception as e:  # pylint: disable=W0703
-    if log_level is not None:
-      setup_logging(log_level)
-    logger.error("Error in test for seed: %d", seed)
-    if log_path is None:
-      raise e
-    else:
-      filename = log_path.format(f"{seed}-d")
-      os.makedirs(os.path.dirname(filename), exist_ok=True)
-      with open(filename, mode="w", encoding="utf-8") as f:
-        f.write(f"Seed: {seed}")
-        f.write("\n")
-        f.write(str(e))
-        f.write("\n")
-        f.write(traceback.format_exc())
+    return BeatsDROPDecisionResult(seed=seed, **ground_truth, **res)
+
+
+def test_case_fft(seed: int,
+                  n: int,
+                  log_level: Optional[int] = None,
+                  log_path: Optional[str] = None,
+                  wav_path: Optional[str] = None) -> int:
+  """BeatsDROP test case for FFT increase
+
+  Args:
+    seed (int): RNG seed
+    wav_path (str): Path for writing WAV file"""
+  s = sklearn.base.clone(base_model)
+  s.set_params(sinusoidal__n=n)
+  with test_case_context(seed=seed,
+                         log_level=log_level,
+                         log_path=log_path,
+                         wav_path=wav_path,
+                         onlybeat=True) as ((x, fs, _), ground_truth):
+    # Apply SAMPLE
+    s.fit(x, sinusoidal__tracker__fs=fs)
+
+    a_hat = s.amps_
+    f_hat = s.freqs_
+    d_hat = s.decays_
+    if a_hat.size == 0:
+      a_hat = f_hat = d_hat = np.zeros(2)
+    elif a_hat.size == 1:
+
+      def _rep(a, n: int = 2):
+        return np.array([a] * n).flatten()
+
+      a_hat = _rep(a_hat / 2)  # Divide amplitude amongst the two partials
+      f_hat = _rep(f_hat)
+      d_hat = _rep(d_hat)
+    a_hat = a_hat[:2]
+    f_hat = f_hat[:2]
+    d_hat = d_hat[:2]
+
+    return BeatsDROPFFTResult(
+        seed=seed,
+        count=len(s.sinusoidal.tracks_),
+        **ground_truth,
+        **dict(
+            zip(
+                fft_param_names,
+                beatsdrop.regression.sort_params(
+                    (*a_hat, *f_hat, *d_hat, 0, 0)))),
+    )
 
 
 def list2df(results: List[BeatsDROPEvalResult], fieldnames) -> "pd.DataFrame":
@@ -335,6 +403,8 @@ def prepare_folders(args: argparse.Namespace):
 
   Returns:
     Namespace: CLI arguments, augmented"""
+  logger.debug("Preparing folders")
+  logger.debug("Args: %s", args)
   # Make output file folder
   if args.output is not None:
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
@@ -343,10 +413,10 @@ def prepare_folders(args: argparse.Namespace):
     args.wav_path = None
   else:
     os.makedirs(args.wav, exist_ok=True)
-    args.wav_path = os.path.join(args.wav, "{}.wav")
+    args.wav_path = os.path.join(args.wav, "{:.0f}.wav")
   # Logs folder
   args.log_path = None if args.log_exception is None else os.path.join(
-      args.log_exception, "{}.log")
+      args.log_exception, "{:.0f}.log")
   return args
 
 
@@ -358,6 +428,8 @@ def load_results(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
+  logger.debug("Loading results")
+  logger.debug("Args: %s", args)
   args.results = list(itertools.repeat(args.result_cls(), args.n_cases))
   seeds = range(args.n_cases)
   args.csv_path = None
@@ -417,8 +489,10 @@ def run_tests(args: argparse.Namespace):
     Namespace, list: CLI arguments, augmented"""
   if len(args.seeds) == 0:
     logger.info("No tests to do")
+    logger.debug("Args: %s", args)
   else:
     logger.info("Running tests")
+    logger.debug("Args: %s", args)
     with mp.Pool(processes=args.n_jobs) as pool:
       it = pool.imap_unordered(
           functools.partial(args.test_func,
@@ -450,6 +524,8 @@ def save_dataframe(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
+  logger.debug("Saving results")
+  logger.debug("Args: %s", args)
   args.df = list2df(args.results, args.fieldnames)
   if args.csv_path is not None and (args.csv_path != args.last_file or
                                     not args.resume):
@@ -458,7 +534,7 @@ def save_dataframe(args: argparse.Namespace):
   # Clean checkpoints
   if args.ckpt_path is not None:
     for fn in glob.glob(args.ckpt_path("*")):
-      logger.info("Deleting checkpoint: '%s'", fn)
+      logger.debug("Deleting checkpoint: '%s'", fn)
       os.remove(fn)
   return args
 
@@ -526,7 +602,7 @@ def print_report(rank_result):
   }
   syms = {
       "f": r"\nu",
-      "a": r"A^0",
+      "a": r"A",
       "d": "d",
   }
   print("&")
@@ -584,6 +660,18 @@ def print_report(rank_result):
   print(s[-1])
 
 
+@contextlib.contextmanager
+def print_or_write(path: Optional[str] = None):
+  """Print to screen or write to file"""
+  if path is None:
+    yield
+  else:
+    logger.info("Writing report file: '%s'", path)
+    with open(path, mode="w", encoding="utf-8") as f:
+      with contextlib.redirect_stdout(f):
+        yield
+
+
 def statistical_tests(args: argparse.Namespace):
   """Perform statistical tests on the results
 
@@ -592,8 +680,8 @@ def statistical_tests(args: argparse.Namespace):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
-  if args.test_decision:
-    return args
+  logger.debug("Statistical comparison")
+  logger.debug("Args: %s", args)
   residual_premap = {
       "f": psycho.hz2mel,
       "a": dsp_utils.a2db,
@@ -631,20 +719,15 @@ def statistical_tests(args: argparse.Namespace):
       kws["nsamples"] = args.n_samples
     args.rank_result = autorank.autorank(**kws)
   else:
-    logger.info("Reading test results: %s", args.rr_path)
+    logger.info("Reading test results: '%s'", args.rr_path)
     args.rank_result = pickle.read_pickled(args.rr_path)
   if args.rr_path is not None and not os.path.exists(args.rr_path):
-    logger.info("Saving test results: %s", args.rr_path)
+    logger.info("Saving test results: '%s'", args.rr_path)
     pickle.save_pickled(args.rank_result, args.rr_path)
 
-  if args.output is None:
+  with print_or_write(
+      args.output if args.output is None else f"{args.output}_report.tex"):
     print_report(args.rank_result)
-  else:
-    args.report_file = f"{args.output}_report.tex"
-    logger.info("Writing report file: '%s'", args.report_file)
-    with open(args.report_file, mode="w", encoding="utf-8") as f:
-      with contextlib.redirect_stdout(f):
-        print_report(args.rank_result)
   return args
 
 
@@ -656,20 +739,45 @@ def decision_report(args):
 
   Returns:
     Namespace, list: CLI arguments, augmented"""
-  if not args.test_decision:
-    return args
+  logger.info("Decision report")
+  logger.debug("Args: %s", args)
   n_samples = args.df.shape[0]
   y_true = np.array(
       [*np.ones(n_samples, dtype=bool), *np.zeros(n_samples, dtype=bool)])
   y_pred = np.array([*args.df["beat"], *args.df["single"]])
   s = sklearn.metrics.classification_report(y_true, y_pred)
-  if args.output is None:
+
+  with print_or_write(
+      args.output if args.output is None else f"{args.output}_report.txt"):
     print(s)
-  else:
-    args.report_file = f"{args.output}_report.txt"
-    logger.info("Writing report file: '%s'", args.report_file)
-    with open(args.report_file, mode="w", encoding="utf-8") as f:
-      f.write(s)
+  return args
+
+
+fft_report_template: str = "Detected at least two tracks in {:.0f}/{:.0f} "\
+  "cases ({:.2f}%) using FFT size {:.0f} ({:.2f} seconds at {:.0f} Hz)"
+
+
+def fft_report(args):
+  """Output the performance report for the FFT size increase
+
+  Args:
+    args (Namespace): CLI arguments
+
+  Returns:
+    Namespace, list: CLI arguments, augmented"""
+  logger.info("FFT report")
+  logger.debug("Args: %s", args)
+
+  two_tracks = args.df["count"] >= 2
+  n = sum(two_tracks)
+  t = len(two_tracks)
+  nfft = 1 << args.test_fft
+  fs = 44100
+  s = fft_report_template.format(n, t, n * 100 / t, nfft, nfft / fs, fs)
+
+  with print_or_write(
+      args.output if args.output is None else f"{args.output}_report.txt"):
+    print(s)
   return args
 
 
@@ -677,15 +785,9 @@ def decision_report(args):
 def main(*argv):
   """Script runner"""
   args = ArgParser(description=__doc__).custom_parse_args(argv)
-  logger.debug("Preparing folders. Args: %s", args)
   prepare_folders(args)
-  logger.debug("Loading results. Args: %s", args)
   load_results(args)
-  logger.debug("Running tests. Args: %s", args)
   run_tests(args)
-  logger.debug("Saving dataframe. Args: %s", args)
   save_dataframe(args)
-  logger.debug("Statistical comparison. Args: %s", args)
-  statistical_tests(args)
-  decision_report(args)
+  args.output_func(args)
   logger.info("Done.")
