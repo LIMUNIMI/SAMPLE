@@ -156,11 +156,11 @@ def postprocess_fbound(smfb_0: float,
   elif smfb_0 == smfb_1:
     smfb_0 = 20
     smfb_1 = 16000
-  in_kw = dict(
-      smfb_0=smfb_0,
-      smfb_1=smfb_1,
-  )
-  out_kw = dict(sinusoidal__tracker__frequency_bounds=(smfb_0, smfb_1))
+  in_kw = {
+      "smfb_0": smfb_0,
+      "smfb_1": smfb_1,
+  }
+  out_kw = {"sinusoidal__tracker__frequency_bounds": (smfb_0, smfb_1)}
   return in_kw, out_kw
 
 
@@ -188,8 +188,8 @@ def postprocess_windows(sinusoidal__n: int, wsize: int,
       continue
     else:
       break
-  in_kw = dict(sinusoidal__n=sinusoidal__n, wsize=wsize, wtype=wtype)
-  out_kw = dict(sinusoidal__n=sinusoidal__n, sinusoidal__w=w)
+  in_kw = {"sinusoidal__n": sinusoidal__n, "wsize": wsize, "wtype": wtype}
+  out_kw = {"sinusoidal__n": sinusoidal__n, "sinusoidal__w": w}
   return in_kw, out_kw
 
 
@@ -203,8 +203,8 @@ def postprocess_multiprocessing(
 
   Returns:
     dict, dict: Postprocessed settings and parameters as dictionaries"""
-  in_kw = dict(parallel=parallel, n_jobs=n_jobs)
-  out_kw = dict(n_jobs=n_jobs if parallel else 0)
+  in_kw = {"parallel": parallel, "n_jobs": n_jobs}
+  out_kw = {"n_jobs": n_jobs if parallel else 0}
   return in_kw, out_kw
 
 
@@ -220,164 +220,185 @@ def postprocess_guitheme(
   if not userfiles.UserTtkTheme.is_valid(
       gui_theme, log=True, messagebox=len(gui_theme)):
     gui_theme = ""
-  return dict(gui_theme=gui_theme), {}
+  return {"gui_theme": gui_theme}, {}
 
 
 # ----------------------------------------------------------------------------
 
 _settings = (
-    ("resynth_group", dict(label="Resynthesis", is_spacer=True)),
-    ("max_n_modes",
-     dict(label="n modes",
-          get_fn=functools.partial(custom_positive_int, dflt=None),
-          init_value=None,
-          tooltip="Maximum number of modes to use for resynthesis")),
-    ("analysis_space", dict(is_spacer=True, label=" ")),
-    ("analysis_group", dict(label="Analysis", is_spacer=True)),
-    ("sinusoidal__tracker__max_n_sines",
-     dict(label="n sines",
-          get_fn=custom_positive_int,
-          init_value=64,
-          tooltip="Maximum number of sinusoidal tracks per frame")),
-    ("sinusoidal__n",
-     dict(label="fft size",
-          get_fn=next_power_of_2,
-          init_value=4096,
-          tooltip="FFT size (in bins)")),
-    ("sinusoidal__tracker__h",
-     dict(label="hop size",
-          get_fn=custom_positive_int,
-          init_value=1024,
-          tooltip="FTT analysis window hop size (in samples)")),
-    ("wsize",
-     dict(
-         label="window size",
-         get_fn=custom_positive_int,
-         init_value=4096,
-         tooltip="FFT analysis window size (in samples)",
-     )),
-    ("wtype",
-     dict(
-         label="window type",
-         init_value="blackman",
-         options=sorted(
-             ("boxcar", "triang", "blackman", "hamming", "hann", "bartlett",
-              "flattop", "parzen", "bohman", "blackmanharris", "nuttall",
-              "barthann", "cosine", "exponential", "tukey", "taylor")),
-         tooltip="FFT analysis window type",
-     )),
-    ("sinusoidal__tracker__freq_dev_offset",
-     dict(
-         label="frequency deviation offset",
-         get_fn=try_float,
-         init_value=20,
-         tooltip="Frequency deviation threshold at 0 Hz (in Hertz)",
-     )),
-    ("sinusoidal__tracker__freq_dev_slope",
-     dict(label="frequency deviation slope",
-          get_fn=try_float,
-          init_value=.0025,
-          tooltip="Slope of frequency deviation threshold")),
-    ("smfb_0",
-     dict(
-         label="lower frequency bound",
-         get_fn=try_float,
-         init_value=20,
-         tooltip="Minimum and accepted mean frequency (in Hertz)",
-     )),
-    ("smfb_1",
-     dict(
-         label="upper frequency bound",
-         get_fn=try_float,
-         init_value=16000,
-         tooltip="Maximum and accepted mean frequency (in Hertz)",
-     )),
-    ("sinusoidal__tracker__peak_threshold",
-     dict(
-         label="onset threshold",
-         get_fn=try_float,
-         init_value=-66,
-         tooltip="Minimum peak magnitude for modal tracks "
-         "(magnitude at time=0, in dB)",
-     )),
-    ("sinusoidal__t",
-     dict(label="peak detection threshold",
-          get_fn=try_float,
-          init_value=-90,
-          tooltip="Threshold in dB for the peak detection algorithm")),
-    ("sinusoidal__tracker__min_sine_dur",
-     dict(label="minimum sine duration",
-          get_fn=float_clip(left=0, default=0.1),
-          init_value=0.1,
-          tooltip="Minimum duration of a track (in seconds)")),
-    ("sinusoidal__tracker__strip_t",
-     dict(
-         label="strip time",
-         get_fn=strip_time_parse,
-         init_value=0.5,
-         tooltip="Strip time (in seconds). Tracks starting later "
-         "than this time will be omitted from the track "
-         "list. If is None, then don't strip",
-     )),
-    ("sinusoidal__tracker__reverse",
-     dict(
-         label="reverse",
-         init_value=True,
-         boolean=True,
-         tooltip="If True, then process audio in reverse order of time",
-     )),
-    ("sinusoidal__padded",
-     dict(
-         label="zero-padding",
-         init_value=False,
-         boolean=True,
-         tooltip="If True, then zero-pad the audio to center the first "
-         "window on the first sample",
-     )),
-    ("beatsdrop_space", dict(is_spacer=True, label=" ")),
-    ("beatsdrop_group", dict(label="BeatsDROP", is_spacer=True)),
-    ("beatsdrop",
-     dict(
-         label="BeatsDROP",
-         init_value=False,
-         boolean=True,
-         tooltip="If True, apply BeatsDROP to de-couple beats",
-     )),
-    ("parallel",
-     dict(
-         label="multiprocessing",
-         init_value=False,
-         boolean=True,
-         tooltip="If True, parallelize BeatsDROP "
-         "amongst multiple processes",
-     )),
-    ("n_jobs",
-     dict(
-         label="n jobs",
-         init_value=4,
-         get_fn=functools.partial(custom_positive_int, dflt=4),
-         tooltip="Number of parallel processes to use",
-     )),
-    ("beat_decisor__th",
-     dict(label="threshold",
-          get_fn=float_clip(left=0, default=4),
-          init_value=4,
-          tooltip="Frequency difference threshold")),
-    ("beatsdrop__lpf",
-     dict(label="lpf",
-          get_fn=float_clip(left=2, right=50, default=12),
-          init_value=12,
-          tooltip="Cutoff frequency for the low-pass filter used "
-          "for computing the amplitude autocorrelation")),
-    ("gui_space", dict(is_spacer=True, label=" ")),
-    ("gui_group", dict(label="GUI", is_spacer=True)),
-    ("gui_theme",
-     dict(
-         label="gui theme",
-         init_value="",
-         options=ttkthemes.THEMES,
-         tooltip="GUI theme",
-     )),
+    ("resynth_group", {
+        "label": "Resynthesis",
+        "is_spacer": True
+    }),
+    ("max_n_modes", {
+        "label": "n modes",
+        "get_fn": functools.partial(custom_positive_int, dflt=None),
+        "init_value": None,
+        "tooltip": "Maximum number of modes to use for resynthesis"
+    }),
+    ("analysis_space", {
+        "is_spacer": True,
+        "label": " "
+    }),
+    ("analysis_group", {
+        "label": "Analysis",
+        "is_spacer": True
+    }),
+    ("sinusoidal__tracker__max_n_sines", {
+        "label": "n sines",
+        "get_fn": custom_positive_int,
+        "init_value": 64,
+        "tooltip": "Maximum number of sinusoidal tracks per frame"
+    }),
+    ("sinusoidal__n", {
+        "label": "fft size",
+        "get_fn": next_power_of_2,
+        "init_value": 4096,
+        "tooltip": "FFT size (in bins)"
+    }),
+    ("sinusoidal__tracker__h", {
+        "label": "hop size",
+        "get_fn": custom_positive_int,
+        "init_value": 1024,
+        "tooltip": "FTT analysis window hop size (in samples)"
+    }),
+    ("wsize", {
+        "label": "window size",
+        "get_fn": custom_positive_int,
+        "init_value": 4096,
+        "tooltip": "FFT analysis window size (in samples)",
+    }),
+    ("wtype", {
+        "label":
+            "window type",
+        "init_value":
+            "blackman",
+        "options":
+            sorted(
+                ("boxcar", "triang", "blackman", "hamming", "hann", "bartlett",
+                 "flattop", "parzen", "bohman", "blackmanharris", "nuttall",
+                 "barthann", "cosine", "exponential", "tukey", "taylor")),
+        "tooltip":
+            "FFT analysis window type",
+    }),
+    ("sinusoidal__tracker__freq_dev_offset", {
+        "label": "frequency deviation offset",
+        "get_fn": try_float,
+        "init_value": 20,
+        "tooltip": "Frequency deviation threshold at 0 Hz (in Hertz)",
+    }),
+    ("sinusoidal__tracker__freq_dev_slope", {
+        "label": "frequency deviation slope",
+        "get_fn": try_float,
+        "init_value": 0.0025,
+        "tooltip": "Slope of frequency deviation threshold"
+    }),
+    ("smfb_0", {
+        "label": "lower frequency bound",
+        "get_fn": try_float,
+        "init_value": 20,
+        "tooltip": "Minimum and accepted mean frequency (in Hertz)",
+    }),
+    ("smfb_1", {
+        "label": "upper frequency bound",
+        "get_fn": try_float,
+        "init_value": 16000,
+        "tooltip": "Maximum and accepted mean frequency (in Hertz)",
+    }),
+    ("sinusoidal__tracker__peak_threshold", {
+        "label": "onset threshold",
+        "get_fn": try_float,
+        "init_value": -66,
+        "tooltip": "Minimum peak magnitude for modal tracks "
+                   "(magnitude at time=0, in dB)",
+    }),
+    ("sinusoidal__t", {
+        "label": "peak detection threshold",
+        "get_fn": try_float,
+        "init_value": -90,
+        "tooltip": "Threshold in dB for the peak detection algorithm"
+    }),
+    ("sinusoidal__tracker__min_sine_dur", {
+        "label": "minimum sine duration",
+        "get_fn": float_clip(left=0, default=0.1),
+        "init_value": 0.1,
+        "tooltip": "Minimum duration of a track (in seconds)"
+    }),
+    ("sinusoidal__tracker__strip_t", {
+        "label": "strip time",
+        "get_fn": strip_time_parse,
+        "init_value": 0.5,
+        "tooltip": "Strip time (in seconds). Tracks starting later "
+                   "than this time will be omitted from the track "
+                   "list. If is None, then don't strip",
+    }),
+    ("sinusoidal__tracker__reverse", {
+        "label": "reverse",
+        "init_value": True,
+        "boolean": True,
+        "tooltip": "If True, then process audio in reverse order of time",
+    }),
+    ("sinusoidal__padded", {
+        "label": "zero-padding",
+        "init_value": False,
+        "boolean": True,
+        "tooltip": "If True, then zero-pad the audio to center the first "
+                   "window on the first sample",
+    }),
+    ("beatsdrop_space", {
+        "is_spacer": True,
+        "label": " "
+    }),
+    ("beatsdrop_group", {
+        "label": "BeatsDROP",
+        "is_spacer": True
+    }),
+    ("beatsdrop", {
+        "label": "BeatsDROP",
+        "init_value": False,
+        "boolean": True,
+        "tooltip": "If True, apply BeatsDROP to de-couple beats",
+    }),
+    ("parallel", {
+        "label": "multiprocessing",
+        "init_value": False,
+        "boolean": True,
+        "tooltip": "If True, parallelize BeatsDROP "
+                   "amongst multiple processes",
+    }),
+    ("n_jobs", {
+        "label": "n jobs",
+        "init_value": 4,
+        "get_fn": functools.partial(custom_positive_int, dflt=4),
+        "tooltip": "Number of parallel processes to use",
+    }),
+    ("beat_decisor__th", {
+        "label": "threshold",
+        "get_fn": float_clip(left=0, default=4),
+        "init_value": 4,
+        "tooltip": "Frequency difference threshold"
+    }),
+    ("beatsdrop__lpf", {
+        "label": "lpf",
+        "get_fn": float_clip(left=2, right=50, default=12),
+        "init_value": 12,
+        "tooltip": "Cutoff frequency for the low-pass filter used "
+                   "for computing the amplitude autocorrelation"
+    }),
+    ("gui_space", {
+        "is_spacer": True,
+        "label": " "
+    }),
+    ("gui_group", {
+        "label": "GUI",
+        "is_spacer": True
+    }),
+    ("gui_theme", {
+        "label": "gui theme",
+        "init_value": "",
+        "options": ttkthemes.THEMES,
+        "tooltip": "GUI theme",
+    }),
 )
 
 _postprocess = (
@@ -595,13 +616,12 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
       ):
         if self.audio_cache_file.is_valid():
           logging.info("Caching state to %s", self.audio_cache_file.path)
-          self.audio_cache_file.save_pickled(
-              dict(
-                  audio_x=self.audio_x,
-                  audio_sr=self.audio_sr,
-                  audio_trim_start=self.audio_trim_start,
-                  audio_trim_stop=self.audio_trim_stop,
-              ))
+          self.audio_cache_file.save_pickled({
+              "audio_x": self.audio_x,
+              "audio_sr": self.audio_sr,
+              "audio_trim_start": self.audio_trim_start,
+              "audio_trim_stop": self.audio_trim_stop,
+          })
         r = utils.get_root(self)
         r.master.should_reload = True
         r.quit()

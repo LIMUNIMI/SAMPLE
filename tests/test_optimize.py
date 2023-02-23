@@ -16,11 +16,11 @@ class TestRemapper(unittest.TestCase):
 
   def test_passthrough(self):
     """Test that provided targets pass through"""
-    kwargs = dict(
-        sinusoidal__n=128,
-        sinusoidal__w=list(itertools.repeat(1 / 128, 128)),
-        sinusoidal__tracker__h=64,
-    )
+    kwargs = {
+        "sinusoidal__n": 128,
+        "sinusoidal__w": list(itertools.repeat(1 / 128, 128)),
+        "sinusoidal__tracker__h": 64,
+    }
     self.assertEqual(kwargs, optimize.sample_kwargs_remapper(**kwargs))
 
   def test_wsize(self,

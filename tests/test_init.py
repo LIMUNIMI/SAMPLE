@@ -20,4 +20,4 @@ class TestInit(unittestmixins.AssertPrintsMixin, unittest.TestCase):
     """Test execution as module, and logo print"""
     with self.assert_prints(sample.__doc__ + "\n\n" + "Version: " +
                             sample.__version__ + "\n"):
-      sample(logo=dict())
+      sample(logo={})

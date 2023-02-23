@@ -87,11 +87,11 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_freq_too_high(self):
     """Test track rejection for high frequencies"""
-    self.assertFalse(self.st.track_ok(dict(freq=np.full(1024, 1e9),)))
+    self.assertFalse(self.st.track_ok({"freq": np.full(1024, 1e9)}))
 
   def test_freq_too_low(self):
     """Test track rejection for low frequencies"""
-    self.assertFalse(self.st.track_ok(dict(freq=np.zeros(1024),)))
+    self.assertFalse(self.st.track_ok({"freq": np.zeros(1024)}))
 
   def test_tracker_reset(self):
     """Test tracker reset"""
@@ -187,8 +187,10 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
   def test_plot_2d(self):
     """Test 2D plot"""
     for r, s in itertools.product(*itertools.tee(map(bool, range(2)), 2)):
-      kw = dict(sinusoidal__tracker__reverse=r,
-                sinusoidal__intermediate__save=s)
+      kw = {
+          "sinusoidal__tracker__reverse": r,
+          "sinusoidal__intermediate__save": s
+      }
       with self.subTest(**kw):
         m = copy.deepcopy(self.sample)
         m.set_params(**kw)
@@ -208,8 +210,8 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     s = copy.deepcopy(self.sample).fit(self.x)
     plots.resynthesis(
         self.x, {"Resynthesis": s},
-        wav_kws=dict(alpha=0.66),
-        tf_kws=dict(cmap="inferno"),
+        wav_kws={"alpha": 0.66},
+        tf_kws={"cmap": "inferno"},
         foreach=lambda i, k, y:
         (self.assertIsInstance(i, int), self.assertIsInstance(k, str),
          self.assertIsInstance(y, np.ndarray)))

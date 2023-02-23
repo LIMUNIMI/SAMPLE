@@ -117,26 +117,25 @@ def main(*argv):
     wavfile.write(args.wav, rate=fs, data=x)
 
   # Define constant arguments
-  sample_opt_fixed = dict(
-      max_n_modes=64,
-      sinusoidal_model__reverse=True,
-      sinusoidal_model__safe_sine_len=2,
-      sinusoidal_model__overlap=0.5,
-      sinusoidal_model__frequency_bounds=(50, 20e3),
-  )
+  sample_opt_fixed = {
+      "max_n_modes": 64,
+      "sinusoidal_model__reverse": True,
+      "sinusoidal_model__safe_sine_len": 2,
+      "sinusoidal_model__overlap": 0.5,
+      "sinusoidal_model__frequency_bounds": (50, 20e3),
+  }
 
   # Define arguments to be optimized
-  sample_opt_space = dict(
-      sinusoidal_model__log_n=skopt.space.Integer(6, 14, name="log2(n)"),
-      sinusoidal_model__max_n_sines=skopt.space.Integer(16, 128,
-                                                        name="n sines"),
-      sinusoidal_model__peak_threshold=skopt.space.Real(-120,
-                                                        -30,
-                                                        name="peak threshold"),
-      sinusoidal_model__min_sine_dur=skopt.space.Real(0,
-                                                      0.5,
-                                                      name="min duration"),
-  )
+  sample_opt_space = {
+      "sinusoidal_model__log_n":
+          skopt.space.Integer(6, 14, name="log2(n)"),
+      "sinusoidal_model__max_n_sines":
+          skopt.space.Integer(16, 128, name="n sines"),
+      "sinusoidal_model__peak_threshold":
+          skopt.space.Real(-120, -30, name="peak threshold"),
+      "sinusoidal_model__min_sine_dur":
+          skopt.space.Real(0, 0.5, name="min duration"),
+  }
 
   # Define loss function
   cochleagram_loss = metrics.CochleagramLoss(fs=fs,

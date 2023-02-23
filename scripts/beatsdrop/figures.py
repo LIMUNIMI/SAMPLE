@@ -611,14 +611,14 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   # Plot time series
   for i, (d, x) in enumerate(zip(ds, x_s)):
     x = np.abs(x[i_subsample])
-    kws = dict(
-        zorder=150 - i,
+    kws = {
+        "zorder": 150 - i,
         # fc=args.colors(i),
         # ec=args.colors(i),
-        c=args.colors(i),
-        label=f"{1000 * d:.0f}",
+        "c": args.colors(i),
+        "label": f"{1000 * d:.0f}",
         #alpha=0.33
-    )
+    }
     x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t - 0.1, floor_db=True)
     x_db[np.less(x_db, model.sinusoidal.t)] = np.nan
     ax_sig.plot(t[i_subsample], x_db, **kws)
