@@ -602,7 +602,7 @@ def print_report(rank_result):
   }
   syms = {
       "f": r"\nu",
-      "a": r"A^0",
+      "a": r"A",
       "d": "d",
   }
   print("&")
