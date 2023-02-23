@@ -11,7 +11,7 @@ from sklearn import base
 
 import sample
 import sample.sample
-from sample import plots
+from sample import ipython, plots
 from sample.utils import dsp as dsp_utils
 
 
@@ -216,11 +216,14 @@ class TestSAMPLE(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
         (self.assertIsInstance(i, int), self.assertIsInstance(k, str),
          self.assertIsInstance(y, np.ndarray)))
 
-  def test_plot_resynthesis_axs(self):
-    """Test resynthesis plot specifying axes"""
+  def test_plot_resynthesis_axs_widget(self):
+    """Test resynthesis plot specifying axes and widget"""
     _, axs = plt.subplots(2, 1)
     with self.assert_doesnt_raise():
-      plots.resynthesis(self.x, axs=axs)
+      plots.resynthesis(
+          self.x,
+          axs=axs,
+          foreach=ipython.LabelAndPlayForeach(audio_kws={"rate": self.fs}))
 
   def test_parallel_fit(self):
     """Test SAMPLE fit in multiprocessing (useless)"""
