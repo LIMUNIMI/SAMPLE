@@ -1,18 +1,24 @@
 # Spectral Analysis for Modal Parameter Linear Estimate
 [![DOI](https://zenodo.org/badge/342648141.svg)](https://zenodo.org/badge/latestdoi/342648141)
 [![PyPI version](https://badge.fury.io/py/lim-sample.svg)](https://badge.fury.io/py/lim-sample)
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/limunimi/sample/main/main?event=push)](https://github.com/limunimi/sample/actions?query=workflow%3Amain)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/limunimi/sample/main.yml?branch=main)](https://github.com/limunimi/sample/actions?query=workflow%3Amain)
 [![Coverage](https://gist.githubusercontent.com/chromaticisobar/fb3ce2e55493c80839ca8985d0c38146/raw/lim-sample-coverage-badge.svg)](https://github.com/limunimi/sample/actions?query=workflow%3Amain)
 [![Pylint](https://gist.githubusercontent.com/chromaticisobar/fb3ce2e55493c80839ca8985d0c38146/raw/lim-sample-pylint-badge.svg)](https://github.com/limunimi/sample/actions?query=workflow%3Amain)
 
 Python package with tools for spectral analysis and modal parameters estimate
 
 ## Table of Contents
- - [Install](#install)
- - [GUI](#gui)
- - [Documentation](#documentation)
- - [Source Code](#source-code)
- - [References](#references)
+- [Spectral Analysis for Modal Parameter Linear Estimate](#spectral-analysis-for-modal-parameter-linear-estimate)
+  - [Table of Contents](#table-of-contents)
+  - [Install](#install)
+  - [GUI](#gui)
+    - [Windows](#windows)
+    - [Python](#python)
+  - [Documentation](#documentation)
+  - [Source Code](#source-code)
+    - [Notebooks](#notebooks)
+    - [Scripts](#scripts)
+  - [References](#references)
 
 ## Install
 We recommend installing in a virtual environment. For how to create virtual environments, please, refer to the official documentation for [venv](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io).
