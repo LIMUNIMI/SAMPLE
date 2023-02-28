@@ -29,6 +29,7 @@ docs/source/*.rst
 *.tex
 *.zip
 *.pdf
+*.ckpt-*
 
 # Test files
 sms
@@ -36,6 +37,7 @@ sms
 
 # Coverage
 .coverage
+.coverage.*
 htmlcov
 
 # Pyinstaller

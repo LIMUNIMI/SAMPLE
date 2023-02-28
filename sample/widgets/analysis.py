@@ -1,6 +1,8 @@
 """Analysis tab"""
+import contextlib
 import json
 import os
+import threading
 from tkinter import filedialog, messagebox
 
 import numpy as np
@@ -9,7 +11,25 @@ from scipy.io import wavfile
 from sample import plots
 from sample.widgets import audio, logging, pyplot
 from sample.widgets import responsive as tk
-from sample.widgets import utils
+from sample.widgets import sample, utils
+
+
+@contextlib.contextmanager
+def _non_block_lock(lock: threading.Lock):
+  """Try to take ownership of a lock. Non-blocking
+
+  Args:
+    lock (Lock): Lock
+
+  Yields:
+    bool: :data:`True` if the lock has been owned"""
+  owned = False
+  try:
+    owned = lock.acquire(blocking=False)
+    yield owned
+  finally:
+    if owned:
+      lock.release()
 
 
 class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
@@ -36,6 +56,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
                pad_bottom_h: float = 0.05,
                **kwargs):
     super().__init__(*args, **kwargs)
+    self._analisis_lock = threading.Lock()
     self.filedialog_dir_save = None
     self.responsive(1, 1)
 
@@ -109,13 +130,13 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     """Update analysis and resynthesis figure"""
     for ax in self.ax:
       ax.clear()
-    m = self.sample_object.sinusoidal_model
-    stft = np.array([mx for mx, _ in m.intermediate_["stft"]]).T
-    if m.reverse:
+    m = self.sample_object.sinusoidal
+    stft = np.array([mx for mx, _ in m.intermediate["stft"]]).T
+    if m.tracker.reverse:
       stft = np.fliplr(stft)
-    tmax = len(m.intermediate_["stft"]) * m.h / m.fs
+    tmax = len(m.intermediate["stft"]) * m.h / m.fs
 
-    plots.sine_tracking_2d(m, ax=self.ax)
+    plots.sine_tracking_2d(self.sample_object, ax=self.ax)
 
     if tmax > 0:
       xlim = (0, tmax)
@@ -189,18 +210,23 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
       messagebox.showerror("No audio",
                            "You have to load an audio file before analyzing")
       return
-    x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
-    try:
-      self.sample_object.fit(
-          x,
-          sinusoidal_model__fs=self.audio_sr,
-          sinusoidal_model__progressbar=self.progressbar,
-      )
-    except Exception as e:  # pylint: disable=W0703
-      messagebox.showerror(type(e).__name__, str(e))
-      return
-    self.audio_resynth_x = None
-    self.update_plot()
+    with _non_block_lock(self._analisis_lock) as proceed:
+      if not proceed:
+        logging.warning("Analysis in progress, ignoring user input")
+        return
+      try:
+        x = self.audio_x[self.audio_trim_start:self.audio_trim_stop]
+        self.sample_object, fit_kwargs = sample.sample_factory(
+            progressbar=self.progressbar,
+            sinusoidal__tracker__fs=self.audio_sr,
+            **self.sample_object_kwargs)
+        self.sample_object.fit(x, **fit_kwargs)
+      except Exception as e:  # pylint: disable=W0703
+        messagebox.showerror(type(e).__name__, str(e))
+        logging.error("Error while fitting", exc_info=True)
+      finally:
+        self.audio_resynth_x = None
+        self.update_plot()
 
   def _get_audio(self, resynth: bool):
     """Get audio array"""
@@ -236,6 +262,12 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
 
     return play_cbk_
 
+  @property
+  def _filedialog_file_safe(self) -> str:
+    if self.filedialog_file is None:
+      return "output.wav"
+    return self.filedialog_file
+
   def wav_export_cbk(self, *args, **kwargs):  # pylint: disable=W0613
     """Wav export callback"""
     x = self._get_audio(True)
@@ -245,7 +277,7 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
         title="Save WAV file",
         initialdir=self.filedialog_dir_save,
         initialfile=
-        f"{os.path.basename(os.path.splitext(self.filedialog_file)[0])}"
+        f"{os.path.basename(os.path.splitext(self._filedialog_file_safe)[0])}"
         "_resynth",
         defaultextension=".wav",
         filetypes=[
@@ -275,7 +307,8 @@ class AnalysisTab(utils.DataOnRootMixin, tk.Frame):
     filename = filedialog.asksaveasfilename(
         title="Save JSON file",
         initialdir=self.filedialog_dir_save,
-        initialfile=os.path.basename(os.path.splitext(self.filedialog_file)[0]),
+        initialfile=os.path.basename(
+            os.path.splitext(self._filedialog_file_safe)[0]),
         defaultextension=".json",
         filetypes=[
             ("JSON", ".json"),

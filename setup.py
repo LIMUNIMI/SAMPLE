@@ -24,7 +24,7 @@ setuptools.setup(
     ],
     install_requires=[
         "chromatictools",
-        "numpy",
+        "numpy<1.24",
         "paragraph",
         "scikit-learn",
         "scikit-optimize",
@@ -53,9 +53,7 @@ setuptools.setup(
             "requests",
         ],
         "scripts-beatsdrop": [
-            "matplotlib",
-            "autorank",
-            "pandas",
+            "matplotlib", "autorank", "pandas", "emd", "spectrum"
         ],
         "scripts-cim22": ["matplotlib",],
         "test": [

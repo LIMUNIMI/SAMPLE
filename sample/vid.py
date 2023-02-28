@@ -61,11 +61,11 @@ def logo(fname: Optional[str] = None,
              horizontalalignment="left",
              verticalalignment="baseline",
              zorder=11,
-             fontdict=dict(
-                 family="sans-serif",
-                 color="w",
-                 size=7 * size_inches,
-             ))
+             fontdict={
+                 "family": "sans-serif",
+                 "color": "w",
+                 "size": 7 * size_inches
+             })
 
   plt.plot(x, time, c="#252525", zorder=5, linewidth=int(size_inches * tk))
 

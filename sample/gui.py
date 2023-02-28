@@ -31,10 +31,10 @@ def launch(args, reload_queue: Optional[multiprocessing.SimpleQueue] = None):
 
   root = main.main(
       splash_time=args.splash_time,
-      gui_kwargs=dict(
-          persistent_dir=userfiles.UserDir(args.dir),
-          reload_queue=reload_queue,
-      ),
+      gui_kwargs={
+          "persistent_dir": userfiles.UserDir(args.dir),
+          "reload_queue": reload_queue,
+      },
   )
   root.mainloop()
 
@@ -73,7 +73,7 @@ def run(*argv):
   while q.empty() or q.get():
     root = multiprocessing.Process(target=launch,
                                    args=(args,),
-                                   kwargs=dict(reload_queue=q,))
+                                   kwargs={"reload_queue": q})
     root.start()
     root.join()
   return 0

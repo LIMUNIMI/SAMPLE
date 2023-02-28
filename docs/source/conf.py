@@ -1,27 +1,39 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Configuration file for the Sphinx documentation builder.
 
+This file only contains a selection of the most common options. For a full
+list see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html"""
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-import os
-import sys
-sys.path.insert(0, os.path.abspath("../.."))
 
+import importlib
+import os
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
 
 project = "Spectral Analysis for Modal Parameter Linear Estimate"
-copyright = "2021, Marco Tiraboschi"
+copyright = "2021-2022, Marco Tiraboschi"  # pylint: disable=W0622
 author = "Marco Tiraboschi"
 
-from sample import __version__ as version
+SAMPLE_SPHINX_VERSION_IS_SHA = os.environ.get("SAMPLE_SPHINX_VERSION_IS_SHA",
+                                              "")
+if not SAMPLE_SPHINX_VERSION_IS_SHA:
+  # Get version from package
+  version = importlib.import_module("sample").__version__
+elif len(SAMPLE_SPHINX_VERSION_IS_SHA) > 1:
+  # Get version from provided git sha
+  version = SAMPLE_SPHINX_VERSION_IS_SHA
+else:
+  # Get version from git sha
+  version = subprocess.check_output("git rev-parse HEAD",
+                                    shell=True).decode("utf-8")
 release = version
 
 # -- General configuration ---------------------------------------------------
@@ -49,7 +61,6 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
 
 # -- Options for HTML output -------------------------------------------------
 # The theme to use for HTML and HTML Help pages.  See the documentation for

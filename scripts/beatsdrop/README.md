@@ -29,15 +29,15 @@ For running, we recommend
 For example
 ```
 python scripts/beatsdrop/evaluation.py \
-  -O evaluation/evaluation \
-  --wav evaluation/dataset \
+  -O evaluation/evaluation/evaluation \
+  --wav evaluation/evaluation/dataset \
   --checkpoint 100 \
   --tqdm \
   -j 10
 ```
 runs on 10 jobs and saves the following files
 ```
-evaluation
+evaluation/evaluation
 ├── dataset                    % Folder of synthesized WAV files
 ├── evaluation_rankresult.dat  % Pickled file for autorank result object
 ├── evaluation.csv             % CSV file with ground truth and results for each WAV file
@@ -45,6 +45,30 @@ evaluation
 ```
 
 Run time with 10 parallel jobs is less than 15 minutes on an Intel® Core™ i9-9820X CPU at 3.30GHz.
+
+### Decision rule
+To evaluate the decision rule, just add the `--test-decision` switch. E.g.
+```
+python scripts/beatsdrop/evaluation.py \
+  --test-decision \
+  -O evaluation/decision/evaluation \
+  --wav evaluation/decision/dataset \
+  --checkpoint 100 \
+  --tqdm \
+  -j 10
+```
+
+### FFT
+To evaluate the efficacy of increasing the FFT size, just add the `--test-fft <N>` argument, where `<N>` is the exponent of the power of two to use as the FFT size. E.g.
+```
+python scripts/beatsdrop/evaluation.py \
+  --test-fft 16 \
+  -O evaluation/fft/evaluation \
+  --wav evaluation/fft/dataset \
+  --checkpoint 100 \
+  --tqdm \
+  -j 10
+```
 
 ## Figures
 The script [`figures.py`](figures.py) produces the plots for the paper. To print the script options, run

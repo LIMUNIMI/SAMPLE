@@ -1,11 +1,16 @@
 """Sinusoidal model with added functionality for modal sounds"""
 import functools
+import math
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
 import numpy as np
-from sample import utils
-from sample.sms import sm
 from sklearn import linear_model
+
+import sample.utils
+import sample.utils.learn
+from sample.sms import sm
+
+utils = sample.utils
 
 TractT = Dict[str, np.ndarray]
 
@@ -44,8 +49,10 @@ class ModalTracker(sm.SineTracker):
   - group non-contiguous tracks
 
   Args:
+    fs (int): Sampling frequency
+    h (int): Hop size (in samples)
     max_n_sines (int): Maximum number of tracks per frame
-    min_sine_dur (float): Minimum duration of a track in number of frames
+    min_sine_dur (float): Minimum duration of a track in seconds
     freq_dev_offset (float): Frequency deviation threshold at 0Hz
     freq_dev_slope (float): Slope of frequency deviation threshold
     frequency_bounds (float, float): Minimum and maximum accepted mean frequency
@@ -55,35 +62,45 @@ class ModalTracker(sm.SineTracker):
       :data:`"single"` (based on the frequency difference of the tail of older
       track and head of new track), :data:`"average"` (based on frequency
       difference of average frequencies)
-    strip_t (float): Strip time (in frames). Tracks starting later than this
-      time will be omitted from the track list. If :data:`None`, don't strip"""
+    strip_t (int): Strip time (in seconds). Tracks starting later than this
+      time will be omitted from the track list. If :data:`None`, don't strip
+    **kwargs: Additional parameters for sub-models"""
 
-  def __init__(
-      self,
-      max_n_sines: int,
-      min_sine_dur: float,
-      freq_dev_offset: float,
-      freq_dev_slope: float,
-      frequency_bounds: Tuple[Optional[float], Optional[float]],
-      peak_threshold: float,
-      reverse: bool,
-      merge_strategy: str,
-      strip_t: Optional[float],
-  ):
-    super().__init__(
-        max_n_sines=max_n_sines,
-        min_sine_dur=min_sine_dur,
-        freq_dev_offset=freq_dev_offset,
-        freq_dev_slope=freq_dev_slope,
-    )
+  def __init__(self,
+               max_n_sines: int = 100,
+               min_sine_dur: float = 0.04,
+               freq_dev_offset: float = 20,
+               freq_dev_slope: float = 0.01,
+               reverse: bool = False,
+               frequency_bounds: Tuple[Optional[float],
+                                       Optional[float]] = (20, 16000),
+               peak_threshold: float = -90,
+               merge_strategy: str = "average",
+               strip_t: Optional[float] = None,
+               fs: int = 44100,
+               h: int = 500,
+               **kwargs):
     self.frequency_bounds = frequency_bounds
     self.peak_threshold = peak_threshold
     self.reverse = reverse
     self.merge_strategy = merge_strategy
     self.strip_t = strip_t
+    super().__init__(max_n_sines=max_n_sines,
+                     min_sine_dur=min_sine_dur,
+                     freq_dev_offset=freq_dev_offset,
+                     freq_dev_slope=freq_dev_slope,
+                     fs=fs,
+                     h=h,
+                     **kwargs)
+
+  @property
+  def strip_n(self):
+    """Strip time (in frames)"""
+    return None if self.strip_t is None else math.ceil(self.strip_t *
+                                                       self.frame_rate)
 
   def track_ok(self, track: dict) -> bool:
-    """Check if deactivated track is ok to be saved
+    """Check if a deactivated track is ok to be saved
 
     Args:
       track (dict): Track to check
@@ -128,7 +145,7 @@ class ModalTracker(sm.SineTracker):
 
   def deactivate(self, track_index: int) -> dict:
     """Remove track from list of active tracks and save it in
-    :attr:`tracks_` if it meets cleanness criteria
+    :attr:`tracks_` if it meets cleanliness criteria
 
     Args:
       track_index (int): Index of track to deactivate
@@ -155,114 +172,75 @@ class ModalTracker(sm.SineTracker):
 
   @property
   def all_tracks_(self) -> Iterable[TractT]:
-    """All deactivated tracks in :attr:`tracks_` and those active tracks
-    that would pass the cleanness check at the current state of the tracker"""
+    """All deactivated tracks in :attr:`tracks_` and those active tracks that
+    would pass the cleanliness check at the current state of the tracker"""
     tracks = super().all_tracks_
-    if self.strip_t is None:
+    if self.strip_n is None:
       return tracks
 
     def onset_ok(t):
+      o = t["start_frame"]
       if self.reverse:
-        o = self._frame - (t["start_frame"] + t["mag"].size)
-      else:
-        o = t["start_frame"]
-      return o <= self.strip_t
+        o = self._frame - (o + t["mag"].size)
+      return o <= self.strip_n
 
     return filter(onset_ok, tracks)
+
+
+def _decorate_modal_model(func):
+  """Decorator for deprecated arguments of :class:`ModalModel`"""
+
+  @utils.deprecated_argument("reverse", "tracker__reverse")
+  @utils.deprecated_argument("frequency_bounds", "tracker__frequency_bounds")
+  @utils.deprecated_argument("peak_threshold", "tracker__peak_threshold")
+  @utils.deprecated_argument("merge_strategy", "tracker__merge_strategy")
+  @utils.deprecated_argument("strip_t", "tracker__strip_t")
+  @functools.wraps(func)
+  def func_(*args, **kwargs):
+    return func(*args, **kwargs)
+
+  return func_
 
 
 class ModalModel(sm.SinusoidalModel):
   """Sinusoidal model with a :class:`ModalTracker` as sine tracker
 
   Args:
-    fs (int): sampling frequency in Hz. Defaults to 44100
-    w: Analysis window. Defaults to None (if None,
-      the :attr:`default_window` is used)
+    w: Analysis window
     n (int): FFT size. Defaults to 2048
-    h (int): Window hop size. Defaults to 500
     t (float): threshold in dB. Defaults to -90
-    max_n_sines (int): Maximum number of tracks per frame. Defaults to 100
-    min_sine_dur (float): Minimum duration of a track in seconds.
-      Defaults to 0.04
-    safe_sine_len (int): Minimum safe length of a track in number of
-      frames. This mainly serves as a check over the :data:`min_sine_dur`
-      parameter. If :data:`None` (default), then, do not
-      check :data:`min_sine_dur`. Set this to :data:`2` to avoid length
-      errors for the regressor
-    freq_dev_offset (float): Frequency deviation threshold at 0Hz.
-      Defaults to 20
-    freq_dev_slope (float): Slope of frequency deviation threshold.
-      Defaults to 0.01
-    reverse (bool): Whether to process audio in reverse.
-      Defaults to False
-    sine_tracker_cls (type): Sine tracker class
-    save_intermediate (bool): If True, save intermediate data structures in
-      the attribute :attr:`intermediate_`. Defaults to False
-    frequency_bounds (float, float): Minimum and maximum accepted mean frequency
-    peak_threshold (float): Minimum peak magnitude (magnitude at time=0) in dB
-      for modal tracks
-    merge_strategy (str): Track merging strategy. Supported strategies are:
-      :data:`"single"` (based on the frequency difference of the tail of older
-      track and head of new track), :data:`"average"` (based on frequency
-      difference of average frequencies)
-    strip_t (float): Strip time (in seconds). Tracks starting later than this
-      time will be omitted from the track list.
-      Default is :data:`None` (don't strip)"""
+    tracker (SineTracker): Sine tracker.
+      Defaults to a :class:`ModalTracker`
+    intermediate (OptionalStorage): Optionally-activatable storage
+    padded (bool): Analyse a zero-padded version of the input
+    **kwargs: Additional parameters for sub-models. See
+      :class:`sample.sms.mm.ModalTracker` and
+      :class:`sample.utils.learn.OptionalStorage`
 
-  def __init__(
-      self,
-      fs: int = 44100,
-      w: Optional[np.ndarray] = None,
-      n: int = 2048,
-      h: int = 500,
-      t: float = -90,
-      max_n_sines: int = 100,
-      min_sine_dur: float = 0.04,
-      safe_sine_len: Optional[int] = None,
-      freq_dev_offset: float = 20,
-      freq_dev_slope: float = 0.01,
-      reverse: bool = False,
-      sine_tracker_cls: type = ModalTracker,
-      save_intermediate: bool = False,
-      frequency_bounds: Tuple[Optional[float], Optional[float]] = (20, 16000),
-      peak_threshold: float = -90,
-      merge_strategy: str = "average",
-      strip_t: Optional[float] = None,
-  ):
-    super().__init__(
-        fs=fs,
-        w=w,
-        n=n,
-        h=h,
-        t=t,
-        max_n_sines=max_n_sines,
-        min_sine_dur=min_sine_dur,
-        safe_sine_len=safe_sine_len,
-        freq_dev_offset=freq_dev_offset,
-        freq_dev_slope=freq_dev_slope,
-        reverse=reverse,
-        sine_tracker_cls=sine_tracker_cls,
-        save_intermediate=save_intermediate,
-    )
-    self.frequency_bounds = frequency_bounds
-    self.peak_threshold = peak_threshold
-    self.merge_strategy = merge_strategy
-    self.strip_t = strip_t
+  Attributes:
+    w_ (array): Effective analysis window"""
 
-  @property
-  def sine_tracker_kwargs(self) -> dict:
-    """Arguments for sine tracker initialization"""
-    kwargs = super().sine_tracker_kwargs
-    if self.strip_t is None:
-      strip_t = self.strip_t
-    else:
-      strip_t = int(self.strip_t * self.fs / self.h)
-    kwargs.update(
-        dict(
-            frequency_bounds=self.frequency_bounds,
-            peak_threshold=self.peak_threshold,
-            reverse=self.reverse,
-            merge_strategy=self.merge_strategy,
-            strip_t=strip_t,
-        ))
-    return kwargs
+  @_decorate_modal_model
+  def __init__(self,
+               w: Optional[np.ndarray] = None,
+               n: int = 2048,
+               t: float = -90,
+               tracker: sm.SineTracker = None,
+               intermediate: utils.learn.OptionalStorage = None,
+               padded: bool = False,
+               **kwargs):
+    super().__init__(w=w,
+                     n=n,
+                     t=t,
+                     tracker=tracker,
+                     intermediate=intermediate,
+                     padded=padded,
+                     **kwargs)
+
+  @_decorate_modal_model
+  def set_params(self, **kwargs):
+    return super().set_params(**kwargs)
+
+  @utils.learn.default_property
+  def tracker(self):
+    return ModalTracker()

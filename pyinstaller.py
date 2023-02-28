@@ -98,7 +98,8 @@ def main():
         f"--icon={icon_fpath}",
         "-n",
         "SAMPLE",
-        *module_data(((librosa, "util", "example_data"),), cli_arg="--add-data"),
+        *module_data(
+            ((librosa, "util", "example_data"),), cli_arg="--add-data"),
     ]
     print(*cmd)
     PyInstaller.__main__.run(cmd)

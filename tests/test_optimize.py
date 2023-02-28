@@ -1,13 +1,14 @@
 """Tests for optimzation routines"""
+import copy
 import itertools
 import unittest
-import copy
 
 import skopt.space
+from chromatictools import unittestmixins
+
+import sample
 from sample import optimize
 from sample.evaluation import random
-
-from chromatictools import unittestmixins
 
 
 class TestRemapper(unittest.TestCase):
@@ -15,11 +16,11 @@ class TestRemapper(unittest.TestCase):
 
   def test_passthrough(self):
     """Test that provided targets pass through"""
-    kwargs = dict(
-        sinusoidal_model__n=128,
-        sinusoidal_model__w=list(itertools.repeat(1 / 128, 128)),
-        sinusoidal_model__h=64,
-    )
+    kwargs = {
+        "sinusoidal__n": 128,
+        "sinusoidal__w": list(itertools.repeat(1 / 128, 128)),
+        "sinusoidal__tracker__h": 64,
+    }
     self.assertEqual(kwargs, optimize.sample_kwargs_remapper(**kwargs))
 
   def test_wsize(self,
@@ -29,13 +30,12 @@ class TestRemapper(unittest.TestCase):
     """Test that window size is correct"""
     for log_n, ws, wt in itertools.product(fft_log_ns, w_sizes, w_types):
       kwargs = optimize.sample_kwargs_remapper(
-          sinusoidal_model__log_n=log_n,
-          sinusoidal_model__wsize=ws,
-          sinusoidal_model__wtype=wt,
+          sinusoidal__log_n=log_n,
+          sinusoidal__wsize=ws,
+          sinusoidal__wtype=wt,
       )
       with self.subTest(log_n=log_n, ws=ws, wt=wt):
-        self.assertEqual(kwargs["sinusoidal_model__w"].size,
-                         int((1 << log_n) * ws))
+        self.assertEqual(kwargs["sinusoidal__w"].size, int((1 << log_n) * ws))
 
   def test_hsize(
       self,
@@ -46,14 +46,14 @@ class TestRemapper(unittest.TestCase):
     """Test that hop size is correct"""
     for log_n, ws, olap in itertools.product(fft_log_ns, w_sizes, olaps):
       kwargs = optimize.sample_kwargs_remapper(
-          sinusoidal_model__log_n=log_n,
-          sinusoidal_model__wsize=ws,
-          sinusoidal_model__overlap=olap,
+          sinusoidal__log_n=log_n,
+          sinusoidal__wsize=ws,
+          sinusoidal__overlap=olap,
       )
       with self.subTest(log_n=log_n, ws=ws, olap=olap):
         self.assertAlmostEqual(
-            olap, 1 -
-            kwargs["sinusoidal_model__h"] / kwargs["sinusoidal_model__w"].size)
+            olap,
+            1 - kwargs["sinusoidal__tracker__h"] / kwargs["sinusoidal__w"].size)
 
 
 class TestOptimize(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
@@ -63,23 +63,43 @@ class TestOptimize(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Initialize test audio and SAMPLE model"""
     self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
     self.sample_opt = optimize.SAMPLEOptimizer(
-        sample_kw=dict(
+        model=sample.SAMPLE(
             max_n_modes=3,
-            sinusoidal_model__reverse=True,
-            sinusoidal_model__safe_sine_len=2,
-            sinusoidal_model__frequency_bounds=(50, 20e3),
+            sinusoidal__tracker__reverse=True,
+            sinusoidal__tracker__frequency_bounds=(50, 20e3),
         ),
-        sinusoidal_model__log_n=skopt.space.Integer(6, 15, name="log2(n)"),
-        sinusoidal_model__max_n_sines=skopt.space.Integer(16,
-                                                          128,
-                                                          name="n sines"),
-        sinusoidal_model__peak_threshold=skopt.space.Real(
+        sinusoidal__log_n=skopt.space.Integer(6, 15, name="log2(n)"),
+        sinusoidal__tracker__max_n_sines=skopt.space.Integer(16,
+                                                             128,
+                                                             name="n sines"),
+        sinusoidal__tracker__peak_threshold=skopt.space.Real(
             -120, -30, name="peak threshold"),
-        sinusoidal_model__min_sine_dur=skopt.space.Real(0,
-                                                        0.5,
-                                                        name="min duration"),
-        sinusoidal_model__overlap=skopt.space.Real(0, 0.75, name="overlap"),
+        sinusoidal__tracker__min_sine_dur=skopt.space.Integer(
+            2, 42, name="min duration"),
+        sinusoidal__overlap=skopt.space.Real(0, 0.75, name="overlap"),
     )
+
+  def test_no_exceptions_default(self):
+    """Test that no exceptions arise during optimization,
+    with default arguments for the SAMPLE model"""
+    sample_opt = optimize.SAMPLEOptimizer(
+        sinusoidal__log_n=skopt.space.Integer(6, 15, name="log2(n)"),
+        sinusoidal__tracker__max_n_sines=skopt.space.Integer(16,
+                                                             128,
+                                                             name="n sines"),
+        sinusoidal__tracker__peak_threshold=skopt.space.Real(
+            -120, -30, name="peak threshold"),
+        sinusoidal__tracker__min_sine_dur=skopt.space.Integer(
+            2, 42, name="min duration"),
+        sinusoidal__overlap=skopt.space.Real(0, 0.75, name="overlap"),
+    )
+    with self.assert_doesnt_raise():
+      sample_opt.gp_minimize(
+          x=self.x,
+          fs=self.fs,
+          n_calls=8,
+          n_initial_points=4,
+      )
 
   def test_no_exceptions(self):
     """Test that no exceptions arise during optimization"""

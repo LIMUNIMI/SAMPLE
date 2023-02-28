@@ -36,7 +36,7 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
     """Initialize test audio and sinusoidal model"""
     self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
     self.sm = sample_sm.SinusoidalModel()
-    self.sm.w_ = self.sm.normalized_window
+    self.sm.w_ = self.sm._normalized_window  # pylint: disable=W0212
 
     warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
@@ -110,16 +110,16 @@ class TestSMS(unittestmixins.RMSEAssertMixin, unittest.TestCase):
 
   def test_intermediate(self):
     """Check that intermediate results are saved"""
-    self.sm.fit(self.x, save_intermediate=True)
-    self.assertTrue(hasattr(self.sm, "intermediate_"))
+    self.sm.fit(self.x, intermediate__save=True)
+    self.assertTrue(hasattr(self.sm.intermediate, "cache_"))
 
     for k in (
         "stft",
         "peaks",
     ):
       with self.subTest(key=k):
-        self.assertTrue(k in self.sm.intermediate_, "Key not found")
-        self.assertGreater(len(self.sm.intermediate_[k]), 0, "List is empty")
+        self.assertTrue(k in self.sm.intermediate.cache_, "Key not found")
+        self.assertGreater(len(self.sm.intermediate[k]), 0, "List is empty")
 
 
 if __name__ == "__main__":
