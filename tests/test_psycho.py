@@ -50,7 +50,7 @@ class TestPsycho(unittestmixins.AssertDoesntRaiseMixin,
     f = np.linspace(0, 2e4, 1024)
     for deg, use_buf in itertools.product(("linear", "quadratic"),
                                           (False, True)):
-      kw = {} if use_buf else dict(out=np.empty_like(f))
+      kw = {} if use_buf else {"out": np.empty_like(f)}
       kw["degree"] = deg
       erbs = psycho.erb(f, **kw)
       with self.subTest(degree=deg, buffer=use_buf):
@@ -64,10 +64,12 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin,
   def setUp(self):
     """Setup test audio"""
     self.x, self.fs, _ = random.BeatsGenerator(seed=1234).audio()
-    self.stft_kws = dict(nperseg=2048,
-                         noverlap=1024,
-                         window="hamming",
-                         fs=self.fs)
+    self.stft_kws = {
+        "nperseg": 2048,
+        "noverlap": 1024,
+        "window": "hamming",
+        "fs": self.fs
+    }
 
   def test_cochleagram_shape(self):
     """Test cochleagram shape"""

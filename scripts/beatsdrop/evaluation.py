@@ -710,11 +710,13 @@ def statistical_tests(args: argparse.Namespace):
       pops[kmk] = c
   if args.rr_path is None or not os.path.exists(args.rr_path):
     logger.info("Running statistical tests")
-    kws = dict(data=pd.DataFrame(pops),
-               alpha=args.alpha,
-               verbose=False,
-               order="ascending",
-               approach="frequentist" if args.frequentist else "bayesian")
+    kws = {
+        "data": pd.DataFrame(pops),
+        "alpha": args.alpha,
+        "verbose": False,
+        "order": "ascending",
+        "approach": "frequentist" if args.frequentist else "bayesian"
+    }
     if not args.frequentist:
       kws["nsamples"] = args.n_samples
     args.rank_result = autorank.autorank(**kws)

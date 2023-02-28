@@ -206,6 +206,26 @@ class TestBeatRegression(unittestmixins.AssertDoesntRaiseMixin,
               "Baseline": bd.regression.BeatRegression(),
           }, self.x)
 
+  def test_comparison_plot_ht(self):
+    """Test comparison plot with Hilbert transform"""
+    with self.assert_doesnt_raise():
+      plots.beatsdrop_comparison(self.model, {
+          "BeatsDROP": bd.regression.DualBeatRegression(),
+          "Baseline": bd.regression.BeatRegression(),
+      },
+                                 self.x,
+                                 signal_hilbert_am=True)
+
+  def test_comparison_plot_ht_sub(self):
+    """Test comparison plot with Hilbert transform (subsampled)"""
+    with self.assert_doesnt_raise():
+      plots.beatsdrop_comparison(self.model, {
+          "BeatsDROP": bd.regression.DualBeatRegression(),
+          "Baseline": bd.regression.BeatRegression(),
+      },
+                                 self.x,
+                                 signal_hilbert_am=256)
+
   def test_comparison_plot_t(self):
     """Test comparison plot (transposed)"""
     with self.assert_doesnt_raise():

@@ -105,30 +105,6 @@ class BeatDecisor(base.BaseEstimator):
     return self.output_beat_params(
         beatsdrop.params_) if d else self.output_params(params)
 
-  def amplitude_residuals(
-      self, t: np.ndarray, track: dict,
-      beatsdrop: sample.beatsdrop.regression.BeatRegression,
-      params: Tuple[float, float, float]) -> Tuple[np.ndarray, np.ndarray]:
-    """Compute the amplitude residuals (prediction errors) for the two methods
-
-    Args:
-      t (array): Time axis
-      track (dict): Track
-      beatsdrop (BeatRegression): Beat regression model
-      params (triplet of floats): Frequency, decay, and amplitude
-
-    Returns:
-      array, array: Residuals for the linear and beat model"""
-    track_a = utils.dsp.db2a(track["mag"])
-
-    _, d, a = params
-    a_lin = a * np.exp(-2 * t / d)
-    a_biz, = beatsdrop.predict(t, "am")
-
-    np.subtract(track_a, a_lin, out=a_lin)
-    np.subtract(track_a, a_biz, out=a_biz)
-    return a_lin, a_biz
-
 
 class AlmostNotABeatDecisor(BeatDecisor):
   """Decide if a trajectory is a beat or not based on the fact that the two

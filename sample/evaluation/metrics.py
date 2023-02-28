@@ -133,7 +133,7 @@ def multiscale_spectral_loss(x,
                              *args,
                              spectral_loss: Callable = lin_log_spectral_loss,
                              stfts: Iterable[Dict[str, Any]] = tuple(
-                                 dict(n=1 << i) for i in range(6, 12)),
+                                 {"n": 1 << i} for i in range(6, 12)),
                              **kwargs) -> float:
   """Compute a multiscale spectral loss
 
