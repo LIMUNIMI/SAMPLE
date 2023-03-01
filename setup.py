@@ -73,7 +73,7 @@ setuptools.setup(
         ],
         "cov": ["coverage",],
         "packaging": ["twine",],
-        "installer": ["pyinstaller",]
+        "installer": ["pyinstaller", "librosa<0.10"]
     },
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -18,7 +18,7 @@ more-itertools
 ipython
 jupyter
 matplotlib
-librosa
+librosa<0.10
 requests
 
 # GUI
