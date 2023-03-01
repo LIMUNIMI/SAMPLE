@@ -8,6 +8,7 @@ import ttkthemes
 from matplotlib.backends import _backend_tk
 from scipy import signal
 
+from sample import utils as sample_utils
 from sample.widgets import logging
 from sample.widgets import responsive as tk
 from sample.widgets import userfiles, utils
@@ -527,9 +528,7 @@ class SettingsTab(utils.DataOnRootMixin, tk.Frame):
     self.scrollframe.scrollable_frame.responsive(len(setting_specs), (0, 2))
     self._settings: Dict[str, SettingsTab.Setting] = {}
     for k, kw in setting_specs:
-      if kw is None:
-        kw = {}
-      self.add_setting(k, **kw)
+      self.add_setting(k, **sample_utils.default_kws(kw))
 
     self.bottom_row = tk.Frame(self)
     self.bottom_row.grid(row=1)

@@ -3,11 +3,12 @@ import os
 import threading
 from tkinter import filedialog, messagebox
 
-import librosa
 import numpy as np
 from matplotlib import backend_bases
 from matplotlib.backends import _backend_tk
+from scipy.io import wavfile
 
+from sample.utils import dsp
 from sample.widgets import audio, logging, pyplot
 from sample.widgets import responsive as tk
 from sample.widgets import utils
@@ -158,13 +159,16 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
       if self.filedialog_dir_save is None:
         self.filedialog_dir_save = self.filedialog_dir
       try:
-        x, sr = librosa.load(filename, sr=None, mono=True)
+        sr, x = wavfile.read(filename)
       except Exception as e:  # pylint: disable=W0703
         logging.error("Error loading audio: [%s] %s", type(e).__name__, e)
         messagebox.showerror(
             type(e).__name__,
             str(e) or "".join((type(e).__name__, "\n", "Filename: ", filename)))
       else:
+        x = x / -np.iinfo(x.dtype).min
+        if np.ndim(x) > 1:
+          x = np.mean(x, axis=-1)
         self.audio_x = x
         self.audio_sr = sr
         self.auto_trim()
@@ -173,9 +177,7 @@ class AudioLoadTab(utils.DataOnRootMixin, tk.Frame):
 
   def auto_trim(self):
     """Automatically trim audio via onset detection"""
-    onsets = librosa.onset.onset_detect(y=self.audio_x,
-                                        sr=self.audio_sr,
-                                        units="samples")
+    onsets = np.flatnonzero(dsp.onset_detection(self.audio_x))
     logging.debug("Onsets: %s", onsets)
     onsets = np.array([*onsets, self.audio_x.size])
     onset_max_i = np.argmax(np.diff(onsets)).flatten()[0]

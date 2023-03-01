@@ -34,7 +34,6 @@ setuptools.setup(
     extras_require={
         "gui": [
             "ttkthemes",
-            "librosa",
             "pygame",
             "matplotlib",
             "Pillow",
@@ -48,7 +47,6 @@ setuptools.setup(
             "ipython",
             "jupyter",
             "matplotlib",
-            "librosa",
             "more-itertools",
             "requests",
         ],
@@ -73,7 +71,7 @@ setuptools.setup(
         ],
         "cov": ["coverage",],
         "packaging": ["twine",],
-        "installer": ["pyinstaller", "librosa<0.10"]
+        "installer": ["pyinstaller",]
     },
     classifiers=[
         "Programming Language :: Python :: 3",

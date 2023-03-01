@@ -1137,6 +1137,6 @@ def mel_spectrogram(x: Sequence[float],
   Returns:
     array, array, matrix: The array of center frequencies, the array of
     time-steps, and the Mel-spectrogram matrix (filter x time)"""
-  freqs, times, stft = signal.stft(x, **stft_kws)
+  freqs, times, stft = signal.stft(x, **utils.default_kws(stft_kws))
   melspec, c_freqs = stft2mel(stft=stft, freqs=freqs, **kwargs)
   return c_freqs, times, melspec

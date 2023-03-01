@@ -2,7 +2,8 @@
 import functools
 import inspect
 import warnings
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, overload, TypeVar, Union
+from typing import (Any, Callable, Dict, Iterable, Optional, Tuple, TypeVar,
+                    Union, overload)
 
 import numpy as np
 import paragraph as pg
@@ -534,3 +535,16 @@ def warnings_simplefilter(func: Optional[F] = None,
       return func(*ars, **kws)
 
   return func_
+
+
+def default_kws(d: Optional[Dict[str, Any]] = None, **kwargs) -> Dict[str, Any]:
+  """Helper function for setting default keyword arguments in a dict
+  Args:
+    d (dict): Non-default arguments
+    **kwargs: Default arguments
+  Returns:
+    dict: A copy of the input arguments, with default arguments set"""
+  d = {} if d is None else d.copy()
+  for k, v in kwargs.items():
+    d[k] = d.get(k, v)
+  return d
