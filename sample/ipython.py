@@ -11,6 +11,8 @@ from typing import Any, Dict, Optional
 import numpy as np
 from IPython import display as ipd
 
+from sample import utils
+
 
 class WebAudio(ipd.HTML):
   """Use instead of :class:`IPython.display.Audio` as a workaround for VS Code
@@ -152,9 +154,9 @@ class LabelAndPlayForeach:
                html_kws: Optional[Dict[str, Any]] = None,
                audio_kws: Optional[Dict[str, Any]] = None,
                display_kws: Optional[Dict[str, Any]] = None) -> None:
-    self._html_kws = {} if html_kws is None else html_kws.copy()
-    self._audio_kws = {} if audio_kws is None else audio_kws.copy()
-    self._display_kws = {} if display_kws is None else display_kws.copy()
+    self._html_kws = utils.default_kws(html_kws)
+    self._audio_kws = utils.default_kws(audio_kws)
+    self._display_kws = utils.default_kws(display_kws)
     self._audio_kws["normalize"] = self._audio_kws.get("normalize", False)
 
   def _label(self,
