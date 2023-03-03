@@ -138,6 +138,7 @@ def save_fig(filename: str,
 
 def subplots(vshape: Tuple[int, int] = (1, 1),
              w: float = 1,
+             aspect: float = 1,
              horizontal: bool = False,
              **kwargs):
   """Wrapper for :func:`matplotlib.pyplot.subplots`
@@ -150,8 +151,8 @@ def subplots(vshape: Tuple[int, int] = (1, 1),
     **kwargs: Keyword arguments for :func:`matplotlib.pyplot.subplots`"""
   shape = np.flip(vshape) if horizontal else vshape
   if "figsize" not in kwargs:
-    kwargs["figsize"] = np.flip(
-        shape) * mpl.rcParams["figure.figsize"] * w / shape[1]
+    kwargs["figsize"] = np.flip(shape) * (
+        1, 1 / aspect) * mpl.rcParams["figure.figsize"] * w / shape[1]
   if horizontal:
     share_d = ("col", "row")
     share_d = dict((share_d, np.flip(share_d)))
@@ -179,7 +180,7 @@ def resaturate(c, saturation: float = 1):
   return colors.hsv_to_rgb(d)
 
 
-@ArgParser.register_plot("beat", horizontal=True, w=1.7)
+@ArgParser.register_plot("beat", horizontal=False, w=1, aspect=4 / 3)
 def plot_beat(args, **kwargs):
   """Plot beat pattern
 
@@ -251,7 +252,7 @@ def plot_beat(args, **kwargs):
   return args
 
 
-@ArgParser.register_plot("regression", horizontal=True, w=1.7)
+@ArgParser.register_plot("regression", horizontal=True, w=2)
 def plot_regression(args, horizontal: bool = True, **kwargs):
   """Plot regression parameters
 
@@ -308,7 +309,7 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
   return args
 
 
-@ArgParser.register_plot("emd", horizontal=False, ncols=3, w=1.7)
+@ArgParser.register_plot("emd", horizontal=True, w=2)
 def plot_emd(args,
              n_points: int = 384,
              ncols: int = 1,
@@ -554,7 +555,7 @@ def _beat_ft(nu: float,
       nu, nu_0=nu_2, a=a_2, d=d_2, phi=phi_2, half=half)
 
 
-@ArgParser.register_plot("fft", horizontal=True, w=1.7)
+@ArgParser.register_plot("fft", horizontal=True, w=2)
 def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   """Plot FFT of varying-decay beats
 
@@ -698,7 +699,7 @@ def _find_zerox(a):
   return b
 
 
-@ArgParser.register_plot("beatimf", horizontal=True, w=1.7)
+@ArgParser.register_plot("beatimf", horizontal=False, aspect=16 / 9)
 def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   """Plot Beat and show it is an IMF
 
@@ -761,25 +762,11 @@ def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
             zorder=100)
     low = envs["less"][i](t[i_subsample])
     upp = envs["greater"][i](t[i_subsample])
-    minima = extrema["less"][i]
-    ax.scatter(t[minima],
-               x_s[i][minima],
-               label=f"minima ({sum(minima)})",
-               c=args.colors(1),
-               marker=".",
-               zorder=105)
     ax.plot(t[i_subsample],
             low,
             label="lower envelope",
             c=args.colors(1),
             zorder=101)
-    maxima = extrema["greater"][i]
-    ax.scatter(t[maxima],
-               x_s[i][maxima],
-               label=f"maxima ({sum(maxima)})",
-               c=args.colors(2),
-               marker=".",
-               zorder=106)
     ax.plot(t[i_subsample],
             upp,
             label="upper envelope",
@@ -789,19 +776,33 @@ def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
             label="envelope average",
             c=args.colors(3),
             zorder=103)
+    minima = extrema["less"][i]
+    ax.scatter(t[minima],
+               x_s[i][minima],
+               label=f"minima ({sum(minima)})",
+               color=args.colors(1),
+               marker=".",
+               zorder=105)
+    maxima = extrema["greater"][i]
+    ax.scatter(t[maxima],
+               x_s[i][maxima],
+               label=f"maxima ({sum(maxima)})",
+               color=args.colors(2),
+               marker=".",
+               zorder=106)
     arange = np.arange(t.size)
     zerox_t = zerox_t_fn(arange[zeroxs[i]] - 0.5)
     ax.scatter(zerox_t,
                np.zeros(zerox_t.shape),
                label=f"zero-crossings ({zerox_t.size})",
-               c=args.colors(4),
+               color=args.colors(4),
                marker=".",
                zorder=107)
 
   for ax in axs.flatten():
     ax.grid()
     ax.set_xlabel("time (s)")
-    ax.legend()
+    ax.legend(ncols=2)
   save_fig("beatimf", args)
   # ---------------------------------------------------------------------------
 
@@ -816,7 +817,7 @@ _ar_methods = {
 }
 
 
-@ArgParser.register_plot("arpsd", horizontal=True, w=1.7)
+@ArgParser.register_plot("arpsd", horizontal=True, w=2)
 def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
   """Plot AR PSDs computed with different methods
 
