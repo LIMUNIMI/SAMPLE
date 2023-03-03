@@ -4,10 +4,15 @@ import argparse
 import functools
 import logging
 import os
+import re
 import sys
 from typing import Callable, Optional, Tuple
 
-import emd
+if "--help" not in sys.argv and ("--plot-emd" in sys.argv or not any(
+    map(re.compile(r"^--plot-.+$").fullmatch, sys.argv))):
+  # This saves so much time when not plotting emd
+  import emd
+
 import matplotlib as mpl
 import numpy as np
 import sklearn.base
