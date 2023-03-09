@@ -1,6 +1,7 @@
 """Plot figures for the paper 'Acoustic Beats and Where To Find Them:
 Theory of Uneven Beats and Applications to Modal Parameters Estimate'"""
 import argparse
+import itertools
 import functools
 import logging
 import os
@@ -62,11 +63,14 @@ class ArgParser(argparse.ArgumentParser):
         type=lambda s: str(s).upper(),
         help="Set the log level. Default is 'INFO'",
     )
-    for k in self._PLOTS:
-      self.add_argument(f"--plot-{k}",
-                        dest=k,
-                        action="store_true",
-                        help=f"Plot the '{k}' plot")
+    for k, f in self._PLOTS.items():
+      self.add_argument(
+          f"--plot-{k}",
+          dest=k,
+          action="store_true",
+          help=" ".join(itertools.takewhile(lambda s: s,
+                                            f.__doc__.split("\n"))),
+      )
 
   _PLOTS = {}
 
@@ -79,7 +83,8 @@ class ArgParser(argparse.ArgumentParser):
       **kwargs: Keyword arguments for the plot function"""
 
     def register_plot_(func: Callable):
-      cls._PLOTS[_name] = functools.partial(func, **kwargs)
+      cls._PLOTS[_name] = functools.wraps(func)(functools.partial(
+          func, **kwargs))
       return func
 
     return register_plot_
