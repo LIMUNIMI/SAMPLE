@@ -578,7 +578,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   fs = 44100
   nu_a = 50
   nu_d = 0.5
-  ds = np.array((0.100, 0.275 / 2, 0.275, 0.450)) / nu_d
+  ds = np.array((0.075, 0.150, 0.225, 0.300)) / nu_d
 
   nu_d_plt = 12 * nu_d
   nu = np.linspace(nu_a - nu_d_plt, nu_a + nu_d_plt, npoints)
@@ -605,6 +605,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
       sinusoidal__tracker__h=1 << 9,
       sinusoidal__tracker__frequency_bounds=(35, 75),
       sinusoidal__tracker__freq_dev_offset=200,
+      sinusoidal__t=-105,
       sinusoidal__intermediate__save=True,
       beat_decisor__intermediate__save=True)
   models = [sklearn.base.clone(model).fit(x) for x in x_s]
@@ -671,8 +672,9 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
           } if j == 0 else {}),
       )
 
-  yl = np.array(ax_sample.get_ylim())
+  yl = np.array(ax_sig.get_ylim())
   yl[0] = max(yl[0], model.sinusoidal.t)
+  ax_sig.set_ylim(yl)
   ax_sample.set_ylim(yl)
   ax_sample.set_xlim(ax_sig.get_xlim())
   ax_sample.set_xlabel("time (s)")
@@ -840,7 +842,7 @@ def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
   fs = 1000
   nu_a = 50
   nu_d = 0.5
-  ds = np.array((1 / 2, 1, 4)) * 0.275 / nu_d
+  ds = np.array((0.150, 0.450, 2)) * 0.5 / nu_d
 
   nu_d_plt = 6 * nu_d
   t = np.arange(int(fs * 50)) / fs
