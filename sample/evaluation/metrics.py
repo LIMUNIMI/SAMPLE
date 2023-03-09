@@ -4,9 +4,10 @@ import multiprocessing as mp
 from typing import Any, Callable, Dict, Iterable, Optional
 
 import numpy as np
-from sample import psycho
-from sample.utils import dsp as dsp_utils
 from scipy import signal
+
+import sample.utils.dsp  # pylint: disable=W0611
+from sample import psycho, utils
 
 
 def lp_distance(x, y, p: float = 1):
@@ -81,8 +82,8 @@ def lin_log_spectral_loss(x,
   x_stft = np.abs(x_stft)
   y_stft = np.abs(y_stft)
   loss = lp_distance(x_stft, y_stft, p=norm_p)
-  dsp_utils.a2db(x_stft, out=x_stft, floor=floor_db, floor_db=True)
-  dsp_utils.a2db(y_stft, out=y_stft, floor=floor_db, floor_db=True)
+  utils.dsp.a2db(x_stft, out=x_stft, floor=floor_db, floor_db=True)
+  utils.dsp.a2db(y_stft, out=y_stft, floor=floor_db, floor_db=True)
   loss += alpha * lp_distance(x_stft, y_stft, p=norm_p)
   return loss
 
@@ -169,22 +170,23 @@ class CochleagramLoss:
       :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
     stride (int): Time-step for output signal.
       Can't be used in conjunction with :data:`method`
-    analytical (str): Compute the analytical signal of the cochleagram:
+    analytic (str): Compute the analytic signal of the cochleagram:
 
-      - if :data:`"input"`, then compute the analytical signal
+      - if :data:`"input"`, then compute the analytic signal
         of the input (fast, accurate in the middle, bad boundary conditions)
-      - if :data:`"ir"` (suggested), then compute the analytical signal
+      - if :data:`"ir"` (suggested), then compute the analytic signal
         of the IRs (fast, tends to underestimate amplitude,
         good boundary conditions)
-      - if :data:`"output"`, then compute the analytical signal
+      - if :data:`"output"`, then compute the analytic signal
         of the output (slowest, most accurate)
     p (float): Exponent for the lp-norm
     **kwargs: Keyword arguments for
       :class:`sample.psycho.GammatoneFilterbank`"""
 
+  @utils.deprecated_argument("analytical", "analytic")
   def __init__(self,
                fs: float,
-               analytical: Optional[str] = "ir",
+               analytic: Optional[str] = "ir",
                method: Optional[str] = None,
                stride: Optional[int] = None,
                p: float = 1,
@@ -192,13 +194,13 @@ class CochleagramLoss:
     kpp = "postprocessing"
     if kpp in kwargs:
       self.postprocessing = {kpp: kwargs.pop(kpp)}
-    elif analytical is not None:
+    elif analytic is not None:
       self.postprocessing = {kpp: np.abs}
     else:
       self.postprocessing = {}
     self.filterbank = psycho.GammatoneFilterbank(**kwargs).precompute(
-        fs=fs, analytical=analytical == "ir")
-    self.analytical = analytical
+        fs=fs, analytic=analytic == "ir")
+    self.analytic = analytic
     self.method = method
     self.stride = stride
     self.p = p
@@ -213,7 +215,7 @@ class CochleagramLoss:
       array: Cochleagram"""
     return psycho.cochleagram(x,
                               filterbank=self.filterbank,
-                              analytical=self.analytical,
+                              analytic=self.analytic,
                               method=self.method,
                               stride=self.stride,
                               **self.postprocessing)[0]

@@ -335,7 +335,7 @@ def plot_emd(args,
                             amps=[a0, a1],
                             decays=[d0, d1],
                             phases=[p0, p1],
-                            analytical=True)
+                            analytic=True)
 
   # Add noise
   np.random.seed(42)
@@ -580,7 +580,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
                             amps=np.full(2, 0.5),
                             decays=np.full(2, d),
                             phases=np.full(2, -np.pi / 2),
-                            analytical=True) for d in ds
+                            analytic=True) for d in ds
   ]
   i_subsample = (np.arange(npoints) * np.floor(t.size / npoints)).astype(int)
   # ---------------------------------------------------------------------------

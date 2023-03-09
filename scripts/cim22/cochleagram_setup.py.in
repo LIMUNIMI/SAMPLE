@@ -9,4 +9,4 @@ x = np.random.randn(np.round(fs * dur).astype(int))
 stride = max(1, np.round(fs * {stride_time}).astype(int))
 
 fbank = psycho.GammatoneFilterbank(normalize=True).precompute(fs=44100,
-                                                              analytical=True)
+                                                              analytic=True)

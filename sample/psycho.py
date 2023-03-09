@@ -631,15 +631,16 @@ class GammatoneFilter:
                           out=out,
                           **kwargs)
 
+  @utils.deprecated_argument("analytical", "analytic")
   def wavefun(self,
               t: float,
-              analytical: bool = False,
+              analytic: bool = False,
               out: Optional[np.ndarray] = None) -> np.ndarray:
     """Filter wave function for the IR (non-scaled)
 
     Args:
       t (array): Time axis
-      analytical (bool): If :data:`True`, use a complex exponential as
+      analytic (bool): If :data:`True`, use a complex exponential as
         oscillator, instead of a cosine
       out (array): Optional. Array to use for storing results
 
@@ -649,12 +650,12 @@ class GammatoneFilter:
                         out=out,
                         **({
                             "dtype": complex
-                        } if analytical and out is None else {}))
+                        } if analytic and out is None else {}))
     tmp = np.empty_like(out)
     # cos(2pi * f * t + phi)
     np.multiply(2 * np.pi * self.f, t, out=tmp)
     np.add(tmp, self.phi, out=tmp)
-    if analytical:
+    if analytic:
       np.multiply(1j, tmp, out=tmp)
       np.exp(tmp, out=tmp)
     else:
@@ -662,10 +663,11 @@ class GammatoneFilter:
     np.multiply(out, tmp, out=out)
     return out
 
+  @utils.deprecated_argument("analytical", "analytic")
   def ir(self,
          t: Optional[float] = None,
          fs: Optional[float] = None,
-         analytical: bool = False,
+         analytic: bool = False,
          out: Optional[np.ndarray] = None,
          **kwargs) -> np.ndarray:
     """Filter IR (scaled)
@@ -673,7 +675,7 @@ class GammatoneFilter:
     Args:
       t (array): Time axis
       fs (float): Sample frequency
-      analytical (bool): If :data:`True`, use a complex exponential as
+      analytic (bool): If :data:`True`, use a complex exponential as
         oscillator, instead of a cosine
       out (array): Optional. Array to use for storing results
       **kwargs: Keyword arguments for :func:`ir_size`
@@ -685,7 +687,7 @@ class GammatoneFilter:
         raise ValueError(
             "Please, specify either the time axis or a sample frequency")
       t = np.arange(self.ir_size(fs=fs, **kwargs)) / fs - self.t_c
-    out = self.wavefun(t, analytical=analytical, out=out)
+    out = self.wavefun(t, analytic=analytic, out=out)
     # Scale
     a = self.a
     if self.normalize:
@@ -763,27 +765,28 @@ class GammatoneFilterbank:
     Args:
       parent (GammatoneFilterbank): Gammatone filterbank to render
       fs (float): Sample frequency
-      analytical (bool): If :data:`True`, then the IRs are complex-valued.
+      analytic (bool): If :data:`True`, then the IRs are complex-valued.
         Convolving the complex IRs is faster than convolving
-        the real IRs and then computing the analytical signal of the
+        the real IRs and then computing the analytic signal of the
         cochleagram. The resulting cochleagram will be complex. The real
         part will be the ordinary cochleagram. The absolute value will be
         the AM envelope of the cochleagram"""
 
+    @utils.deprecated_argument("analytical", "analytic")
     def __init__(self,
                  parent: "GammatoneFilterbank",
                  fs: float,
-                 analytical: bool = False,
+                 analytic: bool = False,
                  **kwargs):
       self.freqs = parent.f
-      self.analytical = analytical
+      self.analytic = analytic
       # Initially offsets are the leading times in samples
       self.offsets = np.ceil(np.multiply(parent.t_c, fs)).astype(int)
 
       # Time axes start accordindly to the leading times
       time_axes = ((np.arange(f.ir_size(fs=fs), dtype=float) - off) / fs
                    for off, f, in zip(self.offsets, parent))
-      irs = (f.ir(t=t, analytical=analytical, **kwargs)
+      irs = (f.ir(t=t, analytic=analytic, **kwargs)
              for t, f in zip(time_axes, parent))
       self.irs = tuple(irs)
 
@@ -811,7 +814,7 @@ class GammatoneFilterbank:
           Can't be used in conjunction with :data:`method`
 
       Returns:
-        matrix: Cochleagram, will be complex if the IRs are analytical"""
+        matrix: Cochleagram, will be complex if the IRs are analytic"""
       if stride is None:
         if method is None or method == "overlap-add":
           convolve = signal.oaconvolve
@@ -853,7 +856,7 @@ class GammatoneFilterbank:
         ])
         out = np.zeros((len(self), np.max(n_wins + offsets_s)),
                        dtype=np.result_type(x, *self.irs))
-        if self.analytical:
+        if self.analytic:
           convolve = dsp_utils.strided_convolution_complex_kernel
         else:
           convolve = dsp_utils.strided_convolution
@@ -865,25 +868,25 @@ class GammatoneFilterbank:
                            offsets_s[i]:(offsets_s[i] + n_wins[i])].T)
       return out
 
-  def precompute(self,
-                 fs: float,
-                 analytical: bool = False) -> PrecomputedIRBank:
+  @utils.deprecated_argument("analytical", "analytic")
+  def precompute(self, fs: float, analytic: bool = False) -> PrecomputedIRBank:
     """Precompute IRs for this filterbank
 
     Args:
       fs (float): Sample frequency
-      analytical (bool): If :data:`True`, compute a complex IR bank
+      analytic (bool): If :data:`True`, compute a complex IR bank
 
     Returns:
       PrecomputedIRBank: Precomputed IR bank"""
     return GammatoneFilterbank.PrecomputedIRBank(parent=self,
                                                  fs=fs,
-                                                 analytical=analytical)
+                                                 analytic=analytic)
 
+  @utils.deprecated_argument("analytical", "analytic")
   def convolve(self,
                x: np.ndarray,
                fs: float,
-               analytical: Optional[str] = None,
+               analytic: Optional[str] = None,
                method: Optional[str] = None,
                **kwargs):
     # pylint: disable=C0303
@@ -892,14 +895,14 @@ class GammatoneFilterbank:
     Args:
       x (array): Input signal
       fs (float): Sample frequency
-      analytical (str): Compute the analytical signal of the cochleagram:
+      analytic (str): Compute the analytic signal of the cochleagram:
       
-        - if :data:`"input"`, then compute the analytical signal
+        - if :data:`"input"`, then compute the analytic signal
           of the input (fast, accurate in the middle, bad boundary conditions)
-        - if :data:`"ir"` (suggested), then compute the analytical signal
+        - if :data:`"ir"` (suggested), then compute the analytic signal
           of the IRs (fast, tends to underestimate amplitude,
           good boundary conditions)
-        - if :data:`"output"`, then compute the analytical signal
+        - if :data:`"output"`, then compute the analytic signal
           of the output (slowest, most accurate)
       postprocess (callable): If not :data:`None`, then apply this function
         to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
@@ -914,7 +917,7 @@ class GammatoneFilterbank:
     return cochleagram(x=x,
                        fs=fs,
                        filterbank=self,
-                       analytical=analytical,
+                       analytic=analytic,
                        method=method,
                        **kwargs)[0]
 
@@ -933,12 +936,13 @@ def hwr(a: np.ndarray, th: float = 0, out: Optional[np.ndarray] = None):
   return np.maximum(a, th, out=out)
 
 
+@utils.deprecated_argument("analytical", "analytic")
 def cochleagram(
     x: Sequence[float],
     fs: Optional[float] = None,
     filterbank: Optional[Union[GammatoneFilterbank,
                                GammatoneFilterbank.PrecomputedIRBank]] = None,
-    analytical: Optional[str] = None,
+    analytic: Optional[str] = None,
     method: Optional[str] = None,
     stride: Optional[int] = None,
     **kwargs):
@@ -953,14 +957,14 @@ def cochleagram(
     postprocessing (callable): If not :data:`None`, then apply this function
       to the cochleagram matrix. Default is :func:`hwr`, if the cochleagram
       is real, otherwise it is :data:`None`
-    analytical (str): Compute the analytical signal of the cochleagram:
+    analytic (str): Compute the analytic signal of the cochleagram:
       
-      - if :data:`"input"`, then compute the analytical signal
+      - if :data:`"input"`, then compute the analytic signal
         of the input (fast, accurate in the middle, bad boundary conditions)
-      - if :data:`"ir"` (suggested), then compute the analytical signal
+      - if :data:`"ir"` (suggested), then compute the analytic signal
         of the IRs (fast, tends to underestimate amplitude,
         good boundary conditions)
-      - if :data:`"output"`, then compute the analytical signal
+      - if :data:`"output"`, then compute the analytic signal
         of the output (slowest, most accurate)
     method (str): Convolution method (either :data:`"auto"`,
       :data:`"fft"`, :data:`"direct"`, or :data:`"overlap-add"`)
@@ -971,17 +975,16 @@ def cochleagram(
   Returns:
     matrix, array: Cochleagram matrix (filter x time) and the array of center
     frequencies"""
-  if isinstance(
-      filterbank,
-      GammatoneFilterbank.PrecomputedIRBank) and filterbank.analytical:
-    if analytical not in (None, "ir"):
-      raise ValueError("When IR bank is analytical, only None and 'ir' are "
-                       "supported as options for argument 'analytical'. "
-                       f"Got: '{analytical}'")
-    analytical = "ir"
+  if isinstance(filterbank,
+                GammatoneFilterbank.PrecomputedIRBank) and filterbank.analytic:
+    if analytic not in (None, "ir"):
+      raise ValueError("When IR bank is analytic, only None and 'ir' are "
+                       "supported as options for argument 'analytic'. "
+                       f"Got: '{analytic}'")
+    analytic = "ir"
   if "postprocessing" in kwargs:
     postprocessing = kwargs.pop("postprocessing")
-  elif analytical is None:
+  elif analytic is None:
     postprocessing = hwr
   else:
     postprocessing = None
@@ -991,11 +994,11 @@ def cochleagram(
     if fs is None:
       raise TypeError("cochleagram() missing required argument "
                       "'fs' for non-precomputed filterbank")
-    filterbank = filterbank.precompute(fs=fs, analytical=analytical == "ir")
-  if analytical == "input":
+    filterbank = filterbank.precompute(fs=fs, analytic=analytic == "ir")
+  if analytic == "input":
     x = signal.hilbert(x)
   out = filterbank.convolve(x, method=method, stride=stride)
-  if analytical == "output":
+  if analytic == "output":
     out = signal.hilbert(out)
   if postprocessing is not None:
     out = postprocessing(out)
