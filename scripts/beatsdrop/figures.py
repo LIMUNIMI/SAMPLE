@@ -954,35 +954,41 @@ def plot_abstract(args,
   # --- Plots -----------------------------------------------------------------
   # Sum of all components
   axs.append(fig.add_subplot(2, 3, 1))
-  axs[-1].plot(t, np.sum(xs, axis=0).real)
+  axs[-1].plot(t, np.sum(xs, axis=0).real, c=args.colors(0))
   axs[-1].set_title("Input Signal")
 
   # Separate non-beating
   axs.append(fig.add_subplot(4, 3, 2, sharex=axs[0], sharey=axs[0]))
-  axs[-1].plot(t, np.sum(xs[[0, 1], :], axis=0).real, c="C1")
+  axs[-1].plot(t, np.sum(xs[[0, 1], :], axis=0).real, c=args.colors(1))
   axs[-1].set_xlabel("Beating Components")
   axs[-1].xaxis.set_label_position("top")
   axs.append(fig.add_subplot(4, 3, 5, sharex=axs[0], sharey=axs[0]))
-  axs[-1].plot(t, xs[2, :].real, c="C2")
+  axs[-1].plot(t, xs[2, :].real, c=args.colors(2))
 
   # Amplitude envelope of beat
   axs.append(fig.add_subplot(2, 3, 3, sharex=axs[0], sharey=axs[0]))
   am = np.abs(np.sum(xs[[0, 1], :], axis=0))
-  axs[-1].fill_between(t, -am, am, fc="C1", ec="C1", alpha=0.66, zorder=100)
+  axs[-1].fill_between(t,
+                       -am,
+                       am,
+                       fc=args.colors(1),
+                       ec=args.colors(1),
+                       alpha=0.66,
+                       zorder=100)
   axs[-1].set_title("Amplitude Modulation")
 
   # Frequency envelope of beat
   pm = np.unwrap(np.angle(np.sum(xs[[0, 1], :], axis=0)))
   fm = np.diff(pm) / (2 * np.pi * np.diff(t))
   axs.append(fig.add_subplot(2, 3, 6, sharex=axs[0]))
-  axs[-1].plot(t[:-1], fm, c="C1")
+  axs[-1].plot(t[:-1], fm, c=args.colors(1))
   axs[-1].set_title("Frequency Modulation")
 
   # Separate beating
   axs.append(fig.add_subplot(4, 3, 8, sharex=axs[0], sharey=axs[0]))
-  axs[-1].plot(t, xs[1, :].real, c="C3")
+  axs[-1].plot(t, xs[1, :].real, c=args.colors(3))
   axs.append(fig.add_subplot(4, 3, 11, sharex=axs[0], sharey=axs[0]))
-  axs[-1].plot(t, xs[0, :].real, c="C4")
+  axs[-1].plot(t, xs[0, :].real, c=args.colors(4))
   # ---------------------------------------------------------------------------
 
   for ax in axs:
@@ -1057,7 +1063,7 @@ def plot_abstract(args,
       np.full(2, (pt_beat_end[0] + pt_beat_am[0]) / 2),
       (pt_sig2_end[1], pt_sig3_end[1]),
       "BeatsDROP",
-      transform=fig.transFigure,
+      # transform=fig.transFigure,
       text_kws={"rotation": -90},
       line_kws={"zorder": -100},
   )
@@ -1066,7 +1072,7 @@ def plot_abstract(args,
       np.full(2, (pt_sig_end[0] + pt_beat_start[0]) / 2),
       (pt_beat_start[1], pt_nobeat_start[1]),
       "SAMPLE / EMD",
-      transform=fig.transFigure,
+      # transform=fig.transFigure,
       text_kws={"rotation": 90},
       line_kws={"zorder": -100},
   )
@@ -1074,12 +1080,12 @@ def plot_abstract(args,
 
   # --- Draw arrows -----------------------------------------------------------
   arrow_coords = [
-      ((pt_sig_end[0], pt_beat_start[1]), pt_beat_start, "C1"),
-      ((pt_sig_end[0], pt_nobeat_start[1]), pt_nobeat_start, "C2"),
-      (pt_am_fm, pt_fm_crn, "C1"),
-      (pt_beat_end, pt_beat_am, "C1"),
-      ((pt_fm_start[0], pt_sig2_end[1]), pt_sig2_end, "C3"),
-      ((pt_fm_start[0], pt_sig3_end[1]), pt_sig3_end, "C4"),
+      ((pt_sig_end[0], pt_beat_start[1]), pt_beat_start, args.colors(1)),
+      ((pt_sig_end[0], pt_nobeat_start[1]), pt_nobeat_start, args.colors(2)),
+      (pt_am_fm, pt_fm_crn, args.colors(1)),
+      (pt_beat_end, pt_beat_am, args.colors(1)),
+      ((pt_fm_start[0], pt_sig2_end[1]), pt_sig2_end, args.colors(3)),
+      ((pt_fm_start[0], pt_sig3_end[1]), pt_sig3_end, args.colors(4)),
   ]
   for xy0, xy1, c in arrow_coords:
     coords = np.array([xy0, xy1])
