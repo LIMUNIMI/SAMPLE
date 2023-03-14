@@ -18,6 +18,11 @@ from sample.evaluation import metrics
 
 utils = sample.utils
 
+# --- Monkey patch to solve issue ---------------------------------------------
+#   https://github.com/scikit-optimize/scikit-optimize/issues/1138
+np.int = int
+# -----------------------------------------------------------------------------
+
 
 @utils.deprecated_argument("sinusoidal_model__log_n", "sinusoidal__log_n")
 @utils.deprecated_argument("sinusoidal_model__wtype", "sinusoidal__wtype")
