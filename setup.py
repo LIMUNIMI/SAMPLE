@@ -24,7 +24,7 @@ setuptools.setup(
     ],
     install_requires=[
         "chromatictools",
-        "numpy<1.24",
+        "numpy",
         "paragraph",
         "scikit-learn",
         "scikit-optimize",
