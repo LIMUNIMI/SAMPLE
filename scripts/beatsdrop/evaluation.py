@@ -590,50 +590,34 @@ def print_report(rank_result):
 
   # Custom table
   print(r"\begin{table*}[ht]")
-  print(r"\tiny")
+  # print(r"\tiny")
   print(r"\centering")
-  print(r"\begin{tabular}{llcccccc}")
+  print(r"\begin{tabular}{c" + "c" * 2 * len(models) + "}")
   print(r"\toprule")
-  print("&", end="")
   units = {
       "f": "mel",
       "a": "dB",
       "d": "s",
   }
   syms = {
-      "f": r"\nu",
-      "a": r"A",
+      "f": "\\nu",
+      "a": "a",
       "d": "d",
   }
-  print("&")
-  for i, k in enumerate(variables_to_test):
-    print(f"${syms[k[0]]}_{int(k[1:]) + 1}$ ({units[k[0]]})",
-          r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
-  print(r"\\")
   for m, mk in models:
-    print(r"\midrule")
-    print(mk, "& Median &")
-    for i, k in enumerate(variables_to_test):
+    print("& \\multicolumn{2}{c}{", mk, "} %", m)
+  print("\\\\")
+  for _ in models:
+    print("& Med. & $95\\%$ CI", end=" ")
+  for k in variables_to_test:
+    print("\\\\\n\\midrule")
+    print(f"${syms[k[0]]}_{int(k[1:]) + 1}$ ({units[k[0]]}) % {k}")
+    for m, mk in models:
       median = rank_result.rankdf["median"][f"{k}_{m}_ar"]
-      print(f"{median:.3f}", r"\\" if i == len(variables_to_test) - 1 else "&",
-            "%", k)
-    if frequentist:
-      cip = ""
-    else:
-      cip = f"${(1 - rank_result.alpha) * 100:.0f}" + r"\%$ "
-    print(f"& {cip}CI &")
-    for i, k in enumerate(variables_to_test):
+      print(f"& {median:.3f}")
       ci = rank_result.rankdf["CI"][f"{k}_{m}_ar"]
-      print(ci, r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
-  print(r"\midrule")
-  print(r"& Best &")
-  for i, k in enumerate(variables_to_test):
-    ks = tuple(f"{k}_{m}_ar" for m, _ in models)
-    best = decision(ks[0], ks[1])
-    best = dict(zip(("smaller", "larger"),
-                    models)).get(best, (best, r"\textit{" + best + "}"))[1]
-    print(best, r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
-  print(r"\bottomrule\\")
+      print(f"& {ci}")
+  print(r"\\\bottomrule\\")
   print(r"\end{tabular}")
   print(r"\caption{Summary of test results}")
   print(r"\label{tab:results}")
