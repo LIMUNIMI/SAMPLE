@@ -314,12 +314,13 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
   return args
 
 
-@ArgParser.register_plot("emd", horizontal=True, w=2)
+@ArgParser.register_plot("emd", w=2, ncols=4, plot_beatsdrop=False)
 def plot_emd(args,
              n_points: int = 384,
              ncols: int = 1,
              subq: float = 0.33,
              horizontal: bool = False,
+             plot_beatsdrop: bool = True,
              **kwargs):
   """Plot EMD IMFs
 
@@ -399,22 +400,24 @@ def plot_emd(args,
   imfs_list.append(imfs_im.T)
 
   # Apply SAMPLE+BeatsDROP
-  logger.debug("Apply SAMPLE+BeatsDROP")
-  model = beatsdrop.sample.SAMPLEBeatsDROP(
-      sinusoidal__tracker__max_n_sines=32,
-      sinusoidal__tracker__reverse=True,
-      sinusoidal__t=-90,
-      sinusoidal__intermediate__save=True,
-      sinusoidal__tracker__peak_threshold=-45,
-  ).fit(x_real, sinusoidal_model__fs=fs)
-  ias_sbd = np.exp(t.reshape((-1, 1)) @ (-2 / model.decays_.reshape(
-      (1, -1)))) * model.amps_
-  imfs_sbd = ias_sbd * np.cos(
-      t.reshape((-1, 1)) @ (2 * np.pi * model.freqs_.reshape((1, -1))))
+  if plot_beatsdrop:
+    logger.debug("Apply SAMPLE+BeatsDROP")
+    model = beatsdrop.sample.SAMPLEBeatsDROP(
+        sinusoidal__tracker__max_n_sines=32,
+        sinusoidal__tracker__reverse=True,
+        sinusoidal__t=-90,
+        sinusoidal__intermediate__save=True,
+        sinusoidal__tracker__peak_threshold=-45,
+    ).fit(x_real, sinusoidal_model__fs=fs)
+    ias_sbd = np.exp(
+        t.reshape((-1, 1)) @ (-2 / model.decays_.reshape(
+            (1, -1)))) * model.amps_
+    imfs_sbd = ias_sbd * np.cos(
+        t.reshape((-1, 1)) @ (2 * np.pi * model.freqs_.reshape((1, -1))))
 
-  keys_list.append("SAMPLE+BeatsDROP")
-  insa_list.append(ias_sbd.T)
-  imfs_list.append(imfs_sbd.T)
+    keys_list.append("SAMPLE+BeatsDROP")
+    insa_list.append(ias_sbd.T)
+    imfs_list.append(imfs_sbd.T)
 
   #  --- Plot -----------------------------------------------------------------
   i_detail = np.arange(n_points)
