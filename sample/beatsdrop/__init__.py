@@ -105,9 +105,7 @@ class Beat:
         a_dt = a.dt
       else:
         raise AttributeError(
-            f"Amplitude function a{i} does not define derivative (a0.dt)",
-            name="dt",
-            obj=a)
+            f"Amplitude function a{i} does not define derivative (a0.dt)")
       self._graph[f"da{i}_dt"] = pg.op(
           utils.NamedObject(functools.partial(_float_or_call, a_dt),
                             f"da{i}_dt")).op(self._graph["t"])
@@ -138,7 +136,8 @@ class Beat:
 
     #   Modulation component when amplitude is modulated
     g = np2pg.multiply.op(self._graph["da0_dt"], self._graph["a1"])
-    g = np2pg.subtract.op(g, np2pg.multiply.op(self._graph["da1_dt"], self._graph["a0"]))
+    g = np2pg.subtract.op(
+        g, np2pg.multiply.op(self._graph["da1_dt"], self._graph["a0"]))
     g_ = np2pg.multiply.op(self._graph["w_hat"], self._graph["t"])
     g_ = np2pg.add.op(g_, self._graph["p_hat"])
     g_ = np2pg.multiply.op(g_, 2)
@@ -153,9 +152,9 @@ class Beat:
 
     # Initial phase
     y0 = np2pg.multiply.op(self.compute(0, "a_hat"),
-                            np2pg.sin.op(self._graph["p_hat"]))
+                           np2pg.sin.op(self._graph["p_hat"]))
     x0 = np2pg.multiply.op(self.compute(0, "a_oln"),
-                            np2pg.cos.op(self._graph["p_hat"]))
+                           np2pg.cos.op(self._graph["p_hat"]))
     p0 = np2pg.add.op(self._graph["p_oln"], np2pg.arctan2.op(y0, x0))
     # Instantenous Phase
     p = pg.op(integrate.cumulative_trapezoid).op(f, self._graph["t"], initial=0)
@@ -225,7 +224,7 @@ class ExponentialDecay:
 
     Returns:
       array: Function evaluated at time :data:`t`"""
-    self.__call__(t, out=out)
+    self(t, out=out)
     np.multiply(out, self._k, out=out)
     return out
 
