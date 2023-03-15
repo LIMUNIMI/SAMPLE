@@ -81,7 +81,7 @@ class TestBeat(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
     """Test error on time argument undefined"""
     b = bd.ModalBeat()
     errs = ("a0", "a1", "a_hat", "a_oln", "a_oln2", "a_hat2", "alpha2", "am",
-            "fm", "pm", "x")
+            "fm", "pm", "x", "da0_dt", "da1_dt", "fm_from_am")
     for k in b.variables:
       e = k in errs
       with self.subTest(variable=k, error=e):
@@ -94,7 +94,11 @@ class TestBeat(unittestmixins.AssertDoesntRaiseMixin, unittest.TestCase):
 
   def test_lambda_ok(self):
     """Test that lambdas can be used"""
-    b = bd.Beat(a0=lambda t: 1 / (1 + t))
+    a = lambda t: 1 / (1 + t)  # pylint: disable=C3001
+    with self.assertRaises(AttributeError):
+      b = bd.Beat(a0=a)
+    a.dt = lambda t: -1 / ((1 + t)**2)
+    b = bd.Beat(a0=a)
     for k in b.variables:
       with self.subTest(variable=k):
         with self.assert_doesnt_raise():
