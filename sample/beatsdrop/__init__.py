@@ -105,7 +105,7 @@ class Beat:
         a_dt = a.dt
       else:
         raise AttributeError(
-            f"Amplitude function a{i} does not define derivative (a0.dt)")
+            f"Amplitude function a{i} does not define derivative (a{i}.dt)")
       self._graph[f"da{i}_dt"] = pg.op(
           utils.NamedObject(functools.partial(_float_or_call, a_dt),
                             f"da{i}_dt")).op(self._graph["t"])
