@@ -185,7 +185,7 @@ def resaturate(c, saturation: float = 1):
   return colors.hsv_to_rgb(d)
 
 
-@ArgParser.register_plot("beat", horizontal=False, w=1, aspect=4 / 3)
+@ArgParser.register_plot("beat")
 def plot_beat(args, **kwargs):
   """Plot beat pattern
 
@@ -706,7 +706,7 @@ def _find_zerox(a):
   return b
 
 
-@ArgParser.register_plot("beatimf", horizontal=False, aspect=16 / 9)
+@ArgParser.register_plot("beatimf")
 def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   """Plot Beat and show it is an IMF
 
