@@ -358,6 +358,8 @@ class DualBeatRegression(BeatRegression):
     amp_loss (callable): Loss function for amplitudes. Signature should be
       :data:`amp_loss(a_true, a_est) -> a_loss`. If :data:`None`, use default
     freq_w (float): Weighting coefficient for the frequency loss function
+    freq_clip (float): Maximum estimatable frequency deviation (as a multiple
+      of the iterquartile range)
     disambiguate (bool): If :data:`True` (default), then disambiguate
       association between frequencies and amplitudes"""
 
@@ -373,6 +375,7 @@ class DualBeatRegression(BeatRegression):
       freq_loss: Optional[BeatLossFunction] = None,
       amp_loss: Optional[BeatLossFunction] = None,
       freq_w: float = 1 / 3800,
+      freq_clip: Optional[float] = 2.5,
       disambiguate: bool = True,
   ):
     super().__init__(
@@ -387,6 +390,7 @@ class DualBeatRegression(BeatRegression):
     self.freq_loss = freq_loss
     self.amp_loss = amp_loss
     self.freq_w = freq_w
+    self.freq_clip = freq_clip
     self.disambiguate = disambiguate
 
   @utils.learn.default_property
@@ -441,6 +445,10 @@ class DualBeatRegression(BeatRegression):
       a_loss = self.amp_loss(a_lin, a_est)
       np.true_divide(f_est, 2 * np.pi, out=f_est)
       np.abs(f_est, out=f_est)
+      if self.freq_clip is not None:
+        q1, q2, q3 = np.quantile(f_est, (0.25, 0.5, 0.75))
+        max_df = self.freq_clip * (q3 - q1) / 2
+        np.clip(f_est, q2 - max_df, q2 + max_df, out=f_est)
       f_loss = self.freq_loss(f_abs, f_est)
       np.multiply(self.freq_w, f_loss, out=f_loss)
       return np.reshape([a_loss, f_loss], newshape=(-1,))
