@@ -196,7 +196,9 @@ def fit_model(args, n_jobs: int = 6):
   return args
 
 
-def resynth_audio(args, n_modes: Optional[int] = None):
+def resynth_audio(args,
+                  n_modes: Optional[int] = None,
+                  clip_th: float = dsp.db2a(-0.3)):
   """Resynthesize audio
 
   Args:
@@ -206,6 +208,13 @@ def resynth_audio(args, n_modes: Optional[int] = None):
   Returns:
     Namespace: CLI arguments"""
   y = args.model.predict(np.arange(args.x.size) / args.fs, n_modes=n_modes)
+  y_p = np.abs(y).max()
+  if np.any(np.greater(y_p, clip_th)):
+    logger.warning("Clipping detected. Peak: %.2f dB. Turning gain down",
+                   dsp.a2db(y_p))
+    # np.multiply(y, np.arctanh(clip_th) / y_p, out=y)
+    # np.arctanh(y, out=y)
+    np.multiply(y, clip_th / y_p, out=y)
   if args.output is None:
     args.output = "-output".join(os.path.splitext(args.input))
   logger.info("Writing to: %s", args.output)
