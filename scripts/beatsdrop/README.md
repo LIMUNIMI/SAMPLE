@@ -15,6 +15,21 @@ If you are using conda, you may have to add the `sample` source as a package in 
 conda develop .
 ```
 
+## Example
+The script [`example.py`](example.py) fits SAMPLE and BeatsDROP to sound example. To print the script options, run
+```
+python scripts/beatsdrop/example.py --help
+```
+We recommend either
+ - running with no arguments for the default example (our own recording of a glass)
+ - specifying both your own audio file path (`--input`) or URL (`--input-url`), and the start (`--crop-start`) and end (`--crop-end`) of the time region to analyze
+
+If you don't manually specify the start and end of the time region, they will be inferred with an onset detection algorithm.
+
+The script will write two files: the cropped (and mono) original and the linearly-resynthesized audio.
+
+The model parameters are not accessible via the CLI. If you want to experiment further, we recommend our [interactive notebooks](https://github.com/limunimi/sample/blob/main/notebooks).
+
 ## Evaluation
 The script [`evaluation.py`](evaluation.py) runs the evaluation protocol for the BeatsDROP algorithm. To print the script options, run
 ```
