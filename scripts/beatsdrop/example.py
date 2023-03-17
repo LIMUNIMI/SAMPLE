@@ -1,17 +1,22 @@
 """Example of application of SAMPLE+BeatsDROP to a real-world signal"""
 import argparse
 import io
+import itertools
 import logging
 import os
 import sys
+import threading
 from typing import Optional, Tuple
 
 import numpy as np
 import requests
+import throttle
+import tqdm
 from chromatictools import cli
 from scipy import signal
 from scipy.io import wavfile
 
+import sample._training
 import sample.beatsdrop.sample
 from sample.utils import dsp
 
@@ -54,6 +59,13 @@ class ArgParser(argparse.ArgumentParser):
     self.add_argument("--no-crop",
                       action="store_true",
                       help="Do not crop input audio")
+    self.add_argument("--clip",
+                      action="store_true",
+                      help="Allow clipping in output file")
+    self.add_argument("--no-tqdm",
+                      dest="tqdm",
+                      action="store_false",
+                      help="Do not display progressbar")
     self.add_argument(
         "--crop-start",
         "-s",
@@ -169,6 +181,49 @@ def crop_audio(args):
   return args
 
 
+class ScriptFitArgs(sample._training.FitArgs):  # pylint: disable=W0212
+  """Fit arguments for script"""
+
+  def __init__(self,
+               starmap=itertools.starmap,
+               progressbar: Optional[tqdm.std.tqdm] = None) -> None:
+    self._current_progress = 0
+    self._lock = threading.Lock()
+    super().__init__(starmap=starmap, progressbar=progressbar)
+
+  def progress_start(self, maximum: int, value: int = 0):
+    """Start progressbar and set the maximum"""
+    with self._lock:
+      self._current_progress = value
+      if self.progressbar is not None:
+        self.progressbar.total = maximum
+        self.progressbar.n = value
+        self.progressbar.last_print_n = value
+        self.progressbar.refresh()
+
+  def progress_stop(self):
+    """Fill progressbar and reset the maximum"""
+    v = 1 if self.progressbar is None else self.progressbar.total
+    self.progress_start(v, v)
+
+  def progress_update(self, value: Optional[float] = None):
+    """Update the progress bar"""
+    with self._lock:
+      if value is None:
+        value = self._current_progress + 1
+      self._current_progress = value
+      self._progress_update_inner(value=value)
+
+  @throttle.wrap(0.2, 1)
+  def _progress_update_inner(self, value: Optional[float] = None):
+    """Update the progress bar. This function is throttled"""
+    if self.progressbar is not None:
+      if value is not None:
+        self.progressbar.n = value
+        self.progressbar.last_print_n = value
+      self.progressbar.refresh()
+
+
 def fit_model(args, n_jobs: int = 6):
   """Fit model to audio
 
@@ -191,7 +246,12 @@ def fit_model(args, n_jobs: int = 6):
       sinusoidal__tracker__peak_threshold=-60.0,
       sinusoidal__t=-75.0,
   )
-  args.model.fit(args.x, sinusoidal__tracker__fs=args.fs, n_jobs=n_jobs)
+  kws = {
+      "_fit_args": ScriptFitArgs(progressbar=tqdm.trange(100))
+  } if args.tqdm else {}
+  args.model.fit(args.x, sinusoidal__tracker__fs=args.fs, n_jobs=n_jobs, **kws)
+  if args.tqdm:
+    kws["_fit_args"].progressbar.clear()
   logger.info("Found %d modes", args.model.freqs_.size)
   return args
 
@@ -210,11 +270,10 @@ def resynth_audio(args,
   y = args.model.predict(np.arange(args.x.size) / args.fs, n_modes=n_modes)
   y_p = np.abs(y).max()
   if np.any(np.greater(y_p, clip_th)):
-    logger.warning("Clipping detected. Peak: %.2f dB. Turning gain down",
-                   dsp.a2db(y_p))
-    # np.multiply(y, np.arctanh(clip_th) / y_p, out=y)
-    # np.arctanh(y, out=y)
-    np.multiply(y, clip_th / y_p, out=y)
+    logger.warning("Clipping detected. Peak: %.2f dB", dsp.a2db(y_p))
+    if not args.clip:
+      logger.info("Turning gain down")
+      np.multiply(y, clip_th / y_p, out=y)
   if args.output is None:
     args.output = "-output".join(os.path.splitext(args.input))
   logger.info("Writing to: %s", args.output)
