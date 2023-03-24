@@ -856,15 +856,15 @@ def decision_report(args):
     importances = pd.read_csv(importance_fname)
   # ---------------------------------------------------------------------------
 
+  rcfile = os.path.join(os.path.dirname(__file__), "figures.mplstyle")
   # --- Plot feature importance -----------------------------------------------
   logger.debug("Plotting feature importance")
-  with mpl.rc_context(
-      fname=os.path.join(os.path.dirname(__file__), "figures.mplstyle")):
-    mpl.rc("figure", figsize=(12, 6))
+  with mpl.rc_context(fname=rcfile):
     _, axs = plt.subplots(
         1,
         2,
         sharex=True,
+        figsize=(12, 6),
     )
     for t, ax in zip(targets, axs.flatten()):
       ax.set_title(t)
@@ -904,6 +904,67 @@ def decision_report(args):
       plt.savefig(fname)
     plt.clf()
   # ---------------------------------------------------------------------------
+
+  # --- Plot histograms -------------------------------------------------------
+  if args.output is None:
+    hist_dir = None
+  else:
+    hist_dir = os.path.join(os.path.dirname(args.output), "histograms")
+    logger.debug("Making directory: '%s'", hist_dir)
+    os.makedirs(hist_dir, exist_ok=True)
+  targets_d = {
+      "beat": ("Positive", lambda x: x),
+      "single": ("Negative", np.logical_not),
+  }
+  cond_props = itertools.product(targets_d, features)
+  if args.tqdm:
+    cond_props = tqdm.tqdm(cond_props,
+                           desc="Plotting histrograms",
+                           total=len(targets_d) * len(features))
+  with mpl.rc_context(fname=rcfile):
+    _, axs = plt.subplots(1, 2, sharex=True, figsize=(12, 6))
+    for t, k in cond_props:
+      for ax in axs.flatten():
+        ax.cla()
+      logger.debug("Plotting histogram of %s conditioned on %s prediction", k,
+                   t)
+      labels = sorted(df[t].unique(), reverse=True)
+      d = [df[df[t] == l][k] for l in labels]
+      tk, tkfn = targets_d[t]
+      # Histogram
+      counts, bins, _ = axs[0].hist(
+          d,
+          label=tkfn(labels),
+          zorder=100,
+      )
+      axs[0].set_title("Histogram")
+
+      # Posterior
+      posterior = counts / np.sum(counts, axis=0)
+
+      bw = np.median(np.diff(bins)) / (len(labels) + 0.5)
+      bc = (bins[:-1] + bins[1:]) / 2
+
+      for pi, (tki, p) in enumerate(zip(tkfn(labels), posterior)):
+        axs[1].bar(bc + pi * bw, p, label=tki, width=bw, zorder=100)
+      axs[1].set_title("Posterior")
+      for ax in axs.flatten():
+        ax.legend(title=tk)
+        ax.grid(axis="y")
+        ax.set_xlabel(latex_feature_names.get(k, k))
+      if hist_dir is None:
+        plt.show()
+      else:
+        fname = os.path.join(hist_dir, f"{t}_{k}.pdf")
+        if args.tqdm:
+          cond_props.set_description(fname)
+        else:
+          logger.debug(
+              "Saving histogram of %s conditioned on %s prediction: '%s'", k, t,
+              fname)
+        plt.savefig(fname)
+  # ---------------------------------------------------------------------------
+
   return args
 
 
