@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.optimize module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.plots module" href="sample.plots.html" />
+    <link rel="prev" title="sample.ipython module" href="sample.ipython.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.hinge.html">sample.hinge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.ipython.html">sample.ipython module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sample.optimize module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sample.optimize.SAMPLEOptimizer"><code class="docutils literal notranslate"><span class="pre">SAMPLEOptimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.optimize.TqdmCallback"><code class="docutils literal notranslate"><span class="pre">TqdmCallback</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.optimize.sample_kwargs_remapper"><code class="docutils literal notranslate"><span class="pre">sample_kwargs_remapper()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.psycho.html">sample.psycho module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sample.html">sample.sample module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+      <li>sample.optimize module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.optimize">
+<span id="sample-optimize-module"></span><h1>sample.optimize module<a class="headerlink" href="#module-sample.optimize" title="Permalink to this heading">¶</a></h1>
+<p>Automatic optimization of SAMPLE hyperparameters</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.optimize.SAMPLEOptimizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.optimize.</span></span><span class="sig-name descname"><span class="pre">SAMPLEOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">model:</span> <span class="pre">~sample.sample.SAMPLE</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">loss_fn:</span> <span class="pre">~typing.Callable[[~numpy.ndarray,</span> <span class="pre">~numpy.ndarray],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">multiscale_spectral_loss&gt;,</span> <span class="pre">loss_kw:</span> <span class="pre">~typing.Optional[~typing.Dict[str,</span> <span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">remap:</span> <span class="pre">~typing.Optional[~typing.Callable[[...],</span> <span class="pre">~typing.Dict[str,</span> <span class="pre">~typing.Any]]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">sample_kwargs_remapper&gt;,</span> <span class="pre">clip:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.optimize.SAMPLEOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Hyperparameter optimizer for a SAMPLE model,
+based on Gaussian Process minimization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_fn</strong> (<em>callable</em>) – Constructor for a SAMPLE model</p></li>
+<li><p><strong>sample_kw</strong> (<em>dict</em>) – Keyword arguments for <code class="xref py py-data docutils literal notranslate"><span class="pre">sample_fn</span></code>.
+These parameters will not be optimized. These parameters will
+potentially be remapped by <code class="xref py py-data docutils literal notranslate"><span class="pre">remap</span></code></p></li>
+<li><p><strong>loss_fn</strong> (<em>callable</em>) – Loss function. It should take, as two positional
+arguments, the arrays of original and resynthesised audio samples</p></li>
+<li><p><strong>loss_kw</strong> (<em>dict</em>) – Keyword arguments for the loss function</p></li>
+<li><p><strong>remap</strong> (<em>callable</em>) – Function that accepts keyword arguments and
+returns a new dictionary of keyword arguments for <code class="xref py py-data docutils literal notranslate"><span class="pre">sample_fn</span></code>.
+Default is <a class="reference internal" href="#sample.optimize.sample_kwargs_remapper" title="sample.optimize.sample_kwargs_remapper"><code class="xref py py-func docutils literal notranslate"><span class="pre">sample_kwargs_remapper()</span></code></a></p></li>
+<li><p><strong>clip</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), then clip resynthesised audio
+to the same peak of the original audio</p></li>
+<li><p><strong>**kwargs</strong> – Parameters to optimize. See <code class="xref py py-func docutils literal notranslate"><span class="pre">skopt.gp_minimize()</span></code>
+<strong>dimensions</strong> for definition options</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.optimize.SAMPLEOptimizer.gp_minimize">
+<span class="sig-name descname"><span class="pre">gp_minimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">OptimizeResult</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_warnings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_kws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sample.sample.html#sample.sample.SAMPLE" title="sample.sample.SAMPLE"><span class="pre">SAMPLE</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">OptimizeResult</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.optimize.SAMPLEOptimizer.gp_minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use <code class="xref py py-func docutils literal notranslate"><span class="pre">skopt.gp_minimize()</span></code> to tune the hyperparameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Audio samples</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample rate</p></li>
+<li><p><strong>ignore_warnings</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), then ignore warnings
+while optimizing</p></li>
+<li><p><strong>fit_kws</strong> (<em>dict</em>) – Arguments for the <code class="xref py py-func docutils literal notranslate"><span class="pre">self.model.fit()</span></code> method</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">skopt.gp_minimize()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Best model, and optimization summary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="sample.sample.html#sample.sample.SAMPLE" title="sample.sample.SAMPLE">SAMPLE</a>, OptimizeResult</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.optimize.SAMPLEOptimizer.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.optimize.SAMPLEOptimizer.loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a loss function for the target audio based on
+computing <code class="xref py py-attr docutils literal notranslate"><span class="pre">loss_fn</span></code> on the target and resynthesised audio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Audio samples</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample rate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loss function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.optimize.SAMPLEOptimizer.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sample.optimize.SAMPLEOptimizer.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default fget function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.optimize.TqdmCallback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.optimize.</span></span><span class="sig-name descname"><span class="pre">TqdmCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sample_opt:</span> <span class="pre">~sample.optimize.SAMPLEOptimizer,</span> <span class="pre">n_calls:</span> <span class="pre">int,</span> <span class="pre">n_initial_points:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">tqdm_fn:</span> <span class="pre">~typing.Callable[[...],</span> <span class="pre">~tqdm.std.tqdm]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'tqdm.std.tqdm'&gt;,</span> <span class="pre">minimum:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.optimize.TqdmCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Callback for using tqdm with <a class="reference internal" href="#sample.optimize.SAMPLEOptimizer" title="sample.optimize.SAMPLEOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SAMPLEOptimizer</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_opt</strong> (<a class="reference internal" href="#sample.optimize.SAMPLEOptimizer" title="sample.optimize.SAMPLEOptimizer"><em>SAMPLEOptimizer</em></a>) – Optimizer instance</p></li>
+<li><p><strong>n_calls</strong> (<em>int</em>) – Number of total calls</p></li>
+<li><p><strong>n_initial_points</strong> (<em>int</em>) – Number of initial (random) points</p></li>
+<li><p><strong>tqdm_fn</strong> (<em>callable</em>) – Constructor for a tqdm object</p></li>
+<li><p><strong>minimum</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), show current
+minimum in postfix</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.optimize.TqdmCallback.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sample.optimize.TqdmCallback" title="sample.optimize.TqdmCallback"><span class="pre">TqdmCallback</span></a></span></span><a class="headerlink" href="#sample.optimize.TqdmCallback.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the state of the callback, e.g. for using it again</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.optimize.TqdmCallback.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sample.optimize.TqdmCallback" title="sample.optimize.TqdmCallback"><span class="pre">TqdmCallback</span></a></span></span><a class="headerlink" href="#sample.optimize.TqdmCallback.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the callback.
+Calls to this method initialize internal objects</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.optimize.TqdmCallback.started">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">started</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#sample.optimize.TqdmCallback.started" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, the callback has already been started</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.optimize.sample_kwargs_remapper">
+<span class="sig-prename descclassname"><span class="pre">sample.optimize.</span></span><span class="sig-name descname"><span class="pre">sample_kwargs_remapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sinusoidal__log_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sinusoidal__wtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hamming'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sinusoidal__wsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sinusoidal__overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.optimize.sample_kwargs_remapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default argument remapper for <a class="reference internal" href="#sample.optimize.SAMPLEOptimizer" title="sample.optimize.SAMPLEOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SAMPLEOptimizer</span></code></a>. It remaps stft
+window paramaters and lets every other parameter pass through</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sinusoidal__log_n</strong> (<em>int</em>) – Logarithm of fft size. Will be remapped to
+<code class="xref py py-data docutils literal notranslate"><span class="pre">sinusoidal__n</span></code> if not in <code class="xref py py-data docutils literal notranslate"><span class="pre">kwargs</span></code></p></li>
+<li><p><strong>sinusoidal__wtype</strong> (<em>str</em>) – Name of the window to use. Default is
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;hamming&quot;</span></code>. It is used to compute the window
+<code class="xref py py-data docutils literal notranslate"><span class="pre">sinusoidal__w</span></code> if not in <code class="xref py py-data docutils literal notranslate"><span class="pre">kwargs</span></code></p></li>
+<li><p><strong>sinusoidal__wsize</strong> (<em>float</em>) – Window size as a fraction of fft size.
+Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">1.0</span></code>. It is used to compute the window
+<code class="xref py py-data docutils literal notranslate"><span class="pre">sinusoidal__w</span></code> if not in <code class="xref py py-data docutils literal notranslate"><span class="pre">kwargs</span></code></p></li>
+<li><p><strong>sinusoidal__overlap</strong> (<em>float</em>) – Window overlap as a fraction of the
+window size. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">0.5</span></code>. It is used to compute the hop size
+<code class="xref py py-data docutils literal notranslate"><span class="pre">sinusoidal__tracker__h</span></code> if not in <code class="xref py py-data docutils literal notranslate"><span class="pre">kwargs</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Pass-through keyword arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Remapped keyword arguments</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.plots.html" class="btn btn-neutral float-right" title="sample.plots module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.ipython.html" class="btn btn-neutral float-left" title="sample.ipython module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

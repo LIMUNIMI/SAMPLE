@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.beatsdrop.regression module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.beatsdrop.sample module" href="sample.beatsdrop.sample.html" />
+    <link rel="prev" title="sample.beatsdrop.decision module" href="sample.beatsdrop.decision.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sample.beatsdrop.html">sample.beatsdrop package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sample.beatsdrop.html#sample.beatsdrop.Beat"><code class="docutils literal notranslate"><span class="pre">Beat</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.beatsdrop.html#sample.beatsdrop.ExponentialDecay"><code class="docutils literal notranslate"><span class="pre">ExponentialDecay</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.beatsdrop.html#sample.beatsdrop.ModalBeat"><code class="docutils literal notranslate"><span class="pre">ModalBeat</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sample.beatsdrop.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sample.evaluation.html">sample.evaluation package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sms.html">sample.sms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.utils.html">sample.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+          <li><a href="sample.beatsdrop.html">sample.beatsdrop package</a> &raquo;</li>
+        
+      <li>sample.beatsdrop.regression module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.beatsdrop.regression">
+<span id="sample-beatsdrop-regression-module"></span><h1>sample.beatsdrop.regression module<a class="headerlink" href="#module-sample.beatsdrop.regression" title="Permalink to this heading">¶</a></h1>
+<p>Regression models for beats</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.beatsdrop.regression.</span></span><span class="sig-name descname"><span class="pre">BeatRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lpf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'coef_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'intercept_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><span class="pre">BeatRegression</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><span class="pre">BeatRegression</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>Regressor for fitting to a beat pattern</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fs</strong> (<em>float</em>) – Sampling frequency for autocorrelogram computation</p></li>
+<li><p><strong>lpf</strong> (<em>float</em>) – Corner frequency for LPF of spectrum in autocorrelation
+computation</p></li>
+<li><p><strong>linear_regressor</strong> (<em>sklearn.base.BaseEstimator</em>) – Linear regression model
+instance. Must be sklearn-compatible</p></li>
+<li><p><strong>linear_regressor_k</strong> (<em>str</em>) – Attribute name for the estimated slope
+coefficient of the linear regression</p></li>
+<li><p><strong>linear_regressor_q</strong> (<em>str</em>) – Attribute name for the estimated intercept
+coefficient of the linear regression</p></li>
+<li><p><strong>params_init</strong> (<em>callable</em>) – Initializer for beat model parameters.
+Signature should be
+<code class="xref py py-data docutils literal notranslate"><span class="pre">f(t,</span> <span class="pre">a,</span> <span class="pre">f,</span> <span class="pre">res_fn,</span> <span class="pre">model)</span> <span class="pre">-&gt;</span> <span class="pre">a0,</span> <span class="pre">a1,</span> <span class="pre">f0,</span> <span class="pre">f1,</span> <span class="pre">d0,</span> <span class="pre">d1,</span> <span class="pre">p0,</span> <span class="pre">p1</span></code>.
+It should return initial parameters for nonlinear least squares using
+input data <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">a</span></code>, and <code class="xref py py-data docutils literal notranslate"><span class="pre">f</span></code>, the residual function
+<code class="xref py py-data docutils literal notranslate"><span class="pre">res_fn</span></code>, and the <a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">BeatRegression</span></code></a> instance <code class="xref py py-data docutils literal notranslate"><span class="pre">model</span></code>.
+If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, use default</p></li>
+<li><p><strong>bounds</strong> (<em>callable</em>) – Callable for computing beat model coefficient
+boundaries. Signature should be
+<code class="xref py py-data docutils literal notranslate"><span class="pre">bounds(t,</span> <span class="pre">a,</span> <span class="pre">f,</span> <span class="pre">p,</span> <span class="pre">model)</span> <span class="pre">-&gt;</span> <span class="pre">(bounds_min,</span> <span class="pre">bounds_max)</span></code>.
+It should return lower and upper boundaries for all eight parameters
+using input data <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">a</span></code>, and <code class="xref py py-data docutils literal notranslate"><span class="pre">f</span></code>, initial parameter
+estimates <code class="xref py py-data docutils literal notranslate"><span class="pre">p</span></code>, and the <a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">BeatRegression</span></code></a> instance
+<code class="xref py py-data docutils literal notranslate"><span class="pre">model</span></code>. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, use default</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression.bounds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression.bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default fget function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lsmr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dogbox'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cauchy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit beat pattern</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Time. Must be a column vector (shape like (-1, 1))</p></li>
+<li><p><strong>a</strong> (<em>array</em>) – Amplitude at time <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code> (in dB)</p></li>
+<li><p><strong>f</strong> (<em>array</em>) – Frequency at time <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.least_squares()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression">BeatRegression</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression.k_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression.k_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear regression slope</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression.params_init">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params_init</span></span><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression.params_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default fget function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict beat pattern</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Time</p></li>
+<li><p><strong>args</strong> – The names of the outputs to predict. If none is specified,
+then the audio signal (<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;x&quot;</span></code>) is predicted. For a list of
+available output names, see <code class="xref py py-data docutils literal notranslate"><span class="pre">BeatRegression.beat_.variables</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>One array per output</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of arrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.BeatRegression.q_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.beatsdrop.regression.BeatRegression.q_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear regression intercept</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.DualBeatRegression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.beatsdrop.regression.</span></span><span class="sig-name descname"><span class="pre">DualBeatRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lpf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'coef_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'intercept_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><span class="pre">BeatRegression</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><span class="pre">BeatRegression</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amp_loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0002631578947368421</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_clip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disambiguate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.beatsdrop.regression.DualBeatRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sample.beatsdrop.regression.BeatRegression" title="sample.beatsdrop.regression.BeatRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">BeatRegression</span></code></a></p>
+<p>Regressor for fitting to a beat pattern, using information
+from both the amplitude modulation and the frequency modulation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fs</strong> (<em>float</em>) – Sampling frequency for autocorrelogram computation</p></li>
+<li><p><strong>lpf</strong> (<em>float</em>) – Corner frequency for LPF of spectrum in autocorrelation
+computation</p></li>
+<li><p><strong>linear_regressor</strong> (<em>sklearn.base.BaseEstimator</em>) – Linear regression model
+instance. Must be sklearn-compatible</p></li>
+<li><p><strong>linear_regressor_k</strong> (<em>str</em>) – Attribute name for the estimated slope
+coefficient of the linear regression</p></li>
+<li><p><strong>linear_regressor_q</strong> (<em>str</em>) – Attribute name for the estimated intercept
+coefficient of the linear regression</p></li>
+<li><p><strong>params_init</strong> (<em>callable</em>) – Initializer for beat model parameters.
+Signature should be
+<code class="xref py py-data docutils literal notranslate"><span class="pre">f(t,</span> <span class="pre">a,</span> <span class="pre">f,</span> <span class="pre">res_fn,</span> <span class="pre">model)</span> <span class="pre">-&gt;</span> <span class="pre">a0,</span> <span class="pre">a1,</span> <span class="pre">f0,</span> <span class="pre">f1,</span> <span class="pre">d0,</span> <span class="pre">d1,</span> <span class="pre">p0,</span> <span class="pre">p1</span></code>.
+It should return initial parameters for nonlinear least squares using
+input data <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">a</span></code>, and <code class="xref py py-data docutils literal notranslate"><span class="pre">f</span></code>, the residual function
+<code class="xref py py-data docutils literal notranslate"><span class="pre">res_fn</span></code>, and the <a class="reference internal" href="#sample.beatsdrop.regression.DualBeatRegression" title="sample.beatsdrop.regression.DualBeatRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">DualBeatRegression</span></code></a> instance
+<code class="xref py py-data docutils literal notranslate"><span class="pre">model</span></code>. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, use default</p></li>
+<li><p><strong>bounds</strong> (<em>callable</em>) – Callable for computing beat model coefficient
+boundaries. Signature should be
+<code class="xref py py-data docutils literal notranslate"><span class="pre">bounds(t,</span> <span class="pre">a,</span> <span class="pre">f,</span> <span class="pre">p,</span> <span class="pre">model)</span> <span class="pre">-&gt;</span> <span class="pre">(bounds_min,</span> <span class="pre">bounds_max)</span></code>.
+It should return lower and upper boundaries for all eight parameters
+using input data <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">a</span></code>, and <code class="xref py py-data docutils literal notranslate"><span class="pre">f</span></code>, initial parameter
+estimates <code class="xref py py-data docutils literal notranslate"><span class="pre">p</span></code>, and the <a class="reference internal" href="#sample.beatsdrop.regression.DualBeatRegression" title="sample.beatsdrop.regression.DualBeatRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">DualBeatRegression</span></code></a> instance
+<code class="xref py py-data docutils literal notranslate"><span class="pre">model</span></code>. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, use default</p></li>
+<li><p><strong>freq_loss</strong> (<em>callable</em>) – Loss function for frequencies. Signature should be
+<code class="xref py py-data docutils literal notranslate"><span class="pre">freq_loss(f_true,</span> <span class="pre">f_est)</span> <span class="pre">-&gt;</span> <span class="pre">f_loss</span></code>. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, use default</p></li>
+<li><p><strong>amp_loss</strong> (<em>callable</em>) – Loss function for amplitudes. Signature should be
+<code class="xref py py-data docutils literal notranslate"><span class="pre">amp_loss(a_true,</span> <span class="pre">a_est)</span> <span class="pre">-&gt;</span> <span class="pre">a_loss</span></code>. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, use default</p></li>
+<li><p><strong>freq_w</strong> (<em>float</em>) – Weighting coefficient for the frequency loss function</p></li>
+<li><p><strong>freq_clip</strong> (<em>float</em>) – Maximum estimatable frequency deviation (as a multiple
+of the iterquartile range)</p></li>
+<li><p><strong>disambiguate</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), then disambiguate
+association between frequencies and amplitudes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.DualBeatRegression.amp_loss">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">amp_loss</span></span><a class="headerlink" href="#sample.beatsdrop.regression.DualBeatRegression.amp_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default fget function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.DualBeatRegression.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.beatsdrop.regression.DualBeatRegression.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit beat pattern</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Time. Must be a column vector (shape like (-1, 1))</p></li>
+<li><p><strong>a</strong> (<em>array</em>) – Amplitude at time <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code> (in dB)</p></li>
+<li><p><strong>f</strong> (<em>array</em>) – Frequency at time <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.least_squares()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sample.beatsdrop.regression.DualBeatRegression" title="sample.beatsdrop.regression.DualBeatRegression">DualBeatRegression</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.DualBeatRegression.freq_loss">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">freq_loss</span></span><a class="headerlink" href="#sample.beatsdrop.regression.DualBeatRegression.freq_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default fget function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.beatsdrop.regression.sort_params">
+<span class="sig-prename descclassname"><span class="pre">sample.beatsdrop.regression.</span></span><span class="sig-name descname"><span class="pre">sort_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">p:</span> <span class="pre">~typing.Tuple[float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float],</span> <span class="pre">key:</span> <span class="pre">~typing.Callable[[~typing.Tuple[float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float]],</span> <span class="pre">~typing.Tuple[float,</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">_param_energies&gt;,</span> <span class="pre">descending:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.beatsdrop.regression.sort_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort beat model parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>tuple</em>) – Beat model parameters</p></li>
+<li><p><strong>key</strong> (<em>callable</em>) – Function with respect to which to sort.
+Defaults to modal energy</p></li>
+<li><p><strong>descending</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, then sort in descending order</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sorted beat model parameters (maintaining association)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.beatsdrop.sample.html" class="btn btn-neutral float-right" title="sample.beatsdrop.sample module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.beatsdrop.decision.html" class="btn btn-neutral float-left" title="sample.beatsdrop.decision module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.utils package &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.utils.dsp module" href="sample.utils.dsp.html" />
+    <link rel="prev" title="sample.sms.sm module" href="sample.sms.sm.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.beatsdrop.html">sample.beatsdrop package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.evaluation.html">sample.evaluation package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sms.html">sample.sms package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sample.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.NamedCallable"><code class="docutils literal notranslate"><span class="pre">NamedCallable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.NamedObject"><code class="docutils literal notranslate"><span class="pre">NamedObject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.NamedObjectMeta"><code class="docutils literal notranslate"><span class="pre">NamedObjectMeta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.Numpy2Paragraph"><code class="docutils literal notranslate"><span class="pre">Numpy2Paragraph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.SAMPLEDeprecationWarning"><code class="docutils literal notranslate"><span class="pre">SAMPLEDeprecationWarning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.add_keyword_arg"><code class="docutils literal notranslate"><span class="pre">add_keyword_arg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.comma_join_quote"><code class="docutils literal notranslate"><span class="pre">comma_join_quote()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.default_kws"><code class="docutils literal notranslate"><span class="pre">default_kws()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.deprecated_argument"><code class="docutils literal notranslate"><span class="pre">deprecated_argument()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.function_variant"><code class="docutils literal notranslate"><span class="pre">function_variant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.function_with_variants"><code class="docutils literal notranslate"><span class="pre">function_with_variants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.numpy_id"><code class="docutils literal notranslate"><span class="pre">numpy_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.numpy_out"><code class="docutils literal notranslate"><span class="pre">numpy_out()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.utils.warnings_simplefilter"><code class="docutils literal notranslate"><span class="pre">warnings_simplefilter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+      <li>sample.utils package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.utils">
+<span id="sample-utils-package"></span><h1>sample.utils package<a class="headerlink" href="#module-sample.utils" title="Permalink to this heading">¶</a></h1>
+<p>Utility functions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.utils.NamedCallable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">NamedCallable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.NamedCallable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sample.utils.NamedObject" title="sample.utils.NamedObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">NamedObject</span></code></a></p>
+<p>Wrap a callable and give it a name</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.utils.NamedObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">NamedObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.NamedObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrap an object and give it a name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<em>Any</em>) – Object to wrap</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name for object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.utils.NamedObjectMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">NamedObjectMeta</span></span><a class="headerlink" href="#sample.utils.NamedObjectMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
+<p>Metaclass for named objects</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.utils.Numpy2Paragraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">Numpy2Paragraph</span></span><a class="headerlink" href="#sample.utils.Numpy2Paragraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for converting numpy functions to paragraph operators</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sample.utils.Numpy2Paragraph.semidiff">
+<span class="sig-name descname"><span class="pre">semidiff</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">semidiff</span></em><a class="headerlink" href="#sample.utils.Numpy2Paragraph.semidiff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sample.utils.Numpy2Paragraph.semisum">
+<span class="sig-name descname"><span class="pre">semisum</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">semisum</span></em><a class="headerlink" href="#sample.utils.Numpy2Paragraph.semisum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="sample.utils.SAMPLEDeprecationWarning">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">SAMPLEDeprecationWarning</span></span><a class="headerlink" href="#sample.utils.SAMPLEDeprecationWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> for the SAMPLE package</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.add_keyword_arg">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">add_keyword_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.add_keyword_arg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a keyword argument to a function signature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – Function to affect. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then return a
+decorator for decorating a function</p></li>
+<li><p><strong>sig_func</strong> (<em>callable</em>) – Function from which to get the signature.
+If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then use the signature of the decorated function</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Parameter name</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments for <code class="xref py py-class docutils literal notranslate"><span class="pre">inspect.Parameter</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorated function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.comma_join_quote">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">comma_join_quote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sample.utils.comma_join_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join strings with a comma and surround each element with quotes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>it</strong> (<em>iterable</em>) – Iterable of elements to join</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Joined string</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.default_kws">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">default_kws</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.utils.default_kws" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for setting default keyword arguments in a dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>dict</em>) – Non-default arguments</p></li>
+<li><p><strong>**kwargs</strong> – Default arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A copy of the input arguments, with default arguments set</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sample.utils</span> <span class="kn">import</span> <span class="n">default_kws</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Let&#39;s define a function with two arguments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;A: </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2"> - B: </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># bar will forward foo_kws to foo, using a=1 as default value for a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="n">foo_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start</span><span class="si">}{</span><span class="n">foo</span><span class="p">(</span><span class="o">**</span><span class="n">default_kws</span><span class="p">(</span><span class="n">foo_kws</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="si">}{</span><span class="n">end</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar</span><span class="p">()</span>
+<span class="go">&#39;[A: 1 - B: 1]&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Default values may be overwritten in the function call</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar</span><span class="p">(</span><span class="n">foo_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="go">&#39;[A: 0 - B: 1]&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># And/or non-default values, too</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar</span><span class="p">(</span><span class="n">foo_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="go">&#39;[A: 0 - B: 0]&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.deprecated_argument">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">deprecated_argument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.deprecated_argument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap a function to deprecate an argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_key</strong> (<em>str</em>) – Deprecated argument key</p></li>
+<li><p><strong>new_key</strong> (<em>str</em>) – New argument key. Specify this if the
+only action to take is to change the argument name</p></li>
+<li><p><strong>convert</strong> (<em>callable</em>) – Function for converting the provided argument to a new
+argument key and value. Specify this for more complex scenarios</p></li>
+<li><p><strong>msg</strong> (<em>str</em>) – Extra indications to append to the deprecation warning</p></li>
+<li><p><strong>prefix</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, then interpret <code class="xref py py-data docutils literal notranslate"><span class="pre">old_key</span></code> and
+<code class="xref py py-data docutils literal notranslate"><span class="pre">new_key</span></code>, not as full names, but as prefixes to be matched.
+This option can only be used when <code class="xref py py-data docutils literal notranslate"><span class="pre">new_key</span></code> is specified</p></li>
+<li><p><strong>warn</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), then issue a deprecation warning
+when the deprecated argument is used</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sample.utils</span> <span class="kn">import</span> <span class="n">deprecated_argument</span><span class="p">,</span> <span class="n">warnings_simplefilter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># First of all, let&#39;s use a filter to catch and print warnings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">warns</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filt</span> <span class="o">=</span> <span class="n">warnings_simplefilter</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                             <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+<span class="gp">... </span>                             <span class="n">catch_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="gp">... </span>                             <span class="n">traces</span><span class="o">=</span><span class="n">warns</span><span class="p">,</span>
+<span class="gp">... </span>                             <span class="n">toggle</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;ignore_warnings&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Let&#39;s say that this function used to have a argument &#39;n&#39;,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># which was too generic and we decided to change the name to &#39;size&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@filt</span>
+<span class="gp">... </span><span class="nd">@deprecated_argument</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Positional arguments do not trigger warnings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">&#39;xxxxx&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The &#39;size&#39; argument does not trigger warnings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&#39;xxxxx&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The &#39;n&#39; argument triggers a warning</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&#39;xxxxx&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="go">The &#39;n&#39; argument is deprecated, use &#39;size&#39; instead.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Let&#39;s say that now we want to use an argument that specifies</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the total length of the output string</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># A message explains the difference in behaviour</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@filt</span>
+<span class="gp">... </span><span class="nd">@deprecated_argument</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="nd">@deprecated_argument</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;size&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">convert</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">size</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;The new &#39;length&#39; argument specifies the desired total length &quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;of the string and NOT the number of repetitions&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[:</span><span class="n">length</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># This example gives the same output as with the old function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&#39;xxxxx&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># But this shows the new behaviour</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;_-&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&#39;_-_-_&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The keyword &#39;size&#39; issues a warning but preserves the old behaviour</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;_-&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&#39;_-_-_-_-_-&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="go">The &#39;size&#39; argument is deprecated, use &#39;length&#39; instead. The new &#39;length&#39; argument specifies the desired total length of the string and NOT the number of repetitions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># To deprecate an argument, we have to specify either a new key</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># or a conversion function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nd">@deprecated_argument</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="nf">bad</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">m</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">At least one between &#39;new_key&#39; and &#39;convert&#39; should not be None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># We can deprecate all arguments starting with the same prefix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@filt</span>
+<span class="gp">... </span><span class="nd">@deprecated_argument</span><span class="p">(</span><span class="s2">&quot;array_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">full</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">[3, 3, 3, 3, 3]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The deprecated argument &#39;array_size&#39; will be mapped to &#39;size&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and &#39;array_value&#39; to &#39;value&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">full</span><span class="p">(</span><span class="n">array_value</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">array_size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">[3, 3, 3, 3, 3]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="go">The &#39;array_value&#39; argument is deprecated, use &#39;value&#39; instead.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">warns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="go">The &#39;array_size&#39; argument is deprecated, use &#39;size&#39; instead.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Using a prefix requires the &#39;new_key&#39; argument</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nd">@deprecated_argument</span><span class="p">(</span><span class="s2">&quot;array_&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="nf">bad_full</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">prefix=True should be used in conjuction with &#39;new_key&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.function_variant">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">function_variant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">this</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.function_variant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register this function as a variant of a function with
+variants (see <a class="reference internal" href="#sample.utils.function_with_variants" title="sample.utils.function_with_variants"><code class="xref py py-func docutils literal notranslate"><span class="pre">function_with_variants()</span></code></a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>main_func</strong> (<em>callable</em>) – Function with variants</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Keyword argument value for choosing this function variant.</p></li>
+<li><p><strong>this</strong> (<em>callable</em>) – Function to register. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then return a
+decorator for decorating a function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorated function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.function_with_variants">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">function_with_variants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'type'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">this</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.function_with_variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declare that a function has variants</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – Function to affect. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then return a
+decorator for decorating a function</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Keyword argument name for choosing the function variant.
+Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;type&quot;</span></code></p></li>
+<li><p><strong>default</strong> (<em>str</em>) – Default keyword argument value for choosing the function
+variant. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code></p></li>
+<li><p><strong>this</strong> (<em>str</em>) – Keyword argument value for choosing the decorated function as
+the variant. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), then the decorated function is
+never</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorated function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.numpy_id">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">numpy_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sample.utils.numpy_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ID of the memory location of a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>a</strong> (<em>ndarray</em>) – Numpy array to inspect</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The memory location ID</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.numpy_out">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">numpy_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'out'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dtype'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype_promote</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.numpy_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically handle the preprocesing of the <code class="xref py py-data docutils literal notranslate"><span class="pre">out</span></code> argument for
+a numpy-like function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – Numpy-like function</p></li>
+<li><p><strong>method</strong> (<em>bool</em>) – Set this to <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> when wrapping a method</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Argument name</p></li>
+<li><p><strong>dtype_key</strong> (<em>str</em>) – Argument name for dtype. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;dtype&quot;</span></code></p></li>
+<li><p><strong>dtype</strong> (<em>dtype</em>) – Default dtype of output</p></li>
+<li><p><strong>dtype_promote</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), then promote
+the output dtype, otherwise enforce default, unless specified by the
+user of the decorated function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorated function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.warnings_simplefilter">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">warnings_simplefilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catch_kws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toggle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">F</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">F</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.utils.warnings_simplefilter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.</span></span><span class="sig-name descname"><span class="pre">warnings_simplefilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">F</span></span></span></dt>
+<dd><p>Decorator for filtering warnings. For usage examples,
+see <a class="reference internal" href="#sample.utils.deprecated_argument" title="sample.utils.deprecated_argument"><code class="xref py py-func docutils literal notranslate"><span class="pre">deprecated_argument()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – Function to decorate. If unspecified, a partial
+<a class="reference internal" href="#sample.utils.warnings_simplefilter" title="sample.utils.warnings_simplefilter"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings_simplefilter()</span></code></a> will be returned</p></li>
+<li><p><strong>catch_kws</strong> (<em>dict</em>) – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.catch_warnings()</span></code></p></li>
+<li><p><strong>traces</strong> (<em>list</em>) – If specified, lists yielded by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.catch_warnings()</span></code> will be appended to this list</p></li>
+<li><p><strong>toggle</strong> (<em>str</em><em>, </em><em>bool</em>) – Key and default value for a function argument that
+controls warning filtering (when <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, warnings are filtered)</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.simplefilter()</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sample.utils.dsp.html">sample.utils.dsp module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sample.utils.learn.html">sample.utils.learn module</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.utils.dsp.html" class="btn btn-neutral float-right" title="sample.utils.dsp module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.sms.sm.html" class="btn btn-neutral float-left" title="sample.sms.sm module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

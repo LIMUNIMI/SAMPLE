@@ -1,0 +1,7 @@
+sample.plots module
+===================
+
+.. automodule:: sample.plots
+   :members:
+   :undoc-members:
+   :show-inheritance:

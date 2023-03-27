@@ -1,0 +1,879 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.psycho module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.sample module" href="sample.sample.html" />
+    <link rel="prev" title="sample.plots module" href="sample.plots.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.hinge.html">sample.hinge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.ipython.html">sample.ipython module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.optimize.html">sample.optimize module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sample.psycho module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.GammatoneFilter"><code class="docutils literal notranslate"><span class="pre">GammatoneFilter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.GammatoneFilterbank"><code class="docutils literal notranslate"><span class="pre">GammatoneFilterbank</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.a_weighting"><code class="docutils literal notranslate"><span class="pre">a_weighting()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.bark2hz"><code class="docutils literal notranslate"><span class="pre">bark2hz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.cams2hz"><code class="docutils literal notranslate"><span class="pre">cams2hz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.cochleagram"><code class="docutils literal notranslate"><span class="pre">cochleagram()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.erb"><code class="docutils literal notranslate"><span class="pre">erb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.hwr"><code class="docutils literal notranslate"><span class="pre">hwr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.hz2bark"><code class="docutils literal notranslate"><span class="pre">hz2bark()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.hz2cams"><code class="docutils literal notranslate"><span class="pre">hz2cams()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.hz2mel"><code class="docutils literal notranslate"><span class="pre">hz2mel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.mel2hz"><code class="docutils literal notranslate"><span class="pre">mel2hz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.mel_spectrogram"><code class="docutils literal notranslate"><span class="pre">mel_spectrogram()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.mel_triangular_filterbank"><code class="docutils literal notranslate"><span class="pre">mel_triangular_filterbank()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.psycho.stft2mel"><code class="docutils literal notranslate"><span class="pre">stft2mel()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sample.html">sample.sample module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+      <li>sample.psycho module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.psycho">
+<span id="sample-psycho-module"></span><h1>sample.psycho module<a class="headerlink" href="#module-sample.psycho" title="Permalink to this heading">¶</a></h1>
+<p>Classes and functions related to psychoacoustic models</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">GammatoneFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><span class="pre">GammatoneFilter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><span class="pre">GammatoneFilter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><span class="pre">GammatoneFilter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><span class="pre">GammatoneFilter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.GammatoneFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Gammatone filter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>float</em>) – Center frequency. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>n</strong> (<em>int</em>) – Filter order. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">4</span></code></p></li>
+<li><p><strong>bandwidth</strong> (<em>callable</em><em> or </em><em>float</em>) – Filter bandwidth in Hz. If callable, it
+must accept a single argument of type <a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilter</span></code></a>. If
+<code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), then the ERB (<a class="reference internal" href="#sample.psycho.erb" title="sample.psycho.erb"><code class="xref py py-func docutils literal notranslate"><span class="pre">erb()</span></code></a>) is used</p></li>
+<li><p><strong>t_c</strong> (<em>callable</em><em> or </em><em>float</em>) – Leading time in seconds. If callable, it
+must accept a single argument of type <a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilter</span></code></a>. If
+<code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), then use the group-delay (non-causal filter)</p></li>
+<li><p><strong>phi</strong> (<em>callable</em><em> or </em><em>float</em>) – Phase in radians at time t=0. If callable, it
+must accept a single argument of type <a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilter</span></code></a>. If
+<code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), then use a phase value coherent with the
+leading time</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, then
+normalize the IR so that <span class="math notranslate nohighlight">\(|k(t)|^2 = f_s\)</span></p></li>
+<li><p><strong>a</strong> (<em>callable</em><em> or </em><em>float</em>) – Scale parameter. If callable, it
+must accept a single argument of type <a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilter</span></code></a>. If
+<code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), then do not rescale IR</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.a">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">a</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.psycho.GammatoneFilter.a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale parameter</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.bandwidth">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bandwidth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.psycho.GammatoneFilter.bandwidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter bandwidth in Hz</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.envelope">
+<span class="sig-name descname"><span class="pre">envelope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.psycho.GammatoneFilter.envelope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Envelope function for the IR</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Time axis</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">_envelope()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The IR envelope function evaluated at <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.group_delay">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_delay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.psycho.GammatoneFilter.group_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group delay of the gammatone_filter in seconds
+(accounting for the leading time)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.ir">
+<span class="sig-name descname"><span class="pre">ir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.psycho.GammatoneFilter.ir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter IR (scaled)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Time axis</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>analytic</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, use a complex exponential as
+oscillator, instead of a cosine</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.psycho.GammatoneFilter.ir_size" title="sample.psycho.GammatoneFilter.ir_size"><code class="xref py py-func docutils literal notranslate"><span class="pre">ir_size()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The wave function evaluated at <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.ir_size">
+<span class="sig-name descname"><span class="pre">ir_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sample.psycho.GammatoneFilter.ir_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggested IR size in samples, based on the t60</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.psycho.GammatoneFilter.t60" title="sample.psycho.GammatoneFilter.t60"><code class="xref py py-func docutils literal notranslate"><span class="pre">t60()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Suggested IR size</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.phi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.psycho.GammatoneFilter.phi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial phase in radians</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.raw_group_delay">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">raw_group_delay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.psycho.GammatoneFilter.raw_group_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raw group delay of the gammatone_filter in seconds
+(without accounting for the leading time)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.t60">
+<span class="sig-name descname"><span class="pre">t60</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_th</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.psycho.GammatoneFilter.t60" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numerically compute the t60 for the IR envelope, i.e. the time instant
+at which the IR envelope goes 60 dB below the envelope peak</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>steps</strong> (<em>int</em>) – Dichotomic search steps for t60 computation</p></li>
+<li><p><strong>n_starts</strong> (<em>int</em>) – Number of restarts for determining the initial search
+range before raising an exception</p></li>
+<li><p><strong>initial_range</strong> (<em>float</em>) – Width of the initial search range. In case the
+t60 is not in the range, the width is doubled <code class="xref py py-data docutils literal notranslate"><span class="pre">n_starts</span></code> times</p></li>
+<li><p><strong>floor</strong> (<em>float</em>) – Threshold for the t60 in decibel. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">-60</span></code></p></li>
+<li><p><strong>warn_th</strong> (<em>float</em>) – If not <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then raise an exception if the
+amplitude at the found t60 value is not within <code class="xref py py-data docutils literal notranslate"><span class="pre">warn_th</span></code> dB from
+the target value (<code class="xref py py-data docutils literal notranslate"><span class="pre">floor</span></code>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The t60 value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.t_c">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.psycho.GammatoneFilter.t_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Leading time in seconds</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilter.wavefun">
+<span class="sig-name descname"><span class="pre">wavefun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.psycho.GammatoneFilter.wavefun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter wave function for the IR (non-scaled)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Time axis</p></li>
+<li><p><strong>analytic</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, use a complex exponential as
+oscillator, instead of a cosine</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The wave function evaluated at <code class="xref py py-data docutils literal notranslate"><span class="pre">t</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilterbank">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">GammatoneFilterbank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">filters:</span> <span class="pre">~typing.Optional[~typing.Iterable[~sample.psycho.GammatoneFilter]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">freqs:</span> <span class="pre">~typing.Optional[~typing.Sequence[float]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">n_filters:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">flim:</span> <span class="pre">~typing.Tuple[float,</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">(20,</span> <span class="pre">20000),</span> <span class="pre">freq_transform:</span> <span class="pre">~typing.Tuple[~typing.Callable[[float],</span> <span class="pre">float],</span> <span class="pre">~typing.Callable[[float],</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">(&lt;function</span> <span class="pre">hz2cams&gt;,</span> <span class="pre">&lt;function</span> <span class="pre">cams2hz&gt;),</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.GammatoneFilterbank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Bank of gammatone filters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filters</strong> (<em>iterable</em><em> of </em><a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><em>GammatoneFilter</em></a>) – Filters that make up the bank.
+If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), then build filters using other arguments</p></li>
+<li><p><strong>freqs</strong> – The center frequencies of the gammatone filters. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>
+(default), then decide frequencies using other arguments</p></li>
+<li><p><strong>n_filters</strong> (<em>int</em>) – Number of gammatone filters. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>
+(default), then decide number of filters using other arguments</p></li>
+<li><p><strong>flim</strong> (<em>float</em><em>, </em><em>float</em>) – Limits for the frequency response of the
+gammatone filters</p></li>
+<li><p><strong>freq_transform</strong> – Couple of callables that implement transformations
+from and to Hertz, respectively. The center frequencies of the
+gammatone filters will be chosen linearly between <code class="xref py py-data docutils literal notranslate"><span class="pre">flim[0]</span></code>
+and <code class="xref py py-data docutils literal notranslate"><span class="pre">flim[1]</span></code> in the transformed space. Default is
+<a class="reference internal" href="#sample.psycho.hz2cams" title="sample.psycho.hz2cams"><code class="xref py py-func docutils literal notranslate"><span class="pre">hz2cams()</span></code></a>, <a class="reference internal" href="#sample.psycho.cams2hz" title="sample.psycho.cams2hz"><code class="xref py py-func docutils literal notranslate"><span class="pre">cams2hz()</span></code></a> for linear spacing on the ERB-rate scale</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.psycho.GammatoneFilter" title="sample.psycho.GammatoneFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilter</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilterbank.PrecomputedIRBank">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrecomputedIRBank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><span class="pre">GammatoneFilterbank</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.GammatoneFilterbank.PrecomputedIRBank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Precomputed IR bank for a <a class="reference internal" href="#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilterbank</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent</strong> (<a class="reference internal" href="#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><em>GammatoneFilterbank</em></a>) – Gammatone filterbank to render</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>analytic</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, then the IRs are complex-valued.
+Convolving the complex IRs is faster than convolving
+the real IRs and then computing the analytic signal of the
+cochleagram. The resulting cochleagram will be complex. The real
+part will be the ordinary cochleagram. The absolute value will be
+the AM envelope of the cochleagram</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilterbank.PrecomputedIRBank.convolve">
+<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.GammatoneFilterbank.PrecomputedIRBank.convolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convolve the IRs and organize the outputs in an aligned matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Input signal</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Convolution method (either <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;direct&quot;</span></code>, or <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;overlap-add&quot;</span></code>)</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Time-step for output signal.
+Can’t be used in conjunction with <code class="xref py py-data docutils literal notranslate"><span class="pre">method</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cochleagram, will be complex if the IRs are analytic</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilterbank.convolve">
+<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.GammatoneFilterbank.convolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the input with the filterbank and produce a cochleagram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Input signal</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>analytic</strong> (<em>str</em>) – <p>Compute the analytic signal of the cochleagram:</p>
+<ul>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;input&quot;</span></code>, then compute the analytic signal
+of the input (fast, accurate in the middle, bad boundary conditions)</p></li>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;ir&quot;</span></code> (suggested), then compute the analytic signal
+of the IRs (fast, tends to underestimate amplitude,
+good boundary conditions)</p></li>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code>, then compute the analytic signal
+of the output (slowest, most accurate)</p></li>
+</ul>
+</p></li>
+<li><p><strong>postprocess</strong> (<em>callable</em>) – If not <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then apply this function
+to the cochleagram matrix. Default is <a class="reference internal" href="#sample.psycho.hwr" title="sample.psycho.hwr"><code class="xref py py-func docutils literal notranslate"><span class="pre">hwr()</span></code></a>, if the cochleagram
+is real, otherwise it is <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Convolution method (either <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;direct&quot;</span></code>, or <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;overlap-add&quot;</span></code>)</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Time-step for output signal.
+Can’t be used in conjunction with <code class="xref py py-data docutils literal notranslate"><span class="pre">mehtod</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cochleagram</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.psycho.GammatoneFilterbank.precompute">
+<span class="sig-name descname"><span class="pre">precompute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sample.psycho.GammatoneFilterbank.PrecomputedIRBank" title="sample.psycho.GammatoneFilterbank.PrecomputedIRBank"><span class="pre">PrecomputedIRBank</span></a></span></span><a class="headerlink" href="#sample.psycho.GammatoneFilterbank.precompute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute IRs for this filterbank</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>analytic</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, compute a complex IR bank</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Precomputed IR bank</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sample.psycho.GammatoneFilterbank.PrecomputedIRBank" title="sample.psycho.GammatoneFilterbank.PrecomputedIRBank">PrecomputedIRBank</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.a_weighting">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">a_weighting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.psycho.a_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>A-Weighting weights for input frequencies, as of “Electroacoustics - Sound
+level meters - Part 1: Specifications” (2013)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>array</em>) – Frequency values in Hertz</p></li>
+<li><p><strong>db</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> (default), return the gain to apply in dB
+with reference at 1kHz (<code class="xref py py-data docutils literal notranslate"><span class="pre">a_weighting(1000)</span> <span class="pre">=</span> <span class="pre">0</span></code>)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A-weights</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.bark2hz">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">bark2hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'traunmuller'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.bark2hz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Bark to Hertz</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – Frequency value(s) in Bark</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Name of the Bark definition (traunmuller, or wang)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency value(s) in Hertz</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.cams2hz">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">cams2hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quadratic'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.psycho.cams2hz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic definition of ERB-rate-scale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>array</em>) – Frequency value(s) in Cams</p></li>
+<li><p><strong>degree</strong> (<em>str</em>) – Name of the ERB definition (linear, quadratic)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency value(s) in Hz</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.cochleagram">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">cochleagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filterbank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><span class="pre">GammatoneFilterbank</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sample.psycho.GammatoneFilterbank.PrecomputedIRBank" title="sample.psycho.GammatoneFilterbank.PrecomputedIRBank"><span class="pre">PrecomputedIRBank</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.cochleagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the cochleagram for the signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Array of audio samples</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sampling frequency</p></li>
+<li><p><strong>filterbank</strong> (<a class="reference internal" href="#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><em>GammatoneFilterbank</em></a>) – Filterbank object, or precomputed IRs.
+If unspecified, it will be specified using <code class="xref py py-data docutils literal notranslate"><span class="pre">**kwargs</span></code></p></li>
+<li><p><strong>postprocessing</strong> (<em>callable</em>) – If not <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then apply this function
+to the cochleagram matrix. Default is <a class="reference internal" href="#sample.psycho.hwr" title="sample.psycho.hwr"><code class="xref py py-func docutils literal notranslate"><span class="pre">hwr()</span></code></a>, if the cochleagram
+is real, otherwise it is <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>analytic</strong> (<em>str</em>) – <p>Compute the analytic signal of the cochleagram:</p>
+<ul>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;input&quot;</span></code>, then compute the analytic signal
+of the input (fast, accurate in the middle, bad boundary conditions)</p></li>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;ir&quot;</span></code> (suggested), then compute the analytic signal
+of the IRs (fast, tends to underestimate amplitude,
+good boundary conditions)</p></li>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code>, then compute the analytic signal
+of the output (slowest, most accurate)</p></li>
+</ul>
+</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Convolution method (either <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;direct&quot;</span></code>, or <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;overlap-add&quot;</span></code>)</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Time-step for output signal.
+Can’t be used in conjunction with <code class="xref py py-data docutils literal notranslate"><span class="pre">method</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammatoneFilterbank</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cochleagram matrix (filter x time) and the array of center
+frequencies</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matrix, array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.erb">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">erb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quadratic'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.psycho.erb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Definition of equivalent rectangular bandwidth by Moore and
+Glasberg, “Suggested formulae for calculating auditory-filter
+bandwidths and excitation patterns”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>array</em>) – Frequency value(s) in Hertz</p></li>
+<li><p><strong>degree</strong> (<em>str</em>) – Name of the ERB definition (linear, quadratic)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Equivalent recrangular bandwidths at the given frequencies</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.hwr">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">hwr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.hwr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Half-wave rectification</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array</em>) – Input signal</p></li>
+<li><p><strong>th</strong> (<em>float</em>) – Threshold. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Half-wave rectified copy of input signal</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.hz2bark">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">hz2bark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'traunmuller'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.hz2bark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Hertz to Bark</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – Frequency value(s) in Hertz</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Name of the Bark definition (zwicker, traunmuller, or wang)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency value(s) in Bark</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.hz2cams">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">hz2cams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quadratic'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.psycho.hz2cams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadratic definition of ERB-rate-scale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>array</em>) – Frequency value(s) in Hertz</p></li>
+<li><p><strong>degree</strong> (<em>str</em>) – Name of the ERB definition (linear, quadratic)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency value(s) in Cams</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.hz2mel">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">hz2mel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.hz2mel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Hertz to Mel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – Frequency value(s) in Hertz</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Name of the Mel definition (default, fant)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency value(s) in Mel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.mel2hz">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">mel2hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.mel2hz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Mel to Hertz</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> – Frequency value(s) in Mel</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Name of the Mel definition (default, fant)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency value(s) in Hertz</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.mel_spectrogram">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">mel_spectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stft_kws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.mel_spectrogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mel-spectrogram from a STFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Array of audio samples</p></li>
+<li><p><strong>stft_kws</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.stft()</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.psycho.stft2mel" title="sample.psycho.stft2mel"><code class="xref py py-func docutils literal notranslate"><span class="pre">stft2mel()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The array of center frequencies, the array of
+time-steps, and the Mel-spectrogram matrix (filter x time)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array, array, matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.mel_triangular_filterbank">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">mel_triangular_filterbank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">freqs:</span> <span class="pre">~typing.Sequence[float],</span> <span class="pre">n_filters:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">bandwidth:</span> <span class="pre">~typing.Optional[~typing.Callable[[float],</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">flim:</span> <span class="pre">~typing.Optional[~typing.Sequence[float]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">freq_transform:</span> <span class="pre">~typing.Tuple[~typing.Callable[[float],</span> <span class="pre">float],</span> <span class="pre">~typing.Callable[[float],</span> <span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">(&lt;function</span> <span class="pre">hz2mel&gt;,</span> <span class="pre">&lt;function</span> <span class="pre">mel2hz&gt;)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.mel_triangular_filterbank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a frequency-domain triangular filterbank. Specify at least one of
+<code class="xref py py-data docutils literal notranslate"><span class="pre">n_filters</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">bandwidth</span></code>, or <code class="xref py py-data docutils literal notranslate"><span class="pre">flim</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<em>array</em>) – Frequency axis for frequency-domain filters</p></li>
+<li><p><strong>n_filters</strong> (<em>int</em>) – Number of filters. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code> (default), infer from
+other arguments</p></li>
+<li><p><strong>bandwidth</strong> (<em>callable</em>) – Bandwidth function that maps a center frequency to
+the -3 dB bandwidth of the filter at that frequency. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>,
+(default), then one filter’s -inf dB cutoff frequencies will be the
+center frequencies of the previous and the next filter (50% overlapping
+filters). In this case, the frequency limits <code class="xref py py-data docutils literal notranslate"><span class="pre">flim</span></code> include the
+lower cutoff frequency of the first filter and the higher cutoff
+frequency of the last filter.
+If a function is provided, then the frequency limits <code class="xref py py-data docutils literal notranslate"><span class="pre">flim</span></code> are
+only the center frequencies of the filters</p></li>
+<li><p><strong>flim</strong> (<em>array</em>) – Corner/center frequencies for the filters. If
+<code class="xref py py-data docutils literal notranslate"><span class="pre">n_filters</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">bandwidth</span></code> are both <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, they must
+be 2 more than the number of desired filters. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then
+it will be set to the first and last elements of <code class="xref py py-data docutils literal notranslate"><span class="pre">freqs</span></code></p></li>
+<li><p><strong>freq_transform</strong> – Couple of callables that implement transformations
+from and to Hertz, respectively. If <code class="xref py py-data docutils literal notranslate"><span class="pre">n_filters</span></code> is not
+<code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, the center frequencies of the triangular filters will be
+chosen linearly between <code class="xref py py-data docutils literal notranslate"><span class="pre">freqs[0]</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">freqs[1]</span></code> in the
+transformed space. Default is <a class="reference internal" href="#sample.psycho.hz2mel" title="sample.psycho.hz2mel"><code class="xref py py-func docutils literal notranslate"><span class="pre">hz2mel()</span></code></a>, <a class="reference internal" href="#sample.psycho.mel2hz" title="sample.psycho.mel2hz"><code class="xref py py-func docutils literal notranslate"><span class="pre">mel2hz()</span></code></a> for
+linear spacing on the Mel scale</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The triangular filterbank matrix (filter x frequency) and
+the array of center frequencies</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matrix, array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.psycho.stft2mel">
+<span class="sig-prename descclassname"><span class="pre">sample.psycho.</span></span><span class="sig-name descname"><span class="pre">stft2mel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">complex</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filterbank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.psycho.stft2mel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mel-spectrogram from a STFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stft</strong> (<em>matrix</em>) – STFT matrix (frequency x time)</p></li>
+<li><p><strong>freqs</strong> (<em>array</em>) – Frequencies axis for <code class="xref py py-data docutils literal notranslate"><span class="pre">stft</span></code></p></li>
+<li><p><strong>filterbank</strong> (<em>matrix</em>) – Filterbank matrix. If unspecified, it will be
+computed with <a class="reference internal" href="#sample.psycho.mel_triangular_filterbank" title="sample.psycho.mel_triangular_filterbank"><code class="xref py py-func docutils literal notranslate"><span class="pre">mel_triangular_filterbank()</span></code></a></p></li>
+<li><p><strong>power</strong> (<em>float</em>) – Power for magnitude computation before frequency-domain
+filtering. After filtering, the inverse power is computed for
+consistence. Default is :data`2`. If :data`None`, then filter the
+complex stft matrix</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.psycho.mel_triangular_filterbank" title="sample.psycho.mel_triangular_filterbank"><code class="xref py py-func docutils literal notranslate"><span class="pre">mel_triangular_filterbank()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mel-spectrogram matrix (filter x time) and the array of
+center frequencies (only if <code class="xref py py-data docutils literal notranslate"><span class="pre">filterbank</span></code> is unspecified,
+otherwise <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matrix, array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.sample.html" class="btn btn-neutral float-right" title="sample.sample module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.plots.html" class="btn btn-neutral float-left" title="sample.plots module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

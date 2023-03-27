@@ -1,0 +1,7 @@
+sample.evaluation.metrics module
+================================
+
+.. automodule:: sample.evaluation.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:

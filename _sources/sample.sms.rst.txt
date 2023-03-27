@@ -1,0 +1,17 @@
+sample.sms package
+==================
+
+.. automodule:: sample.sms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   sample.sms.dsp
+   sample.sms.mm
+   sample.sms.sm

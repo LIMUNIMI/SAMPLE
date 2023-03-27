@@ -1,0 +1,7 @@
+sample.utils.learn module
+=========================
+
+.. automodule:: sample.utils.learn
+   :members:
+   :undoc-members:
+   :show-inheritance:

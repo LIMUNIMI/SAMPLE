@@ -1,0 +1,7 @@
+sample.beatsdrop.regression module
+==================================
+
+.. automodule:: sample.beatsdrop.regression
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.utils.dsp module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.utils.learn module" href="sample.utils.learn.html" />
+    <link rel="prev" title="sample.utils package" href="sample.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.beatsdrop.html">sample.beatsdrop package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.evaluation.html">sample.evaluation package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sms.html">sample.sms package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sample.utils.html">sample.utils package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.NamedCallable"><code class="docutils literal notranslate"><span class="pre">NamedCallable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.NamedObject"><code class="docutils literal notranslate"><span class="pre">NamedObject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.NamedObjectMeta"><code class="docutils literal notranslate"><span class="pre">NamedObjectMeta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.Numpy2Paragraph"><code class="docutils literal notranslate"><span class="pre">Numpy2Paragraph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.SAMPLEDeprecationWarning"><code class="docutils literal notranslate"><span class="pre">SAMPLEDeprecationWarning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.add_keyword_arg"><code class="docutils literal notranslate"><span class="pre">add_keyword_arg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.comma_join_quote"><code class="docutils literal notranslate"><span class="pre">comma_join_quote()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.default_kws"><code class="docutils literal notranslate"><span class="pre">default_kws()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.deprecated_argument"><code class="docutils literal notranslate"><span class="pre">deprecated_argument()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.function_variant"><code class="docutils literal notranslate"><span class="pre">function_variant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.function_with_variants"><code class="docutils literal notranslate"><span class="pre">function_with_variants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.numpy_id"><code class="docutils literal notranslate"><span class="pre">numpy_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.numpy_out"><code class="docutils literal notranslate"><span class="pre">numpy_out()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.warnings_simplefilter"><code class="docutils literal notranslate"><span class="pre">warnings_simplefilter()</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sample.utils.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+          <li><a href="sample.utils.html">sample.utils package</a> &raquo;</li>
+        
+      <li>sample.utils.dsp module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.utils.dsp">
+<span id="sample-utils-dsp-module"></span><h1>sample.utils.dsp module<a class="headerlink" href="#module-sample.utils.dsp" title="Permalink to this heading">¶</a></h1>
+<p>DSP utilities</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.a2db">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">a2db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.a2db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert linear amplitude values to decibel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array</em>) – Amplitude values</p></li>
+<li><p><strong>floor</strong> (<em>array</em>) – Floor value(s). If specified, the amplitude values will be
+clipped to this value. Use this to avoid computing the logarithm of zero</p></li>
+<li><p><strong>floor_db</strong> (<em>bool</em>) – Set this to <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> if <code class="xref py py-data docutils literal notranslate"><span class="pre">floor</span></code> is
+specified in decibel</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decibel values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.bin2f">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">bin2f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.bin2f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert FFT bin indices to frequency values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>array</em>) – Bin indices</p></li>
+<li><p><strong>nfft</strong> (<em>int</em>) – FFT size</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequency values in Hz</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.complex2db">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">complex2db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.complex2db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert linear complex values to decibel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>array</em>) – Amplitude values</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.utils.dsp.a2db" title="sample.utils.dsp.a2db"><code class="xref py py-func docutils literal notranslate"><span class="pre">a2db()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decibel values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.db2a">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">db2a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.utils.dsp.db2a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert decibels to linear amplitude values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>array</em>) – Decibel values</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Amplitude values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.detrend">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">detrend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseEstimator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.detrend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove trends from a signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>array</em>) – Array of signal samples. Must be monodimensional</p></li>
+<li><p><strong>x</strong> (<em>array</em>) – Optional. Time-steps for the signal. If unspecified
+<code class="xref py py-data docutils literal notranslate"><span class="pre">y</span></code> is assumed to be uniformly sampled</p></li>
+<li><p><strong>model</strong> (<em>Estimator</em>) – Sklearn-like estimator to estimate signal trend.
+If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then construct a new instance of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.LinearRegression</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The model prediction residuals</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.dychotomic_zero_crossing">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">dychotomic_zero_crossing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.dychotomic_zero_crossing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dichotomicly search for a zero crossing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – Function to evaluate</p></li>
+<li><p><strong>lo</strong> (<em>float</em>) – Lower boundary for dichotomic search</p></li>
+<li><p><strong>hi</strong> (<em>float</em>) – Higher boundary for dichotomic search</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – Number of steps for the search</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Argument for which the function is close to zero</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.expi">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">expi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.expi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential of imaginary input</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Input array, to be multiplied by <span class="math notranslate nohighlight">\(i\)</span></p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(e^{ix}\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.f2bin">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">f2bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.f2bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert frequency values to FFT bin indices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>array</em>) – Frequency values in Hz</p></li>
+<li><p><strong>nfft</strong> (<em>int</em>) – FFT size</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bin indices</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.fft2autocorrelogram">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">fft2autocorrelogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.fft2autocorrelogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the autocorrelogram from the FFT of a signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array</em>) – FFT</p></li>
+<li><p><strong>real</strong> (<em>bool</em>) – Wheter the FFT is one-sided (sufficient for real signals,
+default) or two-sided (output will be complex)</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – Signal length in samples. Default is the size of <code class="xref py py-data docutils literal notranslate"><span class="pre">a</span></code> for
+a two-sided FFT (<code class="xref py py-data docutils literal notranslate"><span class="pre">real=False</span></code>) or twice as much for a one-sided
+FFT (<code class="xref py py-data docutils literal notranslate"><span class="pre">real=True</span></code>)</p></li>
+<li><p><strong>nfft</strong> (<em>int</em>) – FFT size. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">n</span></code></p></li>
+<li><p><strong>power</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, the input <code class="xref py py-data docutils literal notranslate"><span class="pre">a</span></code> is interpreted as the
+power spectrum, instead of the FFT or the magnitude</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The autocorrelogram of the signal</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.local_maxima">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">local_maxima</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logical_and</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.local_maxima" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find local maxima in a function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Function</p></li>
+<li><p><strong>w</strong> (<em>int</em>) – Window radius for maxima detection</p></li>
+<li><p><strong>key</strong> (<em>array</em>) – Function to look over to evaluate local optimality.
+If unspecified, <code class="xref py py-data docutils literal notranslate"><span class="pre">x</span></code> itself will be used</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Array of <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code> to overwrite with output</p></li>
+<li><p><strong>logical_and</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, then write in <code class="xref py py-data docutils literal notranslate"><span class="pre">out</span></code> the logical
+conjunction of this function output and the data already in <code class="xref py py-data docutils literal notranslate"><span class="pre">out</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of boolean values (<code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> for maxima)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.lombscargle_as_fft">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">lombscargle_as_fft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hpf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lpf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.lombscargle_as_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Lomb-Scargle periodogram for the same frequencies as a FFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Sample times</p></li>
+<li><p><strong>x</strong> (<em>array</em>) – Signal</p></li>
+<li><p><strong>nfft</strong> (<em>int</em>) – FFT size</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency for the analogous uniformly-sampled signal</p></li>
+<li><p><strong>hpf</strong> (<em>float</em>) – If specified, cut off frequencies below this value (in Hz)</p></li>
+<li><p><strong>lpf</strong> (<em>float</em>) – If specified, cut off frequencies abow this value (in Hz)</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.lombscargle()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Lomb-Scargle periodogram and the frequencies
+at which it is evaluated</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array, array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.lombscargle_autocorrelogram">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">lombscargle_autocorrelogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.lombscargle_autocorrelogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the autocorrelogram of an unevenly sampled signal
+using the Lomb-Scargle periodogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>array</em>) – Sample times</p></li>
+<li><p><strong>x</strong> (<em>array</em>) – Signal</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – Autocorrelogram size</p></li>
+<li><p><strong>nfft</strong> (<em>int</em>) – FFT size</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency for the analogous uniformly-sampled signal</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.utils.dsp.lombscargle_as_fft" title="sample.utils.dsp.lombscargle_as_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">lombscargle_as_fft()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Autocorrelogram</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.n_windows">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">n_windows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sample.utils.dsp.n_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of windows for overlapping windows operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_size</strong> (<em>int</em>) – Size of input array</p></li>
+<li><p><strong>wsize</strong> (<em>int</em>) – Size of the windows</p></li>
+<li><p><strong>hop</strong> (<em>int</em>) – Distance in samples between consecutive windows</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of windows</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.normalize">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'peak'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the array to have absolute peak at one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Array to normalize</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Type of normalization (peak, rms, range)</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalized array</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.onset_detection">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">onset_detection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x,</span> <span class="pre">detection_fn:</span> <span class="pre">~typing.Callable[[~numpy.ndarray],</span> <span class="pre">~numpy.ndarray]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">spectral_flux&gt;,</span> <span class="pre">w:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3,</span> <span class="pre">m:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3,</span> <span class="pre">alpha:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.75,</span> <span class="pre">delta:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1.5,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.onset_detection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect onsets in signal, as defined in [1]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Signal</p></li>
+<li><p><strong>detection_fn</strong> (<em>callable</em>) – Detection function to use.
+Default is <a class="reference internal" href="#sample.utils.dsp.spectral_flux" title="sample.utils.dsp.spectral_flux"><code class="xref py py-func docutils literal notranslate"><span class="pre">spectral_flux()</span></code></a></p></li>
+<li><p><strong>w</strong> (<em>int</em>) – Window radius for maxima detection</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Window radius multiplier for offsetting the average window
+to the left (before the onset)</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Feedback coefficient for non-linear filter (higher values
+result in slower envelopes)</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Threshold for onset detection relative to local average</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments for <code class="xref py py-data docutils literal notranslate"><span class="pre">detection_fn</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of boolean values (<code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> for onsets)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id1" role="note">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Dixon, Simon. “Onset detection revisited.” Proceedings of the 9th
+international conference on digital audio effects.
+Vol. 120. No. 133-137. 2006.</p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.onset_selection">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">onset_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.onset_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select onsets from a detection signal, e.g. <a class="reference internal" href="#sample.utils.dsp.spectral_flux" title="sample.utils.dsp.spectral_flux"><code class="xref py py-func docutils literal notranslate"><span class="pre">spectral_flux()</span></code></a>,
+as defined in [1]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Function</p></li>
+<li><p><strong>w</strong> (<em>int</em>) – Window radius for maxima detection</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – Window radius multiplier for offsetting the average window
+to the left (before the onset)</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Feedback coefficient for non-linear filter (higher values
+result in slower envelopes)</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Threshold for onset detection relative to local average</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of boolean values (<code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code> for onsets)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Dixon, Simon. “Onset detection revisited.” Proceedings of the 9th
+international conference on digital audio effects.
+Vol. 120. No. 133-137. 2006.</p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.overlapping_windows">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">overlapping_windows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writeable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.overlapping_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a view on the array as a matrix of overlapping windows.
+Please note that this function does not alter in any way the input array.
+If some preprocessing is needed, e.g. zero-padding, it should be done before
+invoking this function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>ndarray</em>) – The array. If it is not 1d already, it is linearized</p></li>
+<li><p><strong>wsize</strong> (<em>int</em>) – Size of the windows</p></li>
+<li><p><strong>hop</strong> (<em>int</em>) – Distance in samples between consecutive windows.
+It should be at least <code class="xref py py-data docutils literal notranslate"><span class="pre">1</span></code>, it often is at most <code class="xref py py-data docutils literal notranslate"><span class="pre">wsize</span></code>.
+If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then use <code class="xref py py-data docutils literal notranslate"><span class="pre">wsize</span></code> (non-overlapping windows)</p></li>
+<li><p><strong>writeable</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">False</span></code> (default) the output view is read-only</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Overlapping windows. Shape is <code class="xref py py-data docutils literal notranslate"><span class="pre">(n_windows,</span> <span class="pre">wsize)</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sample.utils.dsp</span> <span class="kn">import</span> <span class="n">overlapping_windows</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">overlapping_windows</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">wsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check array shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(4, 16)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sample.utils</span> <span class="kn">import</span> <span class="n">numpy_id</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Test that the new array still refers to the same memory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy_id</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy_id</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use view to perform mean filtering</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([ 7.5, 23.5, 39.5, 55.5])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.spectral_flux">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">spectral_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x:</span> <span class="pre">~numpy.ndarray,</span> <span class="pre">tf_fn:</span> <span class="pre">~typing.Callable[[~numpy.ndarray],</span> <span class="pre">~typing.Tuple[~numpy.ndarray,</span> <span class="pre">...]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">stft&gt;,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.utils.dsp.spectral_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute spectral flux from a signal, as defined in [1]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Signal</p></li>
+<li><p><strong>tf_fn</strong> (<em>callable</em>) – Function to transform <code class="xref py py-data docutils literal notranslate"><span class="pre">x</span></code> to a time-frequency
+domain. It should output a tuple of outputs, where the last output is the
+time-frequency matrix (frequency x time).
+By default:func:<cite>scipy.signal.stft</cite> is used</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments for <code class="xref py py-data docutils literal notranslate"><span class="pre">tf_fn</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectral flux feature</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="note">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Dixon, Simon. “Onset detection revisited.” Proceedings of the 9th
+international conference on digital audio effects.
+Vol. 120. No. 133-137. 2006.</p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.spectral_flux_from_tf">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">spectral_flux_from_tf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.utils.dsp.spectral_flux_from_tf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute spectral flux from a time-frequency matrix, as defined in [1]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array</em>) – Time-frequency matrix (frequency x time)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectral flux feature</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id4" role="note">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Dixon, Simon. “Onset detection revisited.” Proceedings of the 9th
+international conference on digital audio effects.
+Vol. 120. No. 133-137. 2006.</p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.strided_convolution">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">strided_convolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.strided_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a strided convolution as a matrix multiplication between
+<a class="reference internal" href="#sample.utils.dsp.overlapping_windows" title="sample.utils.dsp.overlapping_windows"><code class="xref py py-func docutils literal notranslate"><span class="pre">overlapping_windows()</span></code></a> of the signal and the flipped kernel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – The input array</p></li>
+<li><p><strong>kernel</strong> (<em>array</em>) – Convolution kernel</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Output sample period (in number of input samples).
+Note that for the default <code class="xref py py-data docutils literal notranslate"><span class="pre">stride=1</span></code>, the output
+is the (non-strided) convolution. In this case, consider using
+other convolution functions, which will be more efficient</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Strided convolution</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.dsp.strided_convolution_complex_kernel">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.dsp.</span></span><span class="sig-name descname"><span class="pre">strided_convolution_complex_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.dsp.strided_convolution_complex_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a strided convolution as a matrix multiplication between
+<a class="reference internal" href="#sample.utils.dsp.overlapping_windows" title="sample.utils.dsp.overlapping_windows"><code class="xref py py-func docutils literal notranslate"><span class="pre">overlapping_windows()</span></code></a> of the signal and the flipped kernel.
+Call this function when kernel is complex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – The input array</p></li>
+<li><p><strong>kernel</strong> (<em>array</em>) – Convolution kernel</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Output sample period (in number of input samples).
+Note that for the default <code class="xref py py-data docutils literal notranslate"><span class="pre">stride=1</span></code>, the output
+is the (non-strided) convolution. In this case, consider using
+other convolution functions, which will be more efficient</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+<li><p><strong>dtype</strong> (<em>type</em>) – Explicit dtype for output when <code class="xref py py-data docutils literal notranslate"><span class="pre">out</span></code> is unspecified</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Strided convolution</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.utils.learn.html" class="btn btn-neutral float-right" title="sample.utils.learn module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.utils.html" class="btn btn-neutral float-left" title="sample.utils package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

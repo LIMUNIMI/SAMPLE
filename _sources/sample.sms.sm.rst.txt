@@ -1,0 +1,7 @@
+sample.sms.sm module
+====================
+
+.. automodule:: sample.sms.sm
+   :members:
+   :undoc-members:
+   :show-inheritance:

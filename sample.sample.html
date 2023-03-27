@@ -1,0 +1,480 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.sample module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="sample.psycho module" href="sample.psycho.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.hinge.html">sample.hinge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.ipython.html">sample.ipython module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.optimize.html">sample.optimize module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.psycho.html">sample.psycho module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sample.sample module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sample.sample.SAMPLE"><code class="docutils literal notranslate"><span class="pre">SAMPLE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.sample.additive_synth"><code class="docutils literal notranslate"><span class="pre">additive_synth()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.sample.modal_energy"><code class="docutils literal notranslate"><span class="pre">modal_energy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+      <li>sample.sample module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.sample">
+<span id="sample-sample-module"></span><h1>sample.sample module<a class="headerlink" href="#module-sample.sample" title="Permalink to this heading">¶</a></h1>
+<p>Module for using the entire SAMPLE method pipeline</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.sample.</span></span><span class="sig-name descname"><span class="pre">SAMPLE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sinusoidal:</span> <span class="pre">~sample.sms.sm.SinusoidalModel</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">regressor:</span> <span class="pre">~sample.hinge.HingeRegression</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">regressor_k:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'k_',</span> <span class="pre">regressor_q:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'q_',</span> <span class="pre">freq_reduce:</span> <span class="pre">~typing.Callable[[~numpy.ndarray],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">mean&gt;,</span> <span class="pre">max_n_modes:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>SAMPLE (Spectral Analysis for Modal Parameter Linear Estimate) model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sinusoidal</strong> (<a class="reference internal" href="sample.sms.sm.html#sample.sms.sm.SinusoidalModel" title="sample.sms.sm.SinusoidalModel"><em>SinusoidalModel</em></a>) – Sinusoidal analysis model.
+Default is an instance of <a class="reference internal" href="sample.sms.mm.html#sample.sms.mm.ModalModel" title="sample.sms.mm.ModalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.sms.mm.ModalModel</span></code></a></p></li>
+<li><p><strong>regressor</strong> – Modal parameters regression model.
+Default is an instance of <a class="reference internal" href="sample.hinge.html#sample.hinge.HingeRegression" title="sample.hinge.HingeRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.hinge.HingeRegression</span></code></a></p></li>
+<li><p><strong>regressor_k</strong> (<em>str</em>) – Attribute name for the estimated slope
+coefficient of <a class="reference internal" href="#sample.sample.SAMPLE.regressor" title="sample.sample.SAMPLE.regressor"><code class="xref py py-data docutils literal notranslate"><span class="pre">regressor</span></code></a></p></li>
+<li><p><strong>regressor_q</strong> (<em>str</em>) – Attribute name for the estimated intercept
+coefficient of <a class="reference internal" href="#sample.sample.SAMPLE.regressor" title="sample.sample.SAMPLE.regressor"><code class="xref py py-data docutils literal notranslate"><span class="pre">regressor</span></code></a></p></li>
+<li><p><strong>freq_reduce</strong> (<em>callable</em>) – Callable function for reducing the frequency track
+into a single frequency. Defaults to <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.mean()</span></code></p></li>
+<li><p><strong>max_n_modes</strong> (<em>int</em>) – Number of modes to use in resynthesis. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>
+(default), then synthesise all modes</p></li>
+<li><p><strong>**kwargs</strong> – Additional parameters for sub-models. See
+<a class="reference internal" href="sample.sms.mm.html#sample.sms.mm.ModalTracker" title="sample.sms.mm.ModalTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.sms.mm.ModalTracker</span></code></a>,
+<a class="reference internal" href="sample.sms.mm.html#sample.sms.mm.ModalModel" title="sample.sms.mm.ModalModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.sms.mm.ModalModel</span></code></a>,
+<a class="reference internal" href="sample.hinge.html#sample.hinge.HingeRegression" title="sample.hinge.HingeRegression"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.hinge.HingeRegression</span></code></a>, and
+<a class="reference internal" href="sample.utils.learn.html#sample.utils.learn.OptionalStorage" title="sample.utils.learn.OptionalStorage"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.utils.learn.OptionalStorage</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.param_matrix_">
+<span class="sig-name descname"><span class="pre">param_matrix_</span></span><a class="headerlink" href="#sample.sample.SAMPLE.param_matrix_" title="Permalink to this definition">¶</a></dt>
+<dd><p>3-by-N matrix of modal parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.amps_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">amps_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.amps_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned modal amplitudes</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.decays_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decays_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.decays_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned modal decays</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.energies_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energies_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.energies_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned modal energies</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze audio data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – audio input</p></li>
+<li><p><strong>y</strong> (<em>ignored</em>) – exists for compatibility</p></li>
+<li><p><strong>kwargs</strong> – Any parameter, overrides initialization</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sample.sample.SAMPLE" title="sample.sample.SAMPLE">SAMPLE</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.freqs_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">freqs_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#sample.sample.SAMPLE.freqs_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned modal frequencies</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.mode_argsort_">
+<span class="sig-name descname"><span class="pre">mode_argsort_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'energies'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.sample.SAMPLE.mode_argsort_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the indices for sorting modes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order</strong> (<em>str</em>) – Feature to use for ordering modes. Default is
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;energies&quot;</span></code>, so that reducing active modes keeps the
+modes with most energy. Other options are <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;freqs&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;amps&quot;</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;decays&quot;</span></code></p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – Whether the order should be reversed (decreasing).
+Defaults to <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of indices for sorting</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'energies'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.sample.SAMPLE.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resynthesize audio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Time axis</p></li>
+<li><p><strong>n_modes</strong> (<em>int</em>) – Number of modes to synthesize. If <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>,
+then use the <code class="xref py py-data docutils literal notranslate"><span class="pre">max_n_modes</span></code> parameter</p></li>
+<li><p><strong>order</strong> (<em>str</em>) – Feature to use for ordering modes. Default is
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;energies&quot;</span></code>, so that reducing active modes keeps the
+modes with most energy. Other options are <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;freqs&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;amps&quot;</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;decays&quot;</span></code></p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – Whether the order should be reversed (decreasing).
+Defaults to <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <a class="reference internal" href="#sample.sample.additive_synth" title="sample.sample.additive_synth"><code class="xref py py-func docutils literal notranslate"><span class="pre">additive_synth()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of audio samples</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.regressor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">regressor</span></span><a class="headerlink" href="#sample.sample.SAMPLE.regressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modal parameters regression model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.sdt_params_">
+<span class="sig-name descname"><span class="pre">sdt_params_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'energies'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#sample.sample.SAMPLE.sdt_params_" title="Permalink to this definition">¶</a></dt>
+<dd><p>SDT parameters as a JSON serializable dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order</strong> (<em>str</em>) – Feature to use for ordering modes. Default is
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;energies&quot;</span></code>, so that reducing active modes in SDT keeps the
+modes with most energy. Other options are <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;freqs&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;amps&quot;</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;decays&quot;</span></code></p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – Whether the order should be reversed (decreasing).
+Defaults to <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SDT parameters</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.sample.SAMPLE.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>). The latter have
+parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
+possible to update each component of a nested object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**params</strong> (<em>dict</em>) – Estimator parameters.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – Estimator instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>estimator instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.sample.SAMPLE.sinusoidal">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sinusoidal</span></span><a class="headerlink" href="#sample.sample.SAMPLE.sinusoidal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sinusoidal analysis model</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.sample.additive_synth">
+<span class="sig-prename descclassname"><span class="pre">sample.sample.</span></span><span class="sig-name descname"><span class="pre">additive_synth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decays</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="headerlink" href="#sample.sample.additive_synth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additively synthesize audio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Time axis</p></li>
+<li><p><strong>freqs</strong> (<em>array</em>) – Modal frequencies</p></li>
+<li><p><strong>decays</strong> (<em>array</em>) – Modal decays</p></li>
+<li><p><strong>amps</strong> (<em>array</em>) – Modal amplitudes</p></li>
+<li><p><strong>phases</strong> (<em>array</em>) – Starting phase for every mode, optional</p></li>
+<li><p><strong>analytic</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, use a complex
+exponential as an oscillator</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for random phase generator</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of audio samples</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.sample.modal_energy">
+<span class="sig-prename descclassname"><span class="pre">sample.sample.</span></span><span class="sig-name descname"><span class="pre">modal_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.sample.modal_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the integrals of the modal amplitude envelopes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>array</em>) – Amplitudes</p></li>
+<li><p><strong>d</strong> (<em>array</em>) – Decays</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Energies</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.psycho.html" class="btn btn-neutral float-left" title="sample.psycho module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

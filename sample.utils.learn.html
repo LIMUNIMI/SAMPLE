@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.utils.learn module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.hinge module" href="sample.hinge.html" />
+    <link rel="prev" title="sample.utils.dsp module" href="sample.utils.dsp.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.beatsdrop.html">sample.beatsdrop package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.evaluation.html">sample.evaluation package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sms.html">sample.sms package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sample.utils.html">sample.utils package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.NamedCallable"><code class="docutils literal notranslate"><span class="pre">NamedCallable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.NamedObject"><code class="docutils literal notranslate"><span class="pre">NamedObject</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.NamedObjectMeta"><code class="docutils literal notranslate"><span class="pre">NamedObjectMeta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.Numpy2Paragraph"><code class="docutils literal notranslate"><span class="pre">Numpy2Paragraph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.SAMPLEDeprecationWarning"><code class="docutils literal notranslate"><span class="pre">SAMPLEDeprecationWarning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.add_keyword_arg"><code class="docutils literal notranslate"><span class="pre">add_keyword_arg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.comma_join_quote"><code class="docutils literal notranslate"><span class="pre">comma_join_quote()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.default_kws"><code class="docutils literal notranslate"><span class="pre">default_kws()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.deprecated_argument"><code class="docutils literal notranslate"><span class="pre">deprecated_argument()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.function_variant"><code class="docutils literal notranslate"><span class="pre">function_variant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.function_with_variants"><code class="docutils literal notranslate"><span class="pre">function_with_variants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.numpy_id"><code class="docutils literal notranslate"><span class="pre">numpy_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.numpy_out"><code class="docutils literal notranslate"><span class="pre">numpy_out()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sample.utils.html#sample.utils.warnings_simplefilter"><code class="docutils literal notranslate"><span class="pre">warnings_simplefilter()</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sample.utils.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+          <li><a href="sample.utils.html">sample.utils package</a> &raquo;</li>
+        
+      <li>sample.utils.learn module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.utils.learn">
+<span id="sample-utils-learn-module"></span><h1>sample.utils.learn module<a class="headerlink" href="#module-sample.utils.learn" title="Permalink to this heading">¶</a></h1>
+<p>Machine learning utilities</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.utils.learn.OptionalStorage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.utils.learn.</span></span><span class="sig-name descname"><span class="pre">OptionalStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.learn.OptionalStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>Storage that can be deactivated. It’s main use is in optionally saving
+intermediate values in machine learning processes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>save</strong> (<em>bool</em>) – Determines if the storage is actually operational</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Let&#39;s define our own regressor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sample.utils.learn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_X_y</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">CoolRegression</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">BaseEstimator</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="c1"># This object will memorize some intermediate values</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">storage</span> <span class="o">=</span> <span class="n">storage</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="nd">@default_property</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="nf">storage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">OptionalStorage</span><span class="p">()</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="c1"># Delete state from eventual previous runs</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">xcorr</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X</span>
+<span class="gp">... </span>    <span class="c1"># Save the X.T @ X square matrix</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;xcorr&quot;</span><span class="p">,</span> <span class="n">xcorr</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">xcorr</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="c1"># Save the pseudo-inverse matrix</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;pinv&quot;</span><span class="p">,</span> <span class="n">pinv</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">coeffs_</span> <span class="o">=</span> <span class="n">pinv</span> <span class="o">@</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="bp">self</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Let&#39;s simulate some data points for testing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># By default, the storage is inactive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cr</span> <span class="o">=</span> <span class="n">CoolRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="n">cr</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">cache_</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">&#39;OptionalStorage&#39; object has no attribute &#39;cache_&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># If save==True, then the storage is active</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cr</span> <span class="o">=</span> <span class="n">CoolRegression</span><span class="p">(</span><span class="n">storage__save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">cr</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">cache_</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">[&#39;xcorr&#39;, &#39;pinv&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># And the matrices have the expected shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cr</span><span class="o">.</span><span class="n">storage</span><span class="p">[</span><span class="s2">&quot;xcorr&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cr</span><span class="o">.</span><span class="n">storage</span><span class="p">[</span><span class="s2">&quot;pinv&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2, 2)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.utils.learn.OptionalStorage.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="headerlink" href="#sample.utils.learn.OptionalStorage.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append variable in cache if <code class="xref py py-data docutils literal notranslate"><span class="pre">self.save</span></code> is True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Data name</p></li>
+<li><p><strong>value</strong> – Data</p></li>
+<li><p><strong>index</strong> (<em>int</em>) – Optional. The value will be added to a list,
+at the specified index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.utils.learn.OptionalStorage.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deepcopy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.learn.OptionalStorage.get_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the storage state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deepcopy</strong> (<em>bool</em>) – If <code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code>, make a deep copy if the state</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The state</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.utils.learn.OptionalStorage.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sample.utils.learn.OptionalStorage.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset memory</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.utils.learn.default_property">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.learn.</span></span><span class="sig-name descname"><span class="pre">default_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">_DefaultProperty</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sample.utils.learn.default_property" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">sample.utils.learn.</span></span><span class="sig-name descname"><span class="pre">default_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_DefaultProperty</span></span></span></dt>
+<dd><p>Default property attribute. Can be used as a decorator.
+It’s meant to be used to avoid unexpected sharing of instances between
+different objects when using default argument values.
+Unexpected sharing of instances can be a problem when those instances
+not only encapsulate initialization arguments but also store some state,
+such as the parameters learned during training.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Let&#39;s define a class for member objects</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Member</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># And a class that correctly uses the default_property decorator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sample.utils.learn</span> <span class="kn">import</span> <span class="n">default_property</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Good</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">member</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+<span class="gp">... </span>  <span class="nd">@default_property</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="nf">member</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">Member</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Instances created with default arguments do not share</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the same instance of the member object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Unless we explicitly provide a value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Member</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="n">Good</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">member</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># A class with default values will share</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># the same instance of the member object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Bad</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="o">=</span><span class="n">Member</span><span class="p">(),</span> <span class="n">field</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">member</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Bad</span><span class="p">()</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="n">Bad</span><span class="p">()</span><span class="o">.</span><span class="n">member</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Note that the member object is created on set, and not on get</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">Good</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="n">g</span><span class="o">.</span><span class="n">member</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># You can also change the condition that triggers the default</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># (by default, it is triggered when the input is None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># E.g.: this function sets the default when the input value is not an</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># instance of the Member class</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">defaulter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Member</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">Good</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">member</span><span class="p">,</span> <span class="n">Member</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">g</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># While allowing assignments to get trough for valid inputs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="n">x</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Default values can be deactivated using the constant defaulter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">defaulter</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Default properties can be defined dynamically</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Some callables such as lambdas and partials will</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># require an additional &#39;name&#39; argument</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="n">Good</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">default_property</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="p">{})</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">default_property(): name &#39;&lt;lambda&gt;&#39; is forbidden because of possible conflicts with other lambda functions. Please, specify a different &#39;name&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">default_property</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;member&quot;</span><span class="p">)(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="p">{})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Good</span><span class="p">()</span><span class="o">.</span><span class="n">member</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.hinge.html" class="btn btn-neutral float-right" title="sample.hinge module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.utils.dsp.html" class="btn btn-neutral float-left" title="sample.utils.dsp module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+sample.evaluation package
+=========================
+
+.. automodule:: sample.evaluation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   sample.evaluation.metrics
+   sample.evaluation.random

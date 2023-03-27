@@ -1,0 +1,17 @@
+sample.beatsdrop package
+========================
+
+.. automodule:: sample.beatsdrop
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   sample.beatsdrop.decision
+   sample.beatsdrop.regression
+   sample.beatsdrop.sample

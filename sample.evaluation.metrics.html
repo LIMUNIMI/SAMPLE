@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.evaluation.metrics module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.evaluation.random module" href="sample.evaluation.random.html" />
+    <link rel="prev" title="sample.evaluation package" href="sample.evaluation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sample.beatsdrop.html">sample.beatsdrop package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sample.evaluation.html">sample.evaluation package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sample.evaluation.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sms.html">sample.sms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.utils.html">sample.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sample.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+          <li><a href="sample.evaluation.html">sample.evaluation package</a> &raquo;</li>
+        
+      <li>sample.evaluation.metrics module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.evaluation.metrics">
+<span id="sample-evaluation-metrics-module"></span><h1>sample.evaluation.metrics module<a class="headerlink" href="#module-sample.evaluation.metrics" title="Permalink to this heading">¶</a></h1>
+<p>Metrics for model evaluation</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.CochleagramLoss">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.evaluation.metrics.</span></span><span class="sig-name descname"><span class="pre">CochleagramLoss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.evaluation.metrics.CochleagramLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for computing losses on cochleagrams (lower is better)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fs</strong> (<em>float</em>) – Sample frequency</p></li>
+<li><p><strong>postprocessing</strong> (<em>callable</em>) – If not <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then apply this function
+to the cochleagram matrix. Default is <code class="xref py py-func docutils literal notranslate"><span class="pre">hwr()</span></code>, if the cochleagram
+is real, otherwise it is <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.abs()</span></code></p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Convolution method (either <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>,
+<code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;fft&quot;</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;direct&quot;</span></code>, or <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;overlap-add&quot;</span></code>)</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Time-step for output signal.
+Can’t be used in conjunction with <code class="xref py py-data docutils literal notranslate"><span class="pre">method</span></code></p></li>
+<li><p><strong>analytic</strong> (<em>str</em>) – <p>Compute the analytic signal of the cochleagram:</p>
+<ul>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;input&quot;</span></code>, then compute the analytic signal
+of the input (fast, accurate in the middle, bad boundary conditions)</p></li>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;ir&quot;</span></code> (suggested), then compute the analytic signal
+of the IRs (fast, tends to underestimate amplitude,
+good boundary conditions)</p></li>
+<li><p>if <code class="xref py py-data docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code>, then compute the analytic signal
+of the output (slowest, most accurate)</p></li>
+</ul>
+</p></li>
+<li><p><strong>p</strong> (<em>float</em>) – Exponent for the lp-norm</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for
+<a class="reference internal" href="sample.psycho.html#sample.psycho.GammatoneFilterbank" title="sample.psycho.GammatoneFilterbank"><code class="xref py py-class docutils literal notranslate"><span class="pre">sample.psycho.GammatoneFilterbank</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.CochleagramLoss.cochleagram">
+<span class="sig-name descname"><span class="pre">cochleagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.evaluation.metrics.CochleagramLoss.cochleagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute cochleagram for one input</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array</em>) – Input signal</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cochleagram</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.CochleagramLoss.lp_distance">
+<span class="sig-name descname"><span class="pre">lp_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.evaluation.metrics.CochleagramLoss.lp_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two vectors as
+the lp-norm of their difference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – First vector</p></li>
+<li><p><strong>y</strong> (<em>array</em>) – Second vector</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.MultiScaleSpectralLoss">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.evaluation.metrics.</span></span><span class="sig-name descname"><span class="pre">MultiScaleSpectralLoss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectral_loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stfts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.evaluation.metrics.MultiScaleSpectralLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for computing multiscale losses on the STFT online
+and in parallel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spectral_loss</strong> (<em>callable</em>) – Base function for computing a spectral loss</p></li>
+<li><p><strong>stfts</strong> (<em>iterable</em><em> of </em><em>dict</em>) – Multiple dictionaries of
+keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">spectral_loss()</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.lin_log_spectral_loss">
+<span class="sig-prename descclassname"><span class="pre">sample.evaluation.metrics.</span></span><span class="sig-name descname"><span class="pre">lin_log_spectral_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">olap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hamming'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-60</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.evaluation.metrics.lin_log_spectral_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a sum of linear and log loss on the STFT (lower is better)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – First audio input</p></li>
+<li><p><strong>y</strong> (<em>array</em>) – Second audio input</p></li>
+<li><p><strong>w</strong> – Analysis window. Defaults to None (if None,
+the <code class="xref py py-attr docutils literal notranslate"><span class="pre">default_window</span></code> is used)</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – FFT size. Defaults to 2048</p></li>
+<li><p><strong>olap</strong> (<em>float</em>) – Window overlap, as a fraction of the window size</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Weight of the log-difference</p></li>
+<li><p><strong>norm_p</strong> (<em>float</em>) – Exponent patameter for norm. Default is <code class="xref py py-data docutils literal notranslate"><span class="pre">1.0</span></code></p></li>
+<li><p><strong>floor_db</strong> (<em>float</em>) – Minimum magnitude for STFT in dB</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.stft()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>loss value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.lp_distance">
+<span class="sig-prename descclassname"><span class="pre">sample.evaluation.metrics.</span></span><span class="sig-name descname"><span class="pre">lp_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.evaluation.metrics.lp_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two vectors as
+the lp-norm of their difference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – First vector</p></li>
+<li><p><strong>y</strong> (<em>array</em>) – Second vector</p></li>
+<li><p><strong>p</strong> (<em>float</em>) – Exponent for the lp-norm</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The distance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.evaluation.metrics.multiscale_spectral_loss">
+<span class="sig-prename descclassname"><span class="pre">sample.evaluation.metrics.</span></span><span class="sig-name descname"><span class="pre">multiscale_spectral_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_loss:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">lin_log_spectral_loss&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stfts:</span> <span class="pre">~typing.Iterable[~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">({'n':</span> <span class="pre">64}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">{'n':</span> <span class="pre">128}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">{'n':</span> <span class="pre">256}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">{'n':</span> <span class="pre">512}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">{'n':</span> <span class="pre">1024}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">{'n':</span> <span class="pre">2048})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sample.evaluation.metrics.multiscale_spectral_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a multiscale spectral loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – First audio input</p></li>
+<li><p><strong>y</strong> (<em>array</em>) – Second audio input</p></li>
+<li><p><strong>args</strong> – Additional positional arguments for the base loss function</p></li>
+<li><p><strong>spectral_loss</strong> (<em>callable</em>) – Base function for computing a spectral loss.
+Default is <a class="reference internal" href="#sample.evaluation.metrics.lin_log_spectral_loss" title="sample.evaluation.metrics.lin_log_spectral_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">lin_log_spectral_loss()</span></code></a></p></li>
+<li><p><strong>stfts</strong> (<em>iterable</em><em> of </em><em>dict</em>) – Multiple dictionaries of</p></li>
+<li><p><strong>pool</strong> (<em>multiprocessing.Pool</em>) – If not <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then compute the
+losses in parallel processes from this pool</p></li>
+<li><p><strong>njobs</strong> (<em>int</em>) – If not <code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code>, then compute the
+losses in parallel using a process pool with <code class="xref py py-data docutils literal notranslate"><span class="pre">njobs</span></code> workers</p></li>
+<li><p><strong>kwargs</strong> – Additional keyword arguments for the base loss function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sum of loss values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.evaluation.random.html" class="btn btn-neutral float-right" title="sample.evaluation.random module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.evaluation.html" class="btn btn-neutral float-left" title="sample.evaluation package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

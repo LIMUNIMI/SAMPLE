@@ -1,0 +1,7 @@
+sample.beatsdrop.sample module
+==============================
+
+.. automodule:: sample.beatsdrop.sample
+   :members:
+   :undoc-members:
+   :show-inheritance:

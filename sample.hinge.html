@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sample.hinge module &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sample.ipython module" href="sample.ipython.html" />
+    <link rel="prev" title="sample.utils.learn module" href="sample.utils.learn.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sample.html">sample package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sample.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="sample.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sample.hinge module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sample.hinge.HingeRegression"><code class="docutils literal notranslate"><span class="pre">HingeRegression</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sample.hinge.hinge_function"><code class="docutils literal notranslate"><span class="pre">hinge_function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sample.ipython.html">sample.ipython module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.optimize.html">sample.optimize module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.plots.html">sample.plots module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.psycho.html">sample.psycho module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sample.sample.html">sample.sample module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="sample.html">sample package</a> &raquo;</li>
+        
+      <li>sample.hinge module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-sample.hinge">
+<span id="sample-hinge-module"></span><h1>sample.hinge module<a class="headerlink" href="#module-sample.hinge" title="Permalink to this heading">¶</a></h1>
+<p>Hinge functions and regression models</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sample.hinge.</span></span><span class="sig-name descname"><span class="pre">HingeRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linear_regressor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'coef_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_regressor_q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'intercept_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dogbox'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs_init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.hinge.HingeRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>Regressor for fitting to a hinge function</p>
+<p><span class="math notranslate nohighlight">\(h(x) = k \cdot min(x, a) + q\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>linear_regressor</strong> (<em>sklearn.base.BaseEstimator</em>) – Linear regression model
+instance. Must be sklearn-compatible</p></li>
+<li><p><strong>linear_regressor_k</strong> (<em>str</em>) – Attribute name for the estimated slope
+coefficient of the linear regression</p></li>
+<li><p><strong>linear_regressor_q</strong> (<em>str</em>) – Attribute name for the estimated intercept
+coefficient of the linear regression</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Nonlinear least squares method
+See <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.least_squares()</span></code> for options and detailed
+explanation. Defaults to “dogbox”</p></li>
+<li><p><strong>coeffs_init</strong> (<em>callable</em>) – Initializer for hinge function coefficients.
+Signature should be <code class="xref py py-data docutils literal notranslate"><span class="pre">coeffs_init(x,</span> <span class="pre">y,</span> <span class="pre">k,</span> <span class="pre">q)</span> <span class="pre">-&gt;</span> <span class="pre">a,</span> <span class="pre">k,</span> <span class="pre">q</span></code>. It
+should return initial parameters for the nonlinear least squares using
+input data <code class="xref py py-data docutils literal notranslate"><span class="pre">x</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">y</span></code>, and linearly estimated
+coefficients <code class="xref py py-data docutils literal notranslate"><span class="pre">k</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">q</span></code>. If None, use default</p></li>
+<li><p><strong>bounds</strong> (<em>callable</em>) – Callable for computing hinge function coefficient
+boundaries. Signature should be <code class="xref py py-data docutils literal notranslate"><span class="pre">bounds(x,</span> <span class="pre">y,</span> <span class="pre">k,</span> <span class="pre">q)</span> <span class="pre">-&gt;</span>
+<span class="pre">((a_min,</span> <span class="pre">k_min,</span> <span class="pre">q_min),</span> <span class="pre">(a_max,</span> <span class="pre">k_max,</span> <span class="pre">q_max))</span></code>.
+It should return lower and upper boundaries for all three parameters
+using input data <code class="xref py py-data docutils literal notranslate"><span class="pre">x</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">y</span></code>, and linearly estimated
+coefficients <code class="xref py py-data docutils literal notranslate"><span class="pre">k</span></code> and <code class="xref py py-data docutils literal notranslate"><span class="pre">q</span></code>. If None, use default</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.coeffs_">
+<span class="sig-name descname"><span class="pre">coeffs_</span></span><a class="headerlink" href="#sample.hinge.HingeRegression.coeffs_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned parameters (a, k, q). They are also accessible
+via their individual properties</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.result_">
+<span class="sig-name descname"><span class="pre">result_</span></span><a class="headerlink" href="#sample.hinge.HingeRegression.result_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimization result of the nonlinear least
+squares procedure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>OptimizeResult</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.a_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">a_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.hinge.HingeRegression.a_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned knee point</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.bounds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#sample.hinge.HingeRegression.bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callable for computing hinge function coefficient boundaries</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.coeffs_init">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coeffs_init</span></span><a class="headerlink" href="#sample.hinge.HingeRegression.coeffs_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializer for hinge function coefficients</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.hinge.HingeRegression.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit hinge function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Independent variable. Must be a column vector</p></li>
+<li><p><strong>like</strong> (<em>(</em><em>shape</em>) – </p></li>
+<li><p><strong>y</strong> (<em>array</em>) – Dependent variable</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.least_squares()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sample.hinge.HingeRegression" title="sample.hinge.HingeRegression">HingeRegression</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.k_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.hinge.HingeRegression.k_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned slope</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.linear_regressor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">linear_regressor</span></span><a class="headerlink" href="#sample.hinge.HingeRegression.linear_regressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear regression model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample.hinge.HingeRegression.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate learned hinge function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array</em>) – Input independent variable array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">h(x)</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sample.hinge.HingeRegression.q_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sample.hinge.HingeRegression.q_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learned intercept</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sample.hinge.hinge_function">
+<span class="sig-prename descclassname"><span class="pre">sample.hinge.</span></span><span class="sig-name descname"><span class="pre">hinge_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#sample.hinge.hinge_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hinge function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array</em>) – Independent variable</p></li>
+<li><p><strong>a</strong> (<em>float</em>) – Knee point</p></li>
+<li><p><strong>k</strong> (<em>float</em>) – Slope</p></li>
+<li><p><strong>q</strong> (<em>float</em>) – Intercept</p></li>
+<li><p><strong>out</strong> (<em>array</em>) – Optional. Array to use for storing results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(h(x) = k \cdot min(x, a) + q\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.ipython.html" class="btn btn-neutral float-right" title="sample.ipython module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sample.utils.learn.html" class="btn btn-neutral float-left" title="sample.utils.learn module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

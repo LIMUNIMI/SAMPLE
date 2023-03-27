@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Changelog &mdash; Spectral Analysis for Modal Parameter Linear Estimate 2.2.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="sample.sample module" href="sample.sample.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Spectral Analysis for Modal Parameter Linear Estimate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="sample.html">sample package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2-1-0">v2.1.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixes">Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance">Performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gui">GUI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v2-0-0">v2.0.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#psychoacoustic-functions">Psychoacoustic functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#linear-algebra">Linear algebra</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optimization">Optimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beats">Beats</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notebooks">Notebooks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-5-1">v1.5.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-5-0">v1.5.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-4-0">v1.4.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#frequency-reduction">Frequency reduction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#settable-properties">Settable properties</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-3-0">v1.3.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#merging-strategy">Merging strategy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#track-strip">Track strip</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-2-3">v1.2.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-2-2">v1.2.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-2-1">v1.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-2-0">v1.2.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reverse-mode">Reverse mode</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bugfixes">BugFixes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hingeregression-default-linear-regressor">HingeRegression default linear_regressor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-1-0">v1.1.0</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spectral Analysis for Modal Parameter Linear Estimate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Changelog</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
+<section id="v2-1-0">
+<h2>v2.1.0<a class="headerlink" href="#v2-1-0" title="Permalink to this heading">¶</a></h2>
+<section id="features">
+<h3>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h3>
+<p>Integrate BeatsDROP in SAMPLE with decisors.<span class="raw-html-m2r"><br></span>
+Plot beats as dashed lines in plots.<span class="raw-html-m2r"><br></span>
+No zero-padding by default.<span class="raw-html-m2r"><br></span>
+Nested collapsible HTML menu to inspect model arguments in IPython.<span class="raw-html-m2r"><br></span>
+Officially supporting Python 3.11.</p>
+</section>
+<section id="fixes">
+<h3>Fixes<a class="headerlink" href="#fixes" title="Permalink to this heading">¶</a></h3>
+<p>Refactor encapsulation of models to be compliant with the sklearn API.
+This also affects argument names. These changes are non-breaking, since old
+names are still supported, although deprecated (a warning will be printed).<span class="raw-html-m2r"><br></span>
+Adjust amplitude optimization boundaries based on initial values (ensure feasibility
+of starting point).<span class="raw-html-m2r"><br></span>
+Limit numpy version to avoid <a class="reference external" href="https://github.com/scikit-optimize/scikit-optimize/issues/1138">issue #1138</a> in skopt.</p>
+</section>
+<section id="performance">
+<h3>Performance<a class="headerlink" href="#performance" title="Permalink to this heading">¶</a></h3>
+<p>Optionally fit BeatsDROP to trajectories in parallel (multiprocessing).<span class="raw-html-m2r"><br></span>
+Use overlapping_windows to compute time-frames.<span class="raw-html-m2r"><br></span>
+More robust margins in beat regression bounds.</p>
+</section>
+<section id="gui">
+<h3>GUI<a class="headerlink" href="#gui" title="Permalink to this heading">¶</a></h3>
+<p>Plot beats as dashed lines in GUI.<span class="raw-html-m2r"><br></span>
+Add zero-padding toggle to GUI settings.<span class="raw-html-m2r"><br></span>
+Thread lock for analysis.
+Major refactoring of GUI internals to accomodate multiprocessing BeatsDROP.</p>
+</section>
+</section>
+<section id="v2-0-0">
+<h2>v2.0.0<a class="headerlink" href="#v2-0-0" title="Permalink to this heading">¶</a></h2>
+<section id="id1">
+<h3>Features<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<section id="psychoacoustic-functions">
+<h4>Psychoacoustic functions<a class="headerlink" href="#psychoacoustic-functions" title="Permalink to this heading">¶</a></h4>
+<p>Implementation of conversion functions between Hz and Bark, Mel, ERB, ERB-rate scale (Cams).<span class="raw-html-m2r"><br></span>
+Helper functions for decibels.</p>
+<p>Cochleagram computation as output of a gammatone filter-bank.<span class="raw-html-m2r"><br></span>
+Generalized time-frequency representations plots.</p>
+<p>Perceptual losses: Mel-spectrogram Loss, Multiscale Spectral Loss, Cochleagram Loss.</p>
+</section>
+<section id="linear-algebra">
+<h4>Linear algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this heading">¶</a></h4>
+<p>Decorator for functions operating on numpy arrays for automating the allocation of the output array, to avoid multiple allocations.<span class="raw-html-m2r"><br></span>
+Strided convolution utility for faster low-resolution convolution outputs.</p>
+</section>
+<section id="optimization">
+<h4>Optimization<a class="headerlink" href="#optimization" title="Permalink to this heading">¶</a></h4>
+<p>Hyperparameter optimization wrapper for Bayesian optimizaiton of SAMPLE parameters.</p>
+</section>
+<section id="beats">
+<h4>Beats<a class="headerlink" href="#beats" title="Permalink to this heading">¶</a></h4>
+<p>Random generator of beating modal partials.
+Modal beat model.
+DualBeat regression.</p>
+</section>
+</section>
+<section id="id2">
+<h3>GUI<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<p>Add spacers between parameters sections.<span class="raw-html-m2r"><br></span>
+Add “Export WAV” button.</p>
+</section>
+<section id="notebooks">
+<h3>Notebooks<a class="headerlink" href="#notebooks" title="Permalink to this heading">¶</a></h3>
+<p>Added “Automatic Tuning of SAMPLE hyperparameters” notebook.</p>
+</section>
+</section>
+<section id="v1-5-1">
+<h2>v1.5.1<a class="headerlink" href="#v1-5-1" title="Permalink to this heading">¶</a></h2>
+<p>Fixes issues with Zenodo metadata</p>
+</section>
+<section id="v1-5-0">
+<h2>v1.5.0<a class="headerlink" href="#v1-5-0" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h3>GUI<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>This version introduces a gui intended for a non-developer audience.
+Also, a stand-alone executable is built for Windows on GitHub</p>
+</section>
+<section id="id4">
+<h3>Features<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<p>Introduced new parameter <code class="docutils literal notranslate"><span class="pre">max_n_modes</span></code> for limiting the number of modes
+used by the SAMPLE model for resynthesis</p>
+</section>
+<section id="id5">
+<h3>Fixes<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<p>Made default boundary computation more robust to degenerate inputs. Also
+an exception is raised for tracks of length one, advising to raise the
+minimum sine duration</p>
+</section>
+</section>
+<section id="v1-4-0">
+<h2>v1.4.0<a class="headerlink" href="#v1-4-0" title="Permalink to this heading">¶</a></h2>
+<section id="id6">
+<h3>Features<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<section id="frequency-reduction">
+<h4>Frequency reduction<a class="headerlink" href="#frequency-reduction" title="Permalink to this heading">¶</a></h4>
+<p>A custom function can now be provided to reduce the array of frequency of each
+track into a single frequency. This is mainly intended to provide a way to
+switch between mean and median</p>
+</section>
+<section id="settable-properties">
+<h4>Settable properties<a class="headerlink" href="#settable-properties" title="Permalink to this heading">¶</a></h4>
+<p>Learned properties (frequencies, decays, amplitudes) can now be setted. This
+allows post-fit manipulations, e.g. pitch-shift</p>
+</section>
+</section>
+<section id="improvements">
+<h3>Improvements<a class="headerlink" href="#improvements" title="Permalink to this heading">¶</a></h3>
+<p>Now forcing correct package version in notebooks. Also using quiet mode instead
+of clearing output</p>
+</section>
+</section>
+<section id="v1-3-0">
+<h2>v1.3.0<a class="headerlink" href="#v1-3-0" title="Permalink to this heading">¶</a></h2>
+<section id="id7">
+<h3>Features<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<section id="merging-strategy">
+<h4>Merging strategy<a class="headerlink" href="#merging-strategy" title="Permalink to this heading">¶</a></h4>
+<p>Introduced an option to decide when to merge two different tracks. The “average”
+strategy considers the two average frequencies. The “single” strategy considers
+the last frequency of the first track and the first frequency of the second
+track</p>
+</section>
+<section id="track-strip">
+<h4>Track strip<a class="headerlink" href="#track-strip" title="Permalink to this heading">¶</a></h4>
+<p>Introduced an option to strip tracks that start after a given time</p>
+</section>
+</section>
+</section>
+<section id="v1-2-3">
+<h2>v1.2.3<a class="headerlink" href="#v1-2-3" title="Permalink to this heading">¶</a></h2>
+<p>Quality-of-code changes:</p>
+<ul class="simple">
+<li><p>streamlined workflow</p></li>
+<li><p>pushed coverage to 100%</p></li>
+<li><p>added badges to README</p></li>
+</ul>
+</section>
+<section id="v1-2-2">
+<h2>v1.2.2<a class="headerlink" href="#v1-2-2" title="Permalink to this heading">¶</a></h2>
+<p>Removed most magics from notebooks to turn them crossplatform.
+Download is performed via a GET request using <code class="docutils literal notranslate"><span class="pre">requests</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">wav</span></code> audio format is used for better support.</p>
+</section>
+<section id="v1-2-1">
+<h2>v1.2.1<a class="headerlink" href="#v1-2-1" title="Permalink to this heading">¶</a></h2>
+<p>Minor corrections to docs</p>
+</section>
+<section id="v1-2-0">
+<h2>v1.2.0<a class="headerlink" href="#v1-2-0" title="Permalink to this heading">¶</a></h2>
+<section id="id8">
+<h3>Features<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h3>
+<section id="reverse-mode">
+<h4>Reverse mode<a class="headerlink" href="#reverse-mode" title="Permalink to this heading">¶</a></h4>
+<p>Added reverse mode: sinusoidal model will (optionally) process audio in reverse.
+This option was already implemented in the prototypal software for the paper,
+but missing from this package.</p>
+</section>
+</section>
+<section id="bugfixes">
+<h3>BugFixes<a class="headerlink" href="#bugfixes" title="Permalink to this heading">¶</a></h3>
+<section id="hingeregression-default-linear-regressor">
+<h4>HingeRegression default linear_regressor<a class="headerlink" href="#hingeregression-default-linear-regressor" title="Permalink to this heading">¶</a></h4>
+<p>HingeRegression instances with default linear_regressor used to share the same
+linear_regressor instance. Now assignment is performed on a deepcopy of the
+parameter value (via property setter).</p>
+</section>
+</section>
+</section>
+<section id="v1-1-0">
+<h2>v1.1.0<a class="headerlink" href="#v1-1-0" title="Permalink to this heading">¶</a></h2>
+<p>First official release</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sample.sample.html" class="btn btn-neutral float-left" title="sample.sample module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021-2022, Marco Tiraboschi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

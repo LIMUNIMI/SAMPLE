@@ -1,0 +1,7 @@
+sample.psycho module
+====================
+
+.. automodule:: sample.psycho
+   :members:
+   :undoc-members:
+   :show-inheritance:

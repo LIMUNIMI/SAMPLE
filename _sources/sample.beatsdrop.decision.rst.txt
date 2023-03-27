@@ -1,0 +1,7 @@
+sample.beatsdrop.decision module
+================================
+
+.. automodule:: sample.beatsdrop.decision
+   :members:
+   :undoc-members:
+   :show-inheritance:

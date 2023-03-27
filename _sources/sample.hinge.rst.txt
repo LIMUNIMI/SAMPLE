@@ -1,0 +1,7 @@
+sample.hinge module
+===================
+
+.. automodule:: sample.hinge
+   :members:
+   :undoc-members:
+   :show-inheritance:

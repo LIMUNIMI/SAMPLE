@@ -1,0 +1,7 @@
+sample.evaluation.random module
+===============================
+
+.. automodule:: sample.evaluation.random
+   :members:
+   :undoc-members:
+   :show-inheritance:
