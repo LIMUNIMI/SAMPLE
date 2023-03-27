@@ -1,11 +1,12 @@
 """DSP utilities"""
 import functools
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 import numpy as np
-from sample import utils
 from scipy import signal
 from sklearn import base, linear_model
+
+from sample import utils
 
 
 @utils.function_with_variants(key="mode", default="peak", this="peak")
@@ -490,3 +491,189 @@ def strided_convolution_complex_kernel(x: np.ndarray,
 
 
 DOUBLE_DB: float = a2db(2)
+
+
+def spectral_flux(x: np.ndarray,
+                  tf_fn: Callable[[np.ndarray], Tuple[np.ndarray,
+                                                      ...]] = signal.stft,
+                  **kwargs) -> Tuple[np.ndarray, np.ndarray]:
+  """Compute spectral flux from a signal, as defined in [1]
+
+  Args:
+    x (array): Signal
+    tf_fn (callable): Function to transform :data:`x` to a time-frequency
+      domain. It should output a tuple of outputs, where the last output is the
+      time-frequency matrix (frequency x time).
+      By default:func:`scipy.signal.stft` is used
+    kwargs: Keyword arguments for :data:`tf_fn`
+
+  Returns:
+    array: Spectral flux feature
+
+  References:
+    .. [1] Dixon, Simon. "Onset detection revisited." Proceedings of the 9th
+      international conference on digital audio effects.
+      Vol. 120. No. 133-137. 2006."""
+  t = tf_fn(x, **kwargs)
+  return spectral_flux_from_tf(t[-1])
+
+
+def spectral_flux_from_tf(x: np.ndarray) -> np.ndarray:
+  """Compute spectral flux from a time-frequency matrix, as defined in [1]
+
+  Args:
+    x (array): Time-frequency matrix (frequency x time)
+
+  Returns:
+    array: Spectral flux feature
+
+  References:
+    .. [1] Dixon, Simon. "Onset detection revisited." Proceedings of the 9th
+      international conference on digital audio effects.
+      Vol. 120. No. 133-137. 2006."""
+  a = np.abs(x)
+  delta = np.diff(a, axis=-1)
+  np.maximum(delta, 0, out=delta)
+  return np.sum(delta, axis=0, out=delta[0, :])
+
+
+@utils.numpy_out(dtype=bool, dtype_promote=False)
+def local_maxima(x: np.ndarray,
+                 w: int = 1,
+                 key: Optional[np.ndarray] = None,
+                 logical_and: bool = False,
+                 out: Optional[np.ndarray] = None) -> np.ndarray:
+  """Find local maxima in a function
+
+  Args:
+    x (array): Function
+    w (int): Window radius for maxima detection
+    key (array): Function to look over to evaluate local optimality.
+      If unspecified, :data:`x` itself will be used
+    out (array): Array of :class:`bool` to overwrite with output
+    logical_and (bool): If :data:`True`, then write in :data:`out` the logical
+      conjunction of this function output and the data already in :data:`out`
+
+  Returns:
+    array: Array of boolean values (:data:`True` for maxima)"""
+  x_flat = np.reshape(x, (-1,))
+  key = x_flat if key is None else np.reshape(key, (-1,))[:x_flat.size]
+  wins = overlapping_windows(key, wsize=2 * w + 1, hop=1)
+  maxima = np.max(wins, axis=-1)
+  np.greater_equal(x_flat[w:-w],
+                   maxima,
+                   out=maxima if logical_and else out[w:-w])
+  if logical_and:
+    np.logical_and(maxima, out[w:-w], out=out[w:-w])
+  out[:w] = False
+  out[-w:] = False
+  return out
+
+
+@utils.numpy_out
+def _onset_selection_g(x: np.ndarray,
+                       alpha: float = 0,
+                       out: np.ndarray = None) -> np.ndarray:
+  """Helper function for :func:`onset_selection` (non-linear IIR
+    low-pass filter)"""
+  g = 0
+  alpha_ = 1 - alpha
+  for index in np.ndindex(*x.shape):
+    f = x[index]
+    out[index] = g = max(f, alpha * g + alpha_ * f)
+  return out
+
+
+@utils.numpy_out
+def _onset_selection_m(x: np.ndarray,
+                       w: int = 1,
+                       m: int = 1,
+                       delta: float = 0,
+                       out: np.ndarray = None) -> np.ndarray:
+  """Helper function for :func:`onset_selection` (asymmetric average filter)"""
+  x_flat = np.reshape(x, (-1,))
+  wins = overlapping_windows(x_flat, wsize=(m + 1) * w + 1, hop=1)
+  out[:m * w] = 0
+  out[-w:] = 0
+  np.mean(wins, axis=-1, out=out[m * w:-w])
+  np.add(out, delta, out=out)
+  return out
+
+
+def onset_selection(x,
+                    w: int = 3,
+                    m: int = 3,
+                    alpha: float = 0.75,
+                    delta: float = 1.5):
+  """Select onsets from a detection signal, e.g. :func:`spectral_flux`,
+  as defined in [1]
+
+  Args:
+    x (array): Function
+    w (int): Window radius for maxima detection
+    m (int): Window radius multiplier for offsetting the average window
+      to the left (before the onset)
+    alpha (float): Feedback coefficient for non-linear filter (higher values
+      result in slower envelopes)
+    delta (float): Threshold for onset detection relative to local average
+
+  Returns:
+    array: Array of boolean values (:data:`True` for onsets)
+
+  References:
+    .. [1] Dixon, Simon. "Onset detection revisited." Proceedings of the 9th
+      international conference on digital audio effects.
+      Vol. 120. No. 133-137. 2006."""
+  x_n = normalize(np.reshape(x, (-1,)), mode="rms")
+  ons = np.empty(x_n.size, dtype=bool)
+
+  tmp = _onset_selection_g(x_n, alpha=alpha)
+  # pylint: disable=E1136 (false positive)
+  np.greater_equal(x_n[1:], tmp[:-1], out=ons[1:])
+
+  tmp = _onset_selection_m(x_n, w=w, m=m, delta=delta, out=tmp)
+  np.greater_equal(x_n, tmp, out=tmp)
+  np.logical_and(ons, tmp, out=ons)
+
+  local_maxima(x, w=w, logical_and=True, out=ons)
+  return ons
+
+
+def onset_detection(x,
+                    detection_fn: Callable[[np.ndarray],
+                                           np.ndarray] = spectral_flux,
+                    w: int = 3,
+                    m: int = 3,
+                    alpha: float = 0.75,
+                    delta: float = 1.5,
+                    **kwargs):
+  """Detect onsets in signal, as defined in [1]
+
+  Args:
+    x (array): Signal
+    detection_fn (callable): Detection function to use.
+      Default is :func:`spectral_flux`
+    w (int): Window radius for maxima detection
+    m (int): Window radius multiplier for offsetting the average window
+      to the left (before the onset)
+    alpha (float): Feedback coefficient for non-linear filter (higher values
+      result in slower envelopes)
+    delta (float): Threshold for onset detection relative to local average
+    kwargs: Keyword arguments for :data:`detection_fn`
+
+  Returns:
+    array: Array of boolean values (:data:`True` for onsets)
+
+  References:
+    .. [1] Dixon, Simon. "Onset detection revisited." Proceedings of the 9th
+      international conference on digital audio effects.
+      Vol. 120. No. 133-137. 2006."""
+  f = detection_fn(x, **kwargs)
+  ons_subs = onset_selection(f, w=w, m=m, alpha=alpha, delta=delta)
+  ons_idx = np.flatnonzero(ons_subs)
+  ons_idx = np.multiply(ons_idx, x.size, out=ons_idx)
+  ons_idx_f = ons_idx / f.size
+  np.floor(ons_idx_f, out=ons_idx_f)
+  ons = np.zeros(x.size, dtype=bool)
+  ons[ons_idx_f.astype(int)] = True
+  return ons

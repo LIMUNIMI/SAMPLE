@@ -4,8 +4,8 @@ import threading
 
 import numpy as np
 import pygame
-import soundfile as sf
 from pygame import mixer
+from scipy.io import wavfile
 
 
 class TempAudio:
@@ -21,12 +21,11 @@ class TempAudio:
       self,
       x: np.ndarray,
       sr: int,
-      format_: str = "wav",
   ):
     self.buf = io.BytesIO()
     self.x = x
     self.sr = sr
-    sf.write(self.buf, x, sr, format=format_)
+    wavfile.write(self.buf, sr, x)
     self.buf.seek(0)
 
   @staticmethod

@@ -3,7 +3,7 @@ wheel
 
 # Run
 chromatictools
-numpy<1.24
+numpy
 paragraph
 scikit-learn
 scikit-optimize
@@ -18,7 +18,6 @@ more-itertools
 ipython
 jupyter
 matplotlib
-librosa
 requests
 
 # GUI

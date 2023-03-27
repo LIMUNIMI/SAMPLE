@@ -61,7 +61,7 @@ class TestMetrics(unittest.TestCase):
   def test_cochleagram_coherence(self,
                                  dropout=(0, 0.20, 0.40, 0.60),
                                  powers=(1, 2),
-                                 analytical=("ir", None)):
+                                 analytic=("ir", None)):
     """Test coherence of cochleagram loss"""
     dropout = sorted(dropout)
     np.random.seed(42)
@@ -71,9 +71,9 @@ class TestMetrics(unittest.TestCase):
           "postprocessing":
               functools.partial(dsp_utils.complex2db, floor=-120, floor_db=True)
       } if db else {}
-      for a, p in itertools.product(analytical, powers):
+      for a, p in itertools.product(analytic, powers):
         cochleagram_loss = metrics.CochleagramLoss(fs=self.fs,
-                                                   analytical=a,
+                                                   analytic=a,
                                                    stride=int(self.fs * 0.005),
                                                    p=p,
                                                    **db_kws)
@@ -82,11 +82,11 @@ class TestMetrics(unittest.TestCase):
           y = np.greater(r, d).astype(float) * self.x
           curr = cochleagram_loss(self.x, y)
           if d == 0:
-            with self.subTest(analytical=a, db=db, power=p, test="zero"):
+            with self.subTest(analytic=a, db=db, power=p, test="zero"):
               self.assertEqual(0, curr)
           else:
             if prev is not None:
-              with self.subTest(analytical=a,
+              with self.subTest(analytic=a,
                                 db=db,
                                 power=p,
                                 test="order",

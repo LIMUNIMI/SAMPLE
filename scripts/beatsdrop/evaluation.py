@@ -17,12 +17,16 @@ import warnings
 from typing import List, Optional, Tuple
 
 import autorank
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import sklearn.base
 import sklearn.metrics
+import sklearn.model_selection
+import sklearn.tree
 import tqdm
 from chromatictools import cli, pickle
+from matplotlib import pyplot as plt
 from scipy.io import wavfile
 
 import sample
@@ -590,50 +594,34 @@ def print_report(rank_result):
 
   # Custom table
   print(r"\begin{table*}[ht]")
-  print(r"\tiny")
+  # print(r"\tiny")
   print(r"\centering")
-  print(r"\begin{tabular}{llcccccc}")
+  print(r"\begin{tabular}{c" + "c" * 2 * len(models) + "}")
   print(r"\toprule")
-  print("&", end="")
   units = {
       "f": "mel",
       "a": "dB",
       "d": "s",
   }
   syms = {
-      "f": r"\nu",
-      "a": r"A",
+      "f": "\\nu",
+      "a": "a",
       "d": "d",
   }
-  print("&")
-  for i, k in enumerate(variables_to_test):
-    print(f"${syms[k[0]]}_{int(k[1:]) + 1}$ ({units[k[0]]})",
-          r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
-  print(r"\\")
   for m, mk in models:
-    print(r"\midrule")
-    print(mk, "& Median &")
-    for i, k in enumerate(variables_to_test):
+    print("& \\multicolumn{2}{c}{", mk, "} %", m)
+  print("\\\\")
+  for _ in models:
+    print("& Med. & $95\\%$ CI", end=" ")
+  for k in variables_to_test:
+    print("\\\\\n\\midrule")
+    print(f"${syms[k[0]]}_{int(k[1:]) + 1}$ ({units[k[0]]}) % {k}")
+    for m, mk in models:
       median = rank_result.rankdf["median"][f"{k}_{m}_ar"]
-      print(f"{median:.3f}", r"\\" if i == len(variables_to_test) - 1 else "&",
-            "%", k)
-    if frequentist:
-      cip = ""
-    else:
-      cip = f"${(1 - rank_result.alpha) * 100:.0f}" + r"\%$ "
-    print(f"& {cip}CI &")
-    for i, k in enumerate(variables_to_test):
+      print(f"& {median:.3f}")
       ci = rank_result.rankdf["CI"][f"{k}_{m}_ar"]
-      print(ci, r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
-  print(r"\midrule")
-  print(r"& Best &")
-  for i, k in enumerate(variables_to_test):
-    ks = tuple(f"{k}_{m}_ar" for m, _ in models)
-    best = decision(ks[0], ks[1])
-    best = dict(zip(("smaller", "larger"),
-                    models)).get(best, (best, r"\textit{" + best + "}"))[1]
-    print(best, r"\\" if i == len(variables_to_test) - 1 else "&", "%", k)
-  print(r"\bottomrule\\")
+      print(f"& {ci}")
+  print(r"\\\bottomrule\\")
   print(r"\end{tabular}")
   print(r"\caption{Summary of test results}")
   print(r"\label{tab:results}")
@@ -748,10 +736,235 @@ def decision_report(args):
       [*np.ones(n_samples, dtype=bool), *np.zeros(n_samples, dtype=bool)])
   y_pred = np.array([*args.df["beat"], *args.df["single"]])
   s = sklearn.metrics.classification_report(y_true, y_pred)
+  # ---------------------------------------------------------------------------
 
+  # --- Print report ----------------------------------------------------------
   with print_or_write(
       args.output if args.output is None else f"{args.output}_report.txt"):
     print(s)
+  # ---------------------------------------------------------------------------
+
+  # --- Augment features ------------------------------------------------------
+  df = args.df.copy()
+  for k in "afdp":
+    for i in range(3):
+      df[f"{k}{i}_log"] = np.log(df[f"{k}{i}"])
+    for s in ["", "_log"]:
+      df[f"{k}{s}_delta"] = np.abs(df[f"{k}0{s}"] - df[f"{k}1{s}"])
+      df[f"{k}{s}_avg"] = (df[f"{k}0{s}"] + df[f"{k}1{s}"]) / 2
+  features = [
+      "seed",
+      # "beat",
+      # "single",
+      "a0",
+      "a1",
+      "a2",
+      "f0",
+      "f1",
+      "f2",
+      "d0",
+      "d1",
+      "d2",
+      # "p0",
+      # "p1",
+      # "p2",
+      # "a0_log",
+      # "a1_log",
+      # "a2_log",
+      "a_delta",
+      "a_avg",
+      "a_log_delta",
+      # "a_log_avg",
+      # "f0_log",
+      # "f1_log",
+      # "f2_log",
+      "f_delta",
+      "f_avg",
+      "f_log_delta",
+      # "f_log_avg",
+      # "d0_log",
+      # "d1_log",
+      # "d2_log",
+      "d_delta",
+      "d_avg",
+      "d_log_delta",
+      # "d_log_avg",
+      # "p0_log",
+      # "p1_log",
+      # "p2_log",
+      "p_delta",
+      "p_avg",
+      # "p_log_delta",
+      # "p_log_avg",
+      # "error",
+  ]
+  # ---------------------------------------------------------------------------
+
+  # --- Feature names ---------------------------------------------------------
+  latex_feature_names = {}
+  l_keys = {
+      "f": "\\nu",
+      "p": "\\phi",
+      "seed": "\\mathrm{seed}",
+  }
+  for k in features:
+    v = k.split("_", 1)[0]
+    pre_v = "".join(filter(str.isalpha, v))
+    pre_v = l_keys.get(pre_v, pre_v)
+    suf_v = "".join(filter(str.isdigit, v))
+    v = f"{pre_v}_{{{int(suf_v) + 1}}}" if suf_v else pre_v
+    if "_log" in k:
+      v = f"\\log{{{v}}}"
+    if "_delta" in k:
+      v = f"\\Delta{{{v}}}"
+    elif "_avg" in k:
+      v = f"\\overline{{{v}}}"
+    latex_feature_names[k] = f"${v}$"
+  # ---------------------------------------------------------------------------
+
+  # --- Importance ------------------------------------------------------------
+  importance_fname = None if args.output is None else f"{args.output}_errors_"\
+                                                       "feature_importance.csv"
+  targets = ["beat", "single"]
+  if importance_fname is None or not os.path.isfile(importance_fname):
+    dtc = sklearn.tree.DecisionTreeClassifier(random_state=42)
+    n_samples = 1024
+    n_folds = 16
+
+    importances = {k: np.empty(n_samples * len(targets)) for k in features}
+    importances["target"] = np.empty(n_samples * len(targets), dtype=object)
+
+    rkf = sklearn.model_selection.RepeatedKFold(
+        n_splits=n_folds,
+        n_repeats=np.ceil(n_samples / n_folds).astype(int),
+        random_state=42)
+    it = enumerate(itertools.islice(rkf.split(df[features]), n_samples))
+    if args.tqdm:
+      it = tqdm.tqdm(it, total=n_samples, desc="Decision errors analysis")
+      for i, (train_index, _) in it:
+        for j, t in enumerate(targets):
+          dtc.fit(df[features].iloc[train_index], df[t].iloc[train_index])
+          idx = 2 * i + j
+          for k, v in zip(dtc.feature_names_in_, dtc.feature_importances_):
+            importances[k][idx] = v
+          importances["target"][idx] = t
+    importances = pd.DataFrame(importances)
+    if importance_fname is not None:
+      logger.info("Writing report file: '%s'", importance_fname)
+      importances.to_csv(importance_fname)
+  else:
+    importances = pd.read_csv(importance_fname)
+  # ---------------------------------------------------------------------------
+
+  rcfile = os.path.join(os.path.dirname(__file__), "figures.mplstyle")
+  # --- Plot feature importance -----------------------------------------------
+  logger.debug("Plotting feature importance")
+  with mpl.rc_context(fname=rcfile):
+    _, axs = plt.subplots(
+        1,
+        2,
+        sharex=True,
+        figsize=(12, 6),
+    )
+    for t, ax in zip(targets, axs.flatten()):
+      ax.set_title(t)
+      ax.grid(axis="x")
+      imp_df_t = importances[importances["target"] == t][features]
+      sorted_feats = imp_df_t.quantile(
+          q=0.05).sort_values().iloc[:].index.to_list()
+      ax.boxplot(
+          list(map(imp_df_t.__getitem__, sorted_feats)),
+          notch=True,
+          vert=False,
+          flierprops={
+              "marker": ".",
+              "markersize": 1,
+              "alpha": 0.5,
+              "zorder": 100,
+          },
+          patch_artist=True,
+          boxprops={
+              "linewidth": 1,
+              "edgecolor": np.array((0, 0, 0, 0.75)),
+              "facecolor": "w",
+              "zorder": 101,
+          },
+          medianprops={
+              "color": "C0",
+              "zorder": 102,
+          },
+          showcaps=False,
+      )
+      ax.set_yticklabels([latex_feature_names.get(k, k) for k in sorted_feats])
+    if args.output is None:
+      plt.show()
+    else:
+      fname = f"{args.output}_errors_feature_importance.pdf"
+      logger.info("Saving feature importance plot to file: '%s'", fname)
+      plt.savefig(fname)
+    plt.clf()
+  # ---------------------------------------------------------------------------
+
+  # --- Plot histograms -------------------------------------------------------
+  if args.output is None:
+    hist_dir = None
+  else:
+    hist_dir = os.path.join(os.path.dirname(args.output), "histograms")
+    logger.debug("Making directory: '%s'", hist_dir)
+    os.makedirs(hist_dir, exist_ok=True)
+  targets_d = {
+      "beat": ("Positive", lambda x: x),
+      "single": ("Negative", np.logical_not),
+  }
+  cond_props = itertools.product(targets_d, features)
+  if args.tqdm:
+    cond_props = tqdm.tqdm(cond_props,
+                           desc="Plotting histrograms",
+                           total=len(targets_d) * len(features))
+  with mpl.rc_context(fname=rcfile):
+    _, axs = plt.subplots(1, 2, sharex=True, figsize=(12, 6))
+    for t, k in cond_props:
+      for ax in axs.flatten():
+        ax.cla()
+      logger.debug("Plotting histogram of %s conditioned on %s prediction", k,
+                   t)
+      labels = sorted(df[t].unique(), reverse=True)
+      d = [df[df[t] == l][k] for l in labels]
+      tk, tkfn = targets_d[t]
+      # Histogram
+      counts, bins, _ = axs[0].hist(
+          d,
+          label=tkfn(labels),
+          zorder=100,
+      )
+      axs[0].set_title("Histogram")
+
+      # Posterior
+      posterior = counts / np.sum(counts, axis=0)
+
+      bw = np.median(np.diff(bins)) / (len(labels) + 0.5)
+      bc = (bins[:-1] + bins[1:]) / 2
+
+      for pi, (tki, p) in enumerate(zip(tkfn(labels), posterior)):
+        axs[1].bar(bc + pi * bw, p, label=tki, width=bw, zorder=100)
+      axs[1].set_title("Posterior")
+      for ax in axs.flatten():
+        ax.legend(title=tk)
+        ax.grid(axis="y")
+        ax.set_xlabel(latex_feature_names.get(k, k))
+      if hist_dir is None:
+        plt.show()
+      else:
+        fname = os.path.join(hist_dir, f"{t}_{k}.pdf")
+        if args.tqdm:
+          cond_props.set_description(fname)
+        else:
+          logger.debug(
+              "Saving histogram of %s conditioned on %s prediction: '%s'", k, t,
+              fname)
+        plt.savefig(fname)
+  # ---------------------------------------------------------------------------
+
   return args
 
 

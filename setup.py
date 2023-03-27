@@ -24,7 +24,7 @@ setuptools.setup(
     ],
     install_requires=[
         "chromatictools",
-        "numpy<1.24",
+        "numpy",
         "paragraph",
         "scikit-learn",
         "scikit-optimize",
@@ -34,7 +34,6 @@ setuptools.setup(
     extras_require={
         "gui": [
             "ttkthemes",
-            "librosa",
             "pygame",
             "matplotlib",
             "Pillow",
@@ -48,12 +47,16 @@ setuptools.setup(
             "ipython",
             "jupyter",
             "matplotlib",
-            "librosa",
             "more-itertools",
             "requests",
         ],
         "scripts-beatsdrop": [
-            "matplotlib", "autorank", "pandas", "emd", "spectrum"
+            "matplotlib",
+            "autorank",
+            "pandas",
+            "emd",
+            "spectrum",
+            "throttle",
         ],
         "scripts-cim22": ["matplotlib",],
         "test": [

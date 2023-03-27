@@ -18,6 +18,11 @@ from sample.evaluation import metrics
 
 utils = sample.utils
 
+# --- Monkey patch to solve issue ---------------------------------------------
+#   https://github.com/scikit-optimize/scikit-optimize/issues/1138
+np.int = int
+# -----------------------------------------------------------------------------
+
 
 @utils.deprecated_argument("sinusoidal_model__log_n", "sinusoidal__log_n")
 @utils.deprecated_argument("sinusoidal_model__wtype", "sinusoidal__wtype")
@@ -111,8 +116,7 @@ class SAMPLEOptimizer:
                clip: bool = True,
                **kwargs):
     self.model = model
-    self.loss_fn = loss_fn if loss_kw is None else functools.partial(
-        loss_fn, **loss_kw)
+    self.loss_fn = functools.partial(loss_fn, **utils.default_kws(loss_kw))
     self.dimensions = collections.OrderedDict(kwargs)
     self.remap = remap
     self.clip = clip
@@ -181,7 +185,7 @@ class SAMPLEOptimizer:
       fs (float): Sample rate
       ignore_warnings (bool): If :data:`True` (default), then ignore warnings
         while optimizing
-      fit_kws (dict): Arguments for the :function:`self.model.fit` method
+      fit_kws (dict): Arguments for the :func:`self.model.fit` method
       **kwargs: Keyword arguments for :func:`skopt.gp_minimize`
 
     Returns:
@@ -196,7 +200,7 @@ class SAMPLEOptimizer:
                               **kwargs)
     model = base.clone(self.model)
     model.set_params(**self._kwargs(*res.x, sinusoidal__tracker__fs=fs))
-    model.fit(x, **({} if fit_kws is None else fit_kws))
+    model.fit(x, **utils.default_kws(fit_kws))
     return model, res
 
 

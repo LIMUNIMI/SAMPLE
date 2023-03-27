@@ -140,7 +140,7 @@ def main(*argv):
   # Define loss function
   cochleagram_loss = metrics.CochleagramLoss(fs=fs,
                                              normalize=True,
-                                             analytical="ir",
+                                             analytic="ir",
                                              stride=int(fs * 0.008),
                                              postprocessing=functools.partial(
                                                  dsp_utils.complex2db,

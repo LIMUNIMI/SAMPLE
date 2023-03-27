@@ -93,17 +93,17 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin,
       self.assertGreater(coch.shape[1], self.x.size)
 
   def test_error_complex_irs(self):
-    """Test raising exception when IRs are analytical"""
+    """Test raising exception when IRs are analytic"""
     for a in (False, True):
-      irs = psycho.GammatoneFilterbank().precompute(fs=self.fs, analytical=a)
+      irs = psycho.GammatoneFilterbank().precompute(fs=self.fs, analytic=a)
       for arg in (None, "ir", "input", "output"):
-        with self.subTest(ir_analytical=a, arg=arg):
+        with self.subTest(ir_analytic=a, arg=arg):
           if a and arg in ("input", "output"):
             with self.assertRaises(ValueError):
-              psycho.cochleagram(self.x, filterbank=irs, analytical=arg)
+              psycho.cochleagram(self.x, filterbank=irs, analytic=arg)
           else:
             with self.assert_doesnt_raise():
-              psycho.cochleagram(self.x, filterbank=irs, analytical=arg)
+              psycho.cochleagram(self.x, filterbank=irs, analytic=arg)
 
     gtfb = psycho.GammatoneFilterbank(normalize=True)
     coch = gtfb.convolve(self.x, fs=self.fs)
@@ -211,29 +211,29 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin,
 
   def test_cochleagram_direct_vs_strided(self):
     """Test stride cochleagram correctness (against direct)"""
-    for analytical in (True, False):
+    for analytic in (True, False):
       coch, _ = psycho.cochleagram(self.x,
                                    fs=self.fs,
                                    normalize=True,
-                                   analytical=analytical,
+                                   analytic=analytic,
                                    method="direct")
       for stride in (0, 0.005, 0.010):
         stride = max(1, int(stride * self.fs))
         coch_s, _ = psycho.cochleagram(self.x,
                                        fs=self.fs,
                                        normalize=True,
-                                       analytical=analytical,
+                                       analytic=analytic,
                                        stride=stride)
         coch_d = coch[:, ::stride]
-        with self.subTest(analytical=analytical, stride=stride, what="shape"):
+        with self.subTest(analytic=analytic, stride=stride, what="shape"):
           self.assertEqual(coch_d.shape, coch_s.shape)
-        with self.subTest(analytical=analytical, stride=stride, what="rmse"):
+        with self.subTest(analytic=analytic, stride=stride, what="rmse"):
           self.assert_almost_equal_rmse(coch_s, coch_d, places=5)
 
-  def test_cochleagram_rms_peak_analytical(self):
+  def test_cochleagram_rms_peak_analytic(self):
     """Test complex cochleagram RMS peak"""
     irs = psycho.GammatoneFilterbank(normalize=True).precompute(fs=self.fs,
-                                                                analytical=True)
+                                                                analytic=True)
     t = np.arange(int(self.fs * 0.125)) / self.fs
     x = np.empty_like(t)
     for stride in (None, int(self.fs * 0.001)):
@@ -309,7 +309,7 @@ class TestTF(unittestmixins.AssertDoesntRaiseMixin,
     with self.assertRaises(ValueError):
       psycho.cochleagram(self.x,
                          fs=self.fs,
-                         analytical="input",
+                         analytic="input",
                          stride=int(self.fs * 0.005))
 
   def test_mel_spectrogram_shape(self, n_filters: int = 81):

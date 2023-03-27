@@ -2,7 +2,8 @@
 import functools
 import inspect
 import warnings
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, overload, TypeVar, Union
+from typing import (Any, Callable, Dict, Iterable, Optional, Tuple, TypeVar,
+                    Union, overload)
 
 import numpy as np
 import paragraph as pg
@@ -534,3 +535,36 @@ def warnings_simplefilter(func: Optional[F] = None,
       return func(*ars, **kws)
 
   return func_
+
+
+def default_kws(d: Optional[Dict[str, Any]] = None, **kwargs) -> Dict[str, Any]:
+  """Helper function for setting default keyword arguments in a dict
+
+  Args:
+    d (dict): Non-default arguments
+    **kwargs: Default arguments
+
+  Returns:
+    dict: A copy of the input arguments, with default arguments set
+
+  Example:
+    >>> from sample.utils import default_kws
+    >>> # Let's define a function with two arguments
+    >>> def foo(a, b=1):
+    ...   return f"A: {a} - B: {b}"
+    >>> # bar will forward foo_kws to foo, using a=1 as default value for a
+    >>> def bar(start="[", end="]", foo_kws=None):
+    ...   return f"{start}{foo(**default_kws(foo_kws, a=1))}{end}"
+    >>> bar()
+    '[A: 1 - B: 1]'
+    >>> # Default values may be overwritten in the function call
+    >>> bar(foo_kws={'a': 0})
+    '[A: 0 - B: 1]'
+    >>> # And/or non-default values, too
+    >>> bar(foo_kws={'a': 0, 'b': 0})
+    '[A: 0 - B: 0]'
+  """
+  d = {} if d is None else d.copy()
+  for k, v in kwargs.items():
+    d[k] = d.get(k, v)
+  return d

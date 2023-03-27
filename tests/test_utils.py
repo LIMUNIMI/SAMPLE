@@ -192,3 +192,34 @@ class TestDSP(unittestmixins.SignificantPlacesAssertMixin,
           self.assertEqual(x_cs.shape, x_s.shape)
         with self.subTest(i=i, what="value"):
           self.assert_almost_equal_rmse(x_cs, x_s)
+
+  def test_onset_detection(self,
+                           min_n: int = 1,
+                           max_n: int = 32,
+                           f_std: float = 100,
+                           f_mean: float = 440,
+                           fs: float = 44100,
+                           dur: float = np.pi,
+                           seed: int = 42,
+                           noise_std: float = 1e-3,
+                           d: float = np.pi / 4):
+    """Test that the number of detected onsets is correct"""
+    t = np.arange(int(fs * dur)) / fs
+    freqs = f_mean + np.random.default_rng(seed=seed).normal(size=max_n,
+                                                             scale=f_std)
+    n = np.random.default_rng(seed=seed).normal(size=t.size, scale=noise_std)
+    for i in range(min_n, max_n + 1):
+      with self.subTest(n_signals=i):
+        x = n.copy()
+        step = int(t.size / (i + 0.5))
+        for j in range(i):
+          i_0 = int(step * (j + 0.5))
+          x_ = 2 * np.pi * freqs[j] * t[:-i_0]
+          x_ = np.cos(x_, out=x_)
+          e = -2 * t[:-i_0]
+          np.true_divide(e, d * step / fs, out=e)
+          np.exp(e, out=e)
+          np.multiply(x_, e, out=x_)
+          np.add(x[i_0:], x_, out=x[i_0:])
+        ons = dsp_utils.onset_detection(x)
+        self.assertEqual(i, sum(ons))
