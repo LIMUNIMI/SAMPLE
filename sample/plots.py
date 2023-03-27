@@ -352,12 +352,12 @@ def beatsdrop_comparison(
         }),
         (a0_, {
             "c": "C3",
-            "label": "$a_1$",
+            "label": "$A_1(t)$",
             "zorder": 101
         }),
         (a1_, {
             "c": "C4",
-            "label": "$a_2$",
+            "label": "$A_2(t)$",
             "zorder": 101
         }),
     ):

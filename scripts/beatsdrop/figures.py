@@ -2,25 +2,31 @@
 Theory of Uneven Beats and Applications to Modal Parameters Estimate'"""
 import argparse
 import functools
+import itertools
 import logging
 import os
+import re
 import sys
 from typing import Callable, Optional, Tuple
 
-import emd
 import matplotlib as mpl
 import numpy as np
 import sklearn.base
 import spectrum
 from chromatictools import cli
-from matplotlib import colors
+from matplotlib import colors, lines, patches
 from matplotlib import pyplot as plt
 from scipy import interpolate, signal
 
 import sample.beatsdrop.regression
 import sample.beatsdrop.sample
-from sample import beatsdrop, plots, sample
-from sample.utils import dsp as dsp_utils
+import sample.utils.dsp
+from sample import beatsdrop, plots, sample, utils
+
+if "--help" not in sys.argv and ("--plot-emd" in sys.argv or not any(
+    map(re.compile(r"^--plot-.+$").fullmatch, sys.argv))):
+  # This saves so much time when not plotting emd
+  import emd
 
 logger = logging.getLogger("BeatsDROP-Figures")
 
@@ -57,11 +63,14 @@ class ArgParser(argparse.ArgumentParser):
         type=lambda s: str(s).upper(),
         help="Set the log level. Default is 'INFO'",
     )
-    for k in self._PLOTS:
-      self.add_argument(f"--plot-{k}",
-                        dest=k,
-                        action="store_true",
-                        help=f"Plot the '{k}' plot")
+    for k, f in self._PLOTS.items():
+      self.add_argument(
+          f"--plot-{k}",
+          dest=k,
+          action="store_true",
+          help=" ".join(itertools.takewhile(lambda s: s,
+                                            f.__doc__.split("\n"))),
+      )
 
   _PLOTS = {}
 
@@ -74,7 +83,8 @@ class ArgParser(argparse.ArgumentParser):
       **kwargs: Keyword arguments for the plot function"""
 
     def register_plot_(func: Callable):
-      cls._PLOTS[_name] = functools.partial(func, **kwargs)
+      cls._PLOTS[_name] = functools.wraps(func)(functools.partial(
+          func, **kwargs))
       return func
 
     return register_plot_
@@ -133,6 +143,7 @@ def save_fig(filename: str,
 
 def subplots(vshape: Tuple[int, int] = (1, 1),
              w: float = 1,
+             aspect: float = 1,
              horizontal: bool = False,
              **kwargs):
   """Wrapper for :func:`matplotlib.pyplot.subplots`
@@ -145,8 +156,8 @@ def subplots(vshape: Tuple[int, int] = (1, 1),
     **kwargs: Keyword arguments for :func:`matplotlib.pyplot.subplots`"""
   shape = np.flip(vshape) if horizontal else vshape
   if "figsize" not in kwargs:
-    kwargs["figsize"] = np.flip(
-        shape) * mpl.rcParams["figure.figsize"] * w / shape[1]
+    kwargs["figsize"] = np.flip(shape) * (
+        1, 1 / aspect) * mpl.rcParams["figure.figsize"] * w / shape[1]
   if horizontal:
     share_d = ("col", "row")
     share_d = dict((share_d, np.flip(share_d)))
@@ -174,7 +185,7 @@ def resaturate(c, saturation: float = 1):
   return colors.hsv_to_rgb(d)
 
 
-@ArgParser.register_plot("beat", horizontal=True, w=1.7)
+@ArgParser.register_plot("beat")
 def plot_beat(args, **kwargs):
   """Plot beat pattern
 
@@ -246,7 +257,7 @@ def plot_beat(args, **kwargs):
   return args
 
 
-@ArgParser.register_plot("regression", horizontal=True, w=1.7)
+@ArgParser.register_plot("regression", horizontal=True, w=2)
 def plot_regression(args, horizontal: bool = True, **kwargs):
   """Plot regression parameters
 
@@ -303,12 +314,13 @@ def plot_regression(args, horizontal: bool = True, **kwargs):
   return args
 
 
-@ArgParser.register_plot("emd", horizontal=False, ncols=3, w=1.7)
+@ArgParser.register_plot("emd", w=2, ncols=4, plot_beatsdrop=False)
 def plot_emd(args,
              n_points: int = 384,
              ncols: int = 1,
              subq: float = 0.33,
              horizontal: bool = False,
+             plot_beatsdrop: bool = True,
              **kwargs):
   """Plot EMD IMFs
 
@@ -339,7 +351,7 @@ def plot_emd(args,
 
   # Add noise
   np.random.seed(42)
-  a_noise = dsp_utils.db2a(-45)
+  a_noise = utils.dsp.db2a(-45)
   x_real = x.real + np.random.randn(np.size(x)) * a_noise
 
   keys_list = []
@@ -388,22 +400,24 @@ def plot_emd(args,
   imfs_list.append(imfs_im.T)
 
   # Apply SAMPLE+BeatsDROP
-  logger.debug("Apply SAMPLE+BeatsDROP")
-  model = beatsdrop.sample.SAMPLEBeatsDROP(
-      sinusoidal__tracker__max_n_sines=32,
-      sinusoidal__tracker__reverse=True,
-      sinusoidal__t=-90,
-      sinusoidal__intermediate__save=True,
-      sinusoidal__tracker__peak_threshold=-45,
-  ).fit(x_real, sinusoidal_model__fs=fs)
-  ias_sbd = np.exp(t.reshape((-1, 1)) @ (-2 / model.decays_.reshape(
-      (1, -1)))) * model.amps_
-  imfs_sbd = ias_sbd * np.cos(
-      t.reshape((-1, 1)) @ (2 * np.pi * model.freqs_.reshape((1, -1))))
+  if plot_beatsdrop:
+    logger.debug("Apply SAMPLE+BeatsDROP")
+    model = beatsdrop.sample.SAMPLEBeatsDROP(
+        sinusoidal__tracker__max_n_sines=32,
+        sinusoidal__tracker__reverse=True,
+        sinusoidal__t=-90,
+        sinusoidal__intermediate__save=True,
+        sinusoidal__tracker__peak_threshold=-45,
+    ).fit(x_real, sinusoidal_model__fs=fs)
+    ias_sbd = np.exp(
+        t.reshape((-1, 1)) @ (-2 / model.decays_.reshape(
+            (1, -1)))) * model.amps_
+    imfs_sbd = ias_sbd * np.cos(
+        t.reshape((-1, 1)) @ (2 * np.pi * model.freqs_.reshape((1, -1))))
 
-  keys_list.append("SAMPLE+BeatsDROP")
-  insa_list.append(ias_sbd.T)
-  imfs_list.append(imfs_sbd.T)
+    keys_list.append("SAMPLE+BeatsDROP")
+    insa_list.append(ias_sbd.T)
+    imfs_list.append(imfs_sbd.T)
 
   #  --- Plot -----------------------------------------------------------------
   i_detail = np.arange(n_points)
@@ -549,7 +563,7 @@ def _beat_ft(nu: float,
       nu, nu_0=nu_2, a=a_2, d=d_2, phi=phi_2, half=half)
 
 
-@ArgParser.register_plot("fft", horizontal=True, w=1.7)
+@ArgParser.register_plot("fft", horizontal=True, w=2)
 def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   """Plot FFT of varying-decay beats
 
@@ -567,7 +581,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   fs = 44100
   nu_a = 50
   nu_d = 0.5
-  ds = np.array((0.100, 0.275 / 2, 0.275, 0.450)) / nu_d
+  ds = np.array((0.075, 0.150, 0.225, 0.300)) / nu_d
 
   nu_d_plt = 12 * nu_d
   nu = np.linspace(nu_a - nu_d_plt, nu_a + nu_d_plt, npoints)
@@ -594,6 +608,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
       sinusoidal__tracker__h=1 << 9,
       sinusoidal__tracker__frequency_bounds=(35, 75),
       sinusoidal__tracker__freq_dev_offset=200,
+      sinusoidal__t=-105,
       sinusoidal__intermediate__save=True,
       beat_decisor__intermediate__save=True)
   models = [sklearn.base.clone(model).fit(x) for x in x_s]
@@ -619,13 +634,13 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
         "label": f"{1000 * d:.0f}",
         #alpha=0.33
     }
-    x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t - 0.1, floor_db=True)
+    x_db = utils.dsp.a2db(x, floor=model.sinusoidal.t - 0.1, floor_db=True)
     x_db[np.less(x_db, model.sinusoidal.t)] = np.nan
     ax_sig.plot(t[i_subsample], x_db, **kws)
 
     # ax_sig.fill_between(t[i_subsample], x, -x, **kws)
     # if ax_sample is not ax_sig:
-    #   x_db = dsp_utils.a2db(x, floor=model.sinusoidal.t, floor_db=True)
+    #   x_db = utils.dsp.a2db(x, floor=model.sinusoidal.t, floor_db=True)
     #   ax_sample.fill_between(t[i_subsample], x_db,
     #                          np.full_like(x_db, model.sinusoidal.t), **kws)
   ax_sig.set_xlabel("time (s)")
@@ -633,7 +648,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
 
   # Plot FFT
   for i, (d, x_fft) in enumerate(zip(ds, x_ffts)):
-    # x_fft = dsp_utils.a2db(x_fft, floor=model.sinusoidal.t, floor_db=True)
+    # x_fft = utils.dsp.a2db(x_fft, floor=model.sinusoidal.t, floor_db=True)
     ax_fft.plot(nu, x_fft, label=f"{1000 * d:.0f}", zorder=150 - i)
   yl = np.array(ax_fft.get_ylim())
   yl[0] = 0
@@ -649,7 +664,7 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
           None, x, raw_track)
       a = track["mag"]
       if ax_sample is ax_sig:
-        a = dsp_utils.db2a(a)
+        a = utils.dsp.db2a(a)
       ax_sample.plot(
           track_t,
           a,
@@ -660,8 +675,9 @@ def plot_fft(args, npoints: int = 512, horizontal: bool = False, **kwargs):
           } if j == 0 else {}),
       )
 
-  yl = np.array(ax_sample.get_ylim())
+  yl = np.array(ax_sig.get_ylim())
   yl[0] = max(yl[0], model.sinusoidal.t)
+  ax_sig.set_ylim(yl)
   ax_sample.set_ylim(yl)
   ax_sample.set_xlim(ax_sig.get_xlim())
   ax_sample.set_xlabel("time (s)")
@@ -693,7 +709,7 @@ def _find_zerox(a):
   return b
 
 
-@ArgParser.register_plot("beatimf", horizontal=True, w=1.7)
+@ArgParser.register_plot("beatimf")
 def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
   """Plot Beat and show it is an IMF
 
@@ -756,25 +772,11 @@ def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
             zorder=100)
     low = envs["less"][i](t[i_subsample])
     upp = envs["greater"][i](t[i_subsample])
-    minima = extrema["less"][i]
-    ax.scatter(t[minima],
-               x_s[i][minima],
-               label=f"minima ({sum(minima)})",
-               c=args.colors(1),
-               marker=".",
-               zorder=105)
     ax.plot(t[i_subsample],
             low,
             label="lower envelope",
             c=args.colors(1),
             zorder=101)
-    maxima = extrema["greater"][i]
-    ax.scatter(t[maxima],
-               x_s[i][maxima],
-               label=f"maxima ({sum(maxima)})",
-               c=args.colors(2),
-               marker=".",
-               zorder=106)
     ax.plot(t[i_subsample],
             upp,
             label="upper envelope",
@@ -784,19 +786,33 @@ def plot_beat_imf(args, npoints: int = 512, horizontal: bool = False, **kwargs):
             label="envelope average",
             c=args.colors(3),
             zorder=103)
+    minima = extrema["less"][i]
+    ax.scatter(t[minima],
+               x_s[i][minima],
+               label=f"minima ({sum(minima)})",
+               color=args.colors(1),
+               marker=".",
+               zorder=105)
+    maxima = extrema["greater"][i]
+    ax.scatter(t[maxima],
+               x_s[i][maxima],
+               label=f"maxima ({sum(maxima)})",
+               color=args.colors(2),
+               marker=".",
+               zorder=106)
     arange = np.arange(t.size)
     zerox_t = zerox_t_fn(arange[zeroxs[i]] - 0.5)
     ax.scatter(zerox_t,
                np.zeros(zerox_t.shape),
                label=f"zero-crossings ({zerox_t.size})",
-               c=args.colors(4),
+               color=args.colors(4),
                marker=".",
                zorder=107)
 
   for ax in axs.flatten():
     ax.grid()
     ax.set_xlabel("time (s)")
-    ax.legend()
+    ax.legend(ncols=2)
   save_fig("beatimf", args)
   # ---------------------------------------------------------------------------
 
@@ -811,7 +827,7 @@ _ar_methods = {
 }
 
 
-@ArgParser.register_plot("arpsd", horizontal=True, w=1.7)
+@ArgParser.register_plot("arpsd", horizontal=True, w=2)
 def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
   """Plot AR PSDs computed with different methods
 
@@ -829,7 +845,7 @@ def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
   fs = 1000
   nu_a = 50
   nu_d = 0.5
-  ds = np.array((1 / 2, 1, 4)) * 0.275 / nu_d
+  ds = np.array((0.150, 0.450, 2)) * 0.5 / nu_d
 
   nu_d_plt = 6 * nu_d
   t = np.arange(int(fs * 50)) / fs
@@ -895,6 +911,208 @@ def plot_ar_psd(args, horizontal: bool = False, order: int = 4, **kwargs):
   save_fig("arpsd", args)
   # ---------------------------------------------------------------------------
 
+  return args
+
+
+# A4 paper size is 29.7x21 cm
+@ArgParser.register_plot("abstract")
+def plot_abstract(args,
+                  w: float = 29.7 / 2.54,
+                  aspect: float = 29.7 / 21,
+                  fs: float = 512,
+                  dur: float = 1):
+  """Plot graphical abstract
+
+  Args:
+    args (Namespace): CLI arguments
+    w (float): Page width
+    aspect (float): Page aspect ratio
+    fs (float): Signal sample rate
+    dur (float): Signal duration
+
+  Returns:
+    Namespace: CLI arguments"""
+  fig = plt.gcf()
+  fig.clf()
+  fig.set_size_inches(np.array((1, 1 / aspect)) * w)
+  axs = []
+
+  # --- Generate analytic signal ----------------------------------------------
+  params = {
+      "freqs": (np.full(3, 25) * (1, 1, 1.9)) + (0, 5, 0),
+      "decays": np.array([0.9, 0.4, 0.75]) * 0.5 * dur,
+      "amps": np.array([2, 5, 1]),
+      "phases": np.zeros(3) - np.pi / 2,
+  }
+  params["amps"] = params["amps"] / np.sum(params["amps"])
+
+  t = np.arange(int(fs * dur)) / fs
+  xs = np.array([
+      sample.additive_synth(t,
+                            **{k: v[i] for k, v in params.items()},
+                            analytic=True) for i in range(len(params["freqs"]))
+  ])
+  # ---------------------------------------------------------------------------
+
+  # --- Plots -----------------------------------------------------------------
+  # Sum of all components
+  axs.append(fig.add_subplot(2, 3, 1))
+  axs[-1].plot(t, np.sum(xs, axis=0).real, c=args.colors(0))
+  axs[-1].set_title("Input Signal")
+
+  # Separate non-beating
+  axs.append(fig.add_subplot(4, 3, 2, sharex=axs[0], sharey=axs[0]))
+  axs[-1].plot(t, np.sum(xs[[0, 1], :], axis=0).real, c=args.colors(1))
+  axs[-1].set_xlabel("Beating Components")
+  axs[-1].xaxis.set_label_position("top")
+  axs.append(fig.add_subplot(4, 3, 5, sharex=axs[0], sharey=axs[0]))
+  axs[-1].plot(t, xs[2, :].real, c=args.colors(2))
+
+  # Amplitude envelope of beat
+  axs.append(fig.add_subplot(2, 3, 3, sharex=axs[0], sharey=axs[0]))
+  am = np.abs(np.sum(xs[[0, 1], :], axis=0))
+  axs[-1].fill_between(t,
+                       -am,
+                       am,
+                       fc=args.colors(1),
+                       ec=args.colors(1),
+                       alpha=0.66,
+                       zorder=100)
+  axs[-1].set_title("Amplitude Modulation")
+
+  # Frequency envelope of beat
+  pm = np.unwrap(np.angle(np.sum(xs[[0, 1], :], axis=0)))
+  fm = np.diff(pm) / (2 * np.pi * np.diff(t))
+  axs.append(fig.add_subplot(2, 3, 6, sharex=axs[0]))
+  axs[-1].plot(t[:-1], fm, c=args.colors(1))
+  axs[-1].set_title("Frequency Modulation")
+
+  # Separate beating
+  axs.append(fig.add_subplot(4, 3, 8, sharex=axs[0], sharey=axs[0]))
+  axs[-1].plot(t, xs[1, :].real, c=args.colors(3))
+  axs.append(fig.add_subplot(4, 3, 11, sharex=axs[0], sharey=axs[0]))
+  axs[-1].plot(t, xs[0, :].real, c=args.colors(4))
+  # ---------------------------------------------------------------------------
+
+  for ax in axs:
+    ax.grid()
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+  # --- Define key points -----------------------------------------------------
+  tfi = fig.transFigure.inverted()
+
+  def get_coords(ax, x, y, tfi=tfi):
+    return tfi.transform(ax.transData.transform((x, y)))
+
+  def get_coords_axlim(ax, x, y, **kwargs):
+    xl = ax.get_xlim()
+    yl = ax.get_ylim()
+    return get_coords(ax, xl[0] + x * (xl[1] - xl[0]),
+                      yl[0] + y * (yl[1] - yl[0]), **kwargs)
+
+  pt_sig_end = get_coords(axs[0], t[-1], 0)
+  pt_beat_start = get_coords(axs[1], 0, 0)
+  pt_nobeat_start = get_coords(axs[2], 0, 0)
+  pt_beat_end = get_coords(axs[1], t[-1], 0)
+  pt_am_fm = get_coords_axlim(axs[3], -0.025, 0)[0], pt_beat_end[1]
+  pt_fm_crn = pt_am_fm[0], get_coords_axlim(axs[4], 0, 1)[1]
+  pt_beat_am = get_coords(axs[3], 0, 0)[0], pt_beat_end[1]
+  pt_fm_start = get_coords(axs[4], 0, 0)[0], get_coords_axlim(axs[4], 0, 0.5)[1]
+  pt_sig2_end = get_coords(axs[5], t[-1], 0)
+  pt_sig3_end = get_coords(axs[6], t[-1], 0)
+
+  # ---------------------------------------------------------------------------
+
+  # --- Labels ----------------------------------------------------------------
+  def vertical_text_and_lines(xs,
+                              ys,
+                              s: str,
+                              text_kws=None,
+                              line_kws=None,
+                              fig=None,
+                              margin: float = 0.01,
+                              **kwargs):
+    if fig is None:
+      fig = plt.gcf()
+    x_m = np.mean(xs)
+    txt = plt.text(x_m,
+                   np.mean(ys),
+                   s,
+                   transform=fig.transFigure,
+                   **utils.default_kws(text_kws,
+                                       verticalalignment="center",
+                                       horizontalalignment="center"),
+                   **kwargs)
+    bb = txt.get_window_extent()
+    _, bb_b = fig.transFigure.inverted().transform((bb.x0, bb.y0))
+    _, bb_t = fig.transFigure.inverted().transform((bb.x1, bb.y1))
+    steps = np.array(sorted((*ys, bb_b, bb_t)))
+    txt_lines = [
+        lines.Line2D((x_m, x_m),
+                     ysi,
+                     transform=fig.transFigure,
+                     **utils.default_kws(line_kws, alpha=0.2),
+                     **kwargs) for ysi in [
+                         steps[0:2] + (0, -margin),
+                         steps[2:4] + (margin, 0),
+                     ]
+    ]
+    for line in txt_lines:
+      fig.lines.append(line)
+    return txt, *txt_lines
+
+  vertical_text_and_lines(
+      np.full(2, (pt_beat_end[0] + pt_beat_am[0]) / 2),
+      (pt_sig2_end[1], pt_sig3_end[1]),
+      "BeatsDROP",
+      # transform=fig.transFigure,
+      text_kws={"rotation": -90},
+      line_kws={"zorder": -100},
+  )
+
+  vertical_text_and_lines(
+      np.full(2, (pt_sig_end[0] + pt_beat_start[0]) / 2),
+      (pt_beat_start[1], pt_nobeat_start[1]),
+      "SAMPLE / EMD",
+      # transform=fig.transFigure,
+      text_kws={"rotation": 90},
+      line_kws={"zorder": -100},
+  )
+  # ---------------------------------------------------------------------------
+
+  # --- Draw arrows -----------------------------------------------------------
+  arrow_coords = [
+      ((pt_sig_end[0], pt_beat_start[1]), pt_beat_start, args.colors(1)),
+      ((pt_sig_end[0], pt_nobeat_start[1]), pt_nobeat_start, args.colors(2)),
+      (pt_am_fm, pt_fm_crn, args.colors(1)),
+      (pt_beat_end, pt_beat_am, args.colors(1)),
+      ((pt_fm_start[0], pt_sig2_end[1]), pt_sig2_end, args.colors(3)),
+      ((pt_fm_start[0], pt_sig3_end[1]), pt_sig3_end, args.colors(4)),
+  ]
+  for xy0, xy1, c in arrow_coords:
+    coords = np.array([xy0, xy1])
+    fig.patches.append(
+        patches.FancyArrowPatch(*coords,
+                                transform=fig.transFigure,
+                                mutation_scale=16,
+                                ec="none",
+                                fc=c))
+  # ---------------------------------------------------------------------------
+
+  # --- Components group ------------------------------------------------------
+  r_bl = get_coords_axlim(axs[6], -0.025, -0.05)
+  r_tr = get_coords_axlim(axs[2], 1.025, 1.05)
+  fig.patches.append(
+      patches.Rectangle(r_bl,
+                        *(np.array(r_tr) - r_bl),
+                        transform=fig.transFigure,
+                        zorder=-100,
+                        fc=np.full(3, 0.8)))
+  axs[5].set_ylabel("Damped Sinusoidal Components")
+  # ---------------------------------------------------------------------------
+
+  save_fig("abstract", args)
   return args
 
 
