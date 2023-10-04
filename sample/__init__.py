@@ -31,7 +31,7 @@ from sample.beatsdrop.sample import SAMPLEBeatsDROP
 from sample.sample import SAMPLE
 import importlib
 
-__version__ = "2.2.0"
+__version__ = "2.3.0dev0"
 
 
 @cli.main(__name__)
