@@ -19,6 +19,7 @@ setuptools.setup(
     url="https://github.com/limunimi/sample",
     packages=setuptools.find_packages(include=["sample", "sample.*"]),
     include_package_data=True,
+    entry_points={"gui_scripts": ["sample-gui = sample.gui:run"]},
     setup_requires=[
         "wheel",
     ],
